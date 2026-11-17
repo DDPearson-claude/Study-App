@@ -1045,11 +1045,29 @@ vec2 gwTwitch(vec2 p, float hgt) {
     gg.position.set(L.gate.x, 0, L.gate.z);
     const rad = L.gate.radius;
     const stones = [], glyphs = [];
-    // flat rune ring at the waterline
-    const ring = new THREE.TorusGeometry(rad + 0.55, 0.5, 6, 40);
-    ring.rotateX(Math.PI / 2); ring.scale(1, 0.45, 1); ring.translate(0, 0.02, 0);
-    stones.push(prep(ring, { colorFn: (x, y, z) => mixArr(K.stone, K.rock, 0.4 + 0.3 * vnoise3(x, y, z)) }));
-    const nG = 24;
+    // flat rune ring at the waterline. The loop (Lake 1 polish: never a ring round the raft): the ring lies broken, a run of uneven
+    // worn stones with gaps, some sunk lower, so the gate never reads as a closed circle round a raft that drifts into it
+    const stoneCol = (x, y, z) => mixArr(K.stone, K.rock, 0.4 + 0.3 * vnoise3(x, y, z));
+    const arcs = [];
+    if (opts.loop === true) {
+      let a0 = rng() * TAU;
+      for (let n = 0; n < 9; n++) {
+        const len = 0.28 + rng() * 0.42, gap = 0.18 + rng() * 0.32;
+        if (rng() < 0.82) {
+          const tube = 0.32 + rng() * 0.26, seg = new THREE.TorusGeometry(rad + 0.45 + rng() * 0.3, tube, 5, Math.max(3, Math.round(len * 9)), len);
+          seg.rotateZ(a0); seg.rotateX(Math.PI / 2); seg.scale(1, 0.35 + rng() * 0.25, 1); seg.translate(0, -0.12 + rng() * 0.12, 0);
+          stones.push(prep(seg, { colorFn: stoneCol }));
+          arcs.push([a0, a0 + len]);
+        }
+        a0 += len + gap;
+      }
+    } else {
+      const ring = new THREE.TorusGeometry(rad + 0.55, 0.5, 6, 40);
+      ring.rotateX(Math.PI / 2); ring.scale(1, 0.45, 1); ring.translate(0, 0.02, 0);
+      stones.push(prep(ring, { colorFn: stoneCol }));
+    }
+    // (the loop's broken ring carries no lit notches: worn stone only)
+    const nG = arcs.length ? 0 : 24;
     for (let i = 0; i < nG; i++) {
       const a = (i / nG) * TAU;
       const g = new THREE.BoxGeometry(0.08, 0.02, i % 3 === 0 ? 0.5 : 0.3);
@@ -1091,7 +1109,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     halos.commit();
     const anchor = addAnchor(L.gate.x, 1.5, L.gate.z, pal.glow, 0, 22);
     anchor.gate = true;
-    const glowC = lin(pal.glow), glyphC = lin(glyphHex);
+    const glowC = lin(pal.glow), glyphC = lin(glyphHex), quiet = opts.loop === true;
     const st = { state: 'sealed', open: 0, seal: 1, vis: 1, burst: 0 };
     return {
       group: gg, anchor,
@@ -1113,11 +1131,13 @@ vec2 gwTwitch(vec2 p, float hgt) {
         const o = st.open, glowAmt = (0.18 + 0.82 * o + st.burst * 1.2) * env.glowK;
         glyphMat.color.setRGB(glyphC[0] * (0.4 + 2.2 * o) * glowAmt, glyphC[1] * (0.4 + 2.2 * o) * glowAmt, glyphC[2] * (0.4 + 2.2 * o) * glowAmt);
         vort.uniforms.uTime.value = t; vort.uniforms.uOpen.value = o * st.vis; vort.uniforms.uSeal.value = st.vis * (1 - o);
+        // (the loop: the sealed gate is scenery, its lit rune-ripple disc and halo gone: no lighter plate round a raft inside it)
+        if (quiet) { vort.uniforms.uSeal.value = 0; disc.visible = o > 0.01; }
         colM.uniforms.uTime.value = t; colM.uniforms.uOpen.value = o * (0.8 + st.burst);
         column.visible = o > 0.01;
         spiral.uniforms.uTime.value = t; spiral.uniforms.uOpen.value = o;
         spiral.points.visible = o > 0.01;
-        const hk = (0.08 + 1.1 * o + st.burst) * env.glowK;
+        const hk = ((quiet ? 0 : 0.08) + 1.1 * o + st.burst) * env.glowK;
         halos.setColor(haloI, glowC[0] * hk, glowC[1] * hk, glowC[2] * hk);
         halos.touchColors();
         anchor.intensity = 7 * o + 10 * st.burst;
@@ -1159,8 +1179,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
   const PCFG = {
     mossmere: [
       // silver-grey drift (dimmer and greyer than enemy eyes and the spot pulse), a few lilac/periwinkle big motes
-      { count: 380, box: [64, 14, 64], yMin: 0.2, size: 0.1, vel: [0.12, 0.06, 0.05], sway: 0.9, twinkle: 0.8, colorA: mixHex(mixHex(pal.light, pal.far, 0.45), 0x8a8e96, 0.25), colorB: mixHex(pal.light, pal.far, 0.3), opacity: 0.8 },
-      { count: 80, box: [76, 5, 76], yMin: 0.4, size: 0.22, vel: [0.05, 0.02, -0.04], sway: 1.8, twinkle: 2.4, colorA: pal.glow, colorB: pal.accent, opacity: 0.85 },
+      // (Lake 1 polish: the drift starts a metre up, so seen from the raft's camera no mote lies on the still water as a fleck)
+      { count: 380, box: [64, 14, 64], yMin: 1.0, size: 0.1, vel: [0.12, 0.06, 0.05], sway: 0.9, twinkle: 0.8, colorA: mixHex(mixHex(pal.light, pal.far, 0.45), 0x8a8e96, 0.25), colorB: mixHex(pal.light, pal.far, 0.3), opacity: 0.8 },
+      { count: 80, box: [76, 5, 76], yMin: 1.2, size: 0.22, vel: [0.05, 0.02, -0.04], sway: 1.8, twinkle: 2.4, colorA: pal.glow, colorB: pal.accent, opacity: 0.85 },
     ],
     sporewood: [
       { count: 440, box: [64, 16, 64], yMin: 0.0, size: 0.13, vel: [0.05, 0.32, 0.03], sway: 1.0, twinkle: 0.6, colorA: pal.glow, colorB: pal.accent },

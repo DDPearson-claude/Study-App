@@ -728,7 +728,13 @@ void main() {
   // the fine ripples (faded out where a pixel can no longer resolve them: far water stays a clean mirror; a sign's slick
   // calms them as it calms the chop)
   float fineK = clamp(1.5 - (fwidth(xz.x) + fwidth(xz.y)) * 11.0, 0.0, 1.0);
-  vec2 gFine = fineGrad(xz, uTime) * (0.085 * fineK);
+  // (Lake 1 polish, "no glitter on the water": on the loop's Mossmere the fine ripples are calmer, so the mirror is broken into soft
+  // strokes rather than a crinkled bright sheet, and the glitter terms below are held right down)
+  float calmW = 0.0;
+#ifdef GW_WC
+  calmW = uWc;
+#endif
+  vec2 gFine = fineGrad(xz, uTime) * (0.085 * fineK * (1.0 - 0.45 * calmW));
 #ifdef GW_V3
   gFine *= 1.0 - 0.9 * min(sFlat, 1.0);
 #endif
@@ -759,8 +765,10 @@ void main() {
   vec2 nf = nv - vec2(dot(gFine, vp), dot(gFine, vd)) * 0.5;
   float rk = 0.05 * clamp(20.0 / camD, 0.25, 2.2);
   vec3 rcol = texture2D(uReflTex, clamp(ruv + nv * vec2(1.0, -2.2) * rk, 0.002, 0.998)).rgb;
-  rcol = mix(rcol, texture2D(uReflTex, clamp(ruv + nf * vec2(1.3, -3.0) * rk, 0.002, 0.998)).rgb, 0.5);
+  rcol = mix(rcol, texture2D(uReflTex, clamp(ruv + nf * vec2(1.3, -3.0) * rk, 0.002, 0.998)).rgb, 0.5 - 0.25 * calmW);
   rcol = min(rcol, vec3(1.1));          // a glow's mirror image is a glow, not a hot sheet on the water
+  // (the loop: a pale lit face mirrored near the eye is held down, so it never lies on the water as a bright patch)
+  rcol /= 1.0 + calmW * 0.9 * max(dot(rcol, vec3(0.2126, 0.7152, 0.0722)) - 0.3, 0.0);
   float reflK = F * (1.0 - 0.8 * clamp(foam, 0.0, 1.0));
 #ifdef GW_V3
   // where a fish turned, rose or struck the water is stirred and stops mirroring: a sign is a dark break in the mirror
@@ -790,7 +798,7 @@ void main() {
   // the key light's glitter: the ripples that mirror it into the eye, cut hard, gone in cast shadow and under foam
   {
     float sk = pow(max(dot(reflect(-uKeyDir, Ng), V), 0.0), 110.0);
-    col += uKeyCol * (smoothstep(0.3, 0.75, sk) * spark * wsh * (1.0 - clamp(foam, 0.0, 1.0)) * (0.3 - 0.1 * uMood.x));
+    col += uKeyCol * (smoothstep(0.3, 0.75, sk) * spark * wsh * (1.0 - clamp(foam, 0.0, 1.0)) * (0.3 - 0.1 * uMood.x)) * (1.0 - 0.8 * calmW);
   }
 #else
   // banded fresnel toward the mist (the low tier's analytic water)
@@ -864,7 +872,7 @@ void main() {
     // light toward the eye, only within its reach
     {
       float sl = pow(max(dot(reflect(-L, Ng), V), 0.0), 90.0);
-      streak += lcol * (floor(lc.w) * 0.01) * smoothstep(0.3, 0.75, sl) * spark * (1.0 - smoothstep(R * 0.45, R * 1.0, d)) * 1.3;
+      streak += lcol * (floor(lc.w) * 0.01) * smoothstep(0.3, 0.75, sl) * spark * (1.0 - smoothstep(R * 0.45, R * 1.0, d)) * (1.3 - 0.7 * calmW);
     }
 #else
     // streak: the mirror point sits between the light's foot and the eye
@@ -942,7 +950,7 @@ void main() {
     float tw = pow(max(0.0, sin(uTime * (0.5 + gr * 1.5) + gr * 40.0)), 8.0);
     float gl = (1.0 - smoothstep(0.0, 0.06, gd)) * tw * near * 1.6;
 #ifdef GW_WC
-    gl *= 1.0 - wcSlick;
+    gl *= (1.0 - wcSlick) * (1.0 - uWc);   // (the loop's Mossmere: no glints on still water at all)
 #endif
     float pl = dot(pool, vec3(0.333));
     vec3 gcol = mix(uStarCol, uGlow, 0.35) * 0.55;   // star-like glints (never a Cinder's amber)
@@ -995,7 +1003,7 @@ void main() {
       // the stirred water itself breathes a faint living light, the glints ride on it
       col += gcol * (0.1 + shim * 0.35) * gE;
 #ifdef GW_WC
-      col += mix(gcol, mix(vec3(0.95, 0.8, 0.52), uFoam, uWc), step(0.86, gh)) * glint * 2.2 * gE;   // (WC-3: water-white on the Mossmere)
+      col += mix(gcol, mix(vec3(0.95, 0.8, 0.52), uFoam, uWc), step(0.86, gh)) * glint * (2.2 - 1.6 * uWc) * gE;   // (WC-3: water-white on the Mossmere; few and soft there)
 #else
       col += mix(gcol, vec3(0.95, 0.8, 0.52), step(0.86, gh)) * glint * 2.2 * gE;
 #endif

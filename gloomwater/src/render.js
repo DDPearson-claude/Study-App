@@ -579,7 +579,7 @@ export function create(ctx) {
     try { pull = Math.min(1, Number(ctx.game?.towCam?.()) || 0); } catch { pull = 0; }
     // (the integration's fix: between a phone held upright and a wide screen, a tablet held sideways, a 4:3 or a square window,
     // the landscape and portrait poses eased into each other, the tow's pull and turn with them: data.homeCamAt, the validator's own)
-    if (typeof ctx.data?.homeCamAt === 'function') return ctx.data.homeCamAt(c, W / H, { pull, tow: ctx.data?.LOOP?.tow?.cam || null });
+    if (typeof ctx.data?.homeCamAt === 'function') return towAim(ctx.data.homeCamAt(c, W / H, { pull, tow: ctx.data?.LOOP?.tow?.cam || null }), pull);
     const tall = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos), pose = tall ? c.portrait : c;
     if (pull > 0) {
       const TC = ctx.data?.LOOP?.tow?.cam || {}, cfg = tall && TC.portrait ? TC.portrait : TC, L = pose.look;
@@ -588,6 +588,19 @@ export function create(ctx) {
       return { ...pose, pos: [L[0] + rx * K, L[1] + (pose.pos[1] - L[1]) * K, L[2] + rz * K] };
     }
     return pose;
+  }
+  // (Lake 1 polish: on a near-square or upright screen the portrait lens is narrow, and the raft leading the barge on its line ran off
+  // the frame's edge through the glide in: there the pose slides, look and lens together, toward the midpoint of the raft and the
+  // barge, held through most of the glide and easing back to the mooring's framing over its last third; a wide screen is as before)
+  function towAim(pose, pull) {
+    if (!pose || !(pull > 0)) return pose;
+    const a = W / H, wa = a <= 1.1 ? 1 : a >= 1.4 ? 0 : 1 - (a - 1.1) / 0.3;
+    const h = ctx.actors?.home?.object3d, p = playerPos();
+    if (!(wa > 0) || !h || !p) return pose;
+    const w = wa * Math.min(1, pull * 3) * 0.9, mx = (h.position.x + p.x) / 2, mz = (h.position.z + p.z) / 2;
+    const dx = (mx - pose.look[0]) * w, dz = (mz - pose.look[2]) * w;
+    if (!Number.isFinite(dx) || !Number.isFinite(dz)) return pose;
+    return { ...pose, pos: [pose.pos[0] + dx, pose.pos[1], pose.pos[2] + dz], look: [pose.look[0] + dx, pose.look[1], pose.look[2] + dz] };
   }
   // the home side (M1 step 5a): the mooring's camera looks at the raft from the far side of the sail framing's north yaw, so in
   // flow home the rig turns to that side of the raft (the sail home's glide, the rest, the glide out's first moments) and back to
