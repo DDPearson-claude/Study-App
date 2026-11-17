@@ -17,6 +17,7 @@ import { createLoopTow } from './loop-tow.js';   // M1 step 5b (LANE 5B-TOW): th
 import { attachHeron } from './actors-heron.js';   // WC-3 (WATERCRAFT §5.4): the heron on the Mossmere under the loop
 import { attachWildlife } from './actors-wildlife.js';   // the Mossmere's wildlife (LOOP.wildlife; ?wild=0 off): the moths and the lampbills
 import { attachAmbient } from './world-ambient.js';   // the Mossmere's ambient (LOOP.ambient; ?wild=0 off): the candle-boats
+import { attachPad } from './input-pad.js';   // a game controller under the loop (the user's ask, 17 Nov 2026)
 // >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
 import { create as createIntro, markIntroSeen, replayOffered } from './intro.js';
 // <<< INTRO LANE B
@@ -831,7 +832,7 @@ function pressAction(e) {
   if (LOOP_ON && loopLifting()) { if (!ctx.paused && !safe(() => ctx.ui.isBlocking?.(), false)) loopHome.skipLift(); return; }   // (no cast during a lift)
   if (!gameAcceptsInput()) return;
   if (V3) {
-    const kind = e.pointerType === 'touch' || e.pointerType === 'pen' ? 'touch' : 'mouse';
+    const kind = e.pointerType === 'touch' || e.pointerType === 'pen' ? 'touch' : e.pointerType === 'pad' ? 'key' : 'mouse';   // (a pad's A: a key's latency)
     input.kind = kind;
     // the strike takes input priority during the bite (before zaps, Murk's barge and Flare)
     if (biting() && !ctx.cinematic) {
@@ -878,6 +879,16 @@ function releaseFishing() {
   fishPointerId = null;
   safe(() => ctx.fishing.onPointerUp?.(), null);
 }
+// a game controller (input-pad.js, under the loop): its A is this pointer path's press and release (a pointer of its own id, where the
+// pointer last was), so the cast's aim, the strike, the show's hurry and a lure's retrieve are a tap's; it adds its stick to the move
+const PAD_ID = -91;
+const pad = LOOP_ON ? attachPad(ctx, {
+  press: () => { unlockAudio(); if (fishPointerId === null || fishPointerId === PAD_ID) pressAction({ pointerType: 'pad', pointerId: PAD_ID, isPrimary: false, clientX: input.x, clientY: input.y }); },
+  release: () => { if (fishPointerId === PAD_ID) releaseFishing(); },
+  busy: () => (ctx.flow === 'home' && homeGliding()) || loopLifting(),
+  report: (w, e) => report(`pad.${w}`, e),
+}) : null;
+if (pad) ctx.debug.pad = pad.debug;
 
 host.addEventListener('pointerdown', (e) => {
   unlockAudio();
@@ -1204,6 +1215,7 @@ function frame(now) {
   time.t += realDt;
   time.frame++;
   updateMoveInput();
+  if (pad) pad.poll(realDt);   // (the controller's stick on top of the keys' move; its buttons into the game's own handlers)
   const blocking = safe(() => ctx.ui.isBlocking?.(), false) === true;
   // v3: the hub (the Landing) runs too; survival and combat idle there (CONTRACT §13.1)
   const inHub = FE_ON && ctx.flow === 'hub';

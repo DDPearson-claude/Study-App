@@ -887,6 +887,9 @@ export function create(ctx) {
   }
 
   function updateAim(ndc) {
+    // a pad's held A (input-pad.js): the aim is its direction (ahead of the raft, or where the right stick turns it), not the pointer
+    const pa = ctx.input?.padAim;
+    if (pa && pa.on === true && Number.isFinite(pa.x) && Number.isFinite(pa.z) && (pa.x || pa.z)) { V.aimDir.set(pa.x, 0, pa.z); S.aimYaw = Math.atan2(-pa.x, -pa.z); return; }
     const n = ndc || ctx.input?.ndc;
     if (!n) return;
     let p = null;

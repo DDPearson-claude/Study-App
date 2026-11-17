@@ -2153,6 +2153,7 @@ export function createScreens(K) {
       content.appendChild(toggleRow('reducedFlashing', 'Reduced flashing', false, SW ? SW.flashSub : 'Softer flares and hit flashes'));
       // INTRO LANE B (A8): the opening cut scene as still pictures, for players whose system does not ask for reduced motion
       if (D().V3_ENABLED && D().INTRO) content.appendChild(toggleRow('reducedMotion', 'Reduced motion', false, 'The opening plays as still pictures'));
+      if (SW && ctx.input?.padSeen === true) content.appendChild(toggleRow('padHints', 'Controller hints', true));   // (input-pad.js: once a pad is seen)
       content.insertAdjacentHTML('beforeend', '<div class="gw-group">Fishing</div>');
       if (af()) {
         // automatic fishing (DESIGN §25.6.4–5): the strike ring (timing only, never odds) and the hurry hold; there is no reel button
