@@ -18,12 +18,12 @@ const elderOf = (cls) => (cls === 'ancient' ? 'elder' : cls);
 
 section('(a) the plan is a pure function of (class, z, seed, leapChance, tiers, place); it never reads a species');
 {
-  const allowed = new Set(['leapChance', 'tiers', 'place', 'legendId', 'A']);
+  const allowed = new Set(['leapChance', 'tiers', 'place', 'legendId', 'A', 'playMult']);   // (playMult: a found reel's, LOST-TACKLE §3.2)
   let bad = null;
   const opts = new Proxy({ leapChance: 0.3, tiers: 2, place: null }, { get(t, k) { if (typeof k === 'string' && !allowed.has(k)) bad = k; return t[k]; } });
   const a = planPlay('trophy', 2.2, 4242, opts), b = planPlay('trophy', 2.2, 4242, { leapChance: 0.3, tiers: 2, place: null });
   ok(same(a, b), 'the same inputs give the same plan, twice');
-  ok(bad === null, `planPlay reads only its five inputs (read ${bad})`);
+  ok(bad === null, `planPlay reads only its six inputs (read ${bad})`);
   ok(!same(planPlay('trophy', 2.2, 4243, { tiers: 2 }), a), 'another seed gives another plan');
   const code = readFileSync(new URL('../../src/fishing-play.js', import.meta.url), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
   ok(!/species|SPECIES|speciesId/.test(code), 'fishing-play.js names no species field in code');

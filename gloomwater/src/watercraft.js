@@ -20,6 +20,7 @@
 //   openMix(D, {light, …, rb})   the blind caster's open-water mix at one hour, with the rarity bonus (the sheet's Odds, SHEET.md §7.3)
 //   bitesTable(D, {lure, bait})  the gear log's Who bites: each fish's share of the blind open-water bites over an evening, beside the bare hook's
 //   gearCap(D, fishId, kit)      GEAR-GATES.md §4.1: the largest class this hook and line land of a fish ({cls, z, by}, or null: no cap)
+//   noteTerms(D, notes, o)       LOST-TACKLE.md §4: the owned notebooks' boosts (hookWeights' `boost`) and guests (finishPool's `guests`)
 
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -29,8 +30,8 @@ export const AREAS = ['margin', 'reeds', 'pads', 'stones', 'dropoff', 'lane', 'o
  *  lure since GEAR-GATES.md §3). */
 export const HUNTERS = ['reedjaw_pike', 'milkeye_perch', 'kissmark_trout', 'thousandcast_pike', 'hullkiss_lamprey'];
 /** The hook's items, in the gear log's order (the bare hook first; the start kit's Bent Spoon, GEAR-GATES.md §2.1, last). */
-export const HOOK_ITEMS = ['bare', 'mireworm', 'lumen_moss', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner', 'bent_spoon'];
-export const LURE_IDS = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner', 'bent_spoon'];
+export const HOOK_ITEMS = ['bare', 'mireworm', 'lumen_moss', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner', 'bent_spoon', 'guard_button'];
+export const LURE_IDS = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner', 'bent_spoon', 'guard_button'];
 export const BAIT_IDS = ['mireworm', 'lumen_moss', 'cut_strip'];
 
 // the raw weights (§2.4), columns in AREAS' order: margin, reeds, pads, stones, dropoff, lane, open, deep, inflow, outflow
@@ -50,30 +51,40 @@ const RAW_ROWS = {
 };
 const rowOf = (cells) => Object.fromEntries(AREAS.map((a, i) => [a, cells[i]]));
 
-// the hook table (§3.2), columns: bare, mireworm, lumen_moss, cut_strip, feather_fly, glimmer_spoon, bone_jig, bell_spinner, bent_spoon.
+// the hook table (§3.2), columns: bare, mireworm, lumen_moss, cut_strip, feather_fly, glimmer_spoon, bone_jig, bell_spinner, bent_spoon,
+// guard_button (LOST-TACKLE.md §3.2: the found Gate-Guard's Button, liked by all but the giants, the legend and the eel).
 // Grades: 0 won't take it (a stray) · 1 takes it · 2 likes it · 3 the right bait · null not in the table
 // (GEAR-GATES.md §2–§3, the user's ask of 17 Nov 2026: the Bent Spoon's column; the bare hook brings the seven commons only (carp, koi and
 // the Bridgechain 1 → 0); both giants need a bought lure (their Cut Strip 3 → 0); the Spinner is the lamprey's right lure (2 → 3); the
 // worm is the crayfish's right bait (2 → 3), so its top classes stay earnable under the size caps)
 const HOOK_ROWS = {
-  dusk_minnow:          [1, 3, 2, 0, 2, 0, 0, 0, 0],
-  mossback_perch:       [1, 3, 0, 2, 1, 2, 3, 2, 2],
-  gutter_crayfish:      [1, 3, 1, 3, 0, 0, 0, 0, 0],
-  likely_chub:          [1, 2, 2, 2, 3, 1, 1, 2, 1],
-  overbold_bass:        [1, 2, 0, 2, 2, 2, 3, 2, 2],
-  rustfin_sucker:       [1, 3, 1, 0, 0, 0, 0, 0, 0],
-  lampsipper:           [1, 1, 2, 0, 3, 0, 0, 0, 0],
-  weeping_carp:         [0, 2, 3, 0, 0, 0, 0, 0, 0],
-  candlefin_koi:        [0, 1, 3, 0, 1, 0, 0, 0, 0],
-  milkeye_perch:        [0, 1, 0, 3, 0, 2, 3, 1, 1],
-  kissmark_trout:       [0, 1, 0, 2, 2, 3, 2, 2, 1],
-  reedjaw_pike:         [0, 0, 0, 3, 0, 3, 2, 3, 0],
-  bridgechain_sturgeon: [0, 3, 0, 3, 0, 0, 0, 0, 0],
-  thousandcast_pike:    [0, 0, 0, 0, 0, 2, 2, 3, 0],
-  hullkiss_lamprey:     [0, 0, 0, 0, 0, 1, 0, 3, 0],
-  gloam_eel:            [null, 0, 3, 0, 0, 0, 0, 0, 0],
-  belled_matriarch:     [null, null, null, null, null, null, null, null, null],
+  dusk_minnow:          [1, 3, 2, 0, 2, 0, 0, 0, 0, 2],
+  mossback_perch:       [1, 3, 0, 2, 1, 2, 3, 2, 2, 2],
+  gutter_crayfish:      [1, 3, 1, 3, 0, 0, 0, 0, 0, 2],
+  likely_chub:          [1, 2, 2, 2, 3, 1, 1, 2, 1, 2],
+  overbold_bass:        [1, 2, 0, 2, 2, 2, 3, 2, 2, 2],
+  rustfin_sucker:       [1, 3, 1, 0, 0, 0, 0, 0, 0, 2],
+  lampsipper:           [1, 1, 2, 0, 3, 0, 0, 0, 0, 2],
+  weeping_carp:         [0, 2, 3, 0, 0, 0, 0, 0, 0, 2],
+  candlefin_koi:        [0, 1, 3, 0, 1, 0, 0, 0, 0, 2],
+  milkeye_perch:        [0, 1, 0, 3, 0, 2, 3, 1, 1, 2],
+  kissmark_trout:       [0, 1, 0, 2, 2, 3, 2, 2, 1, 2],
+  reedjaw_pike:         [0, 0, 0, 3, 0, 3, 2, 3, 0, 2],
+  bridgechain_sturgeon: [0, 3, 0, 3, 0, 0, 0, 0, 0, 2],
+  thousandcast_pike:    [0, 0, 0, 0, 0, 2, 2, 3, 0, 0],
+  hullkiss_lamprey:     [0, 0, 0, 0, 0, 1, 0, 3, 0, 0],
+  gloam_eel:            [null, 0, 3, 0, 0, 0, 0, 0, 0, 0],
+  belled_matriarch:     [null, null, null, null, null, null, null, null, null, null],
 };
+// LOST-TACKLE.md §4.2, §5.1: the guests a found notebook brings from a later water, their rows apart from the water's own (gradeTargets
+// and every "the Mossmere's fish" reader keep to HOOK_ROWS; gradeOf and gearCap read both). A guest graded 0 is absent, never a stray
+const GUEST_ROWS = {
+  rosefleck_trout:      [0, 1, 0, 2, 3, 2, 1, 1, 1, 2],
+  rainglass_darter:     [0, 1, 0, 0, 3, 0, 0, 0, 0, 2],
+  nightbloom_carp:      [0, 2, 3, 0, 0, 0, 1, 0, 0, 2],
+};
+/** The guests (LOST-TACKLE §4.2): fish of another water a found notebook brings in, each in one area and light as a fixed share. */
+export const GUESTS = Object.freeze(Object.keys(GUEST_ROWS));
 const hookRow = (cells) => Object.fromEntries(HOOK_ITEMS.map((id, i) => [id, cells[i]]));
 
 export const WATERCRAFT = {
@@ -130,6 +141,7 @@ export const WATERCRAFT = {
     },
     hook: {
       table: Object.fromEntries(Object.entries(HOOK_ROWS).map(([id, c]) => [id, hookRow(c)])),
+      guests: Object.fromEntries(Object.entries(GUEST_ROWS).map(([id, c]) => [id, hookRow(c)])),   // LOST-TACKLE §4.2
       mult: [0.1, 1, 1.6, 2.5],   // grade 0 ×0.1 (then capped) · 1 takes it · 2 likes it · 3 the right bait
       cap: 0.01,                  // a stray's weight: min(w, cap × S), S the takers' summed weight (the last word on the pool)
       spinner: ['thousandcast_pike', 'hullkiss_lamprey', 'reedjaw_pike'],   // LANE 4's giants list (LOOP.lures.bell_spinner.giants) when D is not passed
@@ -395,7 +407,7 @@ const baitCol = (row, bait) => (bait && bait !== 'bare' && Object.prototype.hasO
  * rule); null where the table has null (the legend; the eel's bare cell).
  */
 export function gradeOf(fishId, { lure = null, bait = null } = {}) {
-  const row = W.hook.table[fishId];
+  const row = W.hook.table[fishId] || W.hook.guests[fishId];
   if (!row) return undefined;
   if (lure && lure !== 'bare' && Object.prototype.hasOwnProperty.call(row, lure)) return row[lure];
   return row[baitCol(row, bait)];
@@ -423,12 +435,13 @@ export function gradeTargets(itemId, D = null) {
  * no area: the hour tilt alone); in a place × the hour tilt; then × hook.mult[grade] (hook: false stops before the hook: "who is there").
  * → [{sp, w, g}] (g undefined for a species with no row, or with hook false).
  */
-export function hookWeights(list, { area = null, place = null, phase = 'calm', lure = null, bait = null, hook = true } = {}) {
+export function hookWeights(list, { area = null, place = null, phase = 'calm', lure = null, bait = null, hook = true, boost = null } = {}) {
   const M = W.hook.mult;
   return arr(list).map((it) => {
     const sp = Array.isArray(it) ? it[0] : it.sp, w0 = Array.isArray(it) ? it[1] : it.w, id = sp?.id;
     let w = num(w0);
     w *= !place && area ? areaWeight(id, area, phase) : tilt(id, phase);
+    if (boost && id && boost[id] > 0) w *= boost[id];   // LOST-TACKLE §4.1: a notebook's fish, where it already lives (0 stays 0)
     const g = hook ? gradeOf(id, { lure, bait }) : undefined;
     if (hook && g != null) w *= M[g];
     return { sp, w, g };
@@ -439,10 +452,12 @@ export function takersSum(entries) { return arr(entries).reduce((a, e) => a + (t
 /**
  * §4 steps 10–11. The giant's share is drawn last from the rest (placePool's {sp, share}): its base share in or off its hour, ×LOOP.lures
  * [lure].share (1.5) with a giants' lure that names it, Taper ×giantShare under giantCap (LANE 4's lurePool rule, moved here); a giant
- * graded 0 ×0.1. Then the strays' cap: every grade-0 entry, the giant included, min(w, cap × S), S the takers' summed weight.
- * opts {giant, lure, bait, phase, wickId, D}. → a fresh entries array (the giant last, marked giant: true).
+ * graded 0 ×0.1. Then a notebook's guests (LOST-TACKLE §4.2): each {sp, share} a fixed share of the cast, × [0, 0.5, 1, 1.5][its grade]
+ * (grade 0: absent, never a stray), the rest scaled by 1 − p. Then the strays' cap: every grade-0 entry, the giant included, min(w, cap ×
+ * S), S the takers' summed weight. opts {giant, lure, bait, phase, wickId, D, guests}. → a fresh entries array (the giant, then each guest
+ * marked guest: true).
  */
-export function finishPool(entries, { giant = null, lure = null, bait = null, phase = 'calm', wickId = null, D = null } = {}) {
+export function finishPool(entries, { giant = null, lure = null, bait = null, phase = 'calm', wickId = null, D = null, guests = null } = {}) {
   const out = arr(entries).map((e) => ({ ...e }));
   const rest = out.reduce((a, e) => a + num(e.w), 0);
   if (giant?.sp && rest > 0) {
@@ -458,9 +473,37 @@ export function finishPool(entries, { giant = null, lure = null, bait = null, ph
     if (g === 0) w *= W.hook.mult[0];
     out.push({ sp: giant.sp, w, g, giant: true });
   }
+  for (const q of arr(guests)) {
+    if (!q?.sp || out.some((e) => e.sp?.id === q.sp.id)) continue;
+    const g = gradeOf(q.sp.id, { lure, bait }), p = num(q.share, 0) * (GUEST_F[g] ?? 0), all = out.reduce((a, e) => a + num(e.w), 0);
+    if (p > 0 && p < 1 && all > 0) out.push({ sp: q.sp, w: all * p / (1 - p), g, guest: true });
+  }
   const S = takersSum(out), cap = W.hook.cap * S;
   for (const e of out) if (e.g === 0) e.w = Math.min(num(e.w), cap);
   return out;
+}
+
+/** A guest's share by its grade on the hook (LOST-TACKLE §4.2: the giants' factor; grade 0 never bites). */
+const GUEST_F = [0, 0.5, 1, 1.5];
+/**
+ * A found notebook's terms on one cast (LOST-TACKLE §4; pure): `notes` the owned notebook ids (or one id), read from D.LOOP.lostTackle.
+ * → {boost: {fishId: ×} (each notebook's, multiplied) | null, guests: [{sp, share}] (each guest whose area and light this cast is in, in
+ * open water only: a place has its own pool; sp from D.SPECIES_BY_ID or D.SPECIES)}.
+ */
+export function noteTerms(D, notes, { area = null, place = null, phase = 'calm' } = {}) {
+  const ids = typeof notes === 'string' ? [notes] : arr(notes), LT = D?.LOOP?.lostTackle || {}, light = lightOf(phase);
+  let boost = null; const guests = [];
+  for (const id of ids) {
+    const n = LT[id];
+    if (!n || n.slot !== 'notebook') continue;
+    for (const [f, x] of Object.entries(n.boost || {})) if (num(x, 0) > 0) { boost = boost || {}; boost[f] = num(boost[f], 1) * num(x); }
+    const q = n.guest;
+    if (q && !place && arr(q.areas).includes(area) && arr(q.lights).includes(light)) {
+      const sp = D?.SPECIES_BY_ID?.[q.id] || arr(D?.SPECIES).find((x) => x?.id === q.id) || null;
+      if (sp && !guests.some((x) => x.sp.id === sp.id)) guests.push({ sp, share: num(q.share, 0) });
+    }
+  }
+  return { boost, guests };
 }
 
 /** The built sign rule (AUTOFISH.signRule: ≥ minSpecies kinds, none above maxShare) on [id, w] pairs. */
@@ -493,10 +536,11 @@ function taperOn(entries, SR) {
  *   pre-roll takes 1% and is left out of the pool behind it; the pool's strays are capped last.
  */
 export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = null, bait = null, wickId = null, rb = 0, rule = null,
-  taperFirst = false, preroll = null, comeback = null } = {}) {
+  taperFirst = false, preroll = null, comeback = null, notes = null } = {}) {
   const place = pool?.place ?? null, SR = D?.AUTOFISH?.signRule || { minSpecies: 2, maxShare: 0.8 };
+  const NT = notes ? noteTerms(D, notes, { area, place, phase }) : null;   // LOST-TACKLE §4: the owned notebooks' boosts and guests
   // 3–6: the pool, the area or the tilt, the hook
-  let es = hookWeights(pool?.list, { area, place, phase, lure, bait });
+  let es = hookWeights(pool?.list, { area, place, phase, lure, bait, boost: NT?.boost });
   // 7: the rarity bonus
   const b = num(rb, 0);
   if (b) for (const e of es) { if (e.sp?.rarity === 'uncommon') e.w *= 1 + 2 * b; else if (e.sp?.rarity === 'rare') e.w *= 1 + 4 * b; }
@@ -516,7 +560,7 @@ export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = n
   let taper = false;
   if (taperFirst && isTaper(D, wickId)) { const tw = taperOn(es, SR); if (tw) { es = es.map((e, i) => ({ ...e, w: tw[i] })); taper = true; } }
   // 10–11: the giant, the strays' cap
-  es = finishPool(es, { giant: pool?.giant ?? null, lure, bait, phase, wickId, D });
+  es = finishPool(es, { giant: pool?.giant ?? null, lure, bait, phase, wickId, D, guests: NT?.guests });
   const S = takersSum(es);
   // 1: the comeback (the bait-only gate kept): its grade ≥ 1 → this cast is that fish; 0 → it waits
   let waited = false;
@@ -539,7 +583,7 @@ export function castOdds(D, { pool = null, area = null, phase = 'calm', lure = n
   const rest = es.filter((e) => e.w > 0 && e.sp?.id !== drop), tot = rest.reduce((a, e) => a + e.w, 0);
   const left = pre ? 1 - pre.p : 1, entries = [];
   if (pre && pre.p > 0) entries.push(pre);
-  if (tot > 0) for (const e of rest) entries.push({ sp: e.sp, p: left * e.w / tot, from: 'pool', g: e.g, ...(e.giant ? { giant: true } : {}) });
+  if (tot > 0) for (const e of rest) entries.push({ sp: e.sp, p: left * e.w / tot, from: 'pool', g: e.g, ...(e.giant ? { giant: true } : {}), ...(e.guest ? { guest: true } : {}) });
   else if (pre) pre.p = 1;
   return { entries, S, taper, waited };
 }
@@ -563,16 +607,17 @@ export function castShare(odds, id) { return arr(odds?.entries).reduce((a, e) =>
 /** The blind caster's open-water mix at one hour (SHEET.md §7.3; WATERCRAFT §4 on the areas' shares at that light): each area's pool on
  *  this hook, castOdds' step 7 (the rarity bonus: uncommon ×(1 + 2rb), rare ×(1 + 4rb)) before finishPool, weighted by the area's share.
  *  `light` 'day' | 'dusk' | 'night' (or a game phase); a legend's bait is a bare hook here. → {id: share} (sums to 1; {} with no water). */
-export function openMix(D, { light = 'day', lure = null, bait = null, wickId = null, rb = 0 } = {}) {
+export function openMix(D, { light = 'day', lure = null, bait = null, wickId = null, rb = 0, notes = null } = {}) {
   const L = lightOf(light), b = num(rb, 0);
   const legend = !!bait && Object.values(D?.LOOP?.legendBait || {}).some((x) => x?.id === bait);
   const pb = legend ? null : bait, acc = {}; let wsum = 0;
   const pool = openPool(D, L, pb);
   for (const a of AREAS) {
     const s = num(W.shares[L]?.[a], 0); if (!(s > 0)) continue;
-    const ws = hookWeights(pool.list, { area: a, place: null, phase: L, lure, bait: pb });
+    const NT = notes ? noteTerms(D, notes, { area: a, place: null, phase: L }) : null;
+    const ws = hookWeights(pool.list, { area: a, place: null, phase: L, lure, bait: pb, boost: NT?.boost });
     if (b) for (const e of ws) { if (e.sp?.rarity === 'uncommon') e.w *= 1 + 2 * b; else if (e.sp?.rarity === 'rare') e.w *= 1 + 4 * b; }
-    const es = finishPool(ws, { lure, bait: pb, phase: L, wickId, D });
+    const es = finishPool(ws, { lure, bait: pb, phase: L, wickId, D, guests: NT?.guests });
     const tot = es.reduce((x, e) => x + e.w, 0); if (!(tot > 0)) continue;
     for (const e of es) acc[e.sp.id] = (acc[e.sp.id] || 0) + s * e.w / tot;
     wsum += s;
@@ -582,13 +627,13 @@ export function openMix(D, { light = 'day', lure = null, bait = null, wickId = n
 }
 /** The blind open-water mix on one hook over an evening (the lights weighted by LOOP.evening: day, dusk, night null → 0): {id: share}.
  *  openMix at rb 0, each light weighted by LOOP.evening × its summed area shares (WC-3's Who bites: no rarity bonus). */
-function eveningMix(D, { lure = null, bait = null } = {}) {
+function eveningMix(D, { lure = null, bait = null, notes = null } = {}) {
   const E = D?.LOOP?.evening || {}, wts = { day: num(E.day, 1), dusk: num(E.dusk, 1), night: num(E.night, 0) };
   const acc = {}; let wsum = 0;
   for (const light of LIGHTS) {
     const wt = wts[light]; if (!(wt > 0)) continue;
     const s = AREAS.reduce((x, a) => x + num(W.shares[light]?.[a], 0), 0); if (!(s > 0)) continue;
-    const mix = openMix(D, { light, lure, bait });
+    const mix = openMix(D, { light, lure, bait, notes });
     if (!Object.keys(mix).length) continue;
     for (const [id, p] of Object.entries(mix)) acc[id] = (acc[id] || 0) + wt * s * p;
     wsum += wt * s;
@@ -597,9 +642,9 @@ function eveningMix(D, { lure = null, bait = null } = {}) {
   return acc;
 }
 /** The gear log's Who bites (§3.9): each fish's share of open water's bites over an evening on this item alone ({lure} or {bait}), beside
- *  the bare hook's. → [{id, share, bare}], the item's largest first. */
-export function bitesTable(D, { lure = null, bait = null } = {}) {
-  const on = eveningMix(D, { lure, bait }), bare = eveningMix(D, {});
+ *  the bare hook's; `notes` the owned notebooks (their boosts and guests, LOST-TACKLE §4). → [{id, share, bare}], the item's largest first. */
+export function bitesTable(D, { lure = null, bait = null, notes = null } = {}) {
+  const on = eveningMix(D, { lure, bait, notes }), bare = eveningMix(D, { notes });
   const ids = [...new Set([...Object.keys(on), ...Object.keys(bare)])];
   return ids.map((id) => ({ id, share: on[id] || 0, bare: bare[id] || 0 })).sort((a, b) => b.share - a.share || b.bare - a.bare || (a.id < b.id ? -1 : 1));
 }
@@ -609,20 +654,20 @@ const CAP_ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
 /**
  * The largest class this hook and line land of a fish: the lowest of three terms, D.LOOP.gearCap's: by its grade on the hook (a stray
  * 'keeper' · takes it · likes it · the right bait), the free hooks' own ceiling (`item`: the bare hook, the Bent Spoon, Cut Strip) and the
- * line's (`line`, by tier: Twine · Line T1 · T2 and up). kit {lure, bait, line} (one thing on the hook, as gradeOf reads it; a bait id the
- * table does not know is a bare hook). → {cls, z (BALANCE_V3.size.classMaxZ[cls]), by: 'item' | 'line' | 'grade' (ties in that order)},
+ * line's (`line`, by tier: Twine · Line T1 · T2 and up). kit {lure, bait, line, lineCap} (one thing on the hook, as gradeOf reads it; a
+ * bait id the table does not know is a bare hook; lineCap a found line's own class in place of the tier's, LOST-TACKLE §3.2). → {cls, z (BALANCE_V3.size.classMaxZ[cls]), by: 'item' | 'line' | 'grade' (ties in that order)},
  * or null: no D.LOOP.gearCap, a fish with no row (another water's), or a null grade (the legend). capZ still applies on top (Elders stay
  * old water's and a giant's own place's).
  */
-export function gearCap(D, fishId, { lure = null, bait = null, line = 0 } = {}) {
+export function gearCap(D, fishId, { lure = null, bait = null, line = 0, lineCap = null } = {}) {
   const G = D?.LOOP?.gearCap;
   if (!G) return null;
   const g = gradeOf(fishId, { lure, bait });
   if (g === undefined || g === null) return null;
-  const row = W.hook.table[fishId];
+  const row = W.hook.table[fishId] || W.hook.guests[fishId];
   const item = lure && lure !== 'bare' && Object.prototype.hasOwnProperty.call(row, lure) ? lure : baitCol(row, bait);
   const lines = arr(G.line), t = Math.max(0, Math.min(lines.length - 1, Math.trunc(num(line, 0))));
-  const terms = [['item', G.item?.[item] ?? null], ['line', lines[t] ?? null], ['grade', g === 0 ? 'keeper' : arr(G.grade)[g] ?? null]];
+  const terms = [['item', G.item?.[item] ?? null], ['line', (typeof lineCap === 'string' && lineCap) || (lines[t] ?? null)], ['grade', g === 0 ? 'keeper' : arr(G.grade)[g] ?? null]];
   let best = null;
   for (const [by, cls] of terms) {
     const i = CAP_ORDER.indexOf(cls);

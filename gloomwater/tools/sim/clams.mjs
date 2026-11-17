@@ -57,7 +57,8 @@ globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1; globalThis.GW_LOOP = true; 
 const D = await import('../../src/data.js');
 const RS = await import('../../src/roster-species.js');   // the roster's converter, shared with data.js (SPEC §13, M1 step 2)
 const WC = await import('../../src/watercraft.js');       // WC-1: the Mossmere's areas and hook table, the game's own parts (WATERCRAFT.md §4)
-const WLY = await import('../../src/world-layout.js');    // WC-1: the Mossmere's layout, for the silhouettes' visible water (the stalker)
+const WLY = await import('../../src/world-layout.js');
+const LF = await import('../../src/loop-finds.js');        // LOST-TACKLE (lane L6): the snag draw, the game's own (findShares, noteSnag, bookFinds)    // WC-1: the Mossmere's layout, for the silhouettes' visible water (the stalker)
 const ROSTER = JSON.parse(fs.readFileSync(new URL('../../docs/loop/roster.json', import.meta.url), 'utf8'));
 const IS_MAIN = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 
@@ -345,6 +346,16 @@ for (const s of D.SPECIES_V3) {
     record: null, bait: s.bait || null, baits, plan: s.size.body, maxClass: s.maxClass || null, never: false, roster: false });
 }
 const SP = Object.fromEntries(SPECIES.map((s) => [s.id + '@' + s.water, s]));
+// >>> LOST-TACKLE.md §4, §5, §7 (lane L6): the lost tackle on the Mossmere. The guests a found notebook brings, as the sim's own records of
+// their home water re-homed on the Mossmere (so clamsFor sells them at its tier); Veilback Brook, a free day place from the hour the Veil
+// Angler's Notebook comes home, 1 good bite an evening, its own fish the two Glasswater guests; the Ferrywife's Thread and the Belfry Winch
+// fitted when better (their Hold never below the bought tier's: Line and Reel T0–T1), with their trade-offs (the Thread's Trophy cap)
+const LT = D.LOOP.lostTackle || {};
+const GUEST = Object.fromEntries(WC.GUESTS.map((id) => { const h = SPECIES.find((x) => x.id === id && x.water !== 'mossmere'); return [id, h ? { ...h, water: 'mossmere', home: h.water, kind: 'open', ownPlace: undefined, guest: true } : null]; }).filter(([, x]) => x));
+export const BROOK = { id: 'veilback_brook', water: 'mossmere', kind: 'day', extra: false, inLake: true, name: 'Veilback Brook', price: 0, giants: [], legend: null, good: 1, secret: true, only: true,
+  own: ['rosefleck_trout', 'rainglass_darter'].filter((id) => GUEST[id]), draws: { dusk_minnow: 1.5, kissmark_trout: 1 } };
+PLACE[BROOK.id] = BROOK;   // (in PLACE for the trip, never in the shelf's W.places: no map, no price)
+// <<< LOST-TACKLE
 for (const W of LOOP.waters) W.species = SPECIES.filter((s) => s.water === W.id);
 // the new waters' giants' lures name the water's giants and its biggest rare; each new water's plain bait is the tin its fish name most
 for (const W of LOOP.waters) {
@@ -447,7 +458,7 @@ const LURE_WAIT = { bent_spoon: 1.3 };
  *  Infinity for a legend, another water's fish or no cap. */
 const gearCapZ = (sp, kit, bait) => {
   if (!D.LOOP.gearCap || sp.legend || sp.water !== 'mossmere') return Infinity;
-  const g = WC.gearCap(D, sp.id, { lure: kit.lure || null, bait: bait || null, line: kit.line | 0 });
+  const g = WC.gearCap(D, sp.id, { lure: kit.lure || null, bait: bait || null, line: kit.line | 0, lineCap: kit.thread ? LT.ferry_thread?.cap ?? null : null });
   return g ? g.z : Infinity;
 };
 // <<< GEAR-GATES
@@ -456,11 +467,11 @@ const P_CACHE = new Map();
  *  new waters' Fight term, a giant's Fight and the item Hold for fish data.js does not know yet. Same formula, same caps, same floor.
  *  `extraHold`: a run buff's Hold (Ashwick's tired comeback, WICKS §2.5), passed to catchParts as its buffs (inside its caps). */
 export function landP(sp, cls, kit, strike, night, extraHold = 0) {
-  const key = `${sp.id}|${sp.water}|${cls}|${kit.rod}|${kit.line}|${kit.reel}|${kit.lure}|${kit.bait}|${strike}|${night}|${extraHold}`;
+  const key = `${sp.id}|${sp.water}|${cls}|${kit.rod}|${kit.line}|${kit.reel}|${kit.lure}|${kit.bait}|${strike}|${night}|${extraHold}|${kit.thread ? 't' : ''}${kit.winch ? 'w' : ''}`;
   let p = P_CACHE.get(key); if (p !== undefined) return p;
   const builtLake = BUILT.includes(sp.water) ? sp.water : 'mossmere', W = WATER[sp.water];
   const like = { id: sp.id, rarity: sp.rarity === 'epic' ? 'rare' : sp.rarity, style: sp.style, family: sp.family, place: sp.ownPlace || undefined, zone: builtLake, maxClass: sp.maxClass || undefined };
-  const hold = { rod: tierHold('rod', kit.rod), line: tierHold('line', kit.line), reel: tierHold('reel', kit.reel) };
+  const hold = { rod: tierHold('rod', kit.rod), line: kit.thread ? Number(LT.ferry_thread.hold) : tierHold('line', kit.line), reel: kit.winch ? Number(LT.belfry_winch.hold) : tierHold('reel', kit.reel) };   // (LOST-TACKLE §3.2)
   const parts = D.catchParts(like, cls, { hold }, extraHold ? { strike, lake: builtLake, night, buffs: extraHold } : { strike, lake: builtLake, night });
   if (!parts) { P_CACHE.set(key, 0); return 0; }
   const elderish = cls === 'elder' || cls === 'ancient';
@@ -496,17 +507,19 @@ const wcRow = (s) => s.water === 'mossmere' && WC.gradeOf(s.id, {}) !== undefine
 /** The fish that can bite in a water at a phase: open-water fish everywhere; a place adds the fish of its kind, its giant and its own
  *  built species; the lure and the bait tilt the pool; a fish that bites on one bait only needs it. On the Mossmere (WC-1) the area (open
  *  water: `area`, areaAt's id; none: the hour tilt) and the hook table, then the giant and the strays' cap (watercraft.js). */
-function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick = null, area = null, hook = true) {
-  const wc = water === 'mossmere';
+function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick = null, area = null, hook = true, notes = null) {
+  const wc = water === 'mossmere', NB = wc && Array.isArray(notes) && notes.length ? notes : null;   // (LOST-TACKLE §4: the owned notebooks)
   // the pull (SPEC §5.5 (d)): a listed fish not yet landed (`miss`) bites at weight × pull, after the hours, place and bait filters; a giant's
   // share is unchanged. `pool.sure` is the missing fish alone, for the sure bite. The missing set and the factor are part of the cache key.
   // Taper (WICKS §2.2 (b)): a giant's share × giantShare, never above giantCap; no other Wick changes a pool here.
   const GW = LOOP.wicks[simWick(wick)]?.giantShare ? LOOP.wicks[wick] : null, gk = GW ? `|g${GW.giantShare}/${GW.giantCap}` : '';
-  const cache = miss ? PULLED : POOLS, key = (miss ? `${water}|${placeId}|${phase}|${lure}|${bait}|${pull}|${[...miss].sort().join(',')}` : `${water}|${placeId}|${phase}|${lure}|${bait}`) + gk + (wc ? `|a${placeId ? '' : area}${hook ? '' : '|who'}` : '');
+  const cache = miss ? PULLED : POOLS, key = (miss ? `${water}|${placeId}|${phase}|${lure}|${bait}|${pull}|${[...miss].sort().join(',')}` : `${water}|${placeId}|${phase}|${lure}|${bait}`) + gk + (wc ? `|a${placeId ? '' : area}${hook ? '' : '|who'}` : '') + (NB ? `|n${NB.join(',')}` : '');
   if (cache.has(key)) return cache.get(key);
   const P = placeId ? PLACE[placeId] : null, list = []; let giant = null;
+  // (LOST-TACKLE §5.1, data.placePool's `only`: Veilback Brook bites its own fish and its draws, nothing else of the open water)
+  const only = P?.only ? (s) => !!P.draws?.[s.id] : null;
   for (const s of WATER[water].species) {
-    if (s.legend || s.never) continue;
+    if (s.legend || s.never || (only && !only(s))) continue;
     if (s.bait && s.bait !== bait) continue;
     // M1 step 3a's seam (PLAN CHOICE 27): a giant at its place reaches the giant branch whatever the hour (its offHour share outside its
     // hours, SPEC decision 7: "more in its hour, never none"); the hours filter applies to the rest. Before, the hours ran first, so a
@@ -525,17 +538,22 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
     if (miss && miss.has(s.id) && !wc) w *= pull;                            // (WC-1: on the Mossmere after the hook, on takers only)
     list.push([s, w]);
   }
+  // LOST-TACKLE §5.1: Veilback Brook's own fish (the two guests from Glasswater Vault), each a place's own fish's weight in its hours
+  if (P === BROOK) for (const id of BROOK.own) { const g = GUEST[id]; if (g && g.hours.includes(phase)) list.push([g, (RW.rare ?? 6) * LOOP.place.kept.weight * LOOP.place.kept.live]); }
   const sure = miss ? list.filter(([s]) => miss.has(s.id)) : null;
   let others = list.reduce((a, [, w]) => a + w, 0);
   if (others < (RW.common ?? 70)) for (const s of WATER[water].species) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
-    if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait)) continue;
+    if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait) || (only && !only(s))) continue;
     const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) && !(wc && wcRow(s)) ? lureAttract(lure, s) : 1); list.push([s, w]); others += w;
   }
   if (wc) {   // WC-1: the area or the tilt, the hook (§4 steps 4–6), the pull on takers, the giant and the strays' cap (steps 10–11)
-    const es = WC.hookWeights(list, { area: P ? null : area, place: P ? P.id : null, phase, lure, bait, hook });
+    // LOST-TACKLE §4: a notebook's boosts (hookWeights) and its guest in its area and light (finishPool), the game's own noteTerms on the sim's records
+    const NT = NB ? WC.noteTerms(D, NB, { area: P ? null : area, place: P ? P.id : null, phase }) : null;
+    const es = WC.hookWeights(list, { area: P ? null : area, place: P ? P.id : null, phase, lure, bait, hook, boost: NT?.boost });
     if (!hook) { const wl = es.map((e) => [e.sp, e.w]), pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: null }; cache.set(key, pool); return pool; }   // who is there
     if (miss) for (const e of es) if (miss.has(e.sp.id) && e.g !== 0) e.w *= pull;
-    const fin = WC.finishPool(es, { giant: giant && others > 0 ? { sp: giant, share: null } : null, lure, bait, phase, wickId: wick, D: WCD });
+    const fin = WC.finishPool(es, { giant: giant && others > 0 ? { sp: giant, share: null } : null, lure, bait, phase, wickId: wick, D: WCD,
+      guests: NT ? NT.guests.map((q) => ({ sp: GUEST[q.sp.id], share: q.share })).filter((q) => q.sp) : null });
     const wl = fin.filter((e) => e.w > 0).map((e) => [e.sp, e.w]), sw = miss ? fin.filter((e) => !e.giant && e.w > 0 && e.g !== 0 && miss.has(e.sp.id)).map((e) => [e.sp, e.w]) : null;
     const pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: sw && sw.length ? { list: sw, tot: sw.reduce((a, [, w]) => a + w, 0) } : null, grades: new Map(fin.map((e) => [e.sp.id, e.g])) };
     if (miss && PULLED.size > 60000) PULLED.clear();
@@ -625,6 +643,8 @@ const pick = (r, pool) => { let x = r() * pool.tot; for (const [s, w] of pool.li
 const STRIKES = Object.entries(A.player.strike);
 const pickStrike = (r) => { let x = r(); for (const [g, f] of STRIKES) { x -= f; if (x <= 0) return g; } return 'struck'; };
 const playMid = (c) => (A.play[c].dur[0] + A.play[c].dur[1]) / 2;
+/** LOST-TACKLE §3.2: the Winch's play against the tiers' (fishing-play: min(tier factor, playMult) in place of the tier factor). */
+const winchK = (kit) => { const t = Math.min(4, ((kit.rod | 0) + (kit.line | 0) + (kit.reel | 0)) / 3), tf = Math.max(0.5, 1 + (A.play.tackle?.durPerTier ?? 0) * t); return Math.min(tf, Number(LT.belfry_winch?.playMult) || tf) / tf; };
 export const KIND_ORDER = { old: 0, day: 1, late: 2, night: 3, crown: 4, open: 5 };   // the natural route: old water first, day water while it is light,
 // an old water whose giant bites only from dusk ("late", the hour glyph on its card) at dusk, night water when dark falls, open water to top up
 // v8 (SPEC decision 21): so is an old water whose own fish bites only from dusk (the Chain Garden and its Candlewake Sturgeon)
@@ -687,7 +707,7 @@ export function trip(kit, policy, r, opts = {}) {
   const L = LOOP, T = A.time, E = L.evening, F = L.favour;
   const wid = simWick(opts.wick), WK = wid ? L.wicks[wid] : null, pas = WK?.passive || null;
   const slots = wickSlots(kit.hold, wid);                          // Tallow: the bought hold + 1 (WICKS §2.4); everyone else the bought hold
-  const freshOf = (W) => (opts.noQuiet ? Infinity : goodBitesFor({ kind: W.kind, holdSlots: kit.hold, wickId: wid }));
+  const freshOf = (W) => (opts.noQuiet ? Infinity : W.id && PLACE[W.id]?.good != null ? PLACE[W.id].good : goodBitesFor({ kind: W.kind, holdSlots: kit.hold, wickId: wid }));   // (LOST-TACKLE §5.1: the brook's 1)
   const waitMul = pas === 'moth_bright' ? WK.waitMul : 1;           // Stub: every wait × waitMul (the sim has no legend cast inside a trip)
   const taperN = pas === 'long_reach' ? WK.firstBites ?? 1 : 0, taperLeft = new Map();   // Taper: first bites left under the rule, per water (or per evening)
   const led = pas === 'curious' ? opts.firsts || null : opts.firsts && opts.track ? opts.firsts : null;   // the Wick's ledger (or any Wick's, tracked for a report)
@@ -756,7 +776,7 @@ export function trip(kit, policy, r, opts = {}) {
       else {
         if (who === 'stalker' && wcW) sight = sightCast(r, ckit, W.id, ph, area);   // a silhouette in range, led: {sp, z, took}
         if (sight?.took) { sp = sight.sp; waitK *= WCM.waits.sightTake; out.sightTakes++; }
-        const pool = sight?.took ? null : PULL && miss.size ? poolFor(kit.water, W.id, ph, kit.lure, castBait, miss, pullBy, wid, area) : poolFor(kit.water, W.id, ph, kit.lure, castBait, null, 1, wid, area);
+        const pool = sight?.took ? null : PULL && miss.size ? poolFor(kit.water, W.id, ph, kit.lure, castBait, miss, pullBy, wid, area, true, kit.notes) : poolFor(kit.water, W.id, ph, kit.lure, castBait, null, 1, wid, area, true, kit.notes);
         if (sight?.took) { /* the silhouette's fish */ } else {
         if (!pool.tot) { if (last) break outer; break; }
         // a led silhouette that turned away: the cast keeps its pool, without that species if it will not take the hook (§3.6)
@@ -776,7 +796,8 @@ export function trip(kit, policy, r, opts = {}) {
         + (wcW && !kit.lure && !castBait ? Number(D.LOOP.bare?.favour) || 0 : 0) + baseLureFav(kit.lure);   // GEAR-GATES §2.1–§2.2 (fishing.baseTerms)
       mu = Math.min(D.BALANCE_V3.favour.cap, mu);
       inQuiet = qOver > 0;
-      const wait = T.wait * waitMul * q.waitMult * waitK * (wcW && !kit.lure && !castBait ? BARE_WAIT : 1) * (kit.lure ? LURE_WAIT[kit.lure] ?? 1 : 1); out.waitSec += wait;   // (GEAR-GATES §2.2)
+      const wait = T.wait * waitMul * q.waitMult * waitK * (wcW && !kit.lure && !castBait ? BARE_WAIT : 1) * (kit.lure ? LURE_WAIT[kit.lure] ?? 1 : 1)
+        * (kit.thread ? Number(LT.ferry_thread.waitMult) || 1 : 1); out.waitSec += wait;   // (GEAR-GATES §2.2; LOST-TACKLE §3.2: the Thread's quicker bites)
       adv(T.cast + wait);
       const maxZ = Math.min(sp.maxClass ? SZ.classMaxZ[sp.maxClass] : SZ.z.max, W.kind === 'old' || atOwn ? SZ.z.max : SZ.elsewhereMaxZ);   // Elders: old water, and a giant at its own place
       const z = isCb ? comeback.z : sight?.took ? sight.z : truncZ(r, mu, sp.giant ? LOOP.giant.minZ : pulled ? Math.max(SZ.z.min, PULL.keeperFloor) : SZ.z.min, maxZ);   // a missing listed fish never bites Small
@@ -794,7 +815,7 @@ export function trip(kit, policy, r, opts = {}) {
       if (r() < p) {
         out.landed++; if (sp.giant) out.giantLanded++; if (isCb) out.comebackLanded++;
         out.landedIds.push(sp.id); if (miss) miss.delete(sp.id);   // landed: its Journal entry is written at the measure, kept or let go
-        adv(playMid(cls) * quick);
+        adv(playMid(cls) * quick * (kit.winch ? winchK(kit) : 1));   // (LOST-TACKLE §3.2: the Winch's quicker play)
         adv(T.ceremony[cls] + L.time.show + T.card, true);
         const fish = { sp, z, cls, value: clamsFor(sp, z) };
         const first = led ? stampFirst(led, sp, z, cls) : null;   // the measure: the ledger keeps a let-go fish's records too
@@ -1043,8 +1064,19 @@ export function pacing(o = {}) {
     for (const id of START.lures || []) if (WC.LURE_IDS.includes(id)) state.lures.add(id);
     for (const [id, n] of Object.entries(START.bait || {})) if (LOOP.bait[id]) state.clams += Number(n) * baitTin(id, 'mossmere') * po.tinK / LOOP.tinSize;
   }
+  // LOST-TACKLE §7 (lane L6): o.finds = {veil_notebook, lily_notebook, ferry_thread, belfry_winch: the hour each comes home} (null: never)
+  const FH = m1 && o.finds ? o.finds : null, has = (id) => !!FH && Number.isFinite(FH[id]) && state.sec >= FH[id] * 3600;
+  const findKit = (w) => {
+    if (!FH || w !== 'mossmere') return {};
+    const notes = ['veil_notebook', 'lily_notebook'].filter(has), out = {};
+    if (notes.length) out.notes = notes;
+    if (has('ferry_thread') && tierHold('line', state.line) <= Number(LT.ferry_thread.hold)) out.thread = 1;   // (fitted when better: never below the tier's Hold)
+    if (has('belfry_winch') && tierHold('reel', state.reel) <= Number(LT.belfry_winch.hold)) out.winch = 1;
+    return out;
+  };
   const kitFor = (w, lure = bestLureOf(w, [...state.lures]), bait) => ({ water: w, rod: state.rod, line: state.line, reel: state.reel, hold: state.hold, lure,
-    bait: bait !== undefined ? bait : (START || state.sec > 1800) && (!m1 || step >= 4) ? WATER[w].plainBait : null, places: WATER[w].places.filter((p) => state.places.has(p.id) && !p.legend).map((p) => p.id), oars: state.oars, keel: state.keel, lantern: state.lantern });
+    bait: bait !== undefined ? bait : (START || state.sec > 1800) && (!m1 || step >= 4) ? WATER[w].plainBait : null, places: [...WATER[w].places.filter((p) => state.places.has(p.id) && !p.legend).map((p) => p.id),
+      ...(w === 'mossmere' && has('veil_notebook') && LT.veil_notebook?.reveals === BROOK.id ? [BROOK.id] : [])], oars: state.oars, keel: state.keel, lantern: state.lantern, ...findKit(w) });
   const evalCache = new Map(), kitIdx = new Map();
   // the player fits the lure that pays best here, measured (v7.1): the giants' lure by its giants, or the best family lure owned. A kit's
   // seed is fixed by when the kit is first met, whichever Wick meets it (so the no-passive row and a Wick's row share their seeds there)
@@ -1464,6 +1496,92 @@ function watercraftProof() {
     m++;
   }
   check(!tbad.length, `T104 (extended, WC-1): the game's pool is the sim's (watercraft.castOdds on data.placePool against poolFor, ${m} pools: every area and place × light × the 12 hooks × no Wick and Taper; ${tshares} shares, worst ${tw.toExponential(1)})${tbad.length ? ': ' + tbad.slice(0, 3).join('; ') : ''}`);
+  // LOST-TACKLE §4 (lane L6): T104 again with both notebooks owned (their boosts and their guests, castOdds' notes against poolFor's)
+  { const NB = ['veil_notebook', 'lily_notebook']; let n2 = 0, w2 = 0, s2 = 0, sg = 0; const bad2 = [];
+    for (const { area, place } of waters) for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of WC_HOOKS) {
+      const dark = ph === 'night', simPid = place && !(PLACE[place]?.kind === 'night' && !dark) ? place : null, ar = simPid ? null : area ?? 'open';
+      const game = WC.castOdds(D, { pool: D.placePool(D.SPECIES, { placeId: place, phase: gph, bait: gBait(h.bait), water: 'mossmere' }), area: ar, phase: gph, lure: h.lure ?? null, bait: gBait(h.bait), notes: NB });
+      const sim = poolFor('mossmere', simPid, ph, h.lure ?? null, h.bait ?? null, null, 1, null, ar, true, NB);
+      const a = new Map(); for (const [sp, w] of sim.list) a.set(sp.id, (a.get(sp.id) || 0) + w / sim.tot);
+      const b = new Map(); for (const e of game.entries) { b.set(e.sp.id, (b.get(e.sp.id) || 0) + e.p); if (e.guest) sg++; }
+      for (const id of new Set([...a.keys(), ...b.keys()])) { const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); w2 = Math.max(w2, d); s2++; if (d > 1e-9) bad2.push(`${place ?? area} ${ph} ${hookName(h)}: ${id} ${a.get(id) ?? '—'} vs ${b.get(id) ?? '—'}`); }
+      n2++;
+    }
+    check(!bad2.length && sg > 0, `T104 (LOST-TACKLE §4): with both notebooks owned the game's pool is still the sim's (${n2} pools, ${s2} shares, ${sg} guest entries, worst ${w2.toExponential(1)})${bad2.length ? ': ' + bad2.slice(0, 3).join('; ') : ''}`); }
+}
+// ---- LOST-TACKLE.md §7 (lane L6): the snag draw's Monte Carlo on the pacing run's own timeline, the 1% rule, and the pacing with the finds
+/** The snag draw over a pacing run's trips (the game's findShares, noteSnag and bookFinds: a piece is owned from its trip's tally, never
+ *  drawn twice, the parts and looks leave the draw too): 4.1 bites a trip at Hold 3 (in proportion to the hold), 1 snag in 20, none on
+ *  evening 1. → {first, veil, owned, byPiece, snags} per player. */
+function findsMC(R, players = 20000, seed = 4242) {
+  const r = rng(seed), F = D.LOOP.finds, perBite = Number(F.snag?.perBite) || 0.05, tackle = F.items.filter((it) => it.kind === 'tackle' && it.water === 'mossmere').map((it) => it.id);
+  const pts = [[0, 0], ...R.log.map((l) => [l.trips, l.h])], hourOf = (t) => { for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const [a, ha] = pts[i - 1], [b, hb] = pts[i]; return b > a ? ha + (hb - ha) * (t - a) / (b - a) : hb; } return R.doneH; };
+  const holds = R.log.filter((l) => l.id.startsWith('hold:')).map((l) => [l.trips, Number(l.id.split(':')[1])]), holdAt = (t) => holds.reduce((h, [tt, n]) => (t >= tt ? n : h), LOOP.hold.start);
+  const poisson = (l) => { let k = 0, p = Math.exp(-l), c = p; const u = r(); while (u > c && k < 50) { k++; p *= l / k; c += p; } return k; };
+  const out = { first: [], veil: [], owned: [], byPiece: Object.fromEntries(tackle.map((id) => [id, 0])), snags: [] };
+  for (let pl = 0; pl < players; pl++) {
+    const ml = { finds: { got: {}, worn: {}, share: {}, tackleMiss: {} }, places: { revealed: [] } };
+    let first = Infinity, veil = Infinity, sn = 0;
+    for (let t = 1; t < R.trips; t++) {
+      const h = hourOf(t + 1), k = poisson(perBite * (4.1 / 3) * holdAt(t)), hold = [];
+      for (let i = 0; i < k; i++) {
+        sn++;
+        const id = LF.drawFind(LF.findShares(ml, D, 'mossmere', { exclude: hold }), r());
+        if (!id) continue;
+        LF.noteSnag(ml, D, 'mossmere', id); hold.push(id);
+      }
+      if (!hold.length) continue;
+      LF.bookFinds(ml, hold.map((id) => ({ find: id })), D);
+      if (hold.some((id) => tackle.includes(id)) && first === Infinity) first = h;
+      if (hold.includes(F.tackle?.guarantee?.item) && veil === Infinity) veil = h;
+    }
+    const own = tackle.filter((id) => LF.owned(ml, id));
+    for (const id of own) out.byPiece[id]++;
+    out.first.push(first); out.veil.push(veil); out.owned.push(own.length); out.snags.push(sn);
+  }
+  return out;
+}
+function lostTackleReport(R, player) {
+  const q = (a, p) => { const x = a.slice().sort((u, v) => u - v); return x[Math.floor(p * (x.length - 1))]; }, mean = (a) => a.reduce((u, v) => u + v, 0) / a.length;
+  const NP = QUICK ? 6000 : 20000, M = findsMC(R, NP), by = (a, h) => a.filter((x) => x <= h).length / a.length, fin = (x) => (Number.isFinite(x) ? x.toFixed(2) : '—');
+  title(`LOST-TACKLE §7: the lost tackle on the Mossmere (${NP} players over the pacing run's ${R.trips} trips to ${R.doneH.toFixed(2)} h)`);
+  table(['', 'p10', 'p50', 'p90', 'p99', 'by 1 h', 'by 2 h', 'by the empty shelf'], [
+    ['the first piece (h)', fin(q(M.first, 0.1)), fin(q(M.first, 0.5)), fin(q(M.first, 0.9)), fin(q(M.first, 0.99)), pc(by(M.first, 1)), pc(by(M.first, 2)), pc(by(M.first, 1e9))],
+    ["the Veil Angler's Notebook (h)", fin(q(M.veil, 0.1)), fin(q(M.veil, 0.5)), fin(q(M.veil, 0.9)), fin(q(M.veil, 0.99)), pc(by(M.veil, 1)), pc(by(M.veil, 2)), pc(by(M.veil, 1e9))]]);
+  const dist = [0, 1, 2, 3, 4, 5, 6].map((k) => `${k} ${pc(M.owned.filter((x) => x === k).length / NP)}`).join(' · ');
+  console.log(`Snags by the empty shelf: ${mean(M.snags).toFixed(1)} on average (p10 ${q(M.snags, 0.1)}, p90 ${q(M.snags, 0.9)}). Pieces owned then: ${mean(M.owned).toFixed(2)} on average (${dist}). Each other piece: ${Object.entries(M.byPiece).filter(([id]) => id !== D.LOOP.finds.tackle?.guarantee?.item).map(([id, n]) => `${id} ${pc(n / NP)}`).join(' · ')}.`);
+  const veilP50 = q(M.veil, 0.5);
+  check(by(M.veil, 1e9) >= 0.99, `LOST-TACKLE §7.1: the Veil Angler's Notebook (so the brook) by the empty shelf for ${pc(by(M.veil, 1e9))} of players (target ≥ 99%; p50 ${fin(veilP50)} h)`);
+  check(Object.entries(M.byPiece).every(([id, n]) => id === D.LOOP.finds.tackle?.guarantee?.item || n / NP <= 0.4), `LOST-TACKLE §7.1: every other piece stays rare: owned by the empty shelf by at most 40% of players (${Object.entries(M.byPiece).map(([id, n]) => `${id} ${pc(n / NP)}`).join(', ')})`);
+  // the 1% rule over 100,000 seeded snags in each state of the set (a fresh set; the guarantee at its cap; one piece left; the set owned)
+  { const items = D.LOOP.finds.items.filter((it) => it.water === 'mossmere'), tackle = items.filter((it) => it.kind === 'tackle').map((it) => it.id), G = D.LOOP.finds.tackle.guarantee;
+    const own = (ids) => Object.fromEntries(ids.map((id) => [id, 1]));
+    const states = [['a fresh set', {}, {}], ['the guarantee at its cap', {}, { mossmere: 8 }], ['one piece left', own(tackle.filter((id) => id !== 'lily_notebook')), {}], ['the set owned', own(tackle), {}]];
+    const r = rng(99), bad = []; let worst = 0;
+    for (const [name, got, miss] of states) {
+      const ml = { finds: { got: { ...got }, worn: {}, share: {}, tackleMiss: { ...miss } } }, sh = LF.findShares(ml, D, 'mossmere'), n = 100000, c = {};
+      for (let i = 0; i < n; i++) { const id = LF.drawFind(sh, r()); c[id] = (c[id] || 0) + 1; }
+      const jp = items.find((it) => it.grade === 'jackpot')?.id;
+      for (const [id, p] of Object.entries(sh)) {
+        if (!(p > 0)) continue;   // (an owned part, look or piece: out of the draw)
+        const f = (c[id] || 0) / n, it = items.find((x) => x.id === id);
+        if (it?.kind === 'tackle' && id !== G.item) { worst = Math.max(worst, Math.abs(f - 0.01)); if (Math.abs(f - 0.01) > 0.0007) bad.push(`${name}: ${id} ${pc(f)}`); }
+        if (p < 0.01 - 1e-12) bad.push(`${name}: ${id}'s share ${p} is under the jackpot's 1%`);
+      }
+      if (jp && Math.abs(sh[jp] - 0.01) > 1e-12) bad.push(`${name}: the jackpot's share ${sh[jp]}`);
+      if (jp && Math.abs((c[jp] || 0) / n - 0.01) > 0.0012) bad.push(`${name}: the jackpot drawn ${((c[jp] || 0) / n * 100).toFixed(3)}%`);   // (± 4 sd of 100,000 draws)
+    }
+    check(!bad.length, `LOST-TACKLE §2.2: the 1% rule over 100,000 seeded snags in each of four states: every unowned piece 1.00% ± 0.07 (worst off by ${(worst * 100).toFixed(3)} points), the jackpot 1%, no find under it${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}`); }
+  // the pacing with the finds (the design's typical player: the notebook at its p50, so the brook and its boosts and guest; and a lucky one)
+  const step = 5, po = { shipped: 'mossmere', step, player };
+  const typ = pacing({ ...po, finds: { veil_notebook: veilP50 } });
+  const lucky = pacing({ ...po, finds: { veil_notebook: q(M.veil, 0.1), lily_notebook: 3, ferry_thread: 3, belfry_winch: 3 } });
+  const d = (Rx) => Rx.doneH / R.doneH - 1, pc1 = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
+  table(['case', 'the empty shelf (h)', 'trips', 'against finds off'], [['finds off', R.doneH.toFixed(2), R.trips, '—'],
+    [`the notebook at ${fin(veilP50)} h (the brook, its boost and guest)`, typ.doneH.toFixed(2), typ.trips, pc1(d(typ))],
+    [`a lucky player: the notebook at ${fin(q(M.veil, 0.1))} h, the other notebook, the Thread and the Winch from 3 h`, lucky.doneH.toFixed(2), lucky.trips, pc1(d(lucky))]]);
+  check(Math.abs(d(typ)) <= 0.1, `LOST-TACKLE §7.2: the M1 empty shelf with the finds on is within ±10% of finds off (${R.doneH.toFixed(2)} → ${typ.doneH.toFixed(2)} h, ${pc1(d(typ))})`);
+  warn(Math.abs(d(lucky)) <= 0.1, `LOST-TACKLE §7.2 report: a lucky player's empty shelf within ±10% (${pc1(d(lucky))})`);
 }
 function shippedReport() {
   if (SHIPPED !== 'mossmere') { console.error(`--shipped=${SHIPPED}: only the Mossmere ships today (M1)`); return 1; }
@@ -1570,6 +1688,7 @@ function shippedReport() {
     }
   }
   if (step >= 3) watercraftProof();
+  if (step === 5) lostTackleReport(R, PLAYER);
   if (ALL.length > 1) {
     title('M1 per Wick: the empty shelf, the marks and the first trip');
     const mean = WICK_IDS.reduce((a, w) => a + runs[w].doneH, 0) / WICK_IDS.length, k0 = { water: 'mossmere', rod: 0, line: 0, reel: 0, hold: 3, lure: null, bait: null, places: [], oars: 0, keel: 0, lantern: 0 };

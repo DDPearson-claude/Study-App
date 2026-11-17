@@ -24,6 +24,7 @@
 import { uid } from './core.js';
 import { elderName } from './progression-v3.js';
 import { HOOK_ITEMS as WC_ITEMS, gradeTargets } from './watercraft.js';   // WC-3: a Mossmere tin's or lure's fish (WATERCRAFT §3.7)
+import { foundKit } from './loop-finds.js';   // LOST-TACKLE §3.2, §8: a found rod, line or reel fitted in place of its tier
 
 const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
 const SLOTS = ['rod', 'line', 'reel'];
@@ -61,11 +62,11 @@ export function createAutofish(S) {
   const loopRun = (r) => loopOn() && r?.outing === 'trip';
   const loopBlock = () => { try { return S.loop?.state?.() || meta()?.loop || null; } catch { return meta()?.loop || null; } };
   /** The Hold of the loop's tackle: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6. */
-  function loopHold(tk = {}) {
+  function loopHold(tk = {}, found = {}) {
     const X = D().LOOP?.tackle?.extraHold || {}, out = {};
     for (const s of SLOTS) {
       const t = Math.max(0, Math.trunc(Number(tk?.[s]) || 0));
-      out[s] = t <= 4 ? safe(() => D().tackleHoldAt(s, t), 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
+      out[s] = Number.isFinite(found?.[s]) ? found[s] : t <= 4 ? safe(() => D().tackleHoldAt(s, t), 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
     }
     return out;
   }
@@ -139,8 +140,10 @@ export function createAutofish(S) {
   function getLoadout() {
     const r = run();
     if (loopOn() && (!r || loopRun(r))) {   // the Full Hold: meta.loop.tackle, on a trip and at home (the shelf's Odds ›); no item in 1a
-      const tk = loopBlock()?.tackle || {};
-      const out = { rod: tk.rod | 0, line: tk.line | 0, reel: tk.reel | 0, hold: loopHold(tk), item: null, itemLevel: 1, perRun: false };
+      const tk = loopBlock()?.tackle || {}, fk = safe(() => foundKit(loopBlock(), D()), null);
+      const out = { rod: tk.rod | 0, line: tk.line | 0, reel: tk.reel | 0, hold: loopHold(tk, fk?.hold), item: null, itemLevel: 1, perRun: false };
+      // LOST-TACKLE §3.2, §8: a fitted found piece (the slot keeps its tier; the piece's Hold above, its play, wait and line cap here)
+      if (fk && (fk.rod || fk.line || fk.reel)) Object.assign(out, { found: { rod: fk.rod, line: fk.line, reel: fk.reel }, playMult: fk.playMult, waitMult: fk.waitMult, lineCap: fk.lineCap });
       if (!r) out.runless = true;
       // M1 step 4 (lane 4, SPEC §4.5): a lure and a bait on the line together, the fish gets the larger Hold, never both: the lure is the
       // item and the cast's bait (a tin or Cut Strip; a legend's bait gives none) rides as the never-stacked second (catchParts' max)
@@ -465,6 +468,18 @@ export function createAutofish(S) {
           if (pinSp) { const lo = { ...base, [slot]: t.tier }; delete lo.hold; row.compare = compareWith(lo); }
           out.push(row);
         }
+        // LOST-TACKLE §2.1, §6.2: an owned found piece of this slot under its tiers (its Hold and its effect lines: ui-af.lostLogLines)
+        if (LT) for (const it of D().LOOP?.finds?.items || []) {
+          const LB = loopBlock() || {};
+          if (it?.kind !== 'tackle' || it.slot !== slot || !(Number(LB.finds?.got?.[it.id]) >= 1)) continue;
+          const X = D().LOOP?.lostTackle?.[it.id] || {};
+          out.push({ id: it.id, kind: slot, found: true, name: D().TEXT_LOOP?.finds?.items?.[it.id]?.name || it.id, hold: Number(X.hold) || 0, emphasis: slotEmphasis(C, slot),
+            targets: 'all', price: null, owned: true, fitted: LB.found?.[slot] === it.id });
+        }
+      }
+      // LOST-TACKLE §4: the owned notebooks (they work while owned: no slot, no choice), under the tackle
+      if (LT) for (const it of D().LOOP?.finds?.items || []) {
+        if (it?.kind === 'tackle' && it.slot === 'notebook' && Number(loopBlock()?.finds?.got?.[it.id]) >= 1) out.push({ id: it.id, kind: 'notebook', found: true, name: D().TEXT_LOOP?.finds?.items?.[it.id]?.name || it.id, hold: 0, targets: 'all', price: null, owned: true });
       }
     }
     // baits (the specific gear: Hold only on the fish they help)
@@ -494,8 +509,9 @@ export function createAutofish(S) {
       for (const [id, row0] of Object.entries(LL)) {
         const it = C.items[id];
         if (!it || !(LB.maps?.lakes || ['mossmere']).includes(row0.water)) continue;
+        if (row0.found === true && !own.has(id)) continue;   // (LOST-TACKLE §3.2: a found lure shows once it is found, never on sale)
         const row = { id, kind: 'lure', name: D().TEXT_LOOP?.gearItems?.[id] ?? lure(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: row0.price,
-          owned: own.has(id), onSale: !own.has(id), equipped: onLine.lure === id, giants: !!it.species };
+          owned: own.has(id), onSale: !own.has(id), equipped: onLine.lure === id, giants: !!it.species, ...(row0.found === true ? { found: true, likes: gradeTargets(id, D()).length } : {}) };
         if (pinSp) row.compare = compareWith({ ...base, item: id });
         out.push(row);
       }

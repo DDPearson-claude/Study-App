@@ -11,6 +11,8 @@
 import { icon } from './ui-icons.js';
 import { fmtClams, debugEnabled } from './core.js';
 import { HATCH } from './ui-fishart.js';
+import { lostLogLines } from './loop-finds.js';   // LOST-TACKLE §6.2: the catalogue's tap shows a found piece's effect lines
+import { gradeTargets } from './watercraft.js';
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -253,7 +255,9 @@ export function renderFindsRow(K, entry, v, { phone = false } = {}) {
       bx.appendChild(cv);
       if (c.had) {
         const nm = h('b'); nm.textContent = c.name; bx.appendChild(nm); const p = h('p'); p.textContent = lineOf(D, c.id); bx.appendChild(p);
-        const dz = doesOf(D, c.id); if (dz) { const q = h('p', 'gw-fd-does'); q.textContent = dz; bx.appendChild(q); }   // (lost tackle: what it does)
+        // (lost tackle: what it does, in the logs' own words with their numbers, LOST-TACKLE §6.2; the card keeps its one plain line)
+        const ls = lostLogLines(D, c.id, { likes: c.id === 'guard_button' ? gradeTargets(c.id, D).length : null });
+        for (const t of ls.length ? ls : [doesOf(D, c.id)].filter(Boolean)) { const q = h('p', 'gw-fd-does'); q.textContent = t; bx.appendChild(q); }
       }
       const r = h('span', 'gw-cat-rate');
       if (c.tick) r.innerHTML = FIND_GLYPHS.tick; else r.textContent = c.rateText || '';
@@ -355,7 +359,10 @@ export function createFindsView(K) {
     ctx.debug.finds = {
       force: (id, o = { wait: 1.2 }) => ctx.debug.forceFind?.(id, o) ?? false,
       /** own these finds (fitted or worn), as a tally would have counted them; saved */
-      give: (ids = []) => { const L = loop()?.state?.(); if (!L) return null; L.finds = L.finds || { got: {}, worn: {}, share: {} }; for (const id of [].concat(ids)) L.finds.got[id] = Math.max(1, Number(L.finds.got[id]) || 0); try { ctx.game?.save?.(); } catch { /* ignore */ } return { ...L.finds.got }; },
+      give: (ids = []) => { const L = loop()?.state?.(); if (!L) return null; L.finds = L.finds || { got: {}, worn: {}, share: {} }; for (const id of [].concat(ids)) L.finds.got[id] = Math.max(1, Number(L.finds.got[id]) || 0);
+        // (lost tackle, LOST-TACKLE §8: a given found lure is owned as the tally would own it, in meta.loop.lures)
+        for (const id of [].concat(ids)) if (K.D?.()?.LOOP?.lostTackle?.[id]?.slot === 'lure') { if (!Array.isArray(L.lures)) L.lures = []; if (!L.lures.includes(id)) L.lures.push(id); }
+        try { ctx.game?.save?.(); } catch { /* ignore */ } return { ...L.finds.got }; },
       take: (ids = []) => { const L = loop()?.state?.(); if (!L?.finds) return null; for (const id of [].concat(ids)) delete L.finds.got[id]; return { ...L.finds.got }; },
       state: () => ({ pending: pending ? { ...pending.entry } : null, card: K.has('catch') ? (K.entry('catch')?.state?.entry?.find ?? 'fish') : null, finds: loop()?.finds?.() ?? null,
         hold: (ctx.state?.run?.creel || []).map((f) => f?.find || f?.speciesId), shares: loop()?.findShares?.() ?? null }),

@@ -3189,6 +3189,13 @@ export const ROSTER_ART = {
     mouth: 'disc', teeth: 'amber', gills: 7, gillGlow: 0xb8b0ee } },
   kissmark_trout:    { prefers: 'hush', model: { shape: 'trout', body: 0x5a6270, belly: 0xd0d0d2, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.2,
     fattyFin: true, jaw: 'plain', spots: 'stars', scar: true } },
+  // LOST-TACKLE §4.2, §5.1: the guests a notebook brings. The Rosefleck and the Rainglass Darter on the trout plan (the darter's tall sail
+  // the plan's one new parameter), the Nightbloom on the carp plan with a faint lavender glow along its flank; slate, rust and stone
+  rosefleck_trout:   { prefers: 'drip', model: { shape: 'trout', body: 0x6a6670, belly: 0xd8d0cc, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 0.95,
+    fattyFin: true, jaw: 'plain', spots: 'rose' } },
+  rainglass_darter:  { model: { shape: 'trout', body: 0x5e6a78, belly: 0xdcdcde, fin: 0x9a92b4, glow: null, pattern: 'spots', eyes: 'normal', scale: 0.7,
+    fattyFin: true, jaw: 'plain', sail: true } },
+  nightbloom_carp:   { model: { shape: 'carp', body: 0x3e3846, belly: 0xd6d0d8, fin: 0x5a4c62, glow: 0xb8b0ee, pattern: 'scales', eyes: 'normal', scale: 1.2 } },
   // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
   // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
   bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
@@ -5281,7 +5288,7 @@ LOOP.lostTackle = {
   belfry_winch: { slot: 'reel', playMult: 0.6, hold: 2 },
   ferry_thread: { slot: 'line', waitMult: 0.8, hold: 2, cap: 'trophy' },
   guard_button: { slot: 'lure' },
-  veil_notebook: { slot: 'notebook', boost: { kissmark_trout: 1.6 },
+  veil_notebook: { slot: 'notebook', boost: { kissmark_trout: 1.2 },   // (×1.2, not the design's ×1.6: the pacing gate's room, §11.2; the user's knob)
     guest: { id: 'rosefleck_trout', from: 'glasswater', areas: ['inflow'], lights: ['day', 'dusk'], share: 0.04 }, reveals: 'veilback_brook' },
   lily_notebook: { slot: 'notebook', boost: { weeping_carp: 1.5, candlefin_koi: 1.5 },
     guest: { id: 'nightbloom_carp', from: 'sporewood', areas: ['pads'], lights: ['night'], share: 0.03 } },
@@ -5297,6 +5304,19 @@ Object.assign(TEXT_LOOP.finds.items, {
 });
 TEXT_LOOP.murk.firstTackle = 'Somebody fished here before you.';   // once, at the first piece's tally (§6.1)
 // <<< Lost tackle (lane L1)
+// >>> Lost tackle, lanes L3–L5 (LOST-TACKLE.md §2.1, §3.2, §4, §6): the found lure owned as a bought one (never on the shelf: `found`),
+// the tin's Kit row, the guests' records (the apply block: the converter's, with their home water as zone and `guestOf`), the logs' words
+LOOP.lures.guard_button = { water: 'mossmere', price: 0, found: true };   // (the shelf skips `found` lures, as it skips `start`)
+TEXT_LOOP.gearItems.guard_button = "Gate-Guard's Button";
+TEXT_LOOP.tackle.kit = 'Kit';   // the tin's third row: the found rod, line and reel, shown once one is owned (§2.1)
+// the gear log's effect lines (§6.2; logs only: numbers here and nowhere on the HUD, the shelf or a card)
+TEXT_LOOP.lost = { log: { cast: 'Casts {m} m.', play: 'Plays {x}× as long.', wait: 'Bites come {p}% sooner.', likes: 'Liked by {n} fish here.',
+  boost: '{fish} come more often.', guest: '{fish} bite at {where}, {lights}.', reveals: 'Shows the way to {place}.' },
+  where: { inflow: 'the Sluice Veil', pads: 'the lily beds' }, lights: { day: 'day', dusk: 'dusk', night: 'night', and: 'and' },
+  places: { veilback_brook: 'Veilback Brook' } };
+// the guests' roster records (§4.2; the converter in the apply block): their home water's zone, `guestOf` the water they visit
+LOOP.guests = { mossmere: ['rosefleck_trout', 'rainglass_darter', 'nightbloom_carp'] };
+// <<< Lost tackle, lanes L3–L5
 // >>> Lost tackle (lanes W and C; LOST-TACKLE §5): Veilback Brook, the stream behind the Sluice Veil. A place of the loop's own, `secret`:
 // never a map card and never on the Chart until the Veil Angler's Notebook comes home (its tally adds it to meta.loop.places.revealed and
 // to maps.places, so from then on it is an owned place like any other, free). Its geometry record joins MOSSMERE_V3.places only under the
@@ -6090,6 +6110,22 @@ if (V3_ENABLED) {
     const rest = SPECIES.filter((x) => !lifted.has(x.id));
     SPECIES.length = 0;
     SPECIES.push(...SPECIES_LOOP, ...rest);
+    // LOST-TACKLE §4.2: the guests a found notebook brings (the converter's records on their home water, `guestOf` the water they visit;
+    // never in SPECIES_LOOP, the list, a catch seal or M1's 47): each in its built record's slot of SPECIES (a new fish at the end), so a
+    // guest's Journal entry is its own id's when its home water ships. The trout plan and the carp plan's parameters (ROSTER_ART)
+    for (const [host, gids] of Object.entries(LOOP.guests || {})) {
+      const gs = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
+        diff, art: ROSTER_ART, ids: gids });
+      for (const id of gids) {
+        const x = gs.find((g) => g.id === id);
+        if (!x) continue;
+        if (ROSTER_ART[id]?.model) x.model = { ...x.model, ...v3clone(ROSTER_ART[id].model) };
+        Object.assign(x, { guestOf: host, depth: [0, 1], phase: 1 });   // (the loop's own record: inside the phase pin, as a new roster fish is)
+        delete x.place;   // (it bites where its notebook says, never at a place of its home water)
+        const y = v3fin(x), i = SPECIES.findIndex((q) => q.id === id);
+        if (i >= 0) SPECIES[i] = y; else SPECIES.push(y);
+      }
+    }
     // a built record the loop keeps as built but for the water it bites in (the roster's `place`): the Gloam Eel's night water. Set on
     // a copy in its own slot, so SPECIES' order is unchanged and SPECIES_V3's record is not touched; its bait, hours and size as built
     for (const [id, kind] of Object.entries({ gloam_eel: 'night' })) {
@@ -6128,6 +6164,9 @@ if (V3_ENABLED) {
     // fish it likes, filled from the hook table by the Wick's sheet block below)
     if (!LURES.some((l) => l.id === 'bent_spoon')) LURES.push({ id: 'bent_spoon', name: 'Bent Spoon', depth: 'mid', attract: 1, favour: -0.25, price: 0, onSale: null });
     if (!CATCH_V3.items.bent_spoon) CATCH_V3.items.bent_spoon = { kind: 'lure', hold: 3, species: [] };
+    // LOST-TACKLE §3.2: the found Gate-Guard's Button, a lure of the loop's own (no family, +0 Hold, strikes as slowly as the Bent Spoon)
+    if (!LURES.some((l) => l.id === 'guard_button')) LURES.push({ id: 'guard_button', name: "Gate-Guard's Button", depth: 'mid', attract: 1, favour: 0, price: 0, onSale: null });
+    if (!CATCH_V3.items.guard_button) CATCH_V3.items.guard_button = { kind: 'lure', hold: 0, species: [] };
     // the Harbour-Bell Spinner re-aimed at the Mossmere's giants (SPEC §4.4: +10 Hold on the fish named)
     CATCH_V3.items.bell_spinner = { ...CATCH_V3.items.bell_spinner, species: LOOP.lures.bell_spinner.giants.slice() };
     { const l = LURES.find((x) => x.id === 'bell_spinner'); if (l) l.species = LOOP.lures.bell_spinner.giants.slice(); }

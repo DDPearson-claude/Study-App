@@ -71,7 +71,7 @@ section('GG3 the hook table: the seven edited cells, the Bent Spoon\'s column, t
   eq(col, { dusk_minnow: 0, mossback_perch: 2, gutter_crayfish: 0, likely_chub: 1, overbold_bass: 2, rustfin_sucker: 0, lampsipper: 0, weeping_carp: 0, candlefin_koi: 0,
     milkeye_perch: 1, kissmark_trout: 1, reedjaw_pike: 0, bridgechain_sturgeon: 0, thousandcast_pike: 0, hullkiss_lamprey: 0, gloam_eel: 0, belled_matriarch: null }, 'the Bent Spoon\'s column (§2.1)');
   ok(Object.keys(T).every((id) => T[id].bare == null || (T[id].bare >= 1) === (D.SPECIES_BY_ID[id]?.rarity === 'common')), 'the bare hook takes the seven commons and nothing else');
-  ok(WC.HOOK_ITEMS.at(-1) === 'bent_spoon' && WC.LURE_IDS.includes('bent_spoon'), 'bent_spoon is a hook item and a lure');
+  ok(WC.HOOK_ITEMS.at(-2) === 'bent_spoon' && WC.LURE_IDS.includes('bent_spoon'), 'bent_spoon is a hook item and a lure (the found Gate-Guard\'s Button after it, LOST-TACKLE §3.2)');
   eq(WC.gradeTargets('bent_spoon'), ['mossback_perch', 'overbold_bass'], 'its Hold goes to the perch and the bass');
   eq(D.CATCH_V3.items.bent_spoon, { kind: 'lure', hold: 3, species: ['mossback_perch', 'overbold_bass'] }, 'CATCH_V3.items.bent_spoon (loop-only)');
   let worst = 0, minS = Infinity, n = 0;

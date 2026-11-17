@@ -121,7 +121,8 @@ export function fakeLoop(over = {}) {
     wick: s.wick, tutorial: s.tutorial, said: s.said, lastTrip: s.lastTrip, barge: { water: s.barge.water, towed: [...s.barge.towed] }, ...(s.parkedRun ? { parkedRun: s.parkedRun } : {}),
     fitted: { ...s.fitted }, bait: { [s.zone]: { ...s.bag } }, lifted: s.lifted.slice(), best: s.best, chartPick: s.chartPick,
     giants: Object.fromEntries(Object.entries(s.marked).map(([id, n]) => [id, { landed: 0, marked: n }])), finds: s.finds,
-    sheetSeen: s.sheetSeen.slice(), lures: s.lures.slice(), raft: { ...s.raft }, home: { ...s.home }, looks: s.looks.slice() });
+    sheetSeen: s.sheetSeen.slice(), lures: s.lures.slice(), raft: { ...s.raft }, home: { ...s.home }, looks: s.looks.slice(),
+    found: { rod: null, line: null, reel: null, ...(s.found || {}) } });
   const metaNow = () => ({ journal: s.journal, loop: metaLoop() });
   const items = () => (D ? shelfItems(D, metaLoop(), s.session, { meta: metaNow() }) : [
     { id: 'rod:1', tab: 'tackle', slot: 'rod', level: 1, name: 'Ashwood', goalName: 'Ashwood', line: '', price: 50, bought: s.session.includes('rod:1') },
@@ -310,6 +311,15 @@ export function fakeLoop(over = {}) {
       if (changed) s.saves++;
       return { ok: true, changed, reeled: false, bait: s.fitted.bait, lure: s.fitted.lure, count: s.fitted.bait ? s.bag[s.fitted.bait] | 0 : 0 };
     },
+    // lost tackle (LOST-TACKLE §2.1): a found rod, line or reel fitted in its slot, or taken off (the ledger's rules: changeHook's)
+    fitFound(slot, id) {
+      if (s.onTrip && s.fishOn === true) return { ok: false, reason: 'fish' };
+      if (!s.found) s.found = { rod: null, line: null, reel: null };
+      const next = id ?? null, changed = (s.found[slot] ?? null) !== next;
+      s.found[slot] = next; if (changed) s.saves++;
+      return { ok: true, changed, slot, id: next, reeled: false };
+    },
+    unfitFound(slot) { return this.fitFound(slot, null); },
   };
   Object.assign(api, methods);
   if (bus && typeof bus.on === 'function') {

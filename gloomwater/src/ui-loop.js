@@ -413,6 +413,7 @@ export function catalogueView(cat, D) {
     head: { waterId: h.waterId ?? null, name: h.name ?? '', count: `${Math.floor(num(Number(h.have), 0))}/${Math.floor(num(Number(h.need), 0))}`, have: num(Number(h.have), 0), need: num(Number(h.need), 0), seals: isObj(h.seals) ? h.seals : null },
     list: arr(cat.list).map((e) => card(e, true)),
     groups: arr(cat.groups).map((g) => ({ placeId: g.placeId ?? null, kind: g.kind ?? 'open', owned: g.owned === true, name: g.owned === true ? g.name ?? null : null, cards: arr(g.entries).map((e) => card(e, false)) })),
+    guests: arr(cat.guests).map((e) => ({ ...card(e, false), guest: true })),   // LOST-TACKLE §4.2: a notebook's guests, a small notebook glyph, no words
     finds: findsRowView(cat.finds, D),   // M1 step 5c: the finds row (ui-finds.js; the page's only rates)
   };
 }

@@ -70,9 +70,9 @@ function spaced(rng, max, n, a, b, gap) {
  * The automatic play (pure). sizeClass: small … elder (an Elder with z past the Ancient threshold plays as an Ancient) or
  * 'ancient'; z: the size score; seed: the plan seed fishing drew at the strike. opts: {leapChance (0..1, the species' chance that a
  * play leaps), tiers (mean fitted tier 0–4, or {rod, line, reel}), place (a place id: its beat replaces one gain), legendId (a
- * legend's authored play), A (AUTOFISH, for tests)}.
+ * legend's authored play), A (AUTOFISH, for tests), playMult (a found reel's length factor, used when smaller than the tiers')}.
  */
-export function planPlay(sizeClass, z, seed, { leapChance = 0, tiers = 0, place = null, legendId = null, A = AUTOFISH } = {}) {
+export function planPlay(sizeClass, z, seed, { leapChance = 0, tiers = 0, place = null, legendId = null, A = AUTOFISH, playMult = null } = {}) {
   const P0 = A.play, rng = mulberry32((seed >>> 0) || 1);
   const U = (r) => (Array.isArray(r) ? lerp(r[0], r[1], rng()) : r);
   const tier = meanTier(tiers);
@@ -88,7 +88,9 @@ export function planPlay(sizeClass, z, seed, { leapChance = 0, tiers = 0, place 
   const [lo, hi] = zBand(cls);
   const bandPos = clamp((z - lo) / Math.max(1e-6, hi - lo), 0, 1);
   const jit = U(P0.jitter || [1, 1]);
-  const dur = lerp(P.dur[0], P.dur[1], bandPos) * jit * Math.max(0.5, 1 + (T.durPerTier ?? 0) * tier);
+  // (LOST-TACKLE §3.2: a found reel's playMult in place of the tier's factor when it is the smaller)
+  const tf = Math.max(0.5, 1 + (T.durPerTier ?? 0) * tier), pm = Number(playMult);
+  const dur = lerp(P.dur[0], P.dur[1], bandPos) * jit * (Number.isFinite(pm) && pm > 0 ? Math.min(tf, pm) : tf);
   plan.dur = r4(dur); plan.end = plan.dur;
   plan.bend = r4(clamp((P.bend ?? 0.5) + (T.bendPerTier ?? 0) * tier, 0.08, 1));
   plan.shake = P.shake ?? 0; plan.music = P.music ?? null; plan.strainPitch = (T.strainPitchPerTier ?? 0) * tier;

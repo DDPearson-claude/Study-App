@@ -21,7 +21,7 @@ const arr = (v) => (Array.isArray(v) ? v : []);
 
 /** The glyph of a bait or a lure on the slots (ui-icons' names). */
 export const GEAR_GLYPH = Object.freeze({ heartmoss: 'mossball', mireworm: 'worm', lumen_moss: 'moss', cut_strip: 'fish',
-  feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'bentspoon' });
+  feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'bentspoon', guard_button: 'coin' });   // (the found button: LOST-TACKLE §3.2)
 /** The chalk tick (SPEC §8.2, §8.3: "a chalk-tick glyph beside the value, no words"). */
 export const CHALK_TICK = '<i class="gw-chalk-tick" aria-hidden="true"><svg viewBox="0 0 22 16"><path d="M2.5 9.2 C4.4 10.3 6 12 7.6 14 C10.6 8.6 14.2 4.6 19.6 1.8"/></svg></i>';
 
@@ -88,10 +88,11 @@ const CSS_WB = `
 const wbCache = new Map();
 /** The Who bites block's HTML for a gear-log row (a Mossmere tin or lure under the loop), or '' for anything else. o = {met (Set, array
  *  or function), names (id → name), esc}. The table is computed once per item (watercraft.bitesTable is pure on the data). */
-export function whoBitesHtml(D, e, { met = null, names = {}, esc = (s) => String(s ?? '') } = {}) {
+export function whoBitesHtml(D, e, { met = null, names = {}, esc = (s) => String(s ?? ''), notes = null } = {}) {
   if (!D || D.LOOP_ENABLED !== true || !e || !['bait', 'lure'].includes(e.kind) || e.id === 'bare' || !WC_ITEMS.includes(e.id)) return '';
-  let rows = wbCache.get(e.id);
-  if (!rows) { rows = bitesTable(D, WC_LURES.includes(e.id) ? { lure: e.id } : { bait: e.id }); wbCache.set(e.id, rows); }
+  const nk = Array.isArray(notes) && notes.length ? notes.join(',') : '', key = `${e.id}|${nk}`;   // (LOST-TACKLE §4: the owned notebooks)
+  let rows = wbCache.get(key);
+  if (!rows) { rows = bitesTable(D, { ...(WC_LURES.includes(e.id) ? { lure: e.id } : { bait: e.id }), notes: nk ? notes : null }); wbCache.set(key, rows); }
   const v = bitesBlock(D, rows, { met, names, item: gearName(D, e.id) || e.name || '' });
   if (!v.rows.length && !v.more) return '';
   return `<div class="gw-wb" data-loop="whobites"><div class="gw-wb-h">${esc(v.heading)}</div>${v.rows.length ? `<table><thead><tr><th></th><th>${esc(v.cols[0])}</th><th>${esc(v.cols[1])}</th></tr></thead><tbody>${

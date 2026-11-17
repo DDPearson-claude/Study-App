@@ -77,7 +77,7 @@ export function gearItems(D, metaLoop, session = []) {
   const waters = ownedWaters(D, ml), have = new Set(arr(ml.lures)), withs = ownedOrders(D, ml);
   // the lures (Tackle)
   for (const [id, L] of Object.entries(LP.lures)) {
-    if (!isObj(L) || !waters.includes(L.water) || L.start === true) continue;   // (GEAR-GATES §2.1: the start kit's lure is never on the shelf)
+    if (!isObj(L) || !waters.includes(L.water) || L.start === true || L.found === true) continue;   // (GEAR-GATES §2.1: the start kit's lure is never on the shelf; nor a found one, LOST-TACKLE §3.2)
     out.push({ id: `lure:${id}`, tab: 'tackle', slot: 'lure', level: null, lureId: id, water: L.water, art: ART[id] || 'lure', name: gearName(D, id), goalName: gearName(D, id),
       line: TL.shelf?.[id] ?? '', price: num(L.price, 0), bought: have.has(id) });
   }

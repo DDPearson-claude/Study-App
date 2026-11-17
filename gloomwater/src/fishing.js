@@ -113,6 +113,7 @@ import * as SI from './fishing-sight.js';
 import * as WCX from './watercraft.js';
 import { lurePool, raftTerms } from './loop-gear.js';   // M1 step 4 (lane 4): the fitted lure's draw; the Keel's and the Lantern's favour
 import { areaAt, laneFor, probeOf, hookWeights, castOdds, drawOdds, lureStrike, gearCap } from './watercraft.js';   // WC-1: the Mossmere's areas, hook table and cast odds
+import { ownedNotes } from './loop-finds.js';   // LOST-TACKLE §4: the owned notebooks' boosts and guests on the cast's odds
 
 const BUSY = new Set(['charging', 'casting', 'waiting', 'bite', 'reeling', 'landing']);
 const LEGEND_SLOT = MAX_SLOTS - 2;   // slot for the legend pool's golden column
@@ -702,8 +703,9 @@ export function create(ctx) {
     const lure = fittedLure(), bait = legendBaitId(S.castBait) ? null : (S.castBait ?? null);
     let line = num(S.castLoadout?.line, NaN);
     if (!Number.isFinite(line)) { try { line = num(loadoutNow()?.line, 0); } catch { line = 0; } }
-    let g = null;
-    try { g = gearCap(D(), sp.id, { lure, bait, line }); } catch (e) { report(e); return null; }
+    let g = null, lineCap = S.castLoadout ? S.castLoadout.lineCap ?? null : undefined;   // (LOST-TACKLE §3.2: a found line's own cap)
+    if (lineCap === undefined) { try { lineCap = loadoutNow()?.lineCap ?? null; } catch { lineCap = null; } }
+    try { g = gearCap(D(), sp.id, { lure, bait, line, lineCap }); } catch (e) { report(e); return null; }
     if (!g) return null;
     const key = g.by === 'line' ? 'line' : g.by === 'item' ? (lure || bait || 'bare') : (lure ? 'lure' : 'bait');
     return { ...g, key };
@@ -1163,7 +1165,11 @@ export function create(ctx) {
     const phase = phaseNow(), pp = placePoolNow(baitId, phase, S.cast?.place?.id ?? null);
     if (!pp) return null;
     return castOdds(D(), { pool: pp, area: pp.place ? null : (S.cast?.area ?? null), phase, lure: fittedLure(), bait: legendBaitId(baitId) ? null : (baitId ?? null),
-      wickId: wickId(), rb, rule: cast?.rule ?? null, taperFirst: taperOpen(), preroll: cast?.preroll ?? null, comeback: cast?.comeback ?? null });
+      wickId: wickId(), rb, rule: cast?.rule ?? null, taperFirst: taperOpen(), preroll: cast?.preroll ?? null, comeback: cast?.comeback ?? null, notes: notesNow() });
+  }
+  /** LOST-TACKLE §4: the notebooks the save owns (each works while owned), or null (none, or no ledger). */
+  function notesNow() {
+    try { const L = loopApi()?.state?.(); const n = L ? ownedNotes(L, D()) : []; return n.length ? n : null; } catch (e) { report(e); return null; }
   }
   function rollCastWC(rb, baitId, rng, cast = null) {
     const odds = castOddsNow(rb, baitId, cast);
@@ -1296,6 +1302,8 @@ export function create(ctx) {
       W *= (S.legendCast ? 1 : num(wickDef()?.waitMul, 1)) * num(q?.waitMult, 1);
       // GEAR-GATES §2.2: nothing on the hook on the Mossmere bites slowly (never a legend's cast or the tutorial's), before the clamp
       if (wcOn() && !S.legendCast && !S.tutorial && !fittedLure() && (!baitId || legendBaitId(baitId))) W *= num(D().LOOP?.bare?.waitMult, 1);
+      // LOST-TACKLE §3.2: a found line's quicker bites (the Ferrywife's Thread), on the loadout at the cast, before the clamp
+      if (!S.legendCast) { let lo = S.castLoadout; if (!lo) { try { lo = loadoutNow(); } catch { lo = null; } } W *= num(lo?.waitMult, 1) > 0 ? num(lo?.waitMult, 1) : 1; }
     }
     W = clamp(W, num(Bt.waitMin, 2), num(Bt.waitMax, 25));
     if (S.legendCast) W *= num(SP.legend?.waitMult, 0.7);
@@ -1700,7 +1708,8 @@ export function create(ctx) {
     const style = legendary ? (d.CATCH_V3?.legend?.style?.[sp.id] || 'steady') : (sp.style || 'steady');
     const plan = S.find ? findPlan(num(d.LOOP?.finds?.haul?.[d.LOOP?.finds?.items?.find((x) => x.id === S.find)?.pose], 3), dr.planSeed, { A })   // (5c: no runs)
       : planPlay(legendary ? 'legend' : cls, num(S.z, 0), dr.planSeed, {
-      leapChance: legendary ? 0 : num(A.leaps?.[sp.id], 0), tiers: meanTierOf(lo), place: S.cast?.place?.id || null, legendId: legendary ? sp.id : null, A });
+      leapChance: legendary ? 0 : num(A.leaps?.[sp.id], 0), tiers: meanTierOf(lo), place: S.cast?.place?.id || null, legendId: legendary ? sp.id : null, A,
+      playMult: legendary ? null : lo.playMult ?? null });   // (LOST-TACKLE §3.2: a found reel's quicker play)
     S.plan0 = plan;
     S.loss = null;
     if (S.outcome === 'lose') {

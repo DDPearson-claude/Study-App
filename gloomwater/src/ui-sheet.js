@@ -16,6 +16,7 @@ import { wickPortrait, passiveIcon, icon } from './ui-icons.js';
 import { GEAR_GLYPH, CHALK_TICK } from './ui-gear.js';
 import { PAPER_NOISE, FIBRE, CORNER, RULE } from './ui-catalogue-murk.js';
 import { drawFindArt } from './ui-finds.js';
+import * as WC from './watercraft.js';   // LOST-TACKLE §6.2: the found lure's count of the fish that like it
 
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
@@ -65,11 +66,11 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
   // ---- Tackle
   const slotPlate = (p) => {
     const lines = [];
-    if (p.slot === 'rod') lines.push(fill(TS.cast, { m: p.values.castMax, n: `${p.values.strike}%` }));
-    lines.push(AF.gearLine(D, { kind: p.slot, hold: p.values.hold }));
-    return { key: p.key, slot: p.slot, level: p.level, name: p.name, notches: p.notches, notchLabel: notchLabel(p.notches), lines, fresh: !!p.fresh,
+    if (p.slot === 'rod' && !p.found) lines.push(fill(TS.cast, { m: p.values.castMax, n: `${p.values.strike}%` }));
+    lines.push(AF.gearLine(D, p.found ? { id: p.found, kind: p.slot, found: true, hold: p.values.hold } : { kind: p.slot, hold: p.values.hold }));   // (LOST-TACKLE §6.2: a found piece's lines)
+    return { key: p.key, slot: p.slot, level: p.level, name: p.name, notches: p.found ? null : p.notches, notchLabel: notchLabel(p.notches), lines, fresh: !!p.fresh,
       figure: p.slot === 'rod' ? `${p.values.castMax} m` : `+${p.values.hold} Hold`,
-      next: p.next ? { id: p.next.id, text: nextLine(p.next), compare: cmpLine(p.next.compare) } : null, art: { id: p.key, slot: p.slot, level: p.level } };
+      next: p.next ? { id: p.next.id, text: nextLine(p.next), compare: cmpLine(p.next.compare) } : null, art: p.found ? null : { id: p.key, slot: p.slot, level: p.level }, find: p.found || null };
   };
   const hk = M.tackle?.hook || {};
   const itemWords = (kind, id) => {
@@ -89,6 +90,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
       const L = arr(D?.LURES).find((x) => x?.id === id), LL = D?.LOOP?.lures?.[id] || {};
       if (L?.family && TS.bigger?.[L.family] && num(D?.BALANCE?.favour?.tackle?.lure?.[id], num(L.favour))) out.push(TS.bigger[L.family]);
       if (arr(LL.giants).length) out.push(fill(TS.giants, { k: num(LL.share, 1.5) }));
+      if (LL.found) out.push(...AF.lostLogLines(D, id, { likes: WC.gradeTargets(id, D).length }));   // (LOST-TACKLE §6.2: a found lure's line)
     }
     if (pl?.compare) out.push(cmpLine(pl.compare));
     return out.filter(Boolean);
@@ -109,7 +111,8 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
   const tackle = {
     head: T.tabs?.tackle || 'Tackle',
     rating: M.tackle?.rating ? AF.ratingLine(D, M.tackle.rating, { speciesName: nm(M.tackle.rating.reference) }) : '',
-    plates: arr(M.tackle?.slots).map(slotPlate),
+    plates: [...arr(M.tackle?.slots).map(slotPlate),   // LOST-TACKLE §4, §6.2: each owned notebook's plate, its drawing and its effect lines
+      ...arr(M.tackle?.notes).map((id) => ({ key: `note:${id}`, slot: 'notebook', name: findName(id), lines: AF.lostLogLines(D, id), figure: '', find: id }))],
     // what a Clean strike adds (the gauge's notch; CATCH_V3.strike.clean, never typed): one quiet line
     hookSet: num(D?.CATCH_V3?.strike?.clean, 0) > 0 && TS.hookSet ? fill(TS.hookSet, { hold: num(D.CATCH_V3.strike.clean, 0) }) : '',
     hook: { lure: hookPlate('lure'), bait: hookPlate('bait'), lureChips: chips('lure'), baitChips: chips('bait'), canFit: !!hk.canFit, tipped: !!hk.tipped },
@@ -185,7 +188,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
   const here = { terms: arr(O.here?.terms).map((t) => ({ name: termName(t), value: signed(t.value) })), total: `= ${(Math.round(num(O.here?.mu) * 100) / 100).toFixed(2)}`, notches: num(O.here?.notches) };
   const size = arr(O.size).map((s) => ({ label: s.label == null ? '' : TS.family?.[s.label] || (s.giant ? `★ ${nm(s.label)}` : nm(s.label)), cells: CLASSES.map((c) => ({ cls: c, name: classLabel(D, c), pct: sizePct(D, s.shares?.[c]) })) }));
   const rows = arr(O.rows).map((r) => ({
-    id: r.id, name: nm(r.id), star: !!r.giant, legend: !!r.legend, pinned: !!r.pinned, share: sharePct(D, r.share),
+    id: r.id, name: nm(r.id), star: !!r.giant, legend: !!r.legend, pinned: !!r.pinned, guest: !!r.guest, share: sharePct(D, r.share),
     odds: r.legend ? landPct(D, r.land?.legend) : landPct(D, r.land?.[cls]),
     open: r.pinned && !r.legend ? CLASSES.map((c) => ({ cls: c, name: classLabel(D, c), pct: landPct(D, r.land?.[c]) })) : null,
     capLine: r.pinned && !r.legend && r.cap && T.gate?.upTo ? fill(T.gate.upTo, { class: classLabel(D, r.cap) }) : '',   // (GEAR-GATES §5.1)
@@ -261,6 +264,7 @@ const CSS = `
 .gw-sh-plate { position: relative; display: grid; grid-template-columns: 120px 1fr; gap: 2px 14px; padding: 8px 0 10px; border-top: 1px solid rgba(38, 29, 44, .22); }
 .gw-sh-plate:first-of-type { border-top: none; }
 .gw-sh-art { grid-row: span 6; width: 120px; height: 90px; display: flex; align-items: center; justify-content: center; }
+.gw-sh-art canvas.gw-sh-find { width: 100% !important; height: 100% !important; }
 .gw-sh-art .cat-eng { width: 120px; height: 90px; color: var(--cat-ink); }
 .gw-sh-pname { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font: 400 19px/1.1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--cat-ink); }
 .gw-sh-pname b { font-weight: 400; min-width: 0; }
@@ -590,11 +594,12 @@ export function createSheetView(K) {
       el.className = `gw-sh-plate${faint ? ' gw-faint' : ''}${open ? ' gw-open' : ''}`;
       el.dataset.plate = p.key || p.kind || '';
       if (p.fresh) el.dataset.fresh = p.key;
-      const art = `<div class="gw-sh-art" aria-hidden="true">${artSvg(p.art, uid())}</div>`;
+      const art = `<div class="gw-sh-art" aria-hidden="true">${p.find ? '' : artSvg(p.art, uid())}</div>`;
       const nameRow = `<div class="gw-sh-pname"><b></b>${p.notches ? `<span class="gw-sh-notches" role="img" aria-label="${esc(p.notchLabel)}">${notchesHtml(p.notches)}</span>` : ''}${p.ticks ? `<span class="gw-sh-ticks" aria-hidden="true">${ticksHtml(p.ticks)}</span>` : ''}${p.dots ? `<span class="gw-sh-dots" aria-hidden="true">${dotsHtml(p.dots)}</span>` : ''}${dropIf(p.fresh)}</div>`;
       const fig = `<span class="gw-sh-fig">${p.night && p.figure ? `<span class="gw-sh-night">${icon('moon')}</span>` : ''}${p.tin != null && p.figure ? `<span class="gw-sh-tin">${icon('worm')}</span>` : ''}${esc(p.figure || '')}</span>`;   // (the Bait Bed's figure with its tin glyph)
       el.innerHTML = `${art}<div class="gw-sh-fold">${nameRow}${fig}</div><div class="gw-sh-more"></div>`;
       el.querySelector('.gw-sh-pname b').textContent = p.name;
+      if (p.find) { try { const cv = document.createElement('canvas'); drawFindArt(cv, D(), p.find, { w: 120, h: 90, pad: 0.1, ink: [40, 36, 48] }); cv.className = 'gw-sh-find'; el.querySelector('.gw-sh-art').appendChild(cv); } catch { /* the drawing is optional */ } }   // (a found piece: its own ink drawing)
       const more = el.querySelector('.gw-sh-more');
       for (const ln of arr(p.lines)) {
         const d = document.createElement('div'); d.className = /→/.test(ln) && !/with this/.test(ln) && !/:/.test(ln) ? 'gw-sh-line gw-sh-move' : /with this/.test(ln) ? 'gw-sh-cmp' : 'gw-sh-line';
@@ -761,7 +766,7 @@ export function createSheetView(K) {
       const tbody = tb.querySelector('tbody');
       for (const r of v.odds.table.rows) {
         const tr = document.createElement('tr'); tr.className = `gw-sh-row${r.pinned ? ' gw-pinned' : ''}`; tr.dataset.fish = r.id; tr.tabIndex = 0;
-        tr.innerHTML = `<td>${r.pinned ? `<i role="img" aria-label="${esc(D().TEXT_LOOP?.sheet?.pinned || 'Pinned')}">${icon('hook')}</i>` : ''}<span></span></td><td></td><td></td>`;
+        tr.innerHTML = `<td>${r.pinned ? `<i role="img" aria-label="${esc(D().TEXT_LOOP?.sheet?.pinned || 'Pinned')}">${icon('hook')}</i>` : ''}${r.guest ? `<i class="gw-sh-note" aria-hidden="true">${icon('book')}</i>` : ''}<span></span></td><td></td><td></td>`;   // (LOST-TACKLE §6.2: a guest's notebook glyph)
         tr.querySelector('td span').textContent = `${r.star ? '★ ' : ''}${r.name}`;
         tr.children[1].textContent = r.share; tr.children[2].textContent = r.odds;
         const pin = (e) => {
