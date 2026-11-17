@@ -132,7 +132,8 @@ if (process.argv.includes('--loop')) {
     const ROSTER = JSON.parse(fs.readFileSync(new URL('../docs/loop/roster.json', import.meta.url), 'utf8'));
     const SL = L4.SPECIES_LOOP, ids = SL.map((x) => x.id), SZK = L4.BALANCE_V3.size.k;
     // M1 step 3a: the open water's twelve, then each place's own fish and its giant in the Chart's order (LOOP.places' own, giant)
-    const placeFish = L4.loopPlaceIds('mossmere').flatMap((p) => [...(LP.places[p].own || []), ...(LP.places[p].giant ? [LP.places[p].giant] : [])]);
+    // (a secret place's own fish are far waters' guests, never the Mossmere's roster records: LOST-TACKLE §5.1)
+    const placeFish = L4.loopPlaceIds('mossmere').filter((p) => LP.places[p].secret !== true).flatMap((p) => [...(LP.places[p].own || []), ...(LP.places[p].giant ? [LP.places[p].giant] : [])]);
     ok4(same(ids, [...LP.species.mossmere, ...placeFish]), `SPECIES_LOOP is LOOP.species.mossmere, then the places' own fish and giants, in order (${ids.join(', ')})`);
     ok4(same(L4.SPECIES.slice(0, SL.length).map((x) => x.id), ids) && SL.every((x) => L4.SPECIES_BY_ID[x.id] === x), 'SPECIES holds SPECIES_LOOP in place of the built records, ahead of the rest');
     ok4(L4.SPECIES.filter((x) => x.zone === 'mossmere' && !ids.includes(x.id)).every((x) => x.rarity === 'legendary' || (x.bait && x.bait !== LP.waters.mossmere.plainBait)), 'the Mossmere\'s other fish (the Gloam Eel, the Matriarch) are a one-tin fish or the legend: off the list (M1.md §2.3)');
@@ -201,7 +202,9 @@ if (process.argv.includes('--loop')) {
   }
   // ---- M1 step 3a's seam (docs/loop/m1-step3a/PLAN.md §2.0, §3.1; T101–T103 and T118's shapes): the places, the giants, the words
   {
-    const PLC = LP.places, ids = L4.loopPlaceIds('mossmere'), M3 = L4.MOSSMERE_V3.places;
+    // (the four place maps; a secret place, Veilback Brook, is checked on its own below: LOST-TACKLE §5)
+    const PLC = LP.places, ids = L4.loopPlaceIds('mossmere').filter((id) => PLC[id].secret !== true), M3 = L4.MOSSMERE_V3.places;
+    const secretIds = L4.loopPlaceIds('mossmere').filter((id) => PLC[id].secret === true);
     ok4(same(ids, ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool']) && same(ids.map((id) => PLC[id].kind), ['day', 'old', 'night', 'crown']),
       'T101: LOOP.places holds the four, in the Chart\'s order (day, old, night, crown)');
     ok4(ids.every((id) => PLC[id].price === LP.waters.mossmere.prices[PLC[id].kind]) && same(ids.map((id) => PLC[id].price), [60, 150, 260, 500]),
@@ -211,8 +214,23 @@ if (process.argv.includes('--loop')) {
     ok4(L4.loopPlace('nowhere') === null && !('places' in LP.waters.mossmere), 'T101: loopPlace(unknown) is null; LOOP.waters.mossmere has no places (migrateLoop rule 5 stays a no-op)');
     const arena = L4.ZONES[0].arena.places || [], KEYS = [...L4.LOOP_PLACE_KEYS, 'kind', 'zone'];
     const DROPPED = ['rule', 'attract', 'maxClass', 'giantsKept', 'holdsGiants', 'giantsWhile', 'giantsDuring', 'reveal', 'tally', 'tallyAt', 'legend', 'night', 'phase'];
-    ok4(same(arena.map((p) => p.id), ids) && same(L4.PLACES.map((p) => p.id), ids) && ids.every((id) => L4.PLACE_BY_ID[id]?.kind === PLC[id].kind),
-      'T101: under the loop the arena\'s places and PLACES are the four, with their kinds');
+    ok4(same(arena.map((p) => p.id), [...ids, ...secretIds]) && same(L4.PLACES.map((p) => p.id), [...ids, ...secretIds]) && [...ids, ...secretIds].every((id) => L4.PLACE_BY_ID[id]?.kind === PLC[id].kind),
+      'T101: under the loop the arena\'s places and PLACES are the four and the secret brook, with their kinds');
+    // LOST-TACKLE §5 (lanes W and C): each secret place is free, never a map card, shown by a lost notebook whose `reveals` names it, has its
+    // own good bites and its only-pool (its own fish each a record or a roster fish still to come with L4's guests; its draws open-water
+    // fish of the Mossmere), its geometry record under the loop only, and the arena's shoreNotch is its cut
+    ok4(same(secretIds, ['veilback_brook']), 'LOST-TACKLE §5: the one secret place is Veilback Brook');
+    const ROSTER_IDS = new Set(JSON.parse((await import('node:fs')).readFileSync(new URL('../docs/loop/roster.json', import.meta.url), 'utf8')).fish.map((f) => f.id));
+    for (const id of secretIds) {
+      const p = PLC[id], rec = M3.find((x) => x.id === id), N = (L4.ZONES[0].arena.shoreNotch || [])[0];
+      ok4(p.price === 0 && p.kind === 'day' && p.only === true && Number.isInteger(p.good) && p.good === 1 && LP.lostTackle?.[p.revealedBy]?.reveals === id, `${id}: free, a day place with 1 good bite and its own pool, shown by ${p.revealedBy}`);
+      ok4(!PLM.mapCards(L4, { maps: { lakes: ['mossmere'], places: [] } }).some((c) => c.placeId === id), `${id}: never a map card`);
+      ok4(!!rec && rec.secret === true && same(rec.needs?.shoreNotch && { a: rec.needs.shoreNotch.a, w: rec.needs.shoreNotch.w, len: rec.needs.shoreNotch.len }, N && { a: N.a, w: N.w, len: N.len }) && N.place === id, `${id}: its record under the loop, the arena's shoreNotch its cut`);
+      for (const o of p.own || []) ok4((L4.SPECIES_BY_ID[o] && !L4.SPECIES_BY_ID[o].giant) || ROSTER_IDS.has(o), `${id}: its own fish ${o} is a record or a roster fish`);
+      for (const d of Object.keys(p.draws || {})) ok4(L4.SPECIES_BY_ID[d]?.zone === 'mossmere' && !L4.SPECIES_BY_ID[d].place && (L4.SPECIES_BY_ID[d].kind ?? 'open') === 'open', `${id}: it draws ${d}, an open-water fish of the Mossmere`);
+      const pools = ['calm', 'dusk', 'gloomtide'].map((ph) => L4.placePool(L4.SPECIES, { placeId: id, phase: ph }));
+      ok4(pools.every((q) => q.place === id && q.list.length > 0 && q.list.every(([x]) => [...(p.own || []), ...Object.keys(p.draws || {})].includes(x.id))), `${id}: it bites in every light, only its own fish and its draws`);
+    }
     ok4(arena.every((p) => Object.keys(p).every((k) => KEYS.includes(k)) && DROPPED.every((k) => !(k in p))), `T101: no arena place carries a v3 rule (${DROPPED.join(', ')})`);
     for (const id of ids) {
       const p = PLC[id], card = L4.SPECIES_BY_ID[p.card];
@@ -243,6 +261,7 @@ if (process.argv.includes('--loop')) {
     // T118's shapes: the words and the switches
     const words = (t) => String(t).trim().split(/\s+/).length;
     ok4(ids.every((id) => typeof TL.maps?.[id] === 'string' && words(TL.maps[id]) <= 8) && words(TL.shelf.heartmoss) <= 8, 'T118: the four map lines and the ball\'s shelf line, each ≤ 8 words');
+    ok4(typeof TL.murk?.brook === 'string' && words(TL.murk.brook) <= 8 && TL.murk.brook.length <= 40 && !/\d/.test(TL.murk.brook), 'LOST-TACKLE §5.2: Murk\'s brook line, short, no digit');
     ok4(same(['firstMap', 'firstGiant', 'legendFirst', 'listComplete'].map((k) => TL.murk[k]), ["It's in the mist. Go and look.", 'That one had a name before you met it.',
       "Her. You brought me her. Sit down, I'll count it twice.", "Every fish in this water. I'll write that down."]), "T118: Murk's four new lines are SPEC §8.6's strings exactly");
     ok4([...ids.map((id) => TL.maps[id]), TL.shelf.heartmoss, TL.murk.firstMap, TL.murk.firstGiant, TL.murk.legendFirst, TL.murk.listComplete, TL.tabs.giants].every((t) => !/\d/.test(t)), 'T118: no new line carries a digit');
@@ -347,7 +366,7 @@ if (process.argv.includes('--loop')) {
     return { worst, at };
   };
   {
-    const PLC = LP.places, ids = L4.loopPlaceIds('mossmere');
+    const PLC = LP.places, ids = L4.loopPlaceIds('mossmere').filter((id) => PLC[id].secret !== true), secretIds = L4.loopPlaceIds('mossmere').filter((id) => PLC[id].secret === true);
     // T118: each place's water is open in the loop's own layout (≥ 80%, the v3 place validator's rule), with no dock and not the spawn
     // within its footprint + 1.5 m (a bank's feather); each glide out toward it (data.loopSailPlan, PLAN CHOICE 7) starts at docks[0]
     // and clears every island and pillar by the raft's radius + 0.3 m
@@ -368,6 +387,25 @@ if (process.argv.includes('--loop')) {
         const len = g.path.slice(1).reduce((a, b, i) => a + Math.hypot(b.x - g.path[i].x, b.z - g.path[i].z), 0);
         ok4(Math.hypot(g.from.x - Lay.docks[0].x, g.from.z - Lay.docks[0].z) < 1e-9 && worst >= pad && len <= T.outDist * 1.15,
           `T118 (PLAN CHOICE 7): the glide out toward ${id} (${PLC[id].out ? 'its own path' : `${T.outDist} m toward its centre`}, ${len.toFixed(1)} m) clears every island and pillar by ≥ ${pad.toFixed(1)} m (closest ${worst.toFixed(2)} m at ${JSON.stringify(at)})`);
+      }
+      // LOST-TACKLE §5.3: a secret place's water is its cut's: shut in the loop's layout until its place is owned (none of it open water),
+      // ≥ 80% open once it is; its own glide in (through the Sluice Veil) clears every island and pillar
+      for (const id of secretIds) {
+        const q = L4.PLACE_BY_ID[id], [x0, z0, x1, z1] = L4.walkShapeBounds(q.water, 0), N = Lay.notch;
+        let n = 0, shut = 0, open = 0;
+        for (let zz = z0; zz <= z1; zz += 0.5) for (let x = x0; x <= x1; x += 0.5) if (L4.placeContains(q, x, zz)) {
+          n++; N.open = false; if (!WLY.isOpenWaterL(Lay, obsW, x, zz, 0.3)) shut++; N.open = true; if (WLY.isOpenWaterL(Lay, obsW, x, zz, 0.3)) open++; N.open = false;
+        }
+        ok4(!!N && N.place === id && n > 0 && shut === n && open / n >= 0.8, `LOST-TACKLE §5.3: ${id}'s water is shut until it is shown (${shut}/${n}) and ${n ? (100 * open / n).toFixed(0) : 0}% open after (≥ 80%)`);
+        const G = (PLC[id].glide || []).map(([x, z]) => ({ x, z })), obs = [...Lay.obstacles, ...(Lay.gateObstacles || [])];
+        let worst = Infinity;
+        N.open = true;
+        for (let i = 1; i < G.length; i++) for (let k = 0; k <= 40; k++) {
+          const x = G[i - 1].x + (G[i].x - G[i - 1].x) * (k / 40), z = G[i - 1].z + (G[i].z - G[i - 1].z) * (k / 40);
+          worst = Math.min(worst, WLY.shoreDist(Lay, x, z), ...obs.map((o) => Math.hypot(x - o.x, z - o.z) - o.r));   // (the dock posts too: no glide through a post)
+        }
+        N.open = false;
+        ok4(G.length >= 2 && worst >= pad && WLY.notchSdf(N, G[G.length - 1].x, G[G.length - 1].z) >= 1.6, `LOST-TACKLE §5.2: the glide in to ${id} clears every island and pillar by ≥ ${pad.toFixed(1)} m (closest ${worst.toFixed(2)} m) and ends in its water`);
       }
       const og = L4.loopSailPlan(Lay.docks[0], { water: 'mossmere' }), sg = L4.sailPlan(Lay.docks[0], { x: 0, z: 0 }, T, 'mossmere');
       ok4(JSON.stringify(og) === JSON.stringify(sg), "loopSailPlan with no place is the water's own glide (1a's T66 unchanged)");

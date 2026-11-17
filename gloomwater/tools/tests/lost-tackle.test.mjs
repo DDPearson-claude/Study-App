@@ -223,9 +223,10 @@ section('L2: the card, the tally\'s rows, the hold and the catalogue\'s tackle r
   const plan = U.tallyPlan({ lines }, { D });
   eq(plan.rows.map((r) => [r.find, r.kind, r.clams]), [['tin_spoon', 'treasure', 14], ['toll_purse', 'treasure', 1750], ['moat_bollard', 'part', 0], ['veil_notebook', 'tackle', 0]], 'tallyPlan: the notebook\'s row last, carried aboard for nothing');
   eq(plan.rows.at(-1).name, "The Veil Angler's Notebook", '… with its name');
-  eq(U.saleLineId({ rows: plan.rows, said: { firstSale: true, firstJackpot: true } }), 'firstTackle', 'Murk\'s line: the first piece aboard ("Somebody fished here before you.")');
+  eq(U.saleLineId({ rows: plan.rows, said: { firstSale: true, firstJackpot: true } }), 'brook', 'Murk\'s line: the Veil Angler\'s Notebook aboard shows the brook ("Water behind the Veil. Always said so."), once (W, C)');
+  eq(U.saleLineId({ rows: plan.rows, said: { firstSale: true, firstJackpot: true, brook: true } }), 'firstTackle', 'Murk\'s line: the first piece aboard ("Somebody fished here before you.")');
   eq(U.saleLineId({ rows: plan.rows.slice(2, 3), said: { firstSale: true } }), 'firstPart', '… a part alone still his part line');
-  eq(U.saleLineId({ rows: plan.rows.slice(3), said: { firstSale: true, firstTackle: true } }), null, '… and a piece never says the part line');
+  eq(U.saleLineId({ rows: plan.rows.slice(3), said: { firstSale: true, firstTackle: true, brook: true } }), null, '… and a piece never says the part line');
   const cells = U.slotCells({ slots: 3, fish: [LF.holdEntry(D, 'belfry_winch', { uid: 'w' })] }, { D });
   ok(cells[0].find === 'belfry_winch' && !cells[0].gild, 'the hold row: the winch\'s own glyph, never gold');
   // the catalogue's tackle row: hatched with its rate until found (the notebook's climbing share), then inked with a tick

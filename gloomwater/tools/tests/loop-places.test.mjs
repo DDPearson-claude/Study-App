@@ -40,8 +40,10 @@ const T1 = { rod: 1, line: 1, reel: 1 };
 // =====================================================================================
 section('T101: the four places (LOOP.places, loopPlace, the arena\'s keep list, PLACES)');
 {
-  eq(Object.keys(D.LOOP.places), FOUR, 'LOOP.places holds exactly the four, in the Chart\'s order');
-  eq(D.loopPlaceIds('mossmere'), FOUR, 'loopPlaceIds(mossmere): the Chart\'s order');
+  // (LOST-TACKLE §5: the four, then Veilback Brook, a secret place shown by a lost notebook: never a map, never priced)
+  eq(Object.keys(D.LOOP.places), [...FOUR, 'veilback_brook'], 'LOOP.places holds exactly the four, in the Chart\'s order, then the secret brook');
+  eq(D.loopPlaceIds('mossmere'), [...FOUR, 'veilback_brook'], 'loopPlaceIds(mossmere): the Chart\'s order');
+  ok(D.LOOP.places.veilback_brook.secret === true && D.LOOP.places.veilback_brook.price === 0 && D.LOOP.places.veilback_brook.revealedBy === 'veil_notebook' && D.LOOP.lostTackle.veil_notebook.reveals === 'veilback_brook', 'the brook: secret, free, shown by the Veil Angler\'s Notebook');
   eq(D.loopPlaceIds('sporewood'), [], 'loopPlaceIds of a water with no place map: none');
   eq(FOUR.map((id) => D.LOOP.places[id].kind), ['day', 'old', 'night', 'crown'], 'their kinds: day, old, night, crown');
   eq(FOUR.map((id) => D.LOOP.places[id].price), FOUR.map((id) => D.LOOP.waters.mossmere.prices[D.LOOP.places[id].kind]), "each price is LOOP.waters.mossmere.prices[kind]");
@@ -57,8 +59,8 @@ section('T101: the four places (LOOP.places, loopPlace, the arena\'s keep list, 
   }
   ok(D.loopPlace('nowhere') === null && D.loopPlace(null) === null && D.loopPlace('cupped_hands') === null, 'loopPlace of an id LOOP.places does not hold: null');
   const arena = D.ZONES[0].arena.places;
-  eq(arena.map((p) => p.id), FOUR, 'under the loop the Mossmere\'s arena places are the four');
-  eq(D.PLACES.map((p) => p.id), FOUR, '… and so are PLACES');
+  eq(arena.map((p) => p.id), [...FOUR, 'veilback_brook'], 'under the loop the Mossmere\'s arena places are the four and the brook');
+  eq(D.PLACES.map((p) => p.id), [...FOUR, 'veilback_brook'], '… and so are PLACES');
   ok(FOUR.every((id) => D.PLACE_BY_ID[id]?.kind === D.LOOP.places[id].kind && D.PLACE_BY_ID[id].zone === 'mossmere'), 'PLACE_BY_ID: each with its loop kind and its zone');
   for (const p of arena) ok(DROPPED.every((k) => !(k in p)) && Object.keys(p).every((k) => [...D.LOOP_PLACE_KEYS, 'kind', 'zone'].includes(k)), `the arena's ${p.id}: the keep list only (${DROPPED.length} v3 fields dropped)`);
   ok(!('places' in D.LOOP.waters.mossmere), 'LOOP.waters.mossmere has no places (a lake map opens none of them)');
@@ -107,7 +109,7 @@ section('T103: the list is the twelve, with the places in PLACES');
   eq(list, D.LOOP.species.mossmere, "listFor(mossmere): SPEC §5.5 (c)'s twelve, in order");
   ok(list.length === 12 && list.includes('kissmark_trout'), 'twelve, the Kissmark Trout among them');
   for (const id of ['thousandcast_pike', 'hullkiss_lamprey', 'belled_matriarch', 'bridgechain_sturgeon', 'gloam_eel']) ok(!list.includes(id), `never ${id}`);
-  ok(D.PLACES.length === 4, '… with the four places in PLACES');
+  ok(D.PLACES.length === 5, '… with the four places and the brook in PLACES');
   eq(PL.listCount({ journal: {} }, D, 'mossmere'), { have: 0, need: 12 }, 'listCount needs 12');
   const opened = { ...D, LOOP: { ...D.LOOP, waters: { ...D.LOOP.waters, mossmere: { ...D.LOOP.waters.mossmere, places: [{ id: 'under_the_span', kind: 'old' }] } } } };
   const l2 = PL.listFor(opened, 'mossmere');

@@ -390,7 +390,7 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
   buffs.push({ key: raft[0].key, source: { kind: 'creel', id: 'hold', level: hs }, effect: { kind: 'creel', value: raft[0].values.slots }, move: null });
   {
     const good = [{ id: null, n: goodOpen(hs) }];
-    for (const id of places) { const k = placeRec(D, id)?.kind; if (typeof D?.goodBitesFor === 'function') good.push({ id, n: D.goodBitesFor({ kind: k, holdSlots: hs, wickId }) }); }
+    for (const id of places) { const k = placeRec(D, id)?.kind; if (typeof D?.goodBitesFor === 'function') good.push({ id, n: D.goodBitesFor({ kind: k, holdSlots: hs, wickId, place: id }) }); }
     buffs.push({ key: 'good', source: { kind: 'good', id: 'good' }, effect: { kind: 'good', list: good }, move: null });
   }
   for (const p of parts) if (p.id === 'gate_glass') buffs.push({ key: p.key, source: { kind: 'find', id: p.id }, effect: { kind: 'glass', value: 1 }, move: null });

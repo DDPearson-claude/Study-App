@@ -239,6 +239,14 @@ export function faceMasks(x, z, probe = null) {
   const ro = Math.hypot(x - O.x, z - O.z);
   const pull = smooth(Pp.r0 - 0.2, Pp.r0 + 1.2, ro) * (1 - smooth(Pp.r1 - 4, Pp.r1, ro)) * (ro < Pp.r1 ? 1 : 0);
   seam = Math.max(seam, pull * 0.9);
+  // (LOST-TACKLE §5.3: the cut behind the Veil, probe.notch: its water slides down the cut toward the lake, a thread band along its middle
+  // from the culvert's spill to the mouth, where it meets the inflow's seam)
+  const N = probe?.notch;
+  if (N && Number.isFinite(N.r0)) {
+    const along = x * N.ca + z * N.sa, t = clamp01((along - N.r0) / Math.max(1, N.end - N.r0));
+    const lc = Math.abs(-x * N.sa + z * N.ca - 0.7 * Math.sin(Math.PI * t) * (t > 0 ? 1 : 0)), h = N.hw;
+    if (along > N.r0 - 3 && along < N.end) seam = Math.max(seam, (1 - smooth(h * 0.3, h * 0.85, lc)) * smooth(N.end - 0.4, N.end - 3.5, along) * smooth(N.r0 - 3, N.r0, along) * (0.5 + 0.4 * (1 - t)));
+  }
   // the gravel fan: a sector opening west from under the spill
   const fx = x - F.x, fz = z - F.z, fr = Math.hypot(fx, fz);
   let fan = 0;

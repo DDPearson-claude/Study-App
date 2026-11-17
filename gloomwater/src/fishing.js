@@ -532,6 +532,9 @@ export function create(ctx) {
     try { const p = D().placeAtV3?.(zd.id, x, z); if (p && list.some((q) => q.id === p.id)) return p; } catch (e) { report(e); }
     const pc = D().placeContains;
     if (typeof pc === 'function') for (const p of list) if (pc(p, x, z)) return p;
+    // (LOST-TACKLE §5.3: the cut behind the Sluice Veil is its place's water from bank to bank, its pool's margins too)
+    const N = call(() => ctx.world?.getNotch?.());
+    if (N?.place && Number.isFinite(N.r0) && x * N.ca + z * N.sa > N.r0 - 0.2 && Math.abs(-x * N.sa + z * N.ca) < N.hw + 2.6) return list.find((p) => p.id === N.place) || null;
     return null;
   }
   /** The stopgap's giant water in a lake whose places are not in the build (world.getGiantSpots(), else arena.giantSpots). */

@@ -5173,8 +5173,11 @@ export function wickSlots(holdSlots, wickId) { return (Number(holdSlots) || 0) +
 export function loopSlots(metaLoop, wickId = metaLoop?.wick) { return wickSlots(metaLoop?.holdSlots ?? LOOP.hold.start, wickId); }
 /** Good bites a water gives each evening (SPEC §3.3, WICKS §2.4): open water wickSlots × openPerSlot + openExtra + the Wick's `good`;
  *  a place LOOP.water.good[kind], plus the Wick's `good` where its `everyWater` (Tallow's). holdSlots is the bought count. */
-export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null, extra = 0 } = {}) {
+export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null, extra = 0, place = null } = {}) {
   const W = LOOP.water, K = LOOP.wicks[loopWickId(wickId)];
+  // (LOST-TACKLE §5.1: a place with its own `good`, Veilback Brook's 1, gives that in place of its kind's)
+  const own = typeof place === 'string' ? LOOP.places?.[place]?.good : undefined;
+  if (kind !== 'open' && Number.isFinite(own)) return own + (K?.everyWater ? K.good || 0 : 0);
   // (M1 step 5c: `extra` is a bite part's +1 at its own water's open water, loop-finds.findBiteBonus; 0 elsewhere and by default)
   if (kind === 'open') return Math.round(wickSlots(holdSlots, wickId) * W.openPerSlot) + W.openExtra + (K?.good || 0) + Math.max(0, Math.round(Number(extra) || 0));
   return (Number(W.good[kind]) || 0) + (K?.everyWater ? K.good || 0 : 0);
@@ -5270,6 +5273,24 @@ Object.assign(TEXT_LOOP.finds.items, {
 });
 TEXT_LOOP.murk.firstTackle = 'Somebody fished here before you.';   // once, at the first piece's tally (§6.1)
 // <<< Lost tackle (lane L1)
+// >>> Lost tackle (lanes W and C; LOST-TACKLE §5): Veilback Brook, the stream behind the Sluice Veil. A place of the loop's own, `secret`:
+// never a map card and never on the Chart until the Veil Angler's Notebook comes home (its tally adds it to meta.loop.places.revealed and
+// to maps.places, so from then on it is an owned place like any other, free). Its geometry record joins MOSSMERE_V3.places only under the
+// loop (the v3 fingerprint never sees it); the arena's shoreNotch (the cut behind the Veil, always built) is its `needs`. `only`: its pool
+// is its own fish and its draws, nothing else of the open water; `good` its good bites an evening (goodBitesFor's `place`); `glide` the
+// Sail's glide in through the Veil (loop-home: the raft set at its first point, then the glide).
+LOOP.places.veilback_brook = { water: 'mossmere', kind: 'day', secret: true, revealedBy: 'veil_notebook', price: 0, good: 1, only: true,
+  own: ['rosefleck_trout', 'rainglass_darter'], draws: { dusk_minnow: 1.5, kissmark_trout: 1 },
+  glide: [[43, 0], [50, 0.25], [58.6, 4], [68.5, 5]], glideSec: 4.5 };   // (north of the east dock's posts, through the Veil, 10 m in)
+const VEILBACK_V3 = Object.freeze({ id: 'veilback_brook', name: 'Veilback Brook', access: 'raft', stand: null, secret: true, x: 66, z: 4.5, phase: 2,
+  water: { kind: 'path', pts: [[60, 4.1], [75, 5.1]], w: 5, depth: [0.5, 0.7] }, landmark: { x: 74, y: 2, z: 5 },
+  // the cut (CONTRACT §13.8's shoreNotch): a° from +x toward +z, w m wide, len m past the arena's radius; `pool` where it widens (along
+  // the cut, 0..1) and how wide; `end` the culvert's half-width
+  needs: { shoreNotch: { a: 3.9, w: 6, depth: 0.6, len: 18, pool: { at: [0.46, 0.76], w: 8.4 }, end: 2.4 }, veil: 'mist' },
+  lore: 'Behind the falling water, the old cut still runs.', look: 'a reed-banked brook under broken arches' });
+if (LOOP_ENABLED && !MOSSMERE_V3.places.some((p) => p.id === VEILBACK_V3.id)) MOSSMERE_V3.places.push(v3clone(VEILBACK_V3));
+TEXT_LOOP.murk.brook = 'Water behind the Veil. Always said so.';   // once, as home opens after the notebook's tally (§5.2)
+// <<< Lost tackle (lanes W and C)
 /** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
  *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
  *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the
@@ -5450,12 +5471,18 @@ export function placePool(species, { placeId = null, phase = 'calm', bait = null
   const open = (s) => !s.place && (!s.kind || s.kind === 'open');
   const list = [];
   let giant = null, rest = 0;
+  // (LOST-TACKLE §5.1: a place `only` (Veilback Brook) bites its own fish and its draws, nothing else of the open water; its own fish may
+  // be a far water's guest, found by id whatever its zone)
+  const only = P?.only === true ? new Set([...(P.own || []), ...Object.keys(P.draws || {})]) : null;
+  if (only) for (const id of P.own || []) { const g = (Array.isArray(species) ? species : []).find((s) => s?.id === id); if (g && !all.includes(g)) all.push(g); }
   for (const s of all) {
     if (s.bait && s.bait !== bait) continue;
+    if (only && !only.has(s.id)) continue;
     if (s.giant) { if (P && s.place === P.id) giant = s; continue; }   // a giant reaches its share whatever the hour (the fixed sim)
     if (!loopHours(s).includes(light)) continue;
     let w;
-    if (s.place) { if (!P || s.place !== P.id) continue; w = (RW.rare ?? 6) * PL.kept.weight * PL.kept.live; }
+    if (only && (P.own || []).includes(s.id)) w = (RW.rare ?? 6) * PL.kept.weight * PL.kept.live;
+    else if (s.place) { if (!P || s.place !== P.id) continue; w = (RW.rare ?? 6) * PL.kept.weight * PL.kept.live; }
     else if (!open(s)) { if (!P || P.kind !== s.kind) continue; w = (RW[s.rarity] ?? 6) * (s.rarity === 'common' ? PL.common : PL.kindWeight); }
     else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? PL.dayDraw : 1)) * (P && s.rarity === 'common' ? PL.common : 1);
     if (s.bestNight && light === 'night') w *= 1.5;
@@ -5463,7 +5490,7 @@ export function placePool(species, { placeId = null, phase = 'calm', bait = null
     list.push([s, w]); rest += w;
   }
   if (rest < (RW.common ?? 70)) for (const s of all) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
-    if (!open(s) || s.giant || loopHours(s).includes(light) || (s.bait && s.bait !== bait)) continue;
+    if (!open(s) || s.giant || loopHours(s).includes(light) || (s.bait && s.bait !== bait) || (only && !only.has(s.id))) continue;
     const w = RW[s.rarity] ?? 6; list.push([s, w]); rest += w;
   }
   let g = null;
@@ -6124,6 +6151,9 @@ if (V3_ENABLED) {
   // (LOOP_PLACE_KEYS) with the loop's kind, so no built reader (capZ's maxClass, waterInfo's giant water, the loss's rule.foul) sees a
   // v3 twist; the props, the cracks and the other places stay v3's phase 2
   if (LOOP_ENABLED) moss.arena.places = loopPlaceIds('mossmere').map(loopPlaceRecord).filter(Boolean);
+  // LOST-TACKLE §5.3: the cut behind the Sluice Veil, always built (one deterministic geometry: nothing rebuilds at the reveal); its
+  // water and collision open only once its place is owned (world.setPlaces)
+  if (LOOP_ENABLED) moss.arena.shoreNotch = [{ ...v3clone(VEILBACK_V3.needs.shoreNotch), place: VEILBACK_V3.id }];
   // raft fallbacks: a lake with no places in this build gets the stopgap giant water; §24's lakes without §24 get raft watch lamps
   // and a raft Homeward stone (CONTRACT §13.8)
   for (const z of ZONES) {

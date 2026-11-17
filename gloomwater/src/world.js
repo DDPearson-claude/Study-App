@@ -5,7 +5,7 @@
 // functions of the layout and work before init and between runs.
 import * as THREE from 'three';
 import { clamp, damp, smoothstep, TAU } from './core.js';
-import { buildLayout, depthAt, isOpenWaterL } from './world-layout.js';
+import { buildLayout, depthAt, isOpenWaterL, notchFrame, notchHalfW, notchShoreR, shoreDist } from './world-layout.js';
 import { buildArena } from './world-art.js';
 import { AIR } from './world-fx.js';
 import { watchLampsFor, giantSpotsFor, buildWorldV3 } from './world-v3.js';
@@ -200,6 +200,7 @@ export function create(ctx) {
   function setLayout(z) {
     zone = z;
     layout = buildLayout(z);
+    if (layout.notch?.place) layout.notch.open = placeState.owned.includes(layout.notch.place);   // (LOST-TACKLE §5.2: the cut opens with its place)
     mooring = ctx.data?.LOOP_ENABLED === true && typeof ctx.data.loopMooring === 'function' ? ctx.data.loopMooring(z.id, layout.docks) : null;
     if (mooring) {
       // the Jetty's two mooring posts were Murk's old berth: with the barge moored there they go (their circles and their art)
@@ -633,7 +634,8 @@ export function create(ctx) {
   }
 
   // ------------------------------------------------------------------ gameplay queries
-  const shoreR = (a) => (layout ? layout.shoreR(a) : bounds.radius);
+  // (an open cut behind the shore, LOST-TACKLE §5.3: the radial readers see its water to its first bank)
+  const shoreR = (a) => (layout ? (layout.notch?.open ? notchShoreR(layout.notch, a, layout.shoreR(a)) : layout.shoreR(a)) : bounds.radius);
   function isOpenWater(x, z, radius = 1) {
     if (!layout) return Math.hypot(x, z) <= bounds.radius - radius;
     return isOpenWaterL(layout, obstacles, x, z, radius);
@@ -656,11 +658,43 @@ export function create(ctx) {
           else { p.x = o.x + m; }
         }
       }
+      if (layout?.notch?.open && collideNotch(layout.notch, p, r)) continue;
       const d = Math.hypot(p.x, p.z);
-      const lim = shoreR(Math.atan2(p.z, p.x)) - r;
+      const lim = (layout ? layout.shoreR(Math.atan2(p.z, p.x)) : bounds.radius) - r;
       if (d > lim && d > 1e-5) { const k = Math.max(0, lim) / d; p.x *= k; p.z *= k; }
     }
     return p;
+  }
+  /** An open cut's banks (LOST-TACKLE §5.3): a point behind the lake's shore inside the cut is held off its banks and its head; one at its
+   *  mouth is held off the mouth's two corners. → true when the cut took the point (the lake's shore is then not applied). */
+  function collideNotch(N, p, r) {
+    const f = notchFrame(N, p.x, p.z), hw0 = notchHalfW(N, 0);
+    if (f.along < N.r0 - r - 0.5 || Math.abs(f.lc) > Math.max(hw0, notchHalfW(N, f.t)) + 0.5) return false;
+    if (f.along <= N.r0 && Math.abs(f.lc) > hw0 - 0.05) return false;   // (beside the mouth: the lake's shore)
+    let along = f.along, lc = f.lc;
+    if (along > N.r0) {
+      const lim = Math.max(0, notchHalfW(N, f.t) - r);
+      lc = Math.max(-lim, Math.min(lim, lc));
+      along = Math.min(along, N.end - r);
+    }
+    for (const s of [-1, 1]) {   // the mouth's corners
+      const dA = along - N.r0, dL = lc - s * hw0, d = Math.hypot(dA, dL);
+      if (d < r && d > 1e-6) { along = N.r0 + (dA / d) * r; lc = s * hw0 + (dL / d) * r; }
+    }
+    const t = Math.max(0, Math.min(1, (along - N.r0) / Math.max(1, N.end - N.r0))), lat = lc + 0.7 * Math.sin(Math.PI * t) * (t > 0 ? 1 : 0);
+    p.x = along * N.ca - lat * N.sa; p.z = along * N.sa + lat * N.ca;
+    return true;
+  }
+  /** The camera's yaw down an open cut while the raft is in it (LOST-TACKLE §5.3: a hidden stream is filmed along its length, its banks
+   *  either side; the play camera's north view would stand behind its south bank). `approach`: the Sail's glide in (it counts from 18 m
+   *  before the mouth). → a yaw, or null (the play's own). */
+  let inNotch = false;
+  function viewYaw(x, z, approach = false) {
+    const N = layout?.notch;
+    if (!N?.open || !Number.isFinite(x) || !Number.isFinite(z)) { inNotch = false; return null; }
+    const f = notchFrame(N, x, z), wide = Math.abs(f.lc) < notchHalfW(N, f.t) + 1.5;
+    inNotch = wide && (f.along > N.r0 + (inNotch ? -3 : 1.5)) || (approach && f.along > N.r0 - 18 && Math.abs(f.lc) < 9);
+    return inNotch ? Math.atan2(-N.ca, -N.sa) : null;
   }
   function randomWaterPoint({ from = null, minDist = 0, maxDist = Infinity, depthMin = 0, depthMax = 1, clearance = 1 } = {}) {
     const R = bounds.radius;
@@ -805,6 +839,7 @@ export function create(ctx) {
     setPlaces(p = {}) {
       placeState.owned = Array.isArray(p.owned) ? p.owned.slice() : [];
       placeState.lifted = Array.isArray(p.lifted) ? p.lifted.slice() : [];
+      if (layout?.notch?.place) layout.notch.open = placeState.owned.includes(layout.notch.place);   // (the cut's water and banks with its place)
       return placesVis ? placesVis.setPlaces(placeState) : false;
     },
     /** Lift a place's mist over `sec` s (0: at once). → whether the place has a bank here. */
@@ -819,6 +854,14 @@ export function create(ctx) {
     places: () => placesReadout(),
     // ---- optional extras (not in CONTRACT; safe to ignore)
     getShoreRadius: (angle) => shoreR(angle),
+    // ---- the shore notch (LOST-TACKLE §5.3): its water drawn whatever its place (the bake), its view while the raft is in it
+    /** The water's signed distance to its shore at (x, z), any cut drawn in (water.js's bake). */
+    getShoreDist: (x, z) => (layout ? shoreDist(layout, x, z) : bounds.radius - Math.hypot(x, z)),
+    /** The half-size (m) the water's bake must cover: the lake and its cut. */
+    getBakeHalf: () => Math.max(bounds.radius + 8, layout?.notch ? layout.notch.end + 3 : 0),
+    /** The cut ({a, ca, sa, hw, r0, end, depth, pool, endHw, place, open}) or null. */
+    getNotch: () => layout?.notch || null,
+    viewYaw,
     getDocks: () => (layout?.docks || []).map((d) => ({ position: new THREE.Vector3(d.x, 0, d.z), yaw: d.yaw })),
     getMood: () => mood,
     /** The loop (M1 step 5a): this water's mooring (data.loopMooring on its docks: raft, hull, murk, lane, cam, circles), or null. */

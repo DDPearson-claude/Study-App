@@ -656,7 +656,7 @@ export function placeVignette(ctx, id, kind, x, y, s, { wounds = 0, alpha = 1 } 
   X = null; vg.halo = false;
   ctx.restore();
 }
-const PLACE_LOOK = { lily_maze: 'pads', under_the_span: 'span', buoy_lights: 'buoys', bell_pool: 'bell' };
+const PLACE_LOOK = { lily_maze: 'pads', under_the_span: 'span', buoy_lights: 'buoys', bell_pool: 'bell', veilback_brook: 'brook' };
 const KIND_LOOK = { day: 'pads', old: 'span', night: 'buoys', crown: 'bell' };
 const PLACE_DRAW = {
   pads() { // notched lily pads, a koi glowing under them
@@ -691,6 +691,12 @@ const PLACE_DRAW = {
       const nx = -4.4 + q * 2.3; X.beginPath(); X.moveTo(nx - 0.55, 5.1); X.lineTo(nx, 3.7); X.lineTo(nx + 0.55, 5.1); X.closePath(); X.fillStyle = `rgb(${C.paper})`; X.fill(); X.strokeStyle = INK; X.lineWidth = 0.5; X.stroke();
     }
     P(wave(-9.6, 9.6, 8.6, 0.6), null, 0.7, `rgb(${C.water})`);
+  },
+  brook() { // Veilback Brook (LOST-TACKLE §5): a broken arch over a running stream, reeds either side
+    P(() => { X.moveTo(-6.4, 2); X.lineTo(-6.4, -2.4); X.quadraticCurveTo(-5.6, -6.6, -1.6, -7.2); X.lineTo(-0.6, -5.6); X.quadraticCurveTo(-3.8, -5, -4.2, -1.6); X.lineTo(-4.2, 2); X.closePath(); }, STONE, 0.9);
+    P(() => { X.moveTo(6.4, 2); X.lineTo(6.4, -1.8); X.quadraticCurveTo(6, -5.4, 2.8, -6.6); X.lineTo(2.2, -5); X.quadraticCurveTo(4.2, -4.2, 4.2, -1); X.lineTo(4.2, 2); X.closePath(); }, STONE, 0.9);
+    for (const sx of [-8.6, -7.6, 7.6, 8.6]) P(poly([sx, 6, sx + (sx < 0 ? -0.8 : 0.8), -1.4], false), null, 0.7);
+    P(wave(-7, 7, 4.6, 0.6), null, 0.8, `rgb(${C.water})`); P(wave(-5.6, 5.6, 7.4, 0.5), null, 0.7, `rgb(${C.water})`);
   },
   dot() { dot(0, 0, 2.2, INK); },
 };

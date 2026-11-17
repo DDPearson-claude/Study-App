@@ -106,7 +106,8 @@ section('(h) T104 extended: the game\'s pool (castOdds on data.placePool, as fis
     { lure: 'glimmer_spoon', bait: 'mireworm' }, { lure: 'feather_fly', bait: 'lumen_moss' }, { lure: 'bone_jig', bait: 'cut_strip' }];
   const LIGHTS = { day: 'calm', dusk: 'dusk', night: 'gloomtide' }, ball = D.LOOP.legendBait.mossmere.id, gb = (b) => (b === ball ? null : b ?? null);
   let n = 0, worst = 0; const bad = [];
-  for (const where of [...WC.AREAS.map((a) => ({ area: a, place: null })), ...Object.keys(D.LOOP.places).map((p) => ({ area: null, place: p }))]) {
+  // (a secret place, Veilback Brook (LOST-TACKLE §5), is not in the sim until lane L6 ports it; its pool is checked in veilback-brook.test.mjs)
+  for (const where of [...WC.AREAS.map((a) => ({ area: a, place: null })), ...Object.keys(D.LOOP.places).filter((p) => D.LOOP.places[p].secret !== true).map((p) => ({ area: null, place: p }))]) {
     for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of HOOKS) for (const wick of [null, 'taper']) {
       const pool = D.placePool(D.SPECIES, { placeId: where.place, phase: gph, bait: gb(h.bait), wickId: wick, water: 'mossmere' });
       const ar = pool.place ? null : where.area ?? 'open';

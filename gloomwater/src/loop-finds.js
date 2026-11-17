@@ -60,8 +60,12 @@ export function fillFinds(L) {
   // LOST-TACKLE §8: the places a lost notebook has shown (meta.loop.places.revealed, each id once)
   if (!isObj(L.places)) L.places = { revealed: [] };
   L.places.revealed = arr(L.places.revealed).filter((id, i, a) => typeof id === 'string' && id && a.indexOf(id) === i);
+  for (const id of L.places.revealed) ownRevealed(L, id);
   return L;
 }
+/** A place a notebook has shown is owned from then on, free (LOST-TACKLE §5.2, lanes W and C): it joins maps.places once, so the Chart,
+ *  the Sail, the fishing and the lift treat it as every owned place (a block whose maps are not made yet is left to migrateLoop). */
+function ownRevealed(L, id) { if (isObj(L?.maps) && Array.isArray(L.maps.places) && !L.maps.places.includes(id)) L.maps.places.push(id); }
 /** The places a lost notebook has shown (LOST-TACKLE §5.2): a copy of meta.loop.places.revealed. */
 export function revealedPlaces(metaLoop) { return arr(metaLoop?.places?.revealed).filter((id) => typeof id === 'string'); }
 /** Has a lost notebook shown this place (the brook behind the Veil: drawn on the Chart and sailable only then)? */
@@ -211,6 +215,7 @@ export function bookFinds(metaLoop, lines, D = null) {
       if (F_(D)?.tackle?.guarantee?.item === it.id) delete metaLoop.finds.tackleMiss[it.water];
       const rv = D?.LOOP?.lostTackle?.[it.id]?.reveals;
       if (typeof rv === 'string' && rv && !metaLoop.places.revealed.includes(rv)) metaLoop.places.revealed.push(rv);
+      if (typeof rv === 'string' && rv) ownRevealed(metaLoop, rv);
     }
   }
 }

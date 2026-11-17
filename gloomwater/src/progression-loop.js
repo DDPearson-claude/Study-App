@@ -502,7 +502,7 @@ export function mapCards(D, metaLoop, { meta = null } = {}) {
   const ml = isObj(metaLoop) ? metaLoop : {}, P = isObj(D?.LOOP?.places) ? D.LOOP.places : {};
   const lakes = (Array.isArray(ml.maps?.lakes) ? ml.maps.lakes : []).filter((w) => waterShipped(D, w));
   const have = new Set(Array.isArray(ml.maps?.places) ? ml.maps.places : []), ids = Object.keys(P);
-  const places = ids.filter((id) => isObj(P[id]) && lakes.includes(P[id].water) && !have.has(id))
+  const places = ids.filter((id) => isObj(P[id]) && lakes.includes(P[id].water) && !have.has(id) && P[id].secret !== true)   // (a secret place is shown, never sold)
     .sort((a, b) => num(P[a].price, Infinity) - num(P[b].price, Infinity) || ids.indexOf(a) - ids.indexOf(b)).slice(0, 2)
     .map((id) => {
       const sp = D?.SPECIES_BY_ID?.[P[id].card] || null;
@@ -540,7 +540,7 @@ export function catalogueFor(meta, D, waterId) {
   const kindOf = (s) => (s.place ? P[s.place]?.kind ?? D?.PLACE_BY_ID?.[s.place]?.kind ?? null : typeof s.kind === 'string' && s.kind ? s.kind : 'open');
   const list = listFor(D, waterId).map((id) => byId.get(id)).filter(Boolean).map((s) => take(s, kindOf(s)));
   const groups = [];
-  const placeIds = Object.keys(P).filter((id) => isObj(P[id]) && P[id].water === waterId);
+  const placeIds = Object.keys(P).filter((id) => isObj(P[id]) && P[id].water === waterId && (P[id].secret !== true || owned.has(id)));   // (a secret place once shown)
   for (const id of placeIds) {
     const p = P[id], legend = p.legend ? byId.get(p.legend) : null, giant = p.giant ? byId.get(p.giant) : null;
     const own = fish.filter((s) => s.place === id && !s.giant && s.rarity !== 'legendary');
@@ -668,7 +668,7 @@ export function createLoop(S) {
     const fn = D().goodBitesFor;
     // (M1 step 5c: a bite part's +1 at its own water's open water, FINDS §3.2)
     const extra = kindOf(key) === 'open' ? findBiteBonus(L, D(), String(key || '').slice(5) || run()?.zone || 'mossmere') : 0;
-    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow(), extra }) : 0;
+    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow(), extra, place: typeof key === 'string' && !key.startsWith('open:') ? key : null }) : 0;
   };
   const tripKey = (k) => (typeof k === 'string' && k ? k : keyOf(null, run()?.zone || 'mossmere'));
   const spentAt = (key) => { const r = run(); return onTrip(r) && isObj(r.bites) ? Math.max(0, int(r.bites[tripKey(key)])) : 0; };

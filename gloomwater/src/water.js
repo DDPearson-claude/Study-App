@@ -707,7 +707,8 @@ export function create(ctx) {
   // zone change never hitches. Shallows read lighter, trenches and pools read as ink.
   // G holds the signed distance to world's (noisy) shoreline, ±16 m, so the shore foam and the
   // dark cliff reflection follow the real cliff line instead of a fixed circle.
-  const DEPTH_RES = 128;
+  // (a loop build: 160 texels over the lake and the cut behind the Sluice Veil (world.getBakeHalf), about a metre each, as the lake alone had)
+  const DEPTH_RES = WCW ? 160 : 128;
   // (WC-3: a loop build bakes RGBA: B the inflow's seam and the outflow's pull, A the gravel fan, watercraft-face.faceMasks)
   const DEPTH_CH = WCW ? 4 : 2;
   const depthData = new Uint8Array(DEPTH_RES * DEPTH_RES * DEPTH_CH);
@@ -725,7 +726,7 @@ export function create(ctx) {
     const w = isReal(ctx.world) ? ctx.world : null;
     if (!w || typeof w.getDepth !== 'function') { depthJob.row = -1; U.uDepthOn.value = 0; return; }
     if (depthJob.row === 0) {
-      depthJob.half = Math.max(20, (Number(U.uArenaR.value) || 60) + 8);
+      depthJob.half = Math.max(20, (Number(U.uArenaR.value) || 60) + 8, Number(w.getBakeHalf?.()) || 0);
       U.uDepthScale.value = 1 / (2 * depthJob.half);
     }
     const S = depthJob.half;
@@ -742,9 +743,12 @@ export function create(ctx) {
           depthData[i] = Math.round(clamp(d, 0, 1) * 255);
           let sr = typeof w.getShoreRadius === 'function' ? Number(w.getShoreRadius(Math.atan2(z, x))) : NaN;
           if (!isFinite(sr) || sr <= 0) sr = Number(U.uArenaR.value) || 60;
-          depthData[i + 1] = Math.round(clamp((sr - Math.hypot(x, z) + 16) / 32, 0, 1) * 255);
+          // (the shore's signed distance: the world's own where it draws a cut behind the shore (LOST-TACKLE §5.3), else radial)
+          let sd = typeof w.getShoreDist === 'function' ? Number(w.getShoreDist(x, z)) : NaN;
+          if (!isFinite(sd)) sd = sr - Math.hypot(x, z);
+          depthData[i + 1] = Math.round(clamp((sd + 16) / 32, 0, 1) * 255);
           if (WCW) {
-            const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sr - Math.hypot(x, z) }) : null;
+            const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sd, notch: typeof w.getNotch === 'function' ? w.getNotch() : null }) : null;
             depthData[i + 2] = m ? Math.round(m.seam * 255) : 0;
             depthData[i + 3] = m ? Math.round(m.fan * 255) : 0;
           }

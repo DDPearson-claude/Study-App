@@ -14,7 +14,7 @@
 // writes nothing but the chosen place (meta.loop.chartPick). Never a ring or a disc round the raft or the player.
 import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
-import { gildStep, gildCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home)
+import { gildStep, gildCard, brookStep, brookCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home); the brook behind the Veil (LOST-TACKLE §5.2)
 import { buildLayout } from './world-layout.js';
 import { drawFishInk } from './ui-fishart.js';
 
@@ -47,8 +47,8 @@ export function waterGeometry(D, waterId) {
   const zone = D?.ZONE_BY_ID?.[waterId] || arr(D?.ZONES).find((z) => z?.id === waterId) || null;
   if (!zone) return null;
   const A = zone.arena || {};
-  let shoreR = null;
-  try { shoreR = buildLayout(zone).shoreR; } catch { shoreR = null; }
+  let shoreR = null, N = null;
+  try { const Ly = buildLayout(zone); shoreR = Ly.shoreR; N = Ly.notch ? { ...Ly.notch, ray: null } : null; } catch { shoreR = null; }
   const R = num(A.radius, 60);
   const shore = [];
   let Rmax = 0;
@@ -60,7 +60,7 @@ export function waterGeometry(D, waterId) {
   const pts = (list) => arr(list).filter((p) => isObj(p) && Number.isFinite(p.x) && Number.isFinite(p.z));
   const docks = pts(A.docks).map((d) => ({ x: d.x, z: d.z }));
   return {
-    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null,
+    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N,
     islands: pts(A.islands).map((q) => ({ x: q.x, z: q.z, r: num(q.r, 4), kind: q.kind || 'rock' })),
     piers: pts(A.pillars).filter((p) => p.kind === 'pier').map((p) => ({ x: p.x, z: p.z, r: num(p.r, 1.4) })),
     deep: pts(A.deepPools).map((p) => ({ x: p.x, z: p.z, r: num(p.r, 10) })),
@@ -286,9 +286,10 @@ export function createChartView(deps) {
         }
       }
       const G5 = gildStep(ml, m, now(), st, opts.reduced); more ||= G5.more;   // M1 step 5b: the gilding's re-inking (on the page's own clock)
+      const B5 = brookStep(ml, m, now(), st, opts.reduced); more ||= B5.more;   // LOST-TACKLE §5.2: the brook's ink-in, once
       const g = cv.getContext('2d');
       const view = {
-        gild: (c, d, mm, a, v) => gildCard(c, d, mm, a * G5.k, v),
+        gild: (c, d, mm, a, v) => { brookCard(c, d, mm, a * B5.k, v); return gildCard(c, d, mm, a * G5.k, v); },
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
         water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),

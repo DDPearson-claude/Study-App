@@ -61,6 +61,7 @@ export const PLACE_VOICES = Object.freeze({
   under_the_span: { sfx: 'moss_chain', every: [3, 6.5], volume: 0.85 },
   buoy_lights:    { sfx: 'moss_buoy', every: [7, 12], volume: 0.7, hum: { type: 'triangle', f: 58, ft: 'lowpass', ff: 260, q: 0.8, level: 0.03, vib: 0.6 } },
   bell_pool:      { sfx: 'moss_toll', every: [18, 32], volume: 0.9 },
+  veilback_brook: { sfx: 'moss_lily', every: [4, 8], volume: 0.6 },   // (LOST-TACKLE §5: a lily bed's soft knock in the still brook)
 });
 /** The Buoy Lights hum at night (its lamps are lit); by day and dusk softer. */
 export function humLight(light) { return light === 'night' ? 1 : light === 'dusk' ? 0.6 : 0.4; }
@@ -130,7 +131,11 @@ export function voiceSchedule(every, dur, rng = Math.random, first = 0.35) {
 //   comebackQuiet(o)   Ashwick's comeback settling on the float makes no sound on the Mossmere under the loop (a surprise, §7)
 export const WATER_VOICES = Object.freeze({
   inflow: { x: 57, z: 4, sfx: 'moss_trickle', every: [0.5, 1.15], volume: 0.62, earshot: Object.freeze({ full: 7, gone: 34 }) },
+  // (LOST-TACKLE §5.3: the same trickle where the culvert spills at the head of Veilback Brook; heard only inside the cut)
+  culvert: { x: 77.4, z: 5.3, sfx: 'moss_trickle', every: [0.45, 1.0], volume: 0.5, earshot: Object.freeze({ full: 5, gone: 20 }) },
 });
+/** The Sail's glide through the Sluice Veil (place:veil): a big splash and the falling water loud for a moment (LOST-TACKLE §5.2). */
+export const VEIL_PASS = Object.freeze({ sfx: 'splash_big', volume: 0.7, pitch: 0.82, at: 2.6, trickles: 3 });
 /** The trickle carries further by ear at night (the air is still) and is a touch softer under the day's breeze. */
 export function trickleLight(light) { return light === 'night' ? 1 : light === 'dusk' ? 0.9 : 0.78; }
 /** A water voice at the raft: its gain (0 out of earshot) and its distance. */

@@ -7,6 +7,7 @@ import { glowMaterial, INK, setupSurface, evenOutline, REFLECT_LAYER } from './t
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, rockGeo, taperTube, latheGeo, crystalGeo, wobble, lin, mixArr, scaleArr, fbm3, vnoise3, makeRingNoise, ringNoise } from './world-geo.js';
 import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's reed beds and lily beds (pure plans)
+import { notchFrame, notchHalfW, notchSdf, notchBend } from './world-layout.js';   // the cut behind the Sluice Veil (LOST-TACKLE §5.3)
 import { inkToon, outlineMat, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
 
@@ -204,10 +205,27 @@ vec2 gwTwitch(vec2 p, float hgt) {
       for (const s of saddles) { let da = Math.abs(((a - s.a + Math.PI) % TAU + TAU) % TAU - Math.PI); H *= 1 - s.d * Math.exp(-(da * da) / (s.w * s.w)); }
       heights.push(H);
     }
+    // LOST-TACKLE §5.3: the cut behind the Sluice Veil (L.notch, the Mossmere under the loop). The ring's columns inside its mouth are
+    // dropped and the two beside it set on the mouth's edges; a U of the same rock runs from one to the other round the cut (its banks,
+    // their ledge, the rising walls and their tops, the head where the culvert spills), in this one mesh (0 new calls)
+    const N = theme === 'mossmere' && L.notch ? L.notch : null;
+    const wrapD = (x) => ((x + Math.PI) % TAU + TAU) % TAU - Math.PI;
+    const cutHalf = N ? Math.atan2(N.hw + 0.6, N.r0 + 3) : 0;
+    const inCut = (i) => !!N && Math.abs(wrapD((i / segA) * TAU - N.a)) < cutHalf;
+    let iL = -1, iR = -1;
+    if (N) for (let i = 0; i < segA; i++) { if (!inCut(i) && inCut(i + 1) && iL < 0) iL = i; if (inCut(i) && !inCut(i + 1)) iR = i + 1; }
+    const cutOn = N && iL >= 0 && iR > iL;
+    const rockCol = (y, v, n1, n2) => {
+      let c = mixArr(inkL, K.rockHi, n1 * 0.55);
+      if (y > 0.4 && y < 5) c = mixArr(c, K.moss, 0.45 * (1 - Math.abs(y - 2.2) / 2.8) * n2);
+      if (y < 0.8) c = scaleArr(c, 0.6);
+      return mixArr(c, crestC, Math.pow(v, 3) * 0.8);
+    };
     for (let i = 0; i <= segA; i++) {
       const a = (i / segA) * TAU, ca = Math.cos(a), sa = Math.sin(a);
       const H = heights[i];
       const base = L.shoreR(a) + 2.4;
+      const edge = cutOn && (i === iL || i === iR) ? (i === iL ? -1 : 1) * (N.hw + 0.6) : 0;
       for (let j = 0; j <= segY; j++) {
         const v = j / segY;
         let y = -4 + (H + 4) * Math.pow(v, 0.92);
@@ -216,17 +234,73 @@ vec2 gwTwitch(vec2 p, float hgt) {
         let r = base + (n1 - 0.5) * 7 + (n2 - 0.5) * 1.6 + 1.5 - Math.pow(v, 2) * H * 0.18;
         if (j === segY) { y += (n2 - 0.4) * 3.5; r += 1.2; }
         if (j === 0) r += 1.5;
-        pos.push(ca * r, y, sa * r);
-        let c = mixArr(inkL, K.rockHi, n1 * 0.55);
-        if (y > 0.4 && y < 5) c = mixArr(c, K.moss, 0.45 * (1 - Math.abs(y - 2.2) / 2.8) * n2);
-        if (y < 0.8) c = scaleArr(c, 0.6);
-        c = mixArr(c, crestC, Math.pow(v, 3) * 0.8);
+        if (edge) { const al = r * Math.cos(a - N.a); pos.push(al * N.ca - edge * N.sa, y, al * N.sa + edge * N.ca); }   // (the mouth's edge)
+        else pos.push(ca * r, y, sa * r);
+        const c = rockCol(y, v, n1, n2);
         col.push(c[0], c[1], c[2]);
       }
     }
     for (let i = 0; i < segA; i++) for (let j = 0; j < segY; j++) {
+      if (cutOn && (inCut(i) || inCut(i + 1))) continue;   // (the mouth)
       const A = i * (segY + 1) + j, B = (i + 1) * (segY + 1) + j, C = A + 1, D = B + 1;
       idx.push(A, B, C, B, D, C);
+    }
+    if (cutOn) {
+      // the U's columns: a bank point (the water's edge, lc = ±half-width) and its outward normal, north bank → head → south bank
+      const cols = [], step = low ? 1.6 : 1.15, a0 = N.r0 + 4.6, aH = N.end - N.endHw;
+      const at = (along, lc) => { const t = Math.max(0, Math.min(1, (along - N.r0) / Math.max(1, N.end - N.r0))), lat = lc + notchBend(N, t); return [along * N.ca - lat * N.sa, along * N.sa + lat * N.ca]; };
+      const nAl = Math.max(4, Math.ceil((aH - a0) / step));
+      for (let k = 0; k <= nAl; k++) { const al = a0 + ((aH - a0) * k) / nAl, t = (al - N.r0) / (N.end - N.r0); cols.push({ al, lc: -notchHalfW(N, t), s: -1 }); }
+      const nArc = low ? 5 : 8;
+      for (let k = 1; k < nArc; k++) { const ph = (Math.PI * k) / nArc; cols.push({ al: aH + N.endHw * Math.sin(ph), lc: -N.endHw * Math.cos(ph), s: 0, ph }); }
+      for (let k = nAl; k >= 0; k--) { const al = a0 + ((aH - a0) * k) / nAl, t = (al - N.r0) / (N.end - N.r0); cols.push({ al, lc: notchHalfW(N, t), s: 1 }); }
+      // each column's outward normal (from the path's own tangent, the water on its inside) and the crest's height there
+      const Hm = Math.max(heights[iL], heights[iR]), Hh = Math.max(Hm + 2.2, 10);
+      const ring0 = (i) => { const out = []; for (let j = 0; j <= segY; j++) { const q = (i * (segY + 1) + j) * 3; out.push([pos[q], pos[q + 1], pos[q + 2]]); } return out; };
+      const startCol = ring0(iL), endCol = ring0(iR);
+      // the profile across a bank, from under the water to the cliff's top: [out from the water's edge (m), height (m, or × the crest)]
+      const PROF = [[-0.7, -3], [0.1, -0.2], [0.45, 0.22], [0.95, 0.42], [1.25, 0.14], [1.45, 0.28], [1.6, 0.42], [1.7, 0.56], [1.75, 0.7], [1.7, 0.8], [1.65, 0.9], [1.75, 1], [3.6, 1.04], [6.6, 1.01]];
+      const crestRow = (j) => j >= 4;
+      const g0 = pos.length / 3;
+      const all = [startCol];
+      cols.forEach((c, k) => {
+        const p0 = at(c.al, c.lc), prev = cols[Math.max(0, k - 1)], next = cols[Math.min(cols.length - 1, k + 1)];
+        const pa = at(prev.al, prev.lc), pb = at(next.al, next.lc);
+        let tx = pb[0] - pa[0], tz = pb[1] - pa[1]; const tl = Math.hypot(tx, tz) || 1; tx /= tl; tz /= tl;
+        const nx = tz, nz = -tx;   // (right of the way travelled: away from the water, which lies on its left as the ring's own winding has it)
+        const u = Math.max(0, Math.min(1, (c.al - a0) / Math.max(1, aH - a0))), H = Hm + (Hh - Hm) * u * u * (3 - 2 * u);
+        const colV = [];
+        for (let j = 0; j <= segY; j++) {
+          const [o, f] = PROF[j], y0 = crestRow(j) ? f * H : f;
+          const n1 = fbm3(p0[0] * 0.16 + ox, y0 * 0.11, p0[1] * 0.16 + oz, 3), n2 = vnoise3(p0[0] * 0.55 + oz, y0 * 0.3, p0[1] * 0.55 + ox);
+          let d = o + (crestRow(j) ? (n1 - 0.5) * 1.5 + (n2 - 0.5) * 0.5 : (n2 - 0.5) * 0.22), y = y0;
+          if (j === 11) y += (n2 - 0.4) * 1.6;
+          // the culvert: a dark recess in the head under its arch
+          if (c.s === 0 && Math.abs(c.lc) < 1.15 && j >= 1 && j <= 4) { d += 1.7; y = Math.min(y, 1.75); }
+          colV.push([p0[0] + nx * d, y, p0[1] + nz * d]);
+        }
+        all.push(colV);
+      });
+      all.push(endCol);
+      // (the first and last two columns ease from the ring's mouth edge into the bank's own profile)
+      for (const [k, ref, w] of [[1, 0, 0.35], [2, 0, 0.7], [all.length - 2, all.length - 1, 0.35], [all.length - 3, all.length - 1, 0.7]]) {
+        for (let j = 0; j <= segY; j++) { const P = all[k][j], Q = all[ref][j]; for (let q = 0; q < 3; q++) P[q] = Q[q] + (P[q] - Q[q]) * w; }
+      }
+      const nC = segY + 1;
+      all.forEach((colV, k) => colV.forEach(([x, y, z], j) => {
+        pos.push(x, y, z);
+        const v = j / segY, n1 = fbm3(x * 0.16 + ox, y * 0.11, z * 0.16 + oz, 3), n2 = vnoise3(x * 0.55 + oz, y * 0.3, z * 0.55 + ox);
+        let c = rockCol(y, Math.min(1, Math.max(0, y / Math.max(1, Hh))), n1, n2);
+        const f = notchFrame(N, x, z);
+        if (f.along > N.end - 3 && Math.abs(f.lc) < 1.3 && y < 1.9 && y > -0.5 && Math.hypot(f.along - N.end, 0) < 3.2 && j >= 1 && j <= 4) c = scaleArr(PL.ink, 0.6);   // (the culvert's dark)
+        else if (j >= 2 && j <= 3) c = mixArr(c, mixArr(K.moss, K.mossHi, n2), 0.55);   // (the ledge: moss and mud under the reeds)
+        col.push(c[0], c[1], c[2]);
+      }));
+      for (let k = 0; k + 1 < all.length; k++) for (let j = 0; j < segY; j++) {
+        const A = g0 + k * nC + j, B = g0 + (k + 1) * nC + j, C = A + 1, D = B + 1;
+        idx.push(A, B, C, B, D, C);
+      }
+      prof.cut = all.length;
     }
     const g = G(new THREE.BufferGeometry());
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -240,16 +314,31 @@ vec2 gwTwitch(vec2 p, float hgt) {
     group.add(cliffs);
     // boulders along the base + spires on the crest (merged into the rock mesh)
     const nB = Math.round(R * (low ? 0.6 : 0.95));
+    // (none in the cut or its mouth: each still draws its numbers, so every other boulder and spire stands where it stood)
+    const clearCut = (x, z, pad) => !cutOn || notchSdf(N, x, z) < -pad || notchFrame(N, x, z).along < N.r0 - 4;
     for (let i = 0; i < nB; i++) {
       const a = rng() * TAU, s = rng.range(1.2, 3.4);
       const r = L.shoreR(a) + rng.range(0.2, 1.2) + s * 1.15;
-      kit.rock.push(prep(rockGeo(rng, { r: s, h: s * rng.range(0.6, 1.1), detail: 1, rough: 0.35 }), { matrix: mat(Math.cos(a) * r, s * 0.15, Math.sin(a) * r, 0, rng() * TAU, 0), colorFn: colorRock(0.8) }));
+      const g = rockGeo(rng, { r: s, h: s * rng.range(0.6, 1.1), detail: 1, rough: 0.35 }), ry = rng() * TAU;
+      if (clearCut(Math.cos(a) * r, Math.sin(a) * r, s * 1.2 + 0.6)) kit.rock.push(prep(g, { matrix: mat(Math.cos(a) * r, s * 0.15, Math.sin(a) * r, 0, ry, 0), colorFn: colorRock(0.8) }));
     }
     const nS = low ? 16 : 30;
     for (let i = 0; i < nS; i++) {
       const ii = (rng() * segA) | 0, a = (ii / segA) * TAU;
       const H = heights[ii], r = L.shoreR(a) + 6 + rng() * 6, s = rng.range(1.6, 3.2);
-      kit.rock.push(prep(rockGeo(rng, { r: s, h: s * rng.range(2.5, 6.5), detail: 1, rough: 0.3, flare: 0.1 }), { matrix: mat(Math.cos(a) * r, H * 0.7, Math.sin(a) * r, rng.range(-0.15, 0.15), rng() * TAU, rng.range(-0.15, 0.15)), colorFn: colorRock(0.3, false) }));
+      const g = rockGeo(rng, { r: s, h: s * rng.range(2.5, 6.5), detail: 1, rough: 0.3, flare: 0.1 }), m = mat(Math.cos(a) * r, H * 0.7, Math.sin(a) * r, rng.range(-0.15, 0.15), rng() * TAU, rng.range(-0.15, 0.15));
+      if (clearCut(Math.cos(a) * r, Math.sin(a) * r, s + 2.5)) kit.rock.push(prep(g, { matrix: m, colorFn: colorRock(0.3, false) }));
+    }
+    // the cut's own stones: a few half-sunk boulders along its banks (its own stream), the pool's north side left to the lilies
+    if (cutOn) {
+      const cr = makeRng(((L.artSeed | 0) ^ 0xb200c) >>> 0);
+      for (let k = 0; k < (low ? 4 : 7); k++) {
+        const t = 0.12 + cr() * 0.78, side = cr() < 0.5 ? -1 : 1;
+        if (side < 0 && N.pool && t > N.pool.t0 - 0.05 && t < N.pool.t1 + 0.05) continue;
+        const al = N.r0 + t * (N.end - N.r0), s = cr.range(0.45, 1.05), lc = side * (notchHalfW(N, t) + 0.35 + s * 0.2);
+        const lat = lc + notchBend(N, t), x = al * N.ca - lat * N.sa, z = al * N.sa + lat * N.ca;
+        kit.rock.push(prep(rockGeo(cr, { r: s, h: s * cr.range(0.55, 0.9), detail: 1, rough: 0.35 }), { matrix: mat(x, -s * 0.12, z, 0, cr() * TAU, 0), colorFn: colorRock(1) }));
+      }
     }
   }
 
@@ -876,6 +965,29 @@ vec2 gwTwitch(vec2 p, float hgt) {
       }
     }
     prof.wcReeds = plan.length;
+    // LOST-TACKLE §5.3: the cut's two reed banks (its own stream): clumps in the shallows along both sides, the mouth and the culvert
+    // left open, thinner on the pool's north side where the lily bed lies; leaning out a little over the water
+    const N = L.notch;
+    if (N && theme === 'mossmere') {
+      const br = makeRng(((L.artSeed | 0) ^ 0x4eed5) >>> 0);
+      let stems = 0;
+      for (let k = 0; k < (low ? 9 : 16); k++) {
+        const t = 0.1 + (k / (low ? 9 : 16)) * 0.74 + br() * 0.04, side = k % 2 ? 1 : -1;
+        if (side < 0 && N.pool && t > N.pool.t0 && t < N.pool.t1 && br() < 0.7) continue;
+        const hw = notchHalfW(N, t), lc = side * (hw - 0.25 - br() * 0.7), al = N.r0 + t * (N.end - N.r0) + br.range(-0.4, 0.4);
+        const lat = lc + notchBend(N, t), cx = al * N.ca - lat * N.sa, cz = al * N.sa + lat * N.ca, n = 4 + ((br() * 4) | 0);
+        for (let i = 0; i < n; i++) {
+          const a = br() * TAU, d = br() * 0.5, hh = br.range(0.9, 1.8);
+          const g = new THREE.ConeGeometry(0.04, hh, 4, 1, true);
+          // (a reed leans out over the water: away from its bank)
+          const lean = side * br.range(0.05, 0.22);
+          kit.fine.push(prep(g, { matrix: mat(cx + Math.cos(a) * d, hh / 2 - 0.12, cz + Math.sin(a) * d, lean * N.ca, br() * TAU, -lean * N.sa + br.range(-0.12, 0.12)),
+            color: mixArr(K.organic, K.mossHi, br() * 0.45) }));
+          stems++;
+        }
+      }
+      prof.cutReeds = stems;
+    }
   }
   // <<< WC-3
   // ---------------- merge statics
@@ -989,6 +1101,18 @@ vec2 gwTwitch(vec2 p, float hgt) {
     const nP = low ? 40 : 75;
     // (WC-3: the four lily beds' pads ride in the same InstancedMesh, after the floaters: static, bobbed in the shader only)
     const bedPads = wcOn ? WF.bedPadPlan(L, WF.faceRng(((L.artSeed | 0) ^ 0xbed5) >>> 0), { low, avoid: WF.avoidList(L, ctx.data, zone.id || 'mossmere') }) : [];
+    // (LOST-TACKLE §5.3: the cut's one lily bed, 8 pads where it widens, on its north side: the raft passes along the south)
+    if (wcOn && L.notch?.pool) {
+      const N = L.notch, pr = makeRng(((L.artSeed | 0) ^ 0x11a5) >>> 0), mine = [];
+      for (let tries = 0; tries < 200 && mine.length < 8; tries++) {
+        const t = N.pool.t0 + 0.04 + pr() * (N.pool.t1 - N.pool.t0 - 0.08), hw = notchHalfW(N, t), lc = -(0.7 + pr() * (hw - 1.3));
+        const al = N.r0 + t * (N.end - N.r0), lat = lc + notchBend(N, t), x = al * N.ca - lat * N.sa, z = al * N.sa + lat * N.ca;
+        if (mine.some((q) => Math.hypot(q.x - x, q.z - z) < 0.95)) continue;
+        mine.push({ x, z, ry: pr() * TAU, s: pr.range(0.6, 1.15), ph: pr() * TAU, bed: 4 });
+      }
+      bedPads.push(...mine);
+      prof.cutPads = mine.length;
+    }
     const padT = makeFloatType(pad, padMat, nP + bedPads.length, 'lilypads', { cast: false, reflect: false });
     const aBed = wcOn ? new THREE.InstancedBufferAttribute(new Float32Array(nP + bedPads.length), 1) : null;
     if (aBed) padT.geometry.setAttribute('aBed', aBed);
