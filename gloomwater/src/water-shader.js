@@ -102,6 +102,7 @@ uniform vec2 uMood;           // the night 0..1 and the dawn's warmth 0..1 (worl
 #ifdef GW_REFL
 uniform sampler2D uReflTex;   // the scene mirrored about the water plane (water.renderReflection)
 uniform mat4 uReflMat;        // world → that target's uv (projective)
+uniform vec3 uReflBlur;       // (Lake 1 polish) medium: the two taps sit this far (uv) either side on a diagonal, the second's share z: a tent blur on the small target's steps
 uniform vec3 uKeyDir;         // toward the key light (world)
 uniform vec3 uKeyCol;         // its colour × intensity
 #ifdef GW_SHADOW
@@ -476,9 +477,9 @@ void main() {
   if (dShore < 4.0 && dShore > -2.0) foam += edgeFoam(dShore, xz, 0.0) * 0.8 * smoothstep(-2.0, -0.6, dShore);
 #ifdef GW_WC
   // >>> WC-3: the drop-off's shade. Along the shelf's lip (depth 0.35-0.45) the pale margins end on a soft line and the mid water
-  // beyond reads a little deeper; at the Bell Pool's rim (6-12 m from her bell) the pale lip falls to ink
+  // beyond reads a little deeper; at the Bell Pool's rim (5-9 m from her bell) the water falls to ink
   vec4 wcTex = vec4(0.0);
-  float wcRim = 0.0, wcPale = 0.0, wcLip = 0.0;
+  float wcRim = 0.0, wcLip = 0.0;
   if (uWc > 0.5) {
     if (uDepthOn > 0.5) {
       wcTex = texture2D(uDepthTex, xz * uDepthScale + 0.5);
@@ -487,9 +488,10 @@ void main() {
       shallow = mix(shallow * 0.8, max(shallow, 0.64), wcLip);
     }
     float rd = length(xz - vec2(-4.0, -14.0)) + (wNoise(xz * 0.55 + 1.3) - 0.5) * 1.5;
-    wcRim = 1.0 - smoothstep(6.2, 8.2, rd);
-    wcPale = smoothstep(6.8, 8.4, rd) * (1.0 - smoothstep(9.5, 12.5, rd));
-    shallow = shallow * (1.0 - 0.92 * wcRim) + wcPale * 0.2;
+    // (Lake 1 polish: the pale lip round the rim is gone (from outside it read as a ring round a target); only the tone falls, on a
+    // wide feather)
+    wcRim = 1.0 - smoothstep(5.4, 9.0, rd);
+    shallow = shallow * (1.0 - 0.92 * wcRim);
   }
   // <<< WC-3
 #endif
@@ -521,8 +523,10 @@ void main() {
 #endif
     if (dd > (o.z + 5.0) * (o.z + 5.0)) continue;
     float d = sqrt(dd) - o.z;
-    shallow = max(shallow, 1.0 - smoothstep(-0.5, 4.5, d));
-    foam += edgeFoam(d, xz, float(i) * 1.37 + 2.0) * smoothstep(-1.6, -0.4, d);
+    // (Lake 1 polish: a post's (r < 0.5) shallows and foam keep within 0.6 m of it, fainter: a wide pale ring read as a target circle)
+    float post = 1.0 - step(0.5, o.z);
+    shallow = max(shallow, (1.0 - smoothstep(-0.5, mix(4.5, 0.6, post), d)) * (1.0 - 0.5 * post));
+    foam += edgeFoam(d, xz, float(i) * 1.37 + 2.0) * smoothstep(-1.6, -0.4, d) * mix(1.0, 0.45 * (1.0 - smoothstep(0.25, 0.6, d)), post);
   }
 #ifndef GW_REFL
   // the cliffs ringing the lake mirror as a dark band along the far shore
@@ -668,14 +672,17 @@ void main() {
       vec2 lo = xz - uLane.xy;
       float along = dot(lo, ld), across = dot(lo, vec2(-ld.y, ld.x));
       float ac = across + (wNoise(vec2(along * 0.07, 3.1)) - 0.5) * 1.6;
-      float endK = 1.0 - smoothstep(18.0, 25.0, abs(along) + (wNoise(vec2(across * 0.3, along * 0.05)) - 0.5) * 4.0);
+      float endK = 1.0 - smoothstep(14.0, 25.0, abs(along) + (wNoise(vec2(across * 0.3, along * 0.05)) - 0.5) * 6.0);
+      // (Lake 1 polish: one long straight band read as a scratch across the water; the slick is broken into soft cat's-paw patches
+      // along the lane, feathered at the sides, with a lower peak)
+      float paws = smoothstep(0.38, 0.72, wNoise(vec2(along * 0.16 + 7.3, ac * 0.35)) * 0.7 + wNoise(xz * 0.41 + 2.9) * 0.3);
       // (the lane is open water's: its slick fades out over the margins, as WATERCRAFT's areas carve it, depth ≥ 0.35)
-      wcSlick = (1.0 - smoothstep(1.3, 2.2, abs(ac))) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0);
-      float sc = (ac - 2.0) / 0.2;
-      float scum = exp(-sc * sc) * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0) * (0.3 + 0.7 * smoothstep(0.3, 0.7, wNoise(vec2(along * 0.85, across * 2.5))));
+      wcSlick = (1.0 - smoothstep(0.4, 2.4, abs(ac))) * paws * 0.7 * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0);
+      float sc = (ac - 2.0) / 0.35;
+      float scum = exp(-sc * sc) * paws * endK * uLane.w * (uDepthOn > 0.5 ? smoothstep(0.3, 0.4, wcTex.r) : 1.0) * (0.3 + 0.7 * smoothstep(0.3, 0.7, wNoise(vec2(along * 0.85, across * 2.5))));
       g -= gChop * wcSlick * 0.85;
-      foam += scum * 0.4;
-      lines += scum * 0.35;
+      foam += scum * 0.2;
+      lines += scum * 0.08;
     }
   }
   // <<< WC-3
@@ -764,8 +771,8 @@ void main() {
   vec2 nv = vec2(dot(N.xz, vp), dot(N.xz, vd));
   vec2 nf = nv - vec2(dot(gFine, vp), dot(gFine, vd)) * 0.5;
   float rk = 0.05 * clamp(20.0 / camD, 0.25, 2.2);
-  vec3 rcol = texture2D(uReflTex, clamp(ruv + nv * vec2(1.0, -2.2) * rk, 0.002, 0.998)).rgb;
-  rcol = mix(rcol, texture2D(uReflTex, clamp(ruv + nf * vec2(1.3, -3.0) * rk, 0.002, 0.998)).rgb, 0.5 - 0.25 * calmW);
+  vec3 rcol = texture2D(uReflTex, clamp(ruv + nv * vec2(1.0, -2.2) * rk - uReflBlur.xy, 0.002, 0.998)).rgb;
+  rcol = mix(rcol, texture2D(uReflTex, clamp(ruv + nf * vec2(1.3, -3.0) * rk + uReflBlur.xy, 0.002, 0.998)).rgb, max(0.5 - 0.25 * calmW, uReflBlur.z));
   rcol = min(rcol, vec3(1.1));          // a glow's mirror image is a glow, not a hot sheet on the water
   // (the loop: a pale lit face mirrored near the eye is held down, so it never lies on the water as a bright patch)
   rcol /= 1.0 + calmW * 0.9 * max(dot(rcol, vec3(0.2126, 0.7152, 0.0722)) - 0.3, 0.0);
@@ -828,11 +835,11 @@ void main() {
 #endif
 #endif
 #ifdef GW_WC
-  col += sheen * wcSlick * 0.2;              // (WC-3: the wind lane's slick, a sheen where the ripple dies)
+  col *= 1.0 - 0.12 * wcSlick;               // (WC-3: the wind lane's slick; Lake 1 polish: a matte, darker calm, never a bright sheen)
   // (WC-3: the drop-off's shade on what the eye sees, the mirror included: the Bell Pool's ink below its pale lip, and the margins
   // a breath paler than the mid water beyond the shelf's lip)
   col = mix(col, col * 0.42, wcRim * 0.62 * uWc);
-  col += (uShallow * 0.1 + sheen * 0.05) * (wcPale + wcLip * 0.5) * uWc;
+  col += (uShallow * 0.1 + sheen * 0.05) * wcLip * 0.5 * uWc;
 #endif
 
   // ---- lights: warm pools and dashed vertical streaks

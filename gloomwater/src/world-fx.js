@@ -583,6 +583,8 @@ export function createShoreRings(list) {
         float rip = max(0.0, sin((e - uTime * 0.55) * 4.2)) * exp(-max(e, 0.0) * 0.9) * step(-0.2, e) * 0.35;
         float brk = 0.55 + 0.45 * gwN(vec3(cos(ang) * 6.0, sin(ang) * 6.0, vS + uTime * 0.2));
         float a = (band + rip) * brk * smoothstep(3.4, 2.0, e) * uAmt * smoothstep(2.0, 6.0, vDist);
+        // (Lake 1 polish: round a post (r < 0.5) the ring keeps within 0.6 m of it, at half strength: never a target circle)
+        if (vR < 0.5) a *= 0.5 * (1.0 - smoothstep(0.25, 0.6, d - vR));
         if (a < 0.004) discard;
         gl_FragColor = vec4(uColor, a);
       }`,

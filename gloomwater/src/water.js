@@ -115,7 +115,7 @@ export function create(ctx) {
   // by reference with the virtual camera's and the light's own)
   const reflMat = new THREE.Matrix4();
   Object.assign(uniforms, {
-    uReflTex: { value: null }, uReflMat: { value: reflMat },
+    uReflTex: { value: null }, uReflMat: { value: reflMat }, uReflBlur: { value: new THREE.Vector3(0, 0, 0) },
     uKeyDir: { value: new THREE.Vector3(-0.71, 0.59, -0.38).normalize() }, uKeyCol: { value: new THREE.Color(0, 0, 0) }, uMood: { value: new THREE.Vector2(0, 0) },
     uShadowTex: { value: null }, uShadowMat: { value: new THREE.Matrix4() }, uShadowP: { value: new THREE.Vector2(1 / 2048, 1) },
   });
@@ -223,6 +223,9 @@ export function create(ctx) {
       U.uReflTex.value = refl.rt.texture;
     } else if (refl.w !== w || refl.h !== h) refl.rt.setSize(w, h);
     refl.w = w; refl.h = h;
+    // (Lake 1 polish: on medium the target is a third of the screen and its edges stair-step; its two taps sit 0.6 texel either side on
+    // a diagonal, half each, so the bilinear lookups make a tent blur over about two texels)
+    if (tier === 'medium') U.uReflBlur.value.set(0.6 / w, 0.6 / h, 0.5); else U.uReflBlur.value.set(0, 0, 0);
     // every light joins the mirror's layer, so the mirrored scene is lit by the same lights (and compiled into the same programs)
     if (--refl.lightScan <= 0) { refl.lightScan = 45; scene.traverse((o) => { if (o.isLight) o.layers.enable(REFLECT_LAYER); }); }
 
