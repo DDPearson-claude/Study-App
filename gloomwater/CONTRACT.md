@@ -2375,3 +2375,22 @@ Selectors (the scenarios'): `[data-loop=shelf]` (the book), `[data-item=<id>]` (
 - **The switch**: `?guide=0|1` (wins), else a preset `GW_GUIDE` boolean; `tools/playtest.mjs` and `tools/chart-shots.mjs` preset it
   off, so every scenario but `loop-guide.scenario.mjs` (which loads `?guide=1`) plays as before.
 - **Files**: `src/ui-guide.js`, `tools/tests/ui-guide.test.mjs`, `tools/tests/loop-guide.scenario.mjs`.
+
+### 14.22 A game controller (the user's ask of 17 November 2026: a Windows handheld's controllers; standard Gamepad API mapping)
+- **Where**: `src/input-pad.js`, attached by main under the loop only and polled once a frame right after the keys' move (no DOM, no
+  CSS and no change for a mouse, keyboard or touch player until a pad is used). The first connected pad (a `standard` one first).
+- **On the water**: the left stick and the D-pad add to `ctx.input.move` (as WASD and the touch stick); A held is main's own pointer
+  press (`pointerType 'pad'`, a key's strike latency) and its release the pointer's release, so the swing-out-and-back cast, the strike,
+  the show's hurry and a lure's retrieve are a tap's. `ctx.input.padAim = {on, x, z}`: while A is held, fishing's `updateAim` takes it
+  instead of the pointer (ahead of the raft, `player.heading`; the right stick turns it camera-relative).
+- **Screens** (the top `.gw-modal` that is not leaving): D-pad / left stick move a focus by screen position between its buttons; A
+  clicks; B is a synthetic Escape (on the catch / find card: Let go, its pointer press and release, so holding B cuts as holding Let
+  go does); LB / RB the tabs; the right stick scrolls `.gw-scroll`. The focus is `.gw-padfocus`, wearing every `:focus-visible` rule
+  twinned for it. Anywhere: Start = KeyP (Escape on the pauses and the Jetty), Y = KeyJ (the Jetty's JOURNAL; closes the Journal),
+  X = KeyB. The intro: A / B / Start skip.
+- **While the last input was the pad** (`html.gw-pad-on`; a real pointerdown, keydown or wheel clears it): the touch stick hidden;
+  A / B glyphs (`.gw-padg`) beside the focus and the way back (Let go, the close), placed clear of every word and button; Settings
+  shows "Controller hints" (`settings.padHints`) once a pad has been seen (`ctx.input.padSeen`).
+- **Rumble**: `vibrationActuator.playEffect('dual-rumble')`, guarded: soft at `fishing:strike`, the heart's beats (`heartBeats`) at a
+  `fishing:hookset` on an Elder / Ancient; none with reduced motion or `haptics` / `vibration` / `screenShake` off.
+- **Debug**: `ctx.debug.pad()`. **Files**: `src/input-pad.js`, `tools/tests/input-pad.test.mjs`, `tools/tests/loop-pad.scenario.mjs`.
