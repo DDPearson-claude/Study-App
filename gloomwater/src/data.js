@@ -5176,6 +5176,8 @@ LOOP.gearCap = {
 // and the logs' lines (the Journal's species page, the sheet's pinned fish, the gear log)
 TEXT_LOOP.gate = {
   upTo: 'Lands up to {class}.', needs: 'Needs {item}.',
+  // the Journal's hint on a card the save cannot catch yet (progression-loop.needsHint): an unmet fish's generic words, and the line's
+  hint: { lure: 'Needs a lure.', bait: 'Needs bait.', line: 'Needs a better line.' },
   away: { line: 'Too heavy for your line.', bare: 'Too big for a bare hook.', bent_spoon: 'Too big for the Bent Spoon.', cut_strip: 'Too big for Cut Strip.',
     lure: 'It wants a better lure.', bait: 'It wants a better bait.' },
 };

@@ -523,6 +523,7 @@ export function allowedWords(D) {
   // GEAR-GATES §5.1: the logs' gate lines as composed ("Lands up to Prize.", "Needs the Glimmer Spoon.", "Needs Lumen Moss.")
   { const G = T_(D).gate, gi = T_(D).gearItems;
     if (isObj(G) && typeof G.upTo === 'string') for (const c of arr(D?.SIZE_CLASSES)) if (c?.label) out.add(G.upTo.replace('{class}', c.label));
+    if (isObj(G?.hint)) for (const w of Object.values(G.hint)) if (typeof w === 'string') out.add(w);   // the Journal's card hint
     if (isObj(G) && typeof G.needs === 'string' && isObj(gi)) for (const n of Object.values(gi)) if (typeof n === 'string') { out.add(G.needs.replace('{item}', n)); out.add(G.needs.replace('{item}', `the ${n}`)); } }
   return out;
 }

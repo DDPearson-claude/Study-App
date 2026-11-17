@@ -8,7 +8,7 @@
 //   sellStrandedTrip(save) (the flag-off boot rule: needs no data) · shelfItems(D, metaLoop, session) · goalOf(items) ·
 //   stampFirst(firsts, sp, fish, {cls, seals}) (the Wick's ledger) · v8 (SPEC §5.5): listFor(D, waterId) · listCount(meta, D, waterId) ·
 //   M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.2): mapCards(D, metaLoop, {meta}) · sealsOf(meta, D, waterId) · liftDue(D, metaLoop) ·
-//   catalogueFor(meta, D, waterId) · TK (the tackle tin, CONTRACT §14.19): hookChangeable({trip, state, fishOn, card}) · HOOK_BUSY
+//   catalogueFor(meta, D, waterId) · gateLine(D, metaLoop, fishId) · needsHint(D, meta, fishId) (the Journal's "Needs a lure.") · TK (the tackle tin, CONTRACT §14.19): hookChangeable({trip, state, fishOn, card}) · HOOK_BUSY
 // meta.loop (SPEC §9, PLAN §3.4): `holdSlots` is the bought count (3–8) for every Wick; a Wick's slots are data.loopSlots. Slice 1a
 // adds `wick`, `tutorial`, `said`, `lastTrip` and `firsts` (the Wick's ledger, WICKS §2.1), and `parkedRun` only while an old descent
 // waits (PLAN CHOICE 5). A trip is a run with `outing: 'trip'`; its hold IS `run.creel` (PLAN CHOICE 19).
@@ -603,14 +603,53 @@ export function gateLine(D, metaLoop, fishId) {
   }
   const label = (cls) => (Array.isArray(D?.SIZE_CLASSES) ? D.SIZE_CLASSES.find((c) => c?.id === cls)?.label : null) || cls;
   if (best) return { kind: 'upTo', cls: best.cls, text: String(T.upTo).replace('{class}', label(best.cls)) };
-  const name = (id) => D?.TEXT_LOOP?.gearItems?.[id] || id;
+  const it = shelfNeed(D, fishId, water);
+  return it ? { kind: 'needs', item: it.id, text: needsText(D, it) } : null;
+}
+/** The cheapest item of a water's shelf (its bought lures, its tins) that takes a fish: {id, lure, price}, or null. */
+function shelfNeed(D, fishId, water, lands = () => true) {
+  const LP = D?.LOOP || {};
   const items = [
     ...Object.entries(isObj(LP.lures) ? LP.lures : {}).filter(([, L]) => isObj(L) && L.water === water && L.start !== true && L.found !== true).map(([id, L]) => ({ id, lure: true, price: num(L.price) })),
     ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).map((id) => ({ id, lure: false, price: tinPrice(D, water) })),
-  ].filter((it) => num(wcGradeOf(fishId, it.lure ? { lure: it.id } : { bait: it.id })) >= 1).sort((a, b) => a.price - b.price);
-  if (!items.length) return null;
-  const it = items[0];
-  return { kind: 'needs', item: it.id, text: String(T.needs).replace('{item}', it.lure ? `the ${name(it.id)}` : name(it.id)) };
+  ].filter((it) => { const o = it.lure ? { lure: it.id } : { bait: it.id }; return num(wcGradeOf(fishId, o)) >= 1 && lands(o); }).sort((a, b) => a.price - b.price);
+  return items[0] || null;
+}
+/** "Needs the Glimmer Spoon." (a lure with "the"), "Needs Lumen Moss." (a tin without): TEXT_LOOP.gate.needs. */
+const needsText = (D, it) => { const n = D?.TEXT_LOOP?.gearItems?.[it.id] || it.id; return String(D?.TEXT_LOOP?.gate?.needs).replace('{item}', it.lure ? `the ${n}` : n); };
+
+/**
+ * The Journal's "Needs …" hint (the user, 17 Nov 2026: "so nobody hunts a fish they can't catch yet"), on the catalogue's cards and the
+ * species page (pure). null while anything the save OWNS lands the fish on the fitted line: the bare hook, every owned lure (the found
+ * Gate-Guard's Button among them), every tin of the water it has held (a tin it ran out of refills at the shelf), and Cut Strip once
+ * it can cut one (a strip in the bag, or a fish it may cut already landed). Else {kind, item, text}: 'line' "Needs a better line."
+ * when the owned hooks that take it all cap under the smallest it comes and a better line would land one (the found line counts);
+ * 'lure' / 'bait' the cheapest shelf item that takes it and would land it: an unmet fish (no Journal entry) the generic "Needs a
+ * lure." / "Needs bait." (never naming it), a met one the species page's words ("Needs the Glimmer Spoon.", "Needs Lumen Moss.").
+ * null too off the loop, for a fish with no hook row (another water's, the legend) or with no LOOP.gearCap. No odds, no numbers.
+ */
+export function needsHint(D, meta, fishId) {
+  const T = D?.TEXT_LOOP?.gate, LP = D?.LOOP;
+  if (D?.LOOP_ENABLED !== true || !isObj(T) || !isObj(T.hint) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
+  if (wcGradeOf(fishId, {}) === undefined || !wcGearCap(D, fishId, { bait: 'mireworm' })) return null;
+  const J = isObj(meta?.journal) ? meta.journal : {}, ml = isObj(meta?.loop) ? meta.loop : {}, water = firstWater(D);
+  const bag = isObj(ml.bait?.[water]) ? ml.bait[water] : {}, has = (id) => Object.prototype.hasOwnProperty.call(bag, id);
+  const spOf = (id) => D?.SPECIES_BY_ID?.[id] || (D?.SPECIES || []).find((s) => s?.id === id) || null;
+  const cuttable = (id) => { const s = spOf(id); return !!s && s.giant !== true && s.rarity !== 'legendary'; };
+  const cut = has('cut_strip') || Object.entries(J).some(([id, r]) => num(r?.caught) > 0 && cuttable(id));
+  const hooks = [{}, ...(cut ? [{ bait: 'cut_strip' }] : []), ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id])).map((lure) => ({ lure })),
+    ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).filter(has).map((bait) => ({ bait }))].filter((h) => num(wcGradeOf(fishId, h)) >= 1);
+  const SZ = D?.BALANCE_V3?.size || {}, sp = spOf(fishId);
+  const lowZ = Math.max(num(SZ.z?.min, -2), sp?.giant === true ? num(LP.giant?.minZ, -Infinity) : -Infinity);
+  const line = int(ml.tackle?.line), lineCap = foundKit(ml, D).lineCap;
+  const caps = hooks.map((h) => wcGearCap(D, fishId, { ...h, line, lineCap }));
+  if (caps.some((c) => !c || c.z > lowZ)) return null;
+  const topLine = Math.max(0, (Array.isArray(LP.gearCap.line) ? LP.gearCap.line.length : 1) - 1);
+  if (hooks.some((h) => { const c = wcGearCap(D, fishId, { ...h, line: topLine }); return !c || c.z > lowZ; })) return { kind: 'line', item: null, text: T.hint.line };
+  const it = shelfNeed(D, fishId, water, (o) => { const c = wcGearCap(D, fishId, { ...o, line: topLine }); return !c || c.z > lowZ; });   // (with the line it would need)
+  if (!it) return null;
+  const kind = it.lure ? 'lure' : 'bait';
+  return { kind, item: it.id, text: isObj(J[fishId]) ? needsText(D, it) : T.hint[kind] };
 }
 
 /**

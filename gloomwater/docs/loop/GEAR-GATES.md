@@ -288,6 +288,7 @@ Minnows, Chub, Lampsippers and Koi."; Spinner "For the Mossmere's giants.". The 
 | the sheet's pinned fish row | the cap at the picks | `Lands up to {Class}.` |
 | the gear log's item line (WC-3's `+{n} Hold …`) | a second line on the three capped items and on the Line slot | `Lands up to {Class}.` |
 | the water | the got-away line (§4.3) | §4.3 |
+| the Journal's cards (the list, its places' groups, the guests, the ★ page) and the species page: the hint (the user, 17 Nov 2026: "so nobody hunts a fish they can't catch yet"; `progression-loop.needsHint`) | one line under a card while nothing the save owns lands the fish: the bare hook, owned lures (found ones too), every tin of the water ever held (it refills at the shelf), Cut Strip once one can be cut (a strip in the bag, or a cuttable fish landed), on the fitted line (the found line counts). Gone the moment it owns something that does. The species page shows the same words in place of its gate line | unmet: `Needs a lure.` / `Needs bait.` (never the item); met: `Needs {item}.` (`Needs the Glimmer Spoon.`, `Needs Lumen Moss.`); a better line alone would land it: `Needs a better line.` (TEXT_LOOP.gate.hint) |
 
 Never on the shelf, the HUD's tins, the float or the Chart.
 
