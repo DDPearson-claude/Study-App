@@ -365,6 +365,7 @@ export function createLoopHome(deps) {
     if (typeof place !== 'string' || !place) place = null;
     if (given) safe(() => L?.setPick?.({ water, place }), null);
     const owned = !!place && (safe(() => L?.state?.()?.maps?.places, null) || []).includes(place);
+    if (place && !owned && LOOPD.places?.[place]?.secret === true) { S.sailing = false; return false; }   // (LOST-TACKLE §5.2: never to a water not yet shown)
     const P = owned ? placeOf(place) : null;
     const dock = dockAt(), at = raftNow(), from = dock ? dock.position : at;
     // (toward a place: the data's glide, data.loopSailPlan, which validate-data --loop proves clear of every island and pillar by the
@@ -376,14 +377,26 @@ export function createLoopHome(deps) {
     const gp = gd && glideClearance(gd.path, obs) >= clear ? gd
       : P && Number.isFinite(P.x) && from ? placeGlide(data.sailPlan, from, { x: P.x, z: P.z }, TUT, obs, { clear }) : null;
     const g = gp || data.sailPlan(from, { x: 0, z: 0 }, TUT, water);
-    S.sailPlace = gp ? place : null;
+    // (LOST-TACKLE §5.2: a place with its own glide in, Veilback Brook's: the raft is set at its first point, a cut, and glides through the
+    // Sluice Veil into the brook; a splash and the falling water loud as it passes, emitted as place:veil for the sound)
+    const own = P && Array.isArray(LOOPD.places?.[place]?.glide) && LOOPD.places[place].glide.length >= 2 ? LOOPD.places[place].glide : null;
+    let path = g.path, to = g.to, yaw = g.yaw;
+    if (own) {
+      path = own.map((q) => ({ x: Number(q[0]), z: Number(q[1]) }));
+      const a = path[path.length - 2], b = path[path.length - 1];
+      to = b; yaw = Math.atan2(-(b.x - a.x), -(b.z - a.z));
+      teleport(path[0], Math.atan2(-(path[1].x - path[0].x), -(path[1].z - path[0].z)));
+      emit('place:veil', { placeId: place, phase: 'glide' });
+    }
+    S.sailPlace = gp || own ? place : null;
     S.sailing = true;
     const go = () => {
       if (!S.sailing) return;
       S.sailing = false;
-      if (!startTrip({ water, at: { position: g.to, yaw: g.yaw } })) teleportHome();   // (no trip: back at the dock, still home)
+      if (!startTrip({ water, at: { position: to, yaw } })) teleportHome();   // (no trip: back at the dock, still home)
     };
-    homeGlide(g.path, { duration: numOr(TUT.out, 3), kind: 'sailOut', to: g.to, yaw: g.yaw, done: go });
+    homeGlide(path, { duration: own ? numOr(LOOPD.places[place].glideSec, numOr(TUT.out, 3)) : numOr(TUT.out, 3), kind: 'sailOut', to, yaw, done: go });
+    if (own) snapCamera();   // (the cut: the lens behind the raft, down the brook, from the glide's first frame)
     return true;
   }
 

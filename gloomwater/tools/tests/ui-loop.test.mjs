@@ -495,7 +495,8 @@ section('T143: words (TEXT_LOOP, names, numbers; no percentage literal)');
     ok(loopPart.length > 1000 && !/\d\s*%['"`]|%\$\{|['"`]%/.test(loopPart), `no percentage literal in ${f}${f === 'ui-screens.js' ? '\'s catalogue' : ''}`);
   }
   const walk = (v, out = []) => { if (typeof v === 'string') out.push(v); else if (v && typeof v === 'object') Object.values(v).forEach((x) => walk(x, out)); return out; };
-  ok(!walk({ ...TL, log: { ...(TL.log || {}), under: '' } }).some((t) => /%/.test(t)), 'no percentage in TEXT_LOOP (but the gear log\'s "<1%", SPEC §8.11: WC-1)');
+  ok(!walk({ ...TL, log: { ...(TL.log || {}), under: '' }, lost: { ...(TL.lost || {}), log: { ...(TL.lost?.log || {}), wait: '' } } }).some((t) => /%/.test(t)),
+    'no percentage in TEXT_LOOP (but the gear log\'s "<1%", SPEC §8.11: WC-1, and its "Bites come {p}% sooner.", LOST-TACKLE §6.2)');
 }
 
 section('T144: Murk\'s lines at their moments, each once a save; the catch seal\'s press');

@@ -7,6 +7,9 @@
 //       the Gate Lamp-Glass    amber panes in the cabin's side windows (an emissive variant of the windows: the glow mesh's window part)
 //       the Moat Bollard       a squat carved stone bollard on the stern deck, a turn of line round its neck running aft to the raft
 //       the Night-Lily Boxes   two stone boxes under the starboard windows, pale night lilies (green only as a trace)
+//   the lost tackle (LOST-TACKLE.md §2.1): the rod, line, reel and lure owned hang on the gear rack on the cabin's aft wall beside the
+//     bought rod (the Lamplighter's Pole standing to port of it, its lamp-hook over the rack; the Belfry Winch and the Ferrywife's
+//     Thread on pegs; the Gate-Guard's Button on a nail); the notebooks lie on the chart table (the Veil Angler's open at its map)
 //   findHomeSig(metaLoop) — what of those is owned, for setVariants' signature
 //   createFindLooks(ctx, {raft, wick}) — the raft's Toll-Tower Vane (on a stern post) and the Wick's Knotted Rod Tassel (at the rod's
 //     butt, in hand and stowed): one merged mesh each, built when owned (sync() reads meta.loop.finds twice a second)
@@ -20,6 +23,8 @@ const owned = (L, id) => Number(L?.finds?.got?.[id]) >= 1;
 const box = (w, h, d, p, col, r = null) => paint(xf(new THREE.BoxGeometry(w, h, d), { p, r }), col);
 const cyl = (rt, rb, h, seg, p, col, r = null) => paint(xf(new THREE.CylinderGeometry(rt, rb, h, seg), { p, r }), col);
 const IRON = 0x2a2830, RUST = 0x8a4a2e, STONE = 0x8a8498, STONE_DK = 0x6a6676, ROPE = 0x8c7552, MOSS = 0x3c4a2e, LILY = 0xe8e0f0, POST = 0x2c211d;
+const WOOD_DK = 0x3a2c24, BRASS = 0xb8893a, LEATHER = 0x3c2a20, PAGE = 0xd4cab4, MAPC = 0xc8b48c, STRING = 0x9a8462, CLOTH = 0x56506e;
+const TACKLE_IDS = ['lamp_pole', 'belfry_winch', 'ferry_thread', 'guard_button', 'veil_notebook', 'lily_notebook'];
 // the glow mesh's window part (actors-home GLOW.window = 0): amber, a little warmer and brighter than the built panes
 const WINDOW_PART = 0, AMBER = [0xff9a3a, 2.35];
 function amberPane(w, h, p, face) {
@@ -39,7 +44,9 @@ function placed(id, { p = [0, 0, 0], r = null, len = null } = {}) {
 
 /** What of the barge's finds is owned (the signature setVariants keys on). */
 export function findHomeSig(metaLoop) {
-  return ['buoy_bell', 'gate_glass', 'moat_bollard', 'lily_boxes'].map((id) => (owned(metaLoop, id) ? 1 : 0)).join('');
+  const parts = ['buoy_bell', 'gate_glass', 'moat_bollard', 'lily_boxes'].map((id) => (owned(metaLoop, id) ? 1 : 0)).join('');
+  const tk = TACKLE_IDS.map((id) => (owned(metaLoop, id) ? 1 : 0)).join('');
+  return tk.includes('1') ? `${parts}:${tk}` : parts;   // (the lost tackle's six after a colon, only once one is owned)
 }
 /**
  * The barge's finds as variant geometry (in place on parts: {timber: [geo], glow: [geo]}). A is the barge's anchors (A.windows, the six
@@ -89,6 +96,53 @@ export function findHomeParts(metaLoop, A, parts) {
         parts.timber.push(cyl(0.006, 0.006, 0.08, 3, [x + 0.01, y + 0.1, z + dz], lit(MOSS, 2.0)));
       }
     }
+  }
+  tackleHomeParts(metaLoop, A, parts);
+  return parts;
+}
+
+/**
+ * The lost tackle at home (LOST-TACKLE §2.1): merged into the timber like the parts (no draw call, no material). The rack is the
+ * cabin's aft wall port of the door (actors-home's rod rack: x −1.0, its face at z ≈ 2.32; the rack target's box); the chart table's
+ * top is A.chart.top (5b's Chart is drawn on it: the notebooks lie on its port and aft edges, clear of the middle of the sheet).
+ */
+function tackleHomeParts(metaLoop, A, parts) {
+  const deckY = 0.42, zW = 2.31;   // the aft wall's face (HULL.cabin.z1 2.25 + its planks)
+  const peg = (x, y, len = 0.09) => parts.timber.push(cyl(0.008, 0.008, len, 4, [x, y, zW + len / 2], lit(IRON), [Math.PI / 2, 0, 0]));
+  // the Lamplighter's Pole: standing to port of the bought rod, its butt on the deck, the lamp-hook bent out over the rack at the top
+  // (cut to stand under the awning's forward edge, 2.24 m up at the wall: its hook tops out at 2.13)
+  if (owned(metaLoop, 'lamp_pole')) {
+    const x = -1.19, z = zW + 0.06, y0 = deckY + 0.06, h = 1.58;
+    parts.timber.push(cyl(0.015, 0.024, h, 6, [x, y0 + h / 2, z], lit(WOOD_DK, 2.0)));
+    parts.timber.push(cyl(0.028, 0.028, 0.1, 6, [x, y0 + 0.05, z], lit(BRASS, 1.5)));
+    for (const y of [0.62, 1.2]) parts.timber.push(cyl(0.022, 0.022, 0.03, 6, [x, y0 + y, z], lit(IRON, 1.8)));
+    parts.timber.push(box(0.05, 0.05, 0.08, [x, deckY + 1.3, zW + 0.03], lit(POST)));   // its bracket
+    parts.timber.push(paint(xf(new THREE.TorusGeometry(0.07, 0.009, 4, 10, Math.PI * 1.25), { r: [0, Math.PI / 2, 0], p: [x, y0 + h + 0.0, z + 0.07] }), lit(BRASS, 1.5)));
+    parts.timber.push(paint(xf(new THREE.TorusGeometry(0.03, 0.007, 4, 10), { r: [0, Math.PI / 2, 0], p: [x, y0 + h - 0.07, z + 0.12] }), lit(BRASS, 1.5)));
+  }
+  // the Belfry Winch on a peg in the rack's upper half (its wheel to the stern), the Ferrywife's Thread on a peg below it
+  if (owned(metaLoop, 'belfry_winch')) { peg(-1.08, deckY + 1.24); parts.timber.push(placed('belfry_winch', { p: [-1.08, deckY + 1.24, zW + 0.1], r: [0, -Math.PI / 2, 0], len: 0.2 })); }
+  if (owned(metaLoop, 'ferry_thread')) { peg(-1.08, deckY + 0.86); parts.timber.push(placed('ferry_thread', { p: [-1.08, deckY + 0.86, zW + 0.09], r: [0, 0, 0], len: 0.13 })); }
+  // the Gate-Guard's Button on a nail at the rack's top, its brass to the stern
+  if (owned(metaLoop, 'guard_button')) { peg(-1.08, deckY + 1.7, 0.05); parts.timber.push(placed('guard_button', { p: [-1.08, deckY + 1.66, zW + 0.06], r: [0, -Math.PI / 2, 0], len: 0.085 })); }
+  // the notebooks on the chart table (the Veil Angler's open at its map on the port edge; the Lily Gardener's shut at the aft edge)
+  const T = A?.chart?.top;
+  if (!T) return parts;
+  const y = T.y + 0.012;
+  if (owned(metaLoop, 'veil_notebook')) {
+    const x = T.x - T.w / 2 + 0.17, z = T.z - 0.04, open = [];
+    open.push(box(0.34, 0.012, 0.23, [0, 0, 0], lit(LEATHER, 1.8)));
+    for (const s of [-1, 1]) open.push(paint(xf(new THREE.BoxGeometry(0.155, 0.022, 0.21), { p: [s * 0.08, 0.016, 0], r: [0, 0, -s * 0.06] }), lit(PAGE, 1.25)));
+    open.push(paint(xf(new THREE.BoxGeometry(0.15, 0.004, 0.13), { p: [0.1, 0.036, 0.03], r: [0, 0.22, 0.05] }), lit(MAPC, 1.3)));   // the map, unfolded over the page
+    open.push(box(0.006, 0.004, 0.2, [0.03, 0.04, -0.02], lit(STRING, 1.6), [0, 0.5, 0]));   // the string, untied
+    parts.timber.push(xf(mergeGeos(open), { p: [x, y, z], r: [0, 0.18, 0] }));
+  }
+  if (owned(metaLoop, 'lily_notebook')) {
+    const x = T.x + 0.12, z = T.z + T.d / 2 - 0.1, shut = [];
+    shut.push(box(0.15, 0.028, 0.19, [0, 0, 0], lit(CLOTH, 1.9)));
+    shut.push(box(0.142, 0.022, 0.006, [0, 0, 0.094], lit(PAGE, 1.2)));
+    for (const a of [-0.7, 0, 0.7]) shut.push(paint(xf(new THREE.SphereGeometry(0.016, 6, 4), { s: [1.7, 0.2, 0.7], r: [0, a, 0], p: [Math.sin(a) * 0.018, 0.016, Math.cos(a) * 0.018 - 0.01] }), lit(LILY, 1.5)));
+    parts.timber.push(xf(mergeGeos(shut), { p: [x, y + 0.002, z], r: [0, -0.32, 0] }));
   }
   return parts;
 }

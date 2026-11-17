@@ -1,4 +1,5 @@
-// models-finds.js — M1 step 5c (lane 5C): the Mossmere's eleven finds as props (docs/loop/FINDS.md §5.1, §7). Each find is one merged
+// models-finds.js — M1 step 5c (lane 5C): the Mossmere's eleven finds, and its six lost-tackle pieces (LOST-TACKLE.md §3, §4), as
+// props (docs/loop/FINDS.md §5.1, §7). Each find is one merged
 // mesh in the toon material (vertex colours, ≤ 400 triangles; the bollard ≤ 800), in the Starlit palette with metal as warm accents
 // (rust, brass, a little gold), never neon. Laid along local +z (its "nose") with its face to local ±x (the show holds a catch flank
 // to the lens), centred on its middle, at its own size (LOOP.finds.items[i].size metres long).
@@ -13,7 +14,9 @@ import { xf, paint, mergeGeos } from './models-kit.js';
 
 const TIN = 0xa8a6b4, BRASS = 0xb8893a, BRASS_DK = 0x5c5a3c, GOLD = 0xd9b24a, RUST = 0x6a3f2e, IRON = 0x3c3844, LEATHER = 0x3c2a20,
   GLASS = 0xd8dcea, AMBER = 0xd8963c, STONE = 0x8e8a98, STONE_DK = 0x6a6676, MOSS = 0x4f6e46, LILY = 0xece4f4, CORD = 0x8a3a3c, CORD2 = 0xc89a5a,
-  LEAD = 0x2c2832, ROPE = 0x8c7552;
+  LEAD = 0x2c2832, ROPE = 0x8c7552,
+  // lost tackle: the pole's dark old wood, pages, a folded map, the thread, the string, the Lily Gardener's lavender-grey cloth
+  WOOD_DK = 0x3a2c24, PAPER = 0xd4cab4, MAP = 0xc8b48c, THREAD = 0xd8d2c6, STRING = 0x9a8462, CLOTH = 0x56506e;
 // (the toon light gives back about half: dark metals and leather are lifted ×1.8, pale stone, glass, tin and lilies only ×1.2, so they
 // read as stone and glass under the lantern, never as white)
 const lit = (hex, k = null) => { const c = new THREE.Color(hex), L = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b; return c.multiplyScalar(k ?? (L > 0.4 ? 1.2 : 1.8)); };
@@ -103,6 +106,57 @@ export function findPropParts(id) {
         g.push(P(new THREE.BoxGeometry(0.07, 0.01, 0.18), MOSS, { p: [0, 0.015, z] }));
         for (const dz of [-0.06, 0, 0.06]) g.push(P(new THREE.ConeGeometry(0.022, 0.035, 5, 1, true), LILY, { p: [0.005, 0.045, z + dz], r: [Math.PI, 0, 0] }));
       }
+      break;
+    }
+    // ---- lost tackle (LOST-TACKLE.md §3.1, §4): somebody's own gear, worn by the water (≤ 400 triangles; the pole ≤ 600)
+    case 'lamp_pole': {   // a long dark lamplighter's pole cut down into a rod, its brass lamp-hook bent into a tip ring (3 m)
+      g.push(P(new THREE.CylinderGeometry(0.016, 0.028, 2.84, 6), WOOD_DK, { r: RZ, p: [0, 0, -0.08] }));
+      g.push(P(new THREE.CylinderGeometry(0.033, 0.033, 0.12, 6), BRASS_DK, { r: RZ, p: [0, 0, -1.44] }));
+      for (const z of [-0.62, 0.34]) g.push(P(new THREE.CylinderGeometry(0.026, 0.026, 0.035, 6), IRON, { r: RZ, p: [0, 0, z] }));
+      g.push(P(new THREE.CylinderGeometry(0.02, 0.02, 0.07, 6), BRASS, { r: RZ, p: [0, 0, 1.36] }));
+      // (the hook rises from the tip and curls over forward, a crook: its arc starts at the tip, the ring hangs from its end)
+      g.push(P(new THREE.TorusGeometry(0.085, 0.011, 4, 10, Math.PI * 1.25), BRASS, { r: [0, Math.PI / 2, 0], p: [0, 0, 1.425] }));
+      g.push(P(new THREE.TorusGeometry(0.034, 0.008, 4, 10), BRASS, { r: [0, Math.PI / 2, 0], p: [0, -0.094, 1.485] }));
+      break;
+    }
+    case 'belfry_winch': {   // a brass wheel of clock teeth on an iron crank (its face to the lens)
+      g.push(P(new THREE.CylinderGeometry(0.08, 0.08, 0.016, 16), BRASS, { r: RX }));
+      for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; g.push(P(new THREE.BoxGeometry(0.014, 0.018, 0.014), BRASS, { p: [0, Math.cos(a) * 0.088, Math.sin(a) * 0.088], r: [a, 0, 0] })); }
+      for (const a of [0, Math.PI / 2]) g.push(P(new THREE.BoxGeometry(0.02, 0.012, 0.13), BRASS_DK, { r: [a, 0, 0] }));
+      g.push(P(new THREE.CylinderGeometry(0.02, 0.02, 0.04, 8), IRON, { r: RX }));
+      g.push(P(new THREE.BoxGeometry(0.008, 0.012, 0.1), IRON, { p: [0.024, 0, 0.05] }));
+      g.push(P(new THREE.CylinderGeometry(0.011, 0.011, 0.035, 6), WOOD_DK, { r: RX, p: [0.04, 0, 0.1] }));
+      break;
+    }
+    case 'ferry_thread': {   // a wooden spool of pale fine thread, a ferry token tied on
+      for (const z of [-0.056, 0.056]) g.push(P(new THREE.CylinderGeometry(0.04, 0.04, 0.012, 12), ROPE, { r: RZ, p: [0, 0, z] }));
+      g.push(P(new THREE.CylinderGeometry(0.031, 0.031, 0.1, 12), THREAD, { r: RZ }));
+      g.push(P(new THREE.CylinderGeometry(0.0016, 0.0016, 0.034, 3), THREAD, { p: [0, -0.046, 0.024] }));
+      g.push(P(new THREE.CylinderGeometry(0.015, 0.015, 0.003, 10), BRASS, { r: RX, p: [0, -0.068, 0.024] }));
+      break;
+    }
+    case 'guard_button': {   // a heavy brass button, its crest worn away, a hook through its shank
+      g.push(P(new THREE.SphereGeometry(0.022, 12, 6), BRASS, { s: [0.38, 1, 1] }));
+      g.push(P(new THREE.TorusGeometry(0.021, 0.0028, 3, 12), BRASS_DK, { r: [0, Math.PI / 2, 0] }));
+      g.push(P(new THREE.TorusGeometry(0.006, 0.002, 3, 6), BRASS_DK, { r: [0, Math.PI / 2, 0], p: [-0.009, 0, 0.012] }));
+      g.push(P(new THREE.TorusGeometry(0.012, 0.0018, 3, 10, Math.PI * 1.3), IRON, { r: [0, Math.PI / 2, 0.6], p: [-0.009, -0.004, 0.026] }));
+      break;
+    }
+    case 'veil_notebook': {   // a swollen leather notebook tied with string, its pages wavy, a folded map sticking out
+      for (const x of [-0.022, 0.022]) g.push(P(new THREE.BoxGeometry(0.008, 0.16, 0.22), LEATHER, { p: [x, 0, 0] }));
+      g.push(P(new THREE.BoxGeometry(0.052, 0.012, 0.22), LEATHER, { p: [0, -0.08, 0] }));
+      g.push(P(new THREE.BoxGeometry(0.036, 0.15, 0.21), PAPER, { p: [0, 0.004, 0] }));
+      for (const [z, r] of [[-0.05, 0.08], [0.04, -0.06]]) g.push(P(new THREE.BoxGeometry(0.03, 0.004, 0.09), PAPER, { p: [0, 0.08, z], r: [r, 0, 0] }));
+      for (const z of [-0.06, 0.06]) g.push(P(new THREE.BoxGeometry(0.058, 0.168, 0.005), STRING, { p: [0, 0, z] }));
+      g.push(P(new THREE.BoxGeometry(0.004, 0.07, 0.08), MAP, { p: [0.004, 0.095, 0.05], r: [0.18, 0, 0] }));
+      break;
+    }
+    case 'lily_notebook': {   // a smaller cloth-bound notebook, a pressed lily on its cover
+      for (const x of [-0.016, 0.016]) g.push(P(new THREE.BoxGeometry(0.007, 0.13, 0.18), CLOTH, { p: [x, 0, 0] }));
+      g.push(P(new THREE.BoxGeometry(0.04, 0.01, 0.18), CLOTH, { p: [0, -0.065, 0] }));
+      g.push(P(new THREE.BoxGeometry(0.026, 0.12, 0.172), PAPER, { p: [0, 0.003, 0] }));
+      for (const a of [-0.7, 0, 0.7]) g.push(P(new THREE.SphereGeometry(0.012, 6, 4), LILY, { s: [0.2, 1.7, 0.7], r: [a, 0, 0], p: [0.021, 0.012 + Math.cos(a) * 0.016, Math.sin(a) * 0.016] }));
+      g.push(P(new THREE.BoxGeometry(0.003, 0.05, 0.004), MOSS, { p: [0.021, -0.03, 0] }));
       break;
     }
     default: g.push(P(new THREE.BoxGeometry(0.06, 0.06, 0.12), STONE));

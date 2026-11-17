@@ -171,8 +171,8 @@ section('the water: GW_WC only in a loop build, RGBA only there, the masks only 
   const bake = (w) => { for (let i = 0; i < 12; i++) w.update(0.05); };
   const wl = createWater(fakeCtx(D, 'mossmere')); wl.init(); bake(wl);
   const U = wl.material.uniforms, img = U.uDepthTex.value.image, tex = U.uDepthTex.value;
-  ok(wl.material.defines.GW_WC === 1 && 'uWc' in U && 'uLane' in U && tex.format === THREE.RGBAFormat && img.data.length === 128 * 128 * 4, 'a loop build: GW_WC, uWc and uLane, the depth texture RGBA');
-  const at = (x, z, ch) => { const half = 1 / (2 * U.uDepthScale.value), c = Math.floor(((x + half) / (2 * half)) * 128), r = Math.floor(((z + half) / (2 * half)) * 128); return img.data[(r * 128 + c) * 4 + ch]; };
+  ok(wl.material.defines.GW_WC === 1 && 'uWc' in U && 'uLane' in U && tex.format === THREE.RGBAFormat && img.data.length === 160 * 160 * 4, 'a loop build: GW_WC, uWc and uLane, the depth texture RGBA (160 texels: the lake and its cut)');
+  const RES = img.width, at = (x, z, ch) => { const half = 1 / (2 * U.uDepthScale.value), c = Math.floor(((x + half) / (2 * half)) * RES), r = Math.floor(((z + half) / (2 * half)) * RES); return img.data[(r * RES + c) * 4 + ch]; };
   ok(U.uDepthOn.value === 1 && at(50, F.seamZ(50), 2) > 100 && at(53, 4, 3) > 80 && at(0, 0, 2) === 0, 'the bake fills B (the seam) and A (the fan) on the Mossmere', [at(50, F.seamZ(50), 2), at(53, 4, 3)]);
   ok(U.uWc.value === 1, 'uWc on, on the Mossmere');
   const lane = WC.laneFor(3);

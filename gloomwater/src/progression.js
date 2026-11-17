@@ -28,6 +28,7 @@ import { createAutofish } from './progression-af.js';
 import * as V3H from './progression-v3.js';
 import { createLoop } from './progression-loop.js';
 import { raftStats } from './loop-gear.js';   // M1 step 4 (lane 4): the raft's parts on a trip's stats
+import { foundKit } from './loop-finds.js';   // LOST-TACKLE §3.2, §8: a found rod, line or reel fitted in place of its tier
 import * as DATA from './data.js';
 
 /**
@@ -189,9 +190,9 @@ export function create(ctx) {
     for (const k in STATS) out[k] = STATS[k].base ?? 0;
     const rods = d.TACKLE?.rod || [];
     const t = Math.max(0, Math.min(Math.max(0, rods.length - 1), Math.trunc(Number(L.tackle?.rod) || 0)));
-    const rod = rods[t];
-    if (rod && 'castMax' in out) out.castMax = rod.castMax;
-    if (rod && 'hookWindow' in out) out.hookWindow = rod.hookWindow;
+    const rod = rods[t], fk = foundKit(L, d);   // (LOST-TACKLE §3.2: a found rod's cast and strike window in place of its tier's)
+    if (rod && 'castMax' in out) out.castMax = fk.castMax ?? rod.castMax;
+    if (rod && 'hookWindow' in out) out.hookWindow = fk.hookWindow ?? rod.hookWindow;
     const wid = typeof d.loopWickId === 'function' ? d.loopWickId(r.character) : 'wick';
     const add = d.LOOP?.wicks?.[wid]?.stats || {};
     for (const k in add) { const v = add[k]; if (typeof v === 'number' && k in out) out[k] += v; }
@@ -205,15 +206,16 @@ export function create(ctx) {
       out[k] = v;
     }
     out.creelSize = typeof d.loopSlots === 'function' ? d.loopSlots(L, wid) : (L.holdSlots ?? 3);
-    out.hold = loopTackleHold(L.tackle);
+    out.hold = loopTackleHold(L.tackle, fk.hold);
     return out;
   }
-  /** The Hold of the loop's tackle per slot: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6. */
-  function loopTackleHold(tk = {}) {
+  /** The Hold of the loop's tackle per slot: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6; a fitted found
+   *  piece's own Hold in its place (`found`: foundKit's hold). */
+  function loopTackleHold(tk = {}, found = {}) {
     const d = D(), X = d.LOOP?.tackle?.extraHold || {}, out = {};
     for (const s of ['rod', 'line', 'reel']) {
       const t = Math.max(0, Math.trunc(Number(tk?.[s]) || 0));
-      out[s] = t <= 4 ? (typeof d.tackleHoldAt === 'function' ? d.tackleHoldAt(s, t) : 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
+      out[s] = Number.isFinite(found?.[s]) ? found[s] : t <= 4 ? (typeof d.tackleHoldAt === 'function' ? d.tackleHoldAt(s, t) : 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
     }
     return out;
   }
@@ -1988,6 +1990,7 @@ export function create(ctx) {
       if (V3() && typeof inSign === 'boolean') lastCast = { ...lastCast, inSign, inSpot: inSign || !!lastCast.inSpot, sign: sign ?? null };
     });
     on('fishing:hook', onHook);
+    on('loop:found', () => invalidate());   // LOST-TACKLE §2.1: a found rod changes the cast's reach and strike window
     // a let-it-pass ('passed', v3 F4) is a choice, not a miss: it keeps the perfect-hook streak (DESIGN §25.6.4)
     on('fishing:miss', ({ reason }) => { const r = run(); if (r && reason !== 'moved' && reason !== 'passed') r.flags.streak = 0; });
     on('fishing:escaped', () => { const r = run(); if (r?.stats) r.stats.fishLost = (r.stats.fishLost | 0) + 1; });

@@ -23,12 +23,15 @@ const OPEN = 'open:mossmere';
 const F = D.LOOP.finds, items = LF.findsOf(D, 'mossmere');
 const PARTS = items.filter((i) => i.kind === 'part').map((i) => i.id), LOOKS = items.filter((i) => i.kind === 'look').map((i) => i.id);
 const SIX = [...PARTS, ...LOOKS];
+const TACKLE = items.filter((i) => i.kind === 'tackle').map((i) => i.id);   // lost tackle (LOST-TACKLE.md; its own suite: lost-tackle.test.mjs)
+const ALL = [...SIX, ...TACKLE], gotAll = (ids) => Object.fromEntries(ids.map((id) => [id, 1]));
 const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
 const metaWith = ({ got = {}, share = null } = {}) => { const m = freshLoopMeta(D); m.loop.finds = { got: { ...got }, worn: {}, share: share == null ? {} : { mossmere: share } }; return m; };
 
 // ------------------------------------------------------------------ the data (FINDS §5.1, §10)
 section('the data: the Mossmere\'s eleven');
-eq(items.length, 11, 'eleven finds at the Mossmere');
+eq(items.filter((i) => i.kind !== 'tackle').length, 11, 'eleven finds at the Mossmere (beside the six lost-tackle pieces)');
+eq(TACKLE.length, 6, '… and six lost-tackle pieces');
 eq(new Set(F.items.map((i) => i.id)).size, F.items.length, 'ids unique');
 eq(items.filter((i) => i.kind === 'treasure').map((i) => i.grade), ['plain', 'fine', 'precious', 'rare', 'jackpot'], 'five treasures, one per grade, plain to jackpot');
 eq(items.filter((i) => i.kind === 'part').map((i) => i.effect).sort(), ['bait', 'bite', 'order'], 'three parts, one of each effect');
@@ -48,7 +51,9 @@ section('findShares and the catalogue\'s rates');
 const fresh = D.findShares(freshLoopMeta(D), D, 'mossmere');
 near(sum(fresh), 1, 'a fresh set: the shares sum to 1');
 eq(fresh.toll_purse, 0.01, 'a fresh set: the Purse 1%');
-eq(['tin_spoon', 'door_ring', 'salt_lens', 'two_headed_coin', 'toll_purse'].map((id) => LF.fmtRate(fresh[id])), ['31%', '17%', '12%', '4%', '1%'], 'a fresh set reads 31% · 17% · 12% · 4% · 1%');
+eq(['tin_spoon', 'door_ring', 'salt_lens', 'two_headed_coin', 'toll_purse'].map((id) => LF.fmtRate(fresh[id])), ['27%', '15%', '12%', '4%', '1%'], 'a fresh set reads 27% · 15% · 12% · 4% · 1% (the six lost-tackle pieces take 6% from the plain and fine)');
+{ const noTk = D.findShares(metaWith({ got: gotAll(TACKLE) }), D, 'mossmere');
+  eq(['tin_spoon', 'door_ring', 'salt_lens', 'two_headed_coin', 'toll_purse'].map((id) => LF.fmtRate(noTk[id])), ['31%', '17%', '12%', '4%', '1%'], 'with the lost tackle owned the set reads 31% · 17% · 12% · 4% · 1% (FINDS revision 3)'); }
 ok(SIX.every((id) => LF.fmtRate(fresh[id]) === '5.8%'), 'a fresh set: each part and look 5.8% (35% ÷ 6)');
 const mid = D.findShares(metaWith({ share: 0.5 }), D, 'mossmere');
 near(sum(mid), 1, 'after one treasure snag (share 50%): the shares sum to 1');
@@ -56,9 +61,9 @@ ok(SIX.every((id) => LF.fmtRate(mid[id]) === '8.3%') && mid.toll_purse === 0.01,
 const oneLeft = D.findShares(metaWith({ got: Object.fromEntries(SIX.slice(1).map((id) => [id, 1])) }), D, 'mossmere');
 near(sum(oneLeft), 1, 'one left: the shares sum to 1');
 near(oneLeft[SIX[0]], 0.35, 'one left: it has the whole kind share (35%)');
-const owned = D.findShares(metaWith({ got: Object.fromEntries(SIX.map((id) => [id, 1])) }), D, 'mossmere');
+const owned = D.findShares(metaWith({ got: gotAll(ALL) }), D, 'mossmere');
 near(sum(owned), 1, 'the set owned: the shares sum to 1');
-ok(SIX.every((id) => owned[id] === 0) && near.length >= 0, 'the set owned: no part or look is ever drawn again');
+ok(ALL.every((id) => owned[id] === 0) && near.length >= 0, 'the set owned: no part, look or lost-tackle piece is ever drawn again');
 near(owned.tin_spoon, 0.54, 'the set owned: the plain 54%'); near(owned.door_ring, 0.29, '… the fine 29%');
 const cap = D.findShares(metaWith({ share: 0.99 }), D, 'mossmere');
 ok(cap.tin_spoon >= 0.01 && cap.door_ring >= 0.01 && SIX.every((id) => cap[id] >= 0.01), 'at the cap (80%): the plain and fine keep ≥ 1% and nothing is rarer than the jackpot');
@@ -77,7 +82,7 @@ eq(PL.catalogueFor({ ...freshLoopMeta(D), loop: { ...freshLoopMeta(D).loop, maps
 
 // ------------------------------------------------------------------ the 1% rule (FINDS §11, M1 §4 step 5c's gate)
 section('the 1% rule: 100,000 seeded snags in each state');
-for (const [name, m] of [['a fresh set', freshLoopMeta(D)], ['mid-set', metaWith({ got: { buoy_bell: 1, rod_tassel: 1, gate_glass: 1 }, share: 0.5 })], ['the set owned', metaWith({ got: Object.fromEntries(SIX.map((id) => [id, 1])) })]]) {
+for (const [name, m] of [['a fresh set', freshLoopMeta(D)], ['mid-set', metaWith({ got: { buoy_bell: 1, rod_tassel: 1, gate_glass: 1 }, share: 0.5 })], ['the set owned', metaWith({ got: gotAll(ALL) })]]) {
   const sh = D.findShares(m, D, 'mossmere'), rng = mulberry32(20261116), N = 100000, n = {};
   for (let i = 0; i < N; i++) { const id = LF.drawFind(sh, rng()); n[id] = (n[id] || 0) + 1; }
   const purse = (n.toll_purse || 0) / N;
@@ -99,6 +104,8 @@ section('the soft guarantee');
   eq(LF.noteSnag(L, D, 'mossmere', 'rod_tassel'), 0.35, 'a part or a look brought up: back to 35%');
   const all = metaWith({ got: Object.fromEntries(SIX.map((id) => [id, 1])) }).loop;
   eq(LF.noteSnag(all, D, 'mossmere', 'tin_spoon'), 0.35, 'with the set owned a treasure moves nothing');
+  const L2 = freshLoopMeta(D).loop; LF.noteSnag(L2, D, 'mossmere', 'tin_spoon');
+  eq(LF.noteSnag(L2, D, 'mossmere', 'lamp_pole'), 0.5, 'a lost-tackle piece brought up leaves the parts\' share where it was');
 }
 
 // ------------------------------------------------------------------ the parts' three effects, at the Mossmere only (FINDS §3.2)
@@ -221,11 +228,11 @@ const played = () => { const m = freshLoopMeta(D); Object.assign(m.loop, { wick:
 }
 {
   const m = played();
-  m.loop.finds = { got: Object.fromEntries(SIX.map((id) => [id, 1])), worn: {}, share: {} };
+  m.loop.finds = { got: gotAll(ALL), worn: {}, share: {} };
   const E = makeEnv(m), r = startTrip(E), rng = mulberry32(9);
   let n = 0, treasures = 0;
   for (let i = 0; i < 40000; i++) { const id = E.L.snagRoll({ rng }); if (id) { n++; if (LF.findById(D, id).kind === 'treasure') treasures++; } }
-  ok(n > 0 && treasures === n, 'with all six owned every snag is a treasure');
+  ok(n > 0 && treasures === n, 'with all six (and the lost tackle) owned every snag is a treasure');
   eq(r.bait.mireworm, 10, 'the Moat Bollard: the trip sets out with a tin of Mire Worms (no Bait Bed: a floor of one tin)');
   r.bait.mireworm = 3; E.ctx.state.run = null;
   const E2 = makeEnv(clone(E.ctx.state.meta)); const r3 = startTrip(E2);
@@ -428,7 +435,7 @@ section('the tally\'s rows and the card (pure)');
   const cv2 = UF.findCardView(LF.holdEntry(D, 'toll_vane', { uid: 'z' }), D, { full: true });
   ok(cv2.keep.clams === null && cv2.keep.glyph === 'raft' && cv2.keep.disabled === true, 'a look\'s Keep shows where it goes (the raft), dimmed with the hold full');
   const row = UF.findsRowView(PL.catalogueFor(freshLoopMeta(D), D, 'mossmere').finds, D);
-  ok(row.rate === '1 bite in 20' && row.rows[0].cards.map((c) => c.rateText).join() === '31%,17%,12%,4%,1%' && row.rows[1].cards.every((c) => c.rateText === '5.8%' && c.name === '· · ·'), 'the finds row\'s view: the heading and every rate formatted from findShares');
+  ok(row.rate === '1 bite in 20' && row.rows[0].cards.map((c) => c.rateText).join() === '27%,15%,12%,4%,1%' && row.rows[1].cards.every((c) => c.rateText === '5.8%' && c.name === '· · ·'), 'the finds row\'s view: the heading and every rate formatted from findShares');
   ok(U.textAllowed('31%', { D, screen: 'journal' }) && !U.textAllowed('31%', { D }) && U.textAllowed('· 1 bite in 20', { D }), 'the allow-list: a rate only on the Journal; the row\'s heading');
 }
 

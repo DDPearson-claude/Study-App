@@ -1559,6 +1559,15 @@ export function create(ctx) {
     // the loop, M1 step 3a: the giant's back, a place's lift, the catch seal's press (audio-mossmere.js)
     on('world:giantBack', (p) => mossGiantBack(p));
     on('place:lift', (p) => mossLift(p));
+    // (LOST-TACKLE §5.2: the glide through the Sluice Veil: as the raft passes under it, a splash and the water's own voice, close)
+    on('place:veil', () => {
+      if (!LOOP_ON()) return;
+      const V = MOSS.VEIL_PASS;
+      setTimeout(() => {
+        resetScratch(); scratch.volume = V.volume; scratch.pitch = V.pitch; scratch.why = 'veil'; play(V.sfx, scratch);
+        wcReg(); for (let i = 0; i < V.trickles; i++) setTimeout(() => { resetScratch(); scratch.volume = 0.9; scratch.why = 'veil'; play(MOSS.WATER_VOICES.inflow.sfx, scratch); }, i * 260);
+      }, V.at * 1000);
+    });
     on('loop:seal', (p) => { if (LOOP_ON() && (p?.seal ?? 'catch') === 'catch') { resetScratch(); scratch.volume = 0.95; scratch.why = 'catch'; scratch.force = true; play(MOSS.MOSS_EVENTS.seal, scratch); } });
     on('fishing:oldTrick', () => { resetScratch(); scratch.pan = bobberPan(); scratch.pitch = 0.72; scratch.volume = 0.9; play('surge_warn', scratch); });
     // a legend snag (Still / Lantern Grasping Dark): the 1 s telegraph, then the strain of the +0.2 spike

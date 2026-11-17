@@ -169,7 +169,7 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
     return num(Number(l.length), 0);
   };
   // (M1 step 5c: a find after the fish: the treasures by value, the jackpot last and alone, then the parts and looks: FINDS §6.4)
-  const fg = (l) => (l.kind === 'treasure' ? (l.grade === 'jackpot' || l.jackpot === true ? 4 : 3) : 5);
+  const fg = (l) => (l.kind === 'treasure' ? (l.grade === 'jackpot' || l.jackpot === true ? 4 : 3) : l.kind === 'tackle' ? 6 : 5);   // (lost tackle after the parts and looks)
   // (the jackpot's row rides as a giant's for its pause, then the post-pass below names it: never a ★ or a giant's line)
   const keyed = lines.map((l, i) => (typeof l.find === 'string' ? { l: { ...l, giant: l.kind === 'treasure' && (l.grade === 'jackpot' || l.jackpot === true) }, i, oz: num(Number(l.clams), 0), g: fg(l) }
     : { l, i, oz: wOz(l), g: l.giant === true ? 2 : l.legend === true ? 1 : 0 }));
@@ -277,7 +277,7 @@ export function chartPlacesOf(meta, D, waterId, { tutorial = false } = {}) {
   const priced = new Map();
   if (!tutorial) { try { for (const c of arr(mapCards(D, ml, { meta }))) if (c?.placeId) priced.set(c.placeId, num(Number(c.price), 0)); } catch { /* no prices */ } }
   const cap = Math.max(1, Math.round(num(D?.CATCH_V3?.legend?.woundCap, 18) / Math.max(1, num(D?.CATCH_V3?.legend?.woundPerEscape, 6))));
-  return ids.filter((id) => isObj(P[id])).map((id) => {
+  return ids.filter((id) => isObj(P[id]) && (P[id].secret !== true || owned.has(id))).map((id) => {   // (a secret place only once shown: LOST-TACKLE §5.2)
     const p = P[id], own = owned.has(id);
     const b = isObj(ml.best?.[id]) ? ml.best[id] : null, bsp = b ? spOf(D, b.speciesId) : null;
     let best = null;
@@ -413,6 +413,7 @@ export function catalogueView(cat, D) {
     head: { waterId: h.waterId ?? null, name: h.name ?? '', count: `${Math.floor(num(Number(h.have), 0))}/${Math.floor(num(Number(h.need), 0))}`, have: num(Number(h.have), 0), need: num(Number(h.need), 0), seals: isObj(h.seals) ? h.seals : null },
     list: arr(cat.list).map((e) => card(e, true)),
     groups: arr(cat.groups).map((g) => ({ placeId: g.placeId ?? null, kind: g.kind ?? 'open', owned: g.owned === true, name: g.owned === true ? g.name ?? null : null, cards: arr(g.entries).map((e) => card(e, false)) })),
+    guests: arr(cat.guests).map((e) => ({ ...card(e, false), guest: true })),   // LOST-TACKLE §4.2: a notebook's guests, a small notebook glyph, no words
     finds: findsRowView(cat.finds, D),   // M1 step 5c: the finds row (ui-finds.js; the page's only rates)
   };
 }
@@ -440,8 +441,13 @@ export function liftTitle(p, D) {
  * legend's first landing, the first giant sold, the first sale, the first Trophy or bigger. `rows` the tally's (tallyPlan), `said`
  * meta.loop.said, `listDone` the list complete on this save. → the sayOnce id, or null.
  */
-export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false } = {}) {
+/** LOST-TACKLE §5.2: the lens's hold on the chart table as home opens after the Veil Angler's Notebook's tally (s). */
+const BROOK_HOLD = 1.2;
+export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false, brook = false } = {}) {
   const S = isObj(said) ? said : {};
+  // (LOST-TACKLE §5.2: the notebook home shows the brook: its line, and the hold on the chart table, before any other first; `brook`
+  // the brook revealed, so a list done the same evening, or a save that brought the notebook home before the brook was built, waits)
+  if ((brook === true || arr(rows).some((r) => r.find === 'veil_notebook')) && !S.brook) return 'brook';
   if (listDone && !S.listComplete) return 'listComplete';
   const gearAway = away === true && !S.firstAway ? 'firstAway' : null;   // GEAR-GATES §4.3: the first trip a fish got away over the gear's cap
   if (empty) return gearAway;
@@ -451,7 +457,8 @@ export function saleLineId({ rows = [], said = {}, listDone = false, empty = fal
   if (R.some((r) => r.jackpot) && !S.firstJackpot) return 'firstJackpot';   // (M1 step 5c: FINDS §9's three lines, each once)
   if (!S.firstSale) return 'firstSale';
   if (gearAway) return gearAway;
-  if (R.some((r) => r.find && r.kind !== 'treasure') && !S.firstPart) return 'firstPart';
+  if (R.some((r) => r.find && r.kind === 'tackle') && !S.firstTackle) return 'firstTackle';   // (LOST-TACKLE §6.1: the first piece aboard, once)
+  if (R.some((r) => r.find && (r.kind === 'part' || r.kind === 'look')) && !S.firstPart) return 'firstPart';
   if (R.some((r) => r.find && r.kind === 'treasure') && !S.firstTreasure) return 'firstTreasure';
   if (R.some((r) => r.giant || r.legend || r.sizeClass === 'trophy' || r.sizeClass === 'elder') && !S.firstTrophy) return 'firstTrophy';
   return null;
@@ -1106,6 +1113,7 @@ export function createLoopView(K) {
       if (r.find) {
         art.classList.add('gw-trow-find'); drawFindArt(art, D(), r.find, { w: 56, h: 28, pad: 0.06, gold: r.jackpot });
         if (r.jackpot) li.classList.add('gw-trow--giant');
+        if (r.kind === 'tackle') li.classList.add('gw-trow--tackle');   // (LOST-TACKLE §2.1: carried aboard, its name in dim ink)
         if (r.kind !== 'treasure') li.querySelector('.gw-trow-v').innerHTML = FIND_GLYPHS[whereOf(D()?.LOOP?.finds?.items?.find((x) => x.id === r.find))] || '';
       }
       ol.appendChild(li);
@@ -1134,7 +1142,8 @@ export function createLoopView(K) {
       const prev = s.ticks.get(i) || 0;
       if (!init && !s.done && at.ticked > prev) {
         // (M1 step 5c: a part or a look carried aboard knocks softly on wood; the jackpot's clink is heavier)
-        if (r.find && r.kind !== 'treasure') audioPlay('creel', { volume: 0.4, pitch: 0.8 });
+        if (r.find && r.kind === 'tackle') { if (!audioPlay('tackle_knock', { volume: 0.45 })) audioPlay('creel', { volume: 0.4, pitch: 0.7 }); }
+        else if (r.find && r.kind !== 'treasure') audioPlay('creel', { volume: 0.4, pitch: 0.8 });
         else coin(r.first && at.ticked >= 2 || r.jackpot, { volume: r.jackpot ? 0.5 : 0.32, pitch: r.jackpot ? 0.7 : 0.95 + 0.05 * Math.min(6, i) });
       }
       s.ticks.set(i, at.ticked);
@@ -1189,9 +1198,13 @@ export function createLoopView(K) {
     if (id != null) L('markTallySeen', id);
     // Murk's one line after a sale (SPEC §8.6; M1 step 3a, T144): the list complete (the catch seal presses), else a legend's first
     // landing, the first giant sold, the first sale, the first Trophy or bigger; one at a time
-    const { line, press } = homeLine({ rows: s.plan.rows, empty: s.plan.empty, zone: s.tally?.zone });
+    const { line, press, id: lineId } = homeLine({ rows: s.plan.rows, empty: s.plan.empty, zone: s.tally?.zone });
     K.closeModal('tally');
-    if (ctx.flow === 'home') openJetty({ line, press });
+    // (LOST-TACKLE §5.2: the Veil Angler's Notebook home: the lens holds on the chart table where it lies open at its map, then the
+    // Jetty opens with Murk's line; reduced motion cuts there and back)
+    let wait = 0;
+    if (lineId === 'brook' && ctx.flow === 'home') { try { if (ctx.render?.holdChart?.(BROOK_HOLD) === true) wait = (ctx.state?.meta?.settings?.reducedMotion ? BROOK_HOLD : BROOK_HOLD + 0.95) * 1000; } catch (e) { report('render.holdChart', e); } }
+    if (ctx.flow === 'home') { if (wait > 0) setTimeout(() => { if (ctx.flow === 'home' && !K.has('tally')) openJetty({ line, press }); }, wait); else openJetty({ line, press }); }
   }
   /** Murk's line at home (saleLineId's order) and the catch seal's press with it: {line, press: 'catch' | null}. */
   function homeLine({ rows = [], empty = true, zone = null } = {}) {
@@ -1200,9 +1213,10 @@ export function createLoopView(K) {
     const lc = L('listCount', w);
     const listDone = !!lc && num(Number(lc.need), 0) > 0 && num(Number(lc.have), 0) >= num(Number(lc.need), 0);
     const away = L('lastTrip')?.away === true;
-    const id = saleLineId({ rows, said, listDone, empty, away });
+    const brook = arr(L('state')?.places?.revealed).includes('veilback_brook');
+    const id = saleLineId({ rows, said, listDone, empty, away, brook });
     const line = id ? L('sayOnce', id) : null;
-    return { line: line || null, press: line && id === 'listComplete' ? 'catch' : null, count: lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null };
+    return { line: line || null, id: line ? id : null, press: line && id === 'listComplete' ? 'catch' : null, count: lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null };
   }
 
   // ------------------------------------------------------------------ the shelf (SPEC §8.4)

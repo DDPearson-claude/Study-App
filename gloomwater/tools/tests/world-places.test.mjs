@@ -50,7 +50,7 @@ function makeWorld(data, extra = {}) {
 // ------------------------------------------------------------------ T145: the footprints (pure)
 section('T145: the footprint, its feather and the bank\'s coverage (pure)');
 const places = D_LOOP.loopPlaceIds('mossmere').map((id) => D_LOOP.loopPlace(id));
-ok(places.length === 4 && places.every((p) => p.area), 'the Mossmere\'s four places with their footprints');
+ok(places.length === 5 && places.every((p) => p.area) && places[4].id === 'veilback_brook', 'the Mossmere\'s four places and Veilback Brook (LOST-TACKLE §5), with their footprints');
 for (const p of places) {
   const a = p.area, c = WP.footprintCentre(a), b = WP.footprintBox(a, BANK.feather + 2);
   ok(footprintSdf(a, c.x, c.z) < 0 && insideFootprint(a, c.x, c.z), `${p.id}: its middle is inside its footprint`);
@@ -116,9 +116,9 @@ const named = (n) => { const o = []; grp.traverse((x) => { if (x.name === n) o.p
 ok(named('placeBanks').length === 1, 'the banks are one merged mesh');
 ok(named('placeDecals').length === 1 && named('placeCaps').length === 1 && named('placePads').length === 1 && named('placeStone').length === 1, 'the dressing: one mesh per material (decals, caps, pads, stone)');
 let ro = W.world.places();
-ok(ro.banks.length === 4 && ro.banks.every((b) => b.op === 1 && !b.lifted), 'one standing bank per place');
+ok(ro.banks.length === 5 && ro.banks.every((b) => b.op === 1 && !b.lifted), 'one standing bank per place (the brook\'s too, behind the Veil)');
 const uOp = named('placeBanks')[0].material.uniforms.uOp.value;
-ok(Array.isArray(uOp) && uOp.length === 4 && uOp.every((v) => v === 1), 'one opacity uniform per bank');
+ok(Array.isArray(uOp) && uOp.length === 5 && uOp.every((v) => v === 1), 'one opacity uniform per bank');
 const decU = named('placeDecals')[0].material.uniforms.uK.value;
 ok(decU.every((k) => k === 0) && named('placeCaps')[0].userData.u.uK.value === 0, 'every emissive term off before the lift');
 // the raft into the Buoy Lights: only that bank thins, all of it, then fills again
@@ -165,7 +165,7 @@ ok(Array.isArray(anc.face) && Math.abs(Math.hypot(anc.face[0], anc.face[1]) - 1)
   ok(ba && ba.elev >= 35 && ba.elev <= 50 && ba.dist > 8 && Array.isArray(ba.side) && ba.side[1] > 0, 'the Bell Pool\'s anchor: a crane 35–50° up from its open-water side', ba);
   ok(ba && Math.hypot(ba.x - B.x, ba.z - B.z) < 1.2, '… looking at the bell', ba);
 }
-ok(typeof W.ctx.debug.world?.places === 'function' && W.ctx.debug.world.places()?.banks?.length === 4, 'ctx.debug.world.places() reads the banks');
+ok(typeof W.ctx.debug.world?.places === 'function' && W.ctx.debug.world.places()?.banks?.length === 5, 'ctx.debug.world.places() reads the banks');
 
 section('T145: the giant\'s back: only in a standing bank, only at the gloomtide');
 W.events.length = 0;
@@ -184,6 +184,7 @@ ok(W.ctx.errors.length === 0, 'no world error', W.ctx.errors);
 section('T146: the built Mossmere is the same with the loop off and on (the places aside)');
 function arenaHash(data, opts = {}) {
   const z = data.ZONES.find((q) => q.id === 'mossmere'), Lz = buildLayout(z);
+  if (opts.cut === false) Lz.notch = null;   // (LOST-TACKLE §5.3: the loop's cut behind the Veil, compared apart below)
   const ctx = { data, render: { isStub: true }, state: { meta: { settings: {} } } };
   const arena = buildArena(ctx, Lz, { quality: 'high', far: 500, ...opts });
   const h = createHash('sha256'), parts = {};
@@ -200,11 +201,17 @@ function arenaHash(data, opts = {}) {
   h.update(Buffer.from(pos.buffer)); h.update(Buffer.from(col.buffer));
   return { all: h.digest('hex'), parts, arena, layout: Lz, floaters: fl };
 }
-const off = arenaHash(D_P1), on = arenaHash(D_LOOP, { face: false });
-ok(off.all === on.all, `the arena hashes the same off and on the loop (${off.all.slice(0, 12)} / ${on.all.slice(0, 12)})`, JSON.stringify({ off: off.parts, on: on.parts }));
+const off = arenaHash(D_P1), on = arenaHash(D_LOOP, { face: false, cut: false });
+ok(off.all === on.all, `the arena hashes the same off and on the loop, its cut aside (${off.all.slice(0, 12)} / ${on.all.slice(0, 12)})`, JSON.stringify({ off: off.parts, on: on.parts }));
+{ // (LOST-TACKLE §5.3: the cut behind the Sluice Veil changes the cliffs and the rocks, nothing else of the built arena)
+  const cut = arenaHash(D_LOOP, { face: false });
+  const diff = Object.keys(cut.parts).filter((k) => cut.parts[k] !== on.parts[k]);
+  const cliffs = (A) => { let g = null; A.arena.group.traverse((o) => { if (o.name === 'cliffs') g = o.geometry; }); return g; };
+  ok(JSON.stringify(diff) === JSON.stringify(['rocks']) && cut.floaters.join() === on.floaters.join() && cliffs(cut).index.count !== cliffs(on).index.count, `the cut changes only the cliffs and the rocks (${diff.join(', ')})`);
+}
 // (WC-3, WATERCRAFT §5.4: under the loop the Mossmere's face adds its reed beds to the 'fine' static and its lily beds' pads to the
 // pads' InstancedMesh, and nothing else: every other static and every halo is the built arena's)
-const faceH = arenaHash(D_LOOP);
+const faceH = arenaHash(D_LOOP, { cut: false });
 {
   const diff = Object.keys({ ...faceH.parts, ...on.parts }).filter((k) => faceH.parts[k] !== on.parts[k]);
   // (and the loop's drowned debris, LOOP.ambient.debris: its four rooftops ride in the stone static, its rowboat in the timber one)
@@ -217,7 +224,7 @@ ok(off.arena.piers.length === 4 && JSON.stringify(off.arena.piers) === JSON.stri
 // the places on the loop arena: their own stream, after every builder
 const halo0 = on.arena.halos.count;
 const vis = buildPlaces({ data: D_LOOP, bus: createBus() }, on.layout, on.arena, { places, quality: 'high', mist: D_LOOP.LOOP.mist, giantBack: D_LOOP.LOOP.giantBack });
-const after = arenaHash(D_LOOP);
+const after = arenaHash(D_LOOP, { cut: false });
 ok(after.all === faceH.all, 'building the places changes nothing the arena built (a fresh build hashes the same)');
 ok(on.arena.halos.count - halo0 === 26, 'the places add only the Buoy Lights\' lamps (24 caps, 2 channel markers) to the shared halos');
 let w9 = 0; vis.group.traverse((o) => { if (o.name === 'tollTower' || o.name === 'sluiceVeil') w9++; });
@@ -235,7 +242,7 @@ ok(vis.readout().dressing.layers === 5, 'the high tier on desktop: five bank lay
 
 section('T146: LOOP.redress on (the loop\'s default): the bollards replace the posts; the toll-tower and the Sluice Veil appear');
 ok(D_RED.LOOP.redress === true, 'LOOP.redress is on by default in the loop (the user\'s yes, 17 Nov 2026)');
-const red = arenaHash(D_RED, { redress: true, face: false });
+const red = arenaHash(D_RED, { redress: true, face: false, cut: false });
 ok(red.parts.rocks === on.parts.rocks && red.parts.landmarks === on.parts.landmarks, 'the rocks and the landmarks unchanged');
 ok(red.parts.organics !== on.parts.organics && red.parts.glows !== on.parts.glows, 'the posts\' iron and lanterns give way to the bollards\' (organics and glows changed)');
 ok(JSON.stringify(red.arena.lampPosts.map((p) => [p.x, p.z])) === JSON.stringify(on.arena.lampPosts.map((p) => [p.x, p.z])), 'a bollard stands where each lamp-post stood');

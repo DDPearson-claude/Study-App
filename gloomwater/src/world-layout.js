@@ -227,7 +227,79 @@ export function buildLayout(zone) {
 
   // derive a stable sub-seed for art
   L.artSeed = (seed * 2654435761) >>> 0;
+  L.notch = makeNotch(A, L);   // (after every draw of the layout's stream: the lake is the same with or without its cut)
   return L;
+}
+
+// ------------------------------------------------------------------ the shore notch (CONTRACT §13.8; LOST-TACKLE §5.3)
+// The arena's first shoreNotch: a cut that runs out of the lake along the bearing `a`, `w` m wide, to the arena's radius + `len`, widening
+// to `pool.w` over `pool.at` (fractions of its length past the shore) and narrowing to `end` m half-wide at its head. Its geometry is always
+// there (the water's bake and the art draw it); its water and collision count only while `open` (a notch for a place opens with that place:
+// world.setPlaces). Pure: every query below reads the notch record only.
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+function makeNotch(A, L) {
+  const n = Array.isArray(A.shoreNotch) ? A.shoreNotch[0] : null;
+  if (!n || !Number.isFinite(n.a) || !(Number(n.w) > 0) || !(Number(n.len) > 0)) return null;
+  const a = (n.a * Math.PI) / 180, r0 = L.shoreR(a);
+  const N = { a, ca: Math.cos(a), sa: Math.sin(a), hw: n.w / 2, r0, end: L.R + n.len, depth: Number.isFinite(n.depth) ? n.depth : 0.6,
+    pool: n.pool && Array.isArray(n.pool.at) ? { t0: n.pool.at[0], t1: n.pool.at[1], hw: (Number(n.pool.w) || n.w) / 2 } : null,
+    endHw: Number(n.end) > 0 ? Number(n.end) : n.w / 2, place: typeof n.place === 'string' ? n.place : null, open: typeof n.place !== 'string', ray: null };
+  // the shore radius along each bearing near the cut, the first way out of the water (a table: the radial readers ask often)
+  const span = Math.atan2(Math.max(N.hw, N.pool ? N.pool.hw : 0) + 1, r0 - 6), n2 = 96, ray = new Float32Array(n2 + 1);
+  for (let i = 0; i <= n2; i++) {
+    const da = -span + (2 * span * i) / n2, ca = Math.cos(a + da), sa = Math.sin(a + da);
+    let r = L.shoreR(a + da);
+    for (let q = r0 - 6; q <= N.end + 0.5; q += 0.25) { if (notchSdf(N, ca * q, sa * q) < 0) { if (q > r0 - 4) r = Math.max(r, q); break; } }
+    ray[i] = r;
+  }
+  N.ray = { span, n: n2, r: ray };
+  return N;
+}
+/** (x, z) in the cut's frame: `along` from the lake's centre down its bearing, `lat` across it (+ to the bearing's right, toward +z at
+ *  a = 0), `t` 0 at the shore to 1 at its head, `lc` across it from its own (gently bending) centre line. Written into `out` (a
+ *  shared scratch by default: read it before the next call). */
+const FRAME = { along: 0, lat: 0, t: 0, lc: 0 };   // (notchFrame's scratch: it runs several times a frame while the cut is open)
+export function notchFrame(N, x, z, out = FRAME) {
+  const along = x * N.ca + z * N.sa, lat = -x * N.sa + z * N.ca;
+  const t = clamp((along - N.r0) / Math.max(1, N.end - N.r0), 0, 1);
+  out.along = along; out.lat = lat; out.t = t; out.lc = lat - notchBend(N, t);
+  return out;
+}
+/** The centre line's offset at t (m): a slow bend, none at the mouth or the head. */
+export const notchBend = (N, t) => 0.7 * Math.sin(Math.PI * t) * (t > 0 ? 1 : 0);
+/** The cut's half-width at t: `hw`, the pool's where it widens, the culvert's at its head. */
+export function notchHalfW(N, t) {
+  let h = N.hw;
+  if (N.pool) h += (N.pool.hw - N.hw) * sstep(N.pool.t0 - 0.1, N.pool.t0 + 0.06, t) * (1 - sstep(N.pool.t1 - 0.06, N.pool.t1 + 0.1, t));
+  return h + (N.endHw - h) * sstep(0.84, 1, t);
+}
+/** Signed distance (m) to the cut's banks, positive in its water (its sides and its head; −Infinity well out in the lake). */
+export function notchSdf(N, x, z) {
+  if (!N) return -Infinity;
+  const f = notchFrame(N, x, z);
+  if (f.along < N.r0 - 6) return -Infinity;
+  return Math.min(notchHalfW(N, f.t) - Math.abs(f.lc), N.end - f.along);
+}
+/** The shore radius along a bearing with the cut open: the first way out of the water from the lake's centre. */
+export function notchShoreR(N, angle, base) {
+  if (!N?.ray) return base;
+  let d = angle - N.a; d = ((d + Math.PI) % TAU + TAU) % TAU - Math.PI;
+  const R = N.ray, u = ((d + R.span) / (2 * R.span)) * R.n;
+  if (u < 0 || u > R.n) return base;
+  const i = Math.min(R.n - 1, Math.floor(u)), k = u - i;
+  return Math.max(base, R.r[i] + (R.r[i + 1] - R.r[i]) * k);
+}
+/** The water's signed distance to its shore at (x, z), the cut drawn in (the water's bake: the shore foam and the cliff's mirror). */
+export function shoreDist(L, x, z) {
+  const b = L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+  return L.notch ? Math.max(b, notchSdf(L.notch, x, z)) : b;
+}
+/** The cut's depth beyond the lake's own shore (0 at that shore, its full depth 3 m in, falling to its banks); null elsewhere. */
+function notchDepth(L, x, z) {
+  const N = L.notch, s = notchSdf(N, x, z);
+  if (!(s > 0)) return null;
+  const f = notchFrame(N, x, z);
+  return clamp(N.depth * sstep(0, 1.8, s) * sstep(N.r0 - 0.5, N.r0 + 3, f.along) * (0.85 + 0.15 * Math.sin(f.along * 0.7)), 0, 1);
 }
 
 /**
@@ -359,6 +431,8 @@ function calibrateDepth(L, share) {
 
 /** Depth 0 (shore/islands) .. 1 (deep basins). Smooth and deterministic. */
 export function depthAt(L, x, z) {
+  // (the cut behind the shore: its own depth; inside the lake's shore every depth is as built)
+  if (L.notch && L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z) <= 0) { const c = notchDepth(L, x, z); if (c !== null) return c; }
   if (L.authored) {
     const d = recipeDepth(L, x, z);
     const S = L.depthScale;
@@ -397,7 +471,7 @@ export function depthAt(L, x, z) {
 
 export function isOpenWaterL(L, obstacles, x, z, r = 1) {
   const d = Math.hypot(x, z);
-  if (d > L.shoreR(Math.atan2(z, x)) - r) return false;
+  if (d > L.shoreR(Math.atan2(z, x)) - r && !(L.notch?.open && notchSdf(L.notch, x, z) >= r)) return false;   // (an open cut is water)
   for (let i = 0; i < obstacles.length; i++) {
     const o = obstacles[i];
     const m = o.r + r, dx = x - o.x, dz = z - o.z;

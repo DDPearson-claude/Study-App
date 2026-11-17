@@ -362,6 +362,19 @@ section('M1 step 3a: the lift at a trip\'s start (T128)');
   H2.ctx.bus.emit('home:enter', { from: 'title' }); H2.loop.s.maps.places.push('lily_maze'); H2.ctx.bus.emit('loop:buy', { item: 'place:lily_maze', price: 60, clams: 0 });
   ok(H2.calls.includes('setPlaces:|') && H2.calls.includes('setPlaces:lily_maze|'), 'world.setPlaces at home:enter and after loop:buy');
 }
+section('LOST-TACKLE §5.2 (lanes W and C): the Sail refuses a secret place not yet shown; once shown it glides in through the Veil');
+{
+  const U = liftEnv({ own: [] });
+  ok(U.H.sail({ water: 'mossmere', place: 'veilback_brook' }) === false && U.player.glides.length === 0 && U.ctx.flow !== 'playing', 'LT6: Sail to Veilback Brook before the notebook: refused, no glide');
+  const E = liftEnv({ own: ['veilback_brook'], lifted: [] });
+  const evs = []; E.ctx.bus.on('place:veil', (p) => evs.push(p));
+  ok(E.H.sail({ water: 'mossmere', place: 'veilback_brook' }) === true, 'LT6: once shown (owned), Sail goes there');
+  const g = E.player.glides.at(-1), G = D.LOOP.places.veilback_brook.glide;
+  eq(g.pts.map((q) => [q.x, q.z]), G, 'LT6: the glide is the brook\'s own, from its first point (the raft set there), through the Veil');
+  ok(g.o.kind === 'sailOut' && g.o.duration === D.LOOP.places.veilback_brook.glideSec && evs.length === 1 && evs[0].placeId === 'veilback_brook', '… its own length (glideSec), and place:veil for the splash');
+  await E.step(D.LOOP.places.veilback_brook.glideSec + 0.3);
+  ok(E.ctx.flow === 'playing' && E.player.position.x === G.at(-1)[0] && E.player.position.z === G.at(-1)[1] && E.H.sailPlace === 'veilback_brook', 'LT6: the trip starts in the brook, where the glide ended');
+}
 section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
 {
   const dock = { x: 24, z: 38 };
@@ -404,7 +417,8 @@ section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
   // the Mossmere's own layout: each place's glide out from the Jetty clears every obstacle (a straight one to the Lily Maze would not)
   const { buildLayout, isOpenWaterL } = await import('../../src/world-layout.js');
   const LY = buildLayout(D.ZONES[0]);
-  for (const id of Object.keys(D.LOOP.places)) {
+  // (a place with its own glide in, Veilback Brook's through the Veil, is checked by validate-data --loop and the LT6 section above)
+  for (const id of Object.keys(D.LOOP.places).filter((q) => !Array.isArray(D.LOOP.places[q].glide))) {
     const p = D.loopPlace(id), straight = D.sailPlan(dock, { x: p.x, z: p.z }, D.LOOP.tutorial, null);
     const g2 = R.placeGlide(D.sailPlan, dock, { x: p.x, z: p.z }, D.LOOP.tutorial, LY.obstacles, { clear });
     const turn = g2 ? Math.abs(((Math.atan2(g2.to.z - 38, g2.to.x - 24) - Math.atan2(p.z - 38, p.x - 24) + 3 * Math.PI) % (2 * Math.PI)) - Math.PI) * 180 / Math.PI : null;

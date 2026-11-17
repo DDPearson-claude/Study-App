@@ -29,6 +29,7 @@ import {
   fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
   landmarkShot, landmarkWeight, WATCH, portraitFit,
 } from './render-camera.js';
+import { targetCorners } from './home-targets.js';   // (LOST-TACKLE §5.2: the chart table's place on the home barge)
 
 const DEG = Math.PI / 180;
 const TAU = Math.PI * 2;
@@ -615,7 +616,7 @@ export function create(ctx) {
   function homeSide() {
     if (introCam || ctx.flow !== 'home') return null;
     const g = ctx.player?.glideState;
-    if (g && g.kind === 'sailOut' && Number(g.t) >= HOME_EASE * 0.5) return null;   // (the glide out turns back to the north)
+    if (g && g.kind === 'sailOut' && (Number(g.t) >= HOME_EASE * 0.5 || brookYaw(playerPos()) != null)) return null;   // (the glide out turns back to the north; the brook's goes down the brook)
     const pose = homePose();
     return pose ? Math.atan2(pose.pos[0] - pose.look[0], pose.pos[2] - pose.look[2]) : null;
   }
@@ -634,6 +635,32 @@ export function create(ctx) {
     };
     const alt = d - Math.sign(d) * 2 * Math.PI, cd = clear(d), ca = clear(alt);
     return ca > cd + 1 && cd < 6 ? alt : d;
+  }
+  // LOST-TACKLE §5.2: the Veil Angler's Notebook home: the lens holds `sec` s on the chart table, where it lies open at its map, eased in
+  // and out over the home camera (reduced motion: a cut there and back); holdChart(sec) → whether there is a table to look at
+  const chartHold = { on: false, t: 0, sec: 1.2, pose: null, w: 0 };
+  const HOLD_IN = 0.45, HOLD_OUT = 0.5;
+  function holdChart(sec = 1.2) {
+    let m = null;
+    try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
+    const C = m ? targetCorners(m)?.chart : null;
+    if (!Array.isArray(C) || !C.length) return false;
+    const c = C.reduce((a, q) => [a[0] + q[0] / C.length, a[1] + q[1] / C.length, a[2] + q[2] / C.length], [0, 0, 0]);
+    const from = homeCam.w > 0 ? homeCam.pos : camera.position;
+    let dx = from.x - c[0], dz = from.z - c[2]; const dl = Math.hypot(dx, dz) || 1; dx /= dl; dz /= dl;
+    const look = [c[0], c[1] + 0.1, c[2]], d = W / H < 0.85 ? 3.6 : 3.0;
+    chartHold.pose = { pos: [c[0] + dx * d, c[1] + 1.9, c[2] + dz * d], look };
+    Object.assign(chartHold, { on: true, t: 0, sec: Math.max(0.2, Number(sec) || 1.2) });
+    return true;
+  }
+  function chartHoldW(dt) {
+    if (!chartHold.on) return (chartHold.w = 0);
+    chartHold.t += dt;
+    const T = chartHold.t, S = chartHold.sec;
+    if (reducedMotion) chartHold.w = T < S ? 1 : 0;
+    else chartHold.w = T < HOLD_IN ? smoothstep(0, HOLD_IN, T) : T < HOLD_IN + S ? 1 : 1 - smoothstep(HOLD_IN + S, HOLD_IN + S + HOLD_OUT, T);
+    if (T >= (reducedMotion ? S : HOLD_IN + S + HOLD_OUT) || ctx.flow !== 'home') { chartHold.on = false; chartHold.w = 0; }
+    return chartHold.w;
   }
   function updateHomeCam(dt) {
     const pose = mode === 'home' ? homePose() : null;
@@ -815,11 +842,19 @@ export function create(ctx) {
     return out;
   }
 
+  /** LOST-TACKLE §5.3: down an open cut while the raft is in it (and on the Sail's glide in toward it), world.viewYaw; else null. */
+  function brookYaw(p) {
+    if (!p || mode === 'home') return null;
+    let g = null;
+    try { g = ctx.player?.glideState; } catch { g = null; }
+    try { const y = ctx.world && !ctx.world.isStub ? ctx.world.viewYaw?.(p.x, p.z, g?.kind === 'sailOut') : null; return Number.isFinite(y) ? y : null; } catch { return null; }
+  }
   function targetYaw(p) {
     if (mode === 'trophy') return trophy.yaw;
     if (mode === 'title') return titleYaw;
     if (mode === 'death') return deathYaw + (time - deathT0) * 0.045;
     if (ctx.data?.LOOP_ENABLED === true) { const hs = homeSide(); if (hs != null) return hs; }
+    if (ctx.data?.LOOP_ENABLED === true) { const by = brookYaw(p); if (by != null) return by; }
     if (mode === 'shop') {
       const m = merchantPos();
       if (m && p) {
@@ -1103,7 +1138,8 @@ export function create(ctx) {
 
     const ty = targetYaw(p);
     // the home swing (M1 step 5a): the turn to the home side of the raft and back as one orbit
-    const side = ctx.data?.LOOP_ENABLED === true && homeSide() != null;
+    // (and the turn down an open cut and back, LOST-TACKLE §5.3: the same eased orbit)
+    const side = ctx.data?.LOOP_ENABLED === true && (homeSide() != null || brookYaw(p) != null);
     if (side !== swing.side) {
       swing.side = side;
       const d = wrapAngle(ty - yaw);
@@ -1182,6 +1218,9 @@ export function create(ctx) {
       camPos.lerp(tmpV, hw);
       lookTarget.lerp(homeCam.look, hw);
     }
+    // (LOST-TACKLE §5.2: the hold on the chart table, over the home camera)
+    const chw = chartHoldW(dt);
+    if (chw > 0 && chartHold.pose) { camPos.lerp(tmpV.fromArray(chartHold.pose.pos), chw); lookTarget.lerp(tmpV.fromArray(chartHold.pose.look), chw); }
 
     // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
     let introW = 0, introFov = null;
@@ -1529,6 +1568,7 @@ export function create(ctx) {
     shake, flash, pulse, kick, attention, push,
     setTrophyTarget, setShowTarget,
     frameLandmark,
+    holdChart,
     /** The lift's shot as it stands: {on, w, t, dur, pose} (debug and tests). */
     landmarkState: () => ({ on: lmk.on, w: Math.round(lmk.w * 1000) / 1000, t: Math.round(lmk.t * 100) / 100, dur: lmk.dur, released: lmk.rel, pose: lmk.pose }),
     // >>> INTRO LANE A: cut-scene camera
@@ -1558,7 +1598,7 @@ export function create(ctx) {
       fX.x = focusTarget.x; fY.x = focusTarget.y; fZ.x = focusTarget.z;
       fX.v = fY.v = fZ.v = 0;
       yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
-      swing.on = false; swing.side = ctx.data?.LOOP_ENABLED === true && homeSide() != null;   // (on the home side at once on a cut)
+      swing.on = false; swing.side = ctx.data?.LOOP_ENABLED === true && (homeSide() != null || brookYaw(p) != null);   // (on the home side, or down the cut, at once on a cut)
       focusInit = true;
       if (showCam.on || showCam.hold) { showCam.p = 1; showCam.init = false; }   // the show camera too: at its fitted target, fully in
       homeCam.k = mode === 'home' ? 1 : 0;   // (the home camera too: at the mooring's framing on the cut)

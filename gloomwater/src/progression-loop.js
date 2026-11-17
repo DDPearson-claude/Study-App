@@ -32,7 +32,7 @@ const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, int(v, lo)));
 const SLOTS = ['rod', 'line', 'reel'];
 // M1 step 5c (lane 5C): the finds, pure (src/loop-finds.js)
 import { fillFinds, findTallyLine, findTallyGroup, bookFinds, findCatalogue, findBiteBonus, findBaitFloor, findShares as findSharesOf, snagChance,
-  drawFind, noteSnag, holdEntry, findById, owned as findOwned } from './loop-finds.js';
+  drawFind, noteSnag, holdEntry, findById, owned as findOwned, foundOf, foundKit, ownedNotes, FOUND_SLOTS } from './loop-finds.js';
 /** The schema of meta.loop this module writes (v1 and v2 were drafts' blocks, migrated by migrateLoop's five rules; v4, M1 step 5a,
  *  adds the home barge's own field `barge = {water, towed}`, SPEC §6.5). */
 export const LOOP_SCHEMA = 4;
@@ -55,6 +55,8 @@ export const LOOP_METHODS = Object.freeze([
   'setPick', 'pick', 'mapCards', 'seals', 'catalogue',
   // the tackle tin (the user, 16 Nov 2026: bait and lures changed on the lake; CONTRACT §14.19): may the hook change now, and the change
   'canChangeHook', 'changeHook',
+  // lost tackle (LOST-TACKLE §2.1, §8): a found rod, line or reel fitted in place of the bought tier (the tin's Kit row), and taken off
+  'fitFound', 'unfitFound',
   // M1 step 5b (lane 5b-home): the ink print at the measure, the Prints page and the cabin's gallery
   'notePrint', 'prints', 'gallery',
   // the home barge (M1 step 5a, SPEC §6.5): where it lies and the waters it has been towed to
@@ -115,7 +117,9 @@ export function freshLoop(D) {
     maps: { lakes: [firstWater(D)], places: [] }, raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 },
     looks: [], orders: [], legends: {}, giants: {}, prints: {}, ledgerPaid: [],
     said: {}, lastTrip: null, wick: null, tutorial: null, firsts: { seen: [], seals: [], best: {} },
-    finds: { got: {}, worn: {}, share: {} },   // M1 step 5c (FINDS §10): additive, filled for every block (no schema step)
+    finds: { got: {}, worn: {}, share: {}, tackleMiss: {} },   // M1 step 5c (FINDS §10): additive, filled for every block (no schema step)
+    found: { rod: null, line: null, reel: null },   // LOST-TACKLE §8: the found piece fitted per slot (null: the bought tier, which the slot keeps)
+    places: { revealed: [] },   // LOST-TACKLE §8: the places a lost notebook has shown (loop-finds.fillFinds makes it whole)
     // M1 step 3a (PLAN §3.3): the places whose lift has played; the best fish there (`<placeId | open:<water>>` → {speciesId, length},
     // never a weight); the Chart's pick {water, place}, null until one is made (never filled as an object: 3b reads a non-object as the
     // tutorial's first open). LOOP_SCHEMA stays 3: the keys are additive, the fill below gives them to every block (PLAN CHOICE 1)
@@ -216,7 +220,9 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
   if (!Array.isArray(L.maps.places)) L.maps.places = [];
   for (const k of ['seen', 'seals']) if (!Array.isArray(L.firsts[k])) L.firsts[k] = [];
   if (!isObj(L.firsts.best)) L.firsts.best = {};
-  fillFinds(L);   // M1 step 5c: meta.loop.finds {got, worn, share}, whole
+  fillFinds(L);   // M1 step 5c: meta.loop.finds {got, worn, share}, whole (and LOST-TACKLE §8's found and places)
+  for (const s of FOUND_SLOTS) if (L.found[s] != null && !foundOf(L, D, s)) L.found[s] = null;   // (a fitted piece is owned and of its slot)
+  for (const [id, x] of Object.entries(D?.LOOP?.lostTackle || {})) if (x?.slot === 'lure' && findOwned(L, id) && !L.lures.includes(id)) L.lures.push(id);   // (an owned found lure is in the tin)
   L.sheetSeen = L.sheetSeen.filter((k, i, a) => typeof k === 'string' && a.indexOf(k) === i);
   L.lifted = L.lifted.filter((id, i, a) => typeof id === 'string' && a.indexOf(id) === i);
   if (L.chartPick !== null && !isObj(L.chartPick)) L.chartPick = null;
@@ -501,7 +507,7 @@ export function mapCards(D, metaLoop, { meta = null } = {}) {
   const ml = isObj(metaLoop) ? metaLoop : {}, P = isObj(D?.LOOP?.places) ? D.LOOP.places : {};
   const lakes = (Array.isArray(ml.maps?.lakes) ? ml.maps.lakes : []).filter((w) => waterShipped(D, w));
   const have = new Set(Array.isArray(ml.maps?.places) ? ml.maps.places : []), ids = Object.keys(P);
-  const places = ids.filter((id) => isObj(P[id]) && lakes.includes(P[id].water) && !have.has(id))
+  const places = ids.filter((id) => isObj(P[id]) && lakes.includes(P[id].water) && !have.has(id) && P[id].secret !== true)   // (a secret place is shown, never sold)
     .sort((a, b) => num(P[a].price, Infinity) - num(P[b].price, Infinity) || ids.indexOf(a) - ids.indexOf(b)).slice(0, 2)
     .map((id) => {
       const sp = D?.SPECIES_BY_ID?.[P[id].card] || null;
@@ -539,7 +545,7 @@ export function catalogueFor(meta, D, waterId) {
   const kindOf = (s) => (s.place ? P[s.place]?.kind ?? D?.PLACE_BY_ID?.[s.place]?.kind ?? null : typeof s.kind === 'string' && s.kind ? s.kind : 'open');
   const list = listFor(D, waterId).map((id) => byId.get(id)).filter(Boolean).map((s) => take(s, kindOf(s)));
   const groups = [];
-  const placeIds = Object.keys(P).filter((id) => isObj(P[id]) && P[id].water === waterId);
+  const placeIds = Object.keys(P).filter((id) => isObj(P[id]) && P[id].water === waterId && (P[id].secret !== true || owned.has(id)));   // (a secret place once shown)
   for (const id of placeIds) {
     const p = P[id], legend = p.legend ? byId.get(p.legend) : null, giant = p.giant ? byId.get(p.giant) : null;
     const own = fish.filter((s) => s.place === id && !s.giant && s.rarity !== 'legendary');
@@ -552,7 +558,22 @@ export function catalogueFor(meta, D, waterId) {
   const { frontier, next } = frontierOf(ml, D), lc = listCount(meta, D, waterId);
   const name = (D?.ZONES || []).find((z) => z?.id === waterId)?.name ?? null;
   return { head: { waterId, name, have: lc.have, need: lc.need, seals: frontier === waterId && next ? sealsOf(meta, D, next) : null }, list, groups,
+    guests: guestEntries(meta, D, waterId).map((g) => ({ ...entry(g.sp, null), guest: true, note: g.note })),
     finds: findCatalogue(meta, D, waterId) };   // M1 step 5c: the finds half (loop-finds.findCatalogue; the page's only rates)
+}
+/** LOST-TACKLE §4.2: the notebook that brings a guest (its `guest`, or the place it `reveals` where the guest is the place's own fish). */
+export function guestNote(D, fishId) {
+  const LT = isObj(D?.LOOP?.lostTackle) ? D.LOOP.lostTackle : {};
+  for (const [id, n] of Object.entries(LT)) if (isObj(n) && n.slot === 'notebook' && n.guest?.id === fishId) return id;
+  for (const [id, n] of Object.entries(LT)) if (isObj(n) && n.slot === 'notebook' && Array.isArray(D?.LOOP?.places?.[n.reveals]?.own) && D.LOOP.places[n.reveals].own.includes(fishId)) return id;
+  return null;
+}
+/** LOST-TACKLE §4.2: a water's guests the catalogue shows (each once its notebook is owned, or once met), in LOOP.guests' order:
+ *  [{sp, note}]. A guest never counts toward the water's list, its catch seal or M1's seals (it is its home water's species). */
+export function guestEntries(meta, D, waterId) {
+  const J = isObj(meta?.journal) ? meta.journal : {}, ml = isObj(meta?.loop) ? meta.loop : {}, ids = Array.isArray(D?.LOOP?.guests?.[waterId]) ? D.LOOP.guests[waterId] : [];
+  return ids.map((id) => ({ sp: D?.SPECIES_BY_ID?.[id] || (D?.SPECIES || []).find((s) => s?.id === id), note: guestNote(D, id) }))
+    .filter((g) => isObj(g.sp) && g.sp.guestOf === waterId && (isObj(J[g.sp.id]) || (g.note && findOwned(ml, g.note))));
 }
 
 /**
@@ -567,7 +588,7 @@ export function gateLine(D, metaLoop, fishId) {
   if (!isObj(T) || !isObj(LP?.gearCap) || typeof fishId !== 'string') return null;
   const g0 = wcGradeOf(fishId, {});
   if (g0 === undefined || !wcGearCap(D, fishId, { bait: 'mireworm' })) return null;
-  const ml = isObj(metaLoop) ? metaLoop : {}, water = firstWater(D), line = int(ml.tackle?.line);
+  const ml = isObj(metaLoop) ? metaLoop : {}, water = firstWater(D), line = int(ml.tackle?.line), lineCap = foundKit(ml, D).lineCap;
   const bag = isObj(ml.bait?.[water]) ? ml.bait[water] : {};
   const ORDER = ['small', 'keeper', 'prize', 'trophy', 'elder'];
   const hooks = [{}, { bait: 'cut_strip' }, ...(Array.isArray(ml.lures) ? ml.lures : []).filter((id) => isObj(LP.lures?.[id])).map((lure) => ({ lure })),
@@ -575,14 +596,14 @@ export function gateLine(D, metaLoop, fishId) {
   let best = null;
   for (const h of hooks) {
     if (!(num(wcGradeOf(fishId, h)) >= 1)) continue;
-    const c = wcGearCap(D, fishId, { ...h, line });
+    const c = wcGearCap(D, fishId, { ...h, line, lineCap });
     if (c && (!best || ORDER.indexOf(c.cls) > ORDER.indexOf(best.cls))) best = c;
   }
   const label = (cls) => (Array.isArray(D?.SIZE_CLASSES) ? D.SIZE_CLASSES.find((c) => c?.id === cls)?.label : null) || cls;
   if (best) return { kind: 'upTo', cls: best.cls, text: String(T.upTo).replace('{class}', label(best.cls)) };
   const name = (id) => D?.TEXT_LOOP?.gearItems?.[id] || id;
   const items = [
-    ...Object.entries(isObj(LP.lures) ? LP.lures : {}).filter(([, L]) => isObj(L) && L.water === water && L.start !== true).map(([id, L]) => ({ id, lure: true, price: num(L.price) })),
+    ...Object.entries(isObj(LP.lures) ? LP.lures : {}).filter(([, L]) => isObj(L) && L.water === water && L.start !== true && L.found !== true).map(([id, L]) => ({ id, lure: true, price: num(L.price) })),
     ...(Array.isArray(LP.tins?.[water]) ? LP.tins[water] : []).map((id) => ({ id, lure: false, price: tinPrice(D, water) })),
   ].filter((it) => num(wcGradeOf(fishId, it.lure ? { lure: it.id } : { bait: it.id })) >= 1).sort((a, b) => a.price - b.price);
   if (!items.length) return null;
@@ -667,7 +688,7 @@ export function createLoop(S) {
     const fn = D().goodBitesFor;
     // (M1 step 5c: a bite part's +1 at its own water's open water, FINDS §3.2)
     const extra = kindOf(key) === 'open' ? findBiteBonus(L, D(), String(key || '').slice(5) || run()?.zone || 'mossmere') : 0;
-    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow(), extra }) : 0;
+    return typeof fn === 'function' ? fn({ kind: kindOf(key), holdSlots: L.holdSlots, wickId: wickNow(), extra, place: typeof key === 'string' && !key.startsWith('open:') ? key : null }) : 0;
   };
   const tripKey = (k) => (typeof k === 'string' && k ? k : keyOf(null, run()?.zone || 'mossmere'));
   const spentAt = (key) => { const r = run(); return onTrip(r) && isObj(r.bites) ? Math.max(0, int(r.bites[tripKey(key)])) : 0; };
@@ -690,7 +711,7 @@ export function createLoop(S) {
       const first = int(L.legends?.[sp.id]) === 0 && !inHold;
       return Math.max(1, Math.round(first ? crown : crown * num(LP.value?.legendRematch, 0.4)));
     }
-    const zone = run()?.zone || sp.zone;
+    const zone = run()?.zone || sp.zone;   // (LOST-TACKLE §4.2: a guest sells at the water it visits, this trip's)
     let v = null;
     try { v = D().fishClams?.(sp, num(fish.z), { zone }); } catch (e) { report('fishClams', e); }
     return Math.max(1, Math.round(num(v, 1)));
@@ -1300,6 +1321,30 @@ export function createLoop(S) {
     emit('loop:hook', { bait: out.bait, lure: out.lure, reeled });
     return out;
   }
+  /**
+   * fitFound(slot, id) / unfitFound(slot) (LOST-TACKLE §2.1, §8): a found rod, line or reel the save owns stands in for the slot's bought
+   * tier (meta.loop.tackle keeps it: taking the piece off puts the tier back, so nothing bought is lost). The rules are changeHook's: at
+   * home, or on the lake when no fish is on (reason 'fish'); a line in the water with no fish on it comes in quietly first. Saved at once;
+   * loop:found {slot, id}. → {ok, changed, slot, id}.
+   */
+  function fitFound(slot, id) {
+    const L = ensureLoop();
+    if (!L) return { ok: false, reason: 'off' };
+    if (!FOUND_SLOTS.includes(slot)) return { ok: false, reason: 'slot' };
+    if (id != null && !(typeof id === 'string' && LOOP()?.lostTackle?.[id]?.slot === slot && findOwned(L, id))) return { ok: false, reason: 'piece' };
+    if (!canChangeHook()) return { ok: false, reason: 'fish' };
+    if (!isObj(L.found)) L.found = { rod: null, line: null, reel: null };
+    const next = id == null ? null : id;
+    if ((L.found[slot] ?? null) === next) return { ok: true, changed: false, slot, id: next };
+    const r = run(), line = onTrip(r) ? lineNow() : null;
+    let reeled = false;
+    if (line?.out === true) { try { reeled = ctx.fishing?.reelInQuiet?.()?.ok === true; } catch (e) { report('reelInQuiet', e); } }
+    L.found[slot] = next;
+    saveNow();
+    emit('loop:found', { slot, id: next, reeled });
+    return { ok: true, changed: true, slot, id: next, reeled };
+  }
+  function unfitFound(slot) { return fitFound(slot, null); }
   /** The orders' pure list rule: listFor on this save's data (the water's list). */
   const listForD = (d, w) => listFor(d, w);
   /** endTrip's part (internal): the orders the hold fills, in the tally's order; marks each filling fish (fish.order = its id) so
@@ -1465,6 +1510,8 @@ export function createLoop(S) {
     const p = snagChance(D(), { evening: int(r.evening, 2), legendCast, tutorial });
     if (!(p > 0) || !(rng() < p)) return null;
     const exclude = (r.creel || []).filter((f) => isObj(f) && typeof f.find === 'string').map((f) => f.find);
+    // (LOST-TACKLE §2.1, no swapping: a full hold could only let a piece go, so while it is full no piece is offered)
+    if (holdFull()) for (const it of D().LOOP?.finds?.items || []) if (it?.kind === 'tackle' && it.water === water) exclude.push(it.id);
     return drawFind(findSharesOf(meta(), D(), water, { exclude }), rng());
   }
   /** fishing:found's ledger side: the soft guarantee moves (a treasure while some are unowned +step, a part or a look back to share),
@@ -1573,6 +1620,7 @@ export function createLoop(S) {
     barge, towBarge,
     orders, wipeOrder, orderFor, cutBait,   // M1 step 4 (lane 4)
     canChangeHook, changeHook,   // TK: the tackle tin (CONTRACT §14.19)
+    fitFound, unfitFound,   // lost tackle (LOST-TACKLE §2.1): the tin's Kit row
   };
   /** progression.js's side of the seam (not the API): fishAction's routing, the measure's firsts, the comeback, the shelf session. */
   S.loopInternal = {
