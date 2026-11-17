@@ -658,11 +658,17 @@ export function create(ctx) {
   let obstacleSrc = null, obstacleSrcLen = -1;
   let manualObstacles = null;
   const obsTmp = [];
+  // (Lake 1 polish: while a tow brings the barge in, the hulls' keel circles lie at the mooring ahead of them; their foam and shallows
+  // drew a lit disc with a pale rim on open water beside the raft. They are drawn only once the hulls are there)
+  const TOW_WATER = ['dip', 'dipHold', 'dipClear', 'glide'];
+  let hullsAway = false;
+  const towingIn = () => { try { return TOW_WATER.includes(ctx.game?.towing?.()); } catch { return false; } };
   function packObstacles(list, px, pz) {
     obsTmp.length = 0;
     if (Array.isArray(list)) {
       for (const o of list) {
         if (!o) continue;
+        if (hullsAway && (o.kind === 'hull' || o.kind === 'murk')) continue;
         const x = Number(o.x ?? o.position?.x), z = Number(o.z ?? o.position?.z), r = Number(o.r ?? o.radius);
         if (isFinite(x) && isFinite(z) && isFinite(r) && r > 0.2) obsTmp.push({ x, z, r, d: Math.hypot(x - px, z - pz) - r });
       }
@@ -1183,6 +1189,8 @@ export function create(ctx) {
         if (hush > 0.002) U.uRaft.value.w = -Math.min(1, hush);
       }
 
+      const away = towingIn();
+      if (away !== hullsAway) { hullsAway = away; obstaclesDirty = true; }
       if (obstaclesDirty || realT > obstacleCheckAt) {
         refreshObstacles(px, pz, obstaclesDirty);
         obstaclesDirty = false;

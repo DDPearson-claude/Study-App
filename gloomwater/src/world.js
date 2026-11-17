@@ -241,7 +241,7 @@ export function create(ctx) {
       const watchDocks = new Set(watchLamps.filter((l) => l.kind === 'buoy' && l.dock != null).map((l) => l.dock));
       // (M1 step 3a: W9's rest behind LOOP.redress, on in the loop since the user's yes of 17 Nov 2026: the bollards replace the lamp-posts in the arena's own statics)
       const redress = loopOn() && ctx.data?.LOOP?.redress === true;
-      arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500, ...(watchDocks.size ? { watchDocks } : {}), ...(redress ? { redress: true } : {}) });
+      arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500, ...(watchDocks.size ? { watchDocks } : {}), ...(redress ? { redress: true } : {}), ...(loopOn() ? { loop: true } : {}) });
       group.add(arena.group);
       const v3Lamps = watchLamps.filter((l) => l.kind === 'buoy');
       const v3Legend = legendGlimmerOn() && layout.legendPool ? layout.legendPool : null;
