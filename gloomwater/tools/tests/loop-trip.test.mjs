@@ -330,15 +330,15 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   const meta = freshLoopMeta(D);
   const env = makeEnv({ meta, debug: true });
   env.ctx.flow = 'home';
-  eq(env.L.goal(), { id: 'hold:4', name: 'Hold 4', price: 30, slot: 'hold', level: 4 }, 'the goal: Hold 4 · 30');
+  eq(env.L.goal(), { id: 'hold:4', name: 'Hold 4', price: 20, slot: 'hold', level: 4 }, 'the goal: Hold 4 · 20');
   eq(env.L.buy('hold').ok, false, 'no clams: refused');
   eq(env.L.debugGive(400), 400, 'debugGive (a debug build)');
   eq(env.L.buy('hold:5').ok, false, 'T24: Hold 5 is refused before Hold 4');
   eq(env.L.buy('rod:2').ok, false, 'T24: T2 is refused before T1');
   const n = env.calls.saves.length;
   const b = env.L.buy('hold:4');
-  ok(b.ok && b.clams === 370 && meta.loop.holdSlots === 4 && env.calls.saves.length === n + 1, 'T23: Hold 4 for 30, saved at once');
-  eq(env.last('loop:buy'), { item: 'hold:4', price: 30, clams: 370 }, 'loop:buy');
+  ok(b.ok && b.clams === 380 && meta.loop.holdSlots === 4 && env.calls.saves.length === n + 1, 'T23: Hold 4 for 20, saved at once');
+  eq(env.last('loop:buy'), { item: 'hold:4', price: 20, clams: 380 }, 'loop:buy');
   const sh = env.L.shelf();
   const no4 = (items) => items.filter((i) => !(/^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id)));   // (M1 step 4's cards: loop-4.test.mjs's)
   eq(sh.tabs.map((t) => t.id), ['tackle', 'raft', 'bait', 'maps', 'home'], 'CHOICE 11 (M1 step 3a): Tackle, Raft, Bait and Maps (M1 step 4: Home, the Order Board)');

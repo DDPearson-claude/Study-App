@@ -19,10 +19,11 @@ globalThis.document = globalThis.document || { createElement: () => ({ width: 0,
 globalThis.GW_V3 = true; globalThis.GW_V3_PHASE = 1;
 const D_P1 = await import('../../src/data.js?wpP1');
 globalThis.GW_LOOP = true;
+// (the re-dress is on by default in the loop since the user's yes, 17 Nov 2026: D_LOOP is the ?redress=0 harbour, D_RED the default)
+globalThis.GW_REDRESS = false;
 const D_LOOP = await import('../../src/data.js?wpLoop');
-globalThis.GW_REDRESS = true;
-const D_RED = await import('../../src/data.js?wpRedress');
 delete globalThis.GW_REDRESS;
+const D_RED = await import('../../src/data.js?wpRedress');
 
 const { createBus } = await import('../../src/core.js');
 const { create } = await import('../../src/world.js');
@@ -220,10 +221,19 @@ ok(after.all === faceH.all, 'building the places changes nothing the arena built
 ok(on.arena.halos.count - halo0 === 26, 'the places add only the Buoy Lights\' lamps (24 caps, 2 channel markers) to the shared halos');
 let w9 = 0; vis.group.traverse((o) => { if (o.name === 'tollTower' || o.name === 'sluiceVeil') w9++; });
 ok(w9 === 0, 'LOOP.redress off: no W9 mesh');
-ok(D_LOOP.LOOP.redress === false && on.arena.redress === false, 'LOOP.redress is false by default and the lamp-posts stay');
+ok(D_LOOP.LOOP.redress === false && on.arena.redress === false, 'LOOP.redress is false with ?redress=0 and the lamp-posts stay');
+// the banks' layer sets: five on the high tier on desktop, three on the low and medium tiers and on any phone (liteMist; M1 §6.2)
+ok(vis.readout().dressing.layers === 5, 'the high tier on desktop: five bank layers');
+{
+  const lite = buildPlaces({ data: D_LOOP, bus: createBus() }, on.layout, on.arena, { places, quality: 'high', liteMist: true, mist: D_LOOP.LOOP.mist });
+  const lo = buildPlaces({ data: D_LOOP, bus: createBus() }, on.layout, on.arena, { places, quality: 'low', mist: D_LOOP.LOOP.mist });
+  ok(lite.readout().dressing.layers === 3 && lo.readout().dressing.layers === 3, 'liteMist (medium tier, any phone) and the low tier: three bank layers');
+  ok(lite.banks.geometry.index.count < vis.banks.geometry.index.count, 'the lite banks draw fewer triangles', [lite.banks.geometry.index.count, vis.banks.geometry.index.count]);
+  lite.dispose(); lo.dispose();
+}
 
-section('T146: LOOP.redress on (?redress=1): the bollards replace the posts; the toll-tower and the Sluice Veil appear');
-ok(D_RED.LOOP.redress === true, 'GW_REDRESS turns LOOP.redress on (core\'s ?redress=1)');
+section('T146: LOOP.redress on (the loop\'s default): the bollards replace the posts; the toll-tower and the Sluice Veil appear');
+ok(D_RED.LOOP.redress === true, 'LOOP.redress is on by default in the loop (the user\'s yes, 17 Nov 2026)');
 const red = arenaHash(D_RED, { redress: true, face: false });
 ok(red.parts.rocks === on.parts.rocks && red.parts.landmarks === on.parts.landmarks, 'the rocks and the landmarks unchanged');
 ok(red.parts.organics !== on.parts.organics && red.parts.glows !== on.parts.glows, 'the posts\' iron and lanterns give way to the bollards\' (organics and glows changed)');

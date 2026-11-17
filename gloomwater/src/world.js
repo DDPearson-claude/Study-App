@@ -158,6 +158,13 @@ export function create(ctx) {
     if (q === 'auto') return ctx.isMobile ? 'low' : 'high';
     return 'high';
   }
+  // the mist banks' low layer set: the low and medium render tiers and any phone (the high tier on desktop keeps its five layers)
+  function liteMist() {
+    if (ctx.isMobile || quality() === 'low') return true;
+    let t = null;
+    try { t = ctx.render?.getQuality?.(); } catch { t = null; }
+    return t === 'low' || t === 'medium';
+  }
   const scene = () => { const s = ctx.render?.scene; return s && !s.isStub && s.isScene ? s : null; };
   function focusPos() {
     const p = ctx.player?.position;
@@ -232,7 +239,7 @@ export function create(ctx) {
     if (arena) { arena.dispose(); arena = null; }
     try {
       const watchDocks = new Set(watchLamps.filter((l) => l.kind === 'buoy' && l.dock != null).map((l) => l.dock));
-      // (M1 step 3a: W9's rest behind LOOP.redress, off by default: the bollards replace the lamp-posts in the arena's own statics)
+      // (M1 step 3a: W9's rest behind LOOP.redress, on in the loop since the user's yes of 17 Nov 2026: the bollards replace the lamp-posts in the arena's own statics)
       const redress = loopOn() && ctx.data?.LOOP?.redress === true;
       arena = buildArena(ctx, layout, { quality: quality(), far: ctx.render?.camera?.far || 500, ...(watchDocks.size ? { watchDocks } : {}), ...(redress ? { redress: true } : {}) });
       group.add(arena.group);
@@ -253,7 +260,8 @@ export function create(ctx) {
       if (lp.length) {
         try {
           placesVis = buildPlaces(ctx, layout, arena, { places: lp, pal: Object.assign({}, FALLBACK_ZONE.palette, zone.palette || {}), quality: quality(),
-            mist: ctx.data?.LOOP?.mist, giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true, hero: getHeroAnchor() });
+            mist: ctx.data?.LOOP?.mist, giantBack: ctx.data?.LOOP?.giantBack, redress: ctx.data?.LOOP?.redress === true, hero: getHeroAnchor(),
+            liteMist: liteMist() });
           group.add(placesVis.group);
           placesVis.setPlaces(placeState);
         } catch (e) {

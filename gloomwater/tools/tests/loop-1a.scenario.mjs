@@ -1719,7 +1719,7 @@ export async function dryRun() {
     for (const hs of [3, 4, 5, 6, 7, 8]) ok(slotsFor(L.wicks, hs, id) === D.wickSlots(hs, id), `slotsFor(${hs}, ${id})`);
     const E = expectFor(L, TL, id);
     ok(E.slots0 === (id === 'tallow' ? 4 : 3) && E.slots4 === E.slots0 + 1 && E.slots5 === E.slots0 + 2, `${id}: the slot counts`, E);
-    ok(E.goal0 === (id === 'tallow' ? 'Next: Hold 5 · 30' : 'Next: Hold 4 · 30'), `${id}: the first goal line (PLAN §0's D row)`, E.goal0);
+    ok(E.goal0 === `Next: Hold ${id === 'tallow' ? 5 : 4} · ${clamText(L.hold.ladder[0].price)}`, `${id}: the first goal line (PLAN §0's D row; Hold 4's base price from the data)`, E.goal0);
     ok(E.firstChart === (id === 'tallow' ? TL.murk.firstChartBy.tallow : TL.murk.firstChart), `${id}: Murk's departure line`, E.firstChart);
     const plan = catchPlan(E.slots0);
     ok(plan.length === E.slots0 && plan.at(-1).via === 'real' && new Set(plan.map((p) => p.speciesId)).size === plan.length, `${id}: the first trip's catches`, plan);

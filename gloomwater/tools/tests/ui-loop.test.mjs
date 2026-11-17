@@ -102,7 +102,7 @@ section('shelfCards (SPEC §8.4, PLAN CHOICEs 11 and 26): tabs with items, a car
   eq(tack.map((c) => c.name), ['Ashwood', 'Braided Gut', 'Brass Spool'], 'the TACKLE names');
   eq(tack.map((c) => c.line), [TL.shelf.rod, TL.shelf.line, TL.shelf.reel], 'the one line each');
   ok(tack.every((c) => c.price === 50 && c.dear === true && !c.bought), 'T1 50 each: too dear with 40 clams (the price dimmed, no other words)');
-  ok(raft.length === 1 && raft[0].id === 'hold:4' && raft[0].name === 'Lidded Creel' && raft[0].line === TL.shelf.hold && raft[0].price === 30 && !raft[0].dear, 'Raft: Hold 4, the Lidded Creel, 30, affordable');
+  ok(raft.length === 1 && raft[0].id === 'hold:4' && raft[0].name === 'Lidded Creel' && raft[0].line === TL.shelf.hold && raft[0].price === 20 && !raft[0].dear, 'Raft: Hold 4, the Lidded Creel, 20, affordable');
   // a buy while the shelf is open: the card stays in place reading "Yours." until the shelf closes; the next step on the next open
   ok(L.buy('hold:4').ok === true, 'buy Hold 4');
   m = U.shelfCards(L.shelf(), { D, clams: 10 });
@@ -344,7 +344,7 @@ section('T65/T67 (the view side): a done tutorial draws no cue and the goal line
   tut.start({ from: 'title' });
   const c = tut.cue();
   ok(c.tile === null && c.sail === false && c.line === null, 'no .gw-cue anywhere once done');
-  ok(U.goalLine(L.goal(), { D, wick: L.wick() })?.text === 'Next: Hold 4 · 30', 'and the goal line drawn');
+  ok(U.goalLine(L.goal(), { D, wick: L.wick() })?.text === 'Next: Hold 4 · 20', 'and the goal line drawn');
   const L2 = fakeLoop({ D, tutorial: { done: false, step: 'chart' }, wick: 'tallow' });
   const t2 = createLoopTutorial({ bus: core.createBus(), loop: L2, data: D });
   t2.start({ from: 'title' });

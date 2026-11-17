@@ -229,25 +229,26 @@ export function setLoopFlag(on) {
 export const LOOP_FLAGS = applyLoopFlags();
 
 // ---------------------------------------------------------------- the harbour re-dress's dev switch (M1 step 3a, PLAN CHOICE 13)
-// `?redress=1` (on, true, yes) in the page URL writes GW_REDRESS = true before data.js evaluates; data.js reads it once, as
-// LOOP.redress = LOOP_ENABLED && GW_REDRESS === true, so it does nothing off the loop. A preset GW_REDRESS (boolean) wins and is left
-// untouched; nothing is stored, so a reload without the flag is today's harbour. Node tools (no document) are never touched.
+// On by default since the user's yes (17 Nov 2026, SPEC §16): data.js reads LOOP.redress = LOOP_ENABLED && GW_REDRESS !== false, so
+// it does nothing off the loop. `?redress=0` (off, false, no) in the page URL writes GW_REDRESS = false before data.js evaluates (the
+// old harbour, for a side-by-side look), `?redress=1` writes true. A preset GW_REDRESS (boolean) wins and is left untouched; nothing is
+// stored, so a reload without the flag is the re-dressed harbour. Node tools (no document) are never touched.
 /** Pure: {preset: GW_REDRESS, search: location.search} → {on, source: 'preset'|'url'|'default', apply}. */
 export function resolveRedressFlag({ preset = undefined, search = '' } = {}) {
   if (typeof preset === 'boolean') return { on: preset, source: 'preset', apply: false };
   let q = null;
   try { q = new URLSearchParams(search || ''); } catch { q = null; }
   const u = q && q.has('redress') ? parseFlagOn(q.get('redress')) : null;
-  return u === null ? { on: false, source: 'default', apply: false } : { on: u, source: 'url', apply: u };
+  return u === null ? { on: true, source: 'default', apply: false } : { on: u, source: 'url', apply: true };
 }
-/** Browser pages only: reads the URL and writes GW_REDRESS = true when it turns the re-dress on. In node it writes nothing. */
+/** Browser pages only: reads the URL and writes GW_REDRESS (true or false) when it names the re-dress. In node it writes nothing. */
 export function applyRedressFlag(g = globalThis) {
   const page = typeof g.document !== 'undefined';
   let search = '';
   if (page) { try { search = g.location?.search || ''; } catch { search = ''; } }
   const r = resolveRedressFlag({ preset: g.GW_REDRESS, search });
   if (!page) return { ...r, apply: false };
-  if (r.on && r.apply) g.GW_REDRESS = true;
+  if (r.apply) g.GW_REDRESS = r.on;
   return r;
 }
 /** How this page load resolved the re-dress's switch (read once, beside LOOP_FLAGS, before data.js evaluates). */

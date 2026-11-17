@@ -42,6 +42,8 @@ export const TARGET_BOXES = {
 // the Wick's figure on the raft at home, round the raft's centre (its cloak, its head and its flame): the words keep 16 px off it
 export const WICK_BOX = { min: [-0.42, 0.22, -0.42], max: [0.42, 1.6, 0.42] };
 // the words under the targets (ui.css .gw-jetty-tword: the display face, uppercase, tracked; the hooks either side only on desktop)
+/** A word's cost (px of nudge) for sitting above its button or to its left: past it, the word leaves its band for its button's side. */
+export const SIDE_COST = 80;
 export const HOME_WORDS = { murk: 'Murk', chart: 'Chart', journal: 'Journal' };
 export const WORD_TYPE = { desk: { size: 19, track: 0.2, hook: 42, band: 34 }, phone: { size: 17, track: 0.16, hook: 0, band: 30 } };
 /** A word's box at a type {size px, track em, hook px}: {w (the letters and their tracking), h (the glyphs), hook (each side)},
@@ -199,6 +201,17 @@ export function layoutTargets(rects, { vw = 960, vh = 540, min = 44, word = 26, 
         for (let s = 0; s <= vw; s += 2) {
           if (cy + s >= cost) break;
           for (const dx of s ? [s, -s] : [0]) if (clear(at(dx, dy, 0))) { cost = cy + s; best = { dx, dy, hooks: false }; break; }
+        }
+      }
+      // (beside its own button rather than far under it: above the box, or to its left, level with it, when the band's nudge would
+      // carry the word more than SIDE_COST away; at 358 × 664 MURK sat 48 px under its box, under JOURNAL, away from Murk: the
+      // user's yes, 17 Nov 2026)
+      const above = -(it.h + 4), left = it.l - 6 - (cx + ww / 2), level = (it.t + it.bh / 2 + wh / 2) - b;
+      for (const [dx0, dy, c0] of [[0, above, SIDE_COST], [left, level, SIDE_COST + 6]]) {
+        for (let s = 0; s <= 40; s += 2) {
+          if (c0 + s >= cost) break;
+          const hit = (s ? [s, -s] : [0]).find((d) => clear(at(dx0 + d, dy, 0)));
+          if (hit !== undefined) { cost = c0 + s; best = { dx: dx0 + hit, dy, hooks: false }; break; }
         }
       }
     }

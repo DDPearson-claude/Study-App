@@ -87,8 +87,8 @@ if (process.argv.includes('--loop')) {
   // the hold ladder (SPEC §4.2) and the 1a shelf
   const H = LP.hold;
   ok4(H.start === 3 && H.max === 8 && H.shelfMax === 6 && H.startName === 'Wicker Creel', 'LOOP.hold: 3 to 8, the shelf to Hold 6 (M1 step 3a: the Wellbox, M1 §2.5)');
-  ok4(same(H.ladder.map((s) => s.slots), [4, 5, 6, 7, 8]) && same(H.ladder.map((s) => s.price), [30, 120, 450, 2000, 3500]) && H.ladder.every((s) => typeof s.name === 'string' && s.name),
-    'LOOP.hold.ladder: slots 4..8 in order, prices 30 · 120 · 450 · 2,000 · 3,500, each named');
+  ok4(same(H.ladder.map((s) => s.slots), [4, 5, 6, 7, 8]) && same(H.ladder.map((s) => s.price), [20, 120, 450, 2000, 3500]) && H.ladder.every((s) => typeof s.name === 'string' && s.name),
+    'LOOP.hold.ladder: slots 4..8 in order, prices 20 · 120 · 450 · 2,000 · 3,500, each named (Hold 4 at 20: the user\'s yes, 17 Nov 2026)');
   // tackle (SPEC §4.3): the prices and TACKLE T0–T4's Hold as the table states it
   const TK = LP.tackle;
   ok4(same(TK.price, [0, 50, 300, 1200, 6000, 32000, 100000]), 'LOOP.tackle.price: 0 · 50 · 300 · 1,200 · 6,000 · 32,000 · 100,000');
@@ -249,8 +249,8 @@ if (process.argv.includes('--loop')) {
     const strings = []; const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') for (const x of Object.values(v)) walk(x); };
     walk({ ...TL, log: { ...(TL.log || {}), under: '' } }); walk(LP);   // (WC-1: the gear log's "<1%" is SPEC §8.11's one share word, the log's only)
     ok4(!strings.some((t) => t.includes('%')), 'T118: no percentage literal anywhere in TEXT_LOOP or LOOP (but the gear log\'s "<1%", SPEC §8.11)');
-    ok4(LP.redress === false && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
-      'T118: LOOP.redress is false (no ?redress), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
+    ok4(LP.redress === true && LP.legendBait.mossmere.id === 'heartmoss' && LP.legendBait.mossmere.price === 60 && LP.hold.shelfMax === 6 && TL.comingSoon === 'Coming soon',
+      'T118: LOOP.redress is true (on by default in the loop, the user\'s yes of 17 Nov 2026), the Heartmoss Ball 60, the shelf to Hold 6, "Coming soon"');
     // T118: each map card's fish bites at its place (its pool there in some light: the giant's share, a drawn or own fish; the legend
     // on her water's legend bait, her place's crown)
     const LIGHTS = ['calm', 'dusk', 'gloomtide'];

@@ -2295,6 +2295,13 @@ cap read the bait at the cast, unchanged. (Answer 43's own line below carries th
 46. **After the tally: aboard at once?** **Default: yes**, an ink dip on Sold (the arrival shot stays under the tally). The other way: stay on the view from the water with its targets, and go aboard when you tap the barge.
 47. **The sky at home.** **Default: first light, held** (the clock stands still at home). The other way: while you sit on the bench the morning comes up slowly, and goes back to first light when you get up.
 
+**Answered by the user, 17 November 2026 (four quick wins, "Yes push the recommended ones"), built on `gw-quick`:** (1) **the
+harbour re-dress is on** in the loop (M1 §8 question 2, "Behind a switch, then your yes": the yes is given; `?redress=0` shows the old
+harbour); (2) **Hold 4's base price is 20** (was 30), so the shipped game's doubled price, 40, is within the first trip's tally (about
+41 clams); every other price as it was; (3) **lighter mist on phones**: the standing banks draw their low layer set (3 layers, not 5)
+on the low and medium tiers and on any phone, the high tier on desktop as it was (M1 §6.2, T148); (4) **MURK's word beside Murk** on
+small phones: a home word the band would carry far from its own button sits above it (or to its left) instead (358 × 664).
+
 **Answered by the user, 17 November 2026 ("Yes", and "a very small mini game ... with the clean strike being moderately difficult to hit"), built on `gw-strike`:** the strike gauge, under the loop only (data.js's strike-gauge apply block; the v3 tables keep their fingerprint): a thin filigree arc beside the float, an ink needle sweeping the window, one gold notch for Clean (`AUTOFISH.strike.notch` {at 0.22, width 0.2} of the window, the latency compensation kept) on the pale Struck band, Late after it, graded exactly as drawn; it replaces the ring aid (the setting kept, harmless). Clean sets the hook: +8 Hold (Struck +2), "Hook set" under the float (`TEXT_LOOP.hookSet`, also on a trip), a firmer splash, a heavier haptic and a doubled, lower tock; Taper's Sheet's Tackle section carries "Hook set: Hold +8" (`TEXT_LOOP.sheet.hookSet`).
 
 ---

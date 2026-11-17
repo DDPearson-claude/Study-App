@@ -4815,8 +4815,9 @@ export const LOOP = {
   // under the lure are drawn and the fish strikes at takeChance(strike, its grade); at `inAt` m from the raft it comes in quietly
   lureCast: { pace: 1.2, strike: 0.05, inAt: 2.4 },   // (the user: "auto reels in slowly": about 12 s for a 14 m cast; the strike halved so a cast's chance stays as fitted)
   // ---- the hold (SPEC §3.1, §4.2): holdSlots is the bought count (3–8) for every Wick; a Wick's slots are wickSlots / loopSlots
+  // (Hold 4 at 20, the user's yes of 17 Nov 2026, SPEC §16: doubled by LOOP.cost.shipped it is 40, within the first trip's ~41)
   hold: { start: 3, max: 8, shelfMax: 6,             // shelfMax: the shelf's last hold step (1a: Hold 5, PLAN CHOICE 11; M1 step 3a: Hold 6, the Wellbox, M1 §2.5)
-    ladder: [{ slots: 4, price: 30, name: 'Lidded Creel' }, { slots: 5, price: 120, name: 'Double Creel' },
+    ladder: [{ slots: 4, price: 20, name: 'Lidded Creel' }, { slots: 5, price: 120, name: 'Double Creel' },
       { slots: 6, price: 450, name: 'Wellbox' }, { slots: 7, price: 2000, name: 'Ferry Hamper' },
       { slots: 8, price: 3500, name: 'Harbour Chest' }], startName: 'Wicker Creel' },
   // ---- the water goes quiet (SPEC §3.3): good bites an evening; open water one per slot of the hold, plus openExtra
@@ -4892,9 +4893,9 @@ export const LOOP = {
   // the giant's back in a standing bank: every 25–45 s for 2 s, "on clear nights" (SPEC §5.1 rule 6; the loop has no weather: PLAN CHOICE 10)
   giantBack: { every: [25, 45], dur: 3, phases: ['gloomtide'], places: ['under_the_span', 'buoy_lights'] },   // (3 s: the fix pass; 2 s read as a blink)
   mist: { inside: 0.35, ease: 0.8 },   // a bank's whole opacity while the raft is inside its footprint, and the ease (s): never a clearing
-  // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches), built only behind this switch: false unless the dev
-  // URL flag ?redress=1 (core.js, read once beside ?loop; PLAN CHOICE 13). The user's yes flips the data value in a commit of its own.
-  redress: LOOP_ENABLED && globalThis.GW_REDRESS === true,
+  // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches): on in the loop since the user's yes (17 Nov 2026,
+  // SPEC §16; M1 §8 question 2); the dev URL flag ?redress=0 (core.js, read once beside ?loop; PLAN CHOICE 13) shows the old harbour.
+  redress: LOOP_ENABLED && globalThis.GW_REDRESS !== false,
   // Murk's prices (the user, 16 Nov 2026: "The cost of items in murks shop should be way higher", then "For now just double the original
   // costs ill playtest and tell you how it is"): every shelf price (tackle, hold, maps, lures, tins, raft, home) is its base × factor,
   // applied once by progression-loop's mapCards and shelfItems; nothing earned changes. A preset GW_LOOP_COST (a positive number) sets

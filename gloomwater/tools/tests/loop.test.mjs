@@ -40,15 +40,16 @@ section('core: the loop switch (PLAN §3.2, CHOICE 18) and fmtClams');
   eq(R({ preset: { loop: true } }), { on: true, source: 'preset', apply: false }, 'a preset on is left alone');
   eq(R({ preset: { v3: false }, search: '?loop=1' }).on, false, 'a preset GW_V3 === false keeps the loop off (a v1 template)');
   eq(R({ rollout: { on: true } }).apply, true, 'the gate commit flips LOOP_ROLLOUT.on');
-  // M1 step 3a (PLAN CHOICE 13): the re-dress's dev switch, read once beside ?loop; data.js's LOOP.redress is false without it
+  // M1 step 3a (PLAN CHOICE 13): the re-dress's dev switch, read once beside ?loop; on by default since the user's yes (17 Nov 2026)
   const RR = core.resolveRedressFlag;
-  eq([RR({}).on, RR({ search: '?loop=1' }).on, RR({ search: '?redress=0' }).on], [false, false, false], '?redress: off by default, and with ?redress=0');
+  eq([RR({}).on, RR({ search: '?loop=1' }).on, RR({ search: '?redress=0' }).on], [true, true, false], '?redress: on by default, off with ?redress=0');
   eq(RR({ search: '?loop=1&redress=1' }), { on: true, source: 'url', apply: true }, '?redress=1 → on');
+  eq(RR({ search: '?loop=1&redress=0' }), { on: false, source: 'url', apply: true }, '?redress=0 → off');
   eq(RR({ preset: false, search: '?redress=1' }), { on: false, source: 'preset', apply: false }, 'a preset GW_REDRESS wins');
   ok(core.REDRESS_FLAGS.apply === false && globalThis.GW_REDRESS === undefined, 'node import: the re-dress switch writes nothing');
-  const rp = { document: {}, location: { search: '?loop=1&redress=1' } }, rq = { document: {}, location: { search: '?loop=1' } };
+  const rp = { document: {}, location: { search: '?loop=1&redress=0' } }, rq = { document: {}, location: { search: '?loop=1' } };
   core.applyRedressFlag(rp); core.applyRedressFlag(rq);
-  ok(rp.GW_REDRESS === true && rq.GW_REDRESS === undefined, 'a fake page: GW_REDRESS written only with ?redress=1');
+  ok(rp.GW_REDRESS === false && rq.GW_REDRESS === undefined, 'a fake page: GW_REDRESS written only when the URL names it (?redress=0 → false)');
   const page = { document: {}, location: { search: '?loop=1&v3=0&v3phase=4' } };
   eq(core.applyLoopFlags(page).on, true, 'a fake page with ?loop=1 → on');
   ok(page.GW_LOOP === true && page.GW_V3 === true && page.GW_V3_PHASE === 1, 'a fake page: GW_LOOP, GW_V3 and GW_V3_PHASE = 1 written');
@@ -88,7 +89,7 @@ section('data.js: LOOP_ENABLED, PARKED, V3_PHASE, the apply block');
 section('data.js: the LOOP tables');
 {
   const L = D.LOOP;
-  eq(L.hold.ladder.map((s) => [s.slots, s.price]), [[4, 30], [5, 120], [6, 450], [7, 2000], [8, 3500]], 'the hold ladder (SPEC §4.2)');
+  eq(L.hold.ladder.map((s) => [s.slots, s.price]), [[4, 20], [5, 120], [6, 450], [7, 2000], [8, 3500]], 'the hold ladder (SPEC §4.2)');
   ok(L.hold.start === 3 && L.hold.max === 8 && L.hold.shelfMax === 6, 'the hold: 3 to 8, the shelf to Hold 6 (M1 step 3a; 1a stopped at 5)');
   eq(L.tackle.price, [0, 50, 300, 1200, 6000, 32000, 100000], 'tackle prices');
   eq(L.tackle.shelfAt, [1, 1, 1, 2, 3, 4, 9], 'v8: shelfAt[6] = 9');
@@ -222,12 +223,12 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   // (M1 step 4's cards, the lures, tins, raft parts and Order Board, are tools/tests/loop-4.test.mjs's: these checks read the rest)
   const step4 = (i) => /^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id), no4 = (items) => items.filter((i) => !step4(i));
   const kit = (items) => no4(items).filter((i) => i.tab === 'tackle' || i.tab === 'raft');
-  eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 30, false]], 'T23: the fresh shelf (Tackle and Raft)');
+  eq(kit(shelf0).map((i) => [i.id, i.price, i.bought]), [['rod:1', 50, false], ['line:1', 50, false], ['reel:1', 50, false], ['hold:4', 20, false]], 'T23: the fresh shelf (Tackle and Raft)');
   eq(no4(shelf0).filter((i) => i.tab === 'bait' || i.tab === 'maps').map((i) => [i.id, i.price, i.bought]),
     [['bait:heartmoss', 60, false], ['place:lily_maze', 60, false], ['place:under_the_span', 150, false], ['lake:sporewood', null, false]], 'M1 step 3a: the Bait tab and the Maps tab (two place maps and the sealed card)');
   eq(shelf0.find((i) => i.id === 'hold:4').name, 'Lidded Creel', "a hold card names the ladder's step");
   ok(!shelf0.some((i) => i.id === 'hold:5' || i.id === 'rod:2'), 'T24: Hold 5 and T2 wait for the step below');
-  eq(PL.goalOf(shelf0), { id: 'hold:4', name: 'Hold 4', price: 30, slot: 'hold', level: 4 }, 'the goal line: the cheapest, "Hold 4 · 30"');
+  eq(PL.goalOf(shelf0), { id: 'hold:4', name: 'Hold 4', price: 20, slot: 'hold', level: 4 }, 'the goal line: the cheapest, "Hold 4 · 20"');
   const after = { ...PL.freshLoop(D), holdSlots: 4, tackle: { rod: 1, line: 0, reel: 0 } };
   const ses = PL.shelfItems(D, after, ['hold:4', 'rod:1']);
   eq(ses.filter((i) => i.bought).map((i) => i.id), ['rod:1', 'hold:4'], 'CHOICE 26: bought while open, the card reads Yours. in place');

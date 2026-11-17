@@ -20,7 +20,7 @@
 //   the giant's back the built night-ink silhouette's family (a smooth dark back, no species shape) turning in Under the Span's and the
 //                    Buoy Lights' standing banks at the gloomtide only, every 25–45 s for 2 s (LOOP.giantBack; PLAN CHOICE 10); it
 //                    emits world:giantBack {placeId, x, z}
-//   W9's rest        behind LOOP.redress (off by default): the leaning toll-tower on the Sunken Gate (+1), the Sluice Veil's scrolling
+//   W9's rest        behind LOOP.redress (on in the loop): the leaning toll-tower on the Sunken Gate (+1), the Sluice Veil's scrolling
 //                    card and two aqueduct segments with no spout (+2); the bollards that replace the lamp-posts are world-art's (0 net)
 //
 // No gameplay state lives here: world.js feeds update() with the raft, the phase and the air, and keeps {owned, lifted} (setPlaces).
@@ -337,10 +337,13 @@ const BACK_COL = 0x14122a;
  * Chart's order; L: the layout (docks, spawn, obstacles); arena: buildArena's result (piers, halos, anchors). opts: {pal, quality,
  * mist: LOOP.mist, giantBack: LOOP.giantBack, redress: LOOP.redress, hero: world.getHeroAnchor(), shoreR}.
  */
-export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'high', mist = {}, giantBack = {}, redress = false, hero = null } = {}) {
+export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'high', mist = {}, giantBack = {}, redress = false, hero = null, liteMist = false } = {}) {
   const group = new THREE.Group();
   group.name = 'world:places';
   const low = quality === 'low';
+  // (the banks' low layer set, 3 layers not 5, on the low and medium tiers and on any phone (liteMist, world.js): the four banks
+  // roughly doubled a phone frame's CPU cost, M1 §6.2; the high tier on desktop keeps its five)
+  const liteBank = low || liteMist === true;
   const geos = [], mats = [];
   const G = (g) => { if (g) geos.push(g); return g; };
   const M = (m) => { if (m) mats.push(m); return m; };
@@ -356,7 +359,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   const keeps = P.map((p) => bankKeep(p.area, L?.docks || []));   // (no bank over a dock)
 
   // ---------------------------------------------------------- the banks (one merged mesh)
-  const layers = BANK_LAYERS[low ? 'low' : 'high'];
+  const layers = BANK_LAYERS[liteBank ? 'low' : 'high'];
   const bank = (() => {
     const pos = [], aBank = [], aS1 = [], aS2 = [], aL = [], aK = [], ix = [];
     let base = 0;
@@ -369,7 +372,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         // (each layer's quad only as large as its own drawn-in footprint can reach: the billow draws in, never out, so a fragment past
         // footprint + feather − shrink is never drawn; the fix pass, for T148's fill on software GL)
         const b = footprintBox(a, Math.max(0.2, BANK.feather + 0.2 - shrink));
-        const n = low ? 4 : 8;   // a grid per layer (the fragment does the shape; the finer grid lets an upper layer swell)
+        const n = liteBank ? 4 : 8;   // a grid per layer (the fragment does the shape; the finer grid lets an upper layer swell)
         for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) {
           pos.push(b.x0 + (b.x1 - b.x0) * (i / n), hy, b.z0 + (b.z1 - b.z0) * (j / n));
           aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(hy, wgt, shrink); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
@@ -379,9 +382,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       }
       // the curtains inside the bank's edge (BANK.curtains: inset, height, weight): quads from the water up
       const cc = footprintCentre(a);
-      for (const [inset, H, wgt] of low ? BANK.curtains.slice(0, 1) : BANK.curtains) {
+      for (const [inset, H, wgt] of liteBank ? BANK.curtains.slice(0, 1) : BANK.curtains) {
         // (a curtain wanders inward, never out: its own seeded jitter along the edge)
-        const loop0 = footprintLoop(a, inset, low ? 2 : 1.2);
+        const loop0 = footprintLoop(a, inset, liteBank ? 2 : 1.2);
         const loop = loop0.map(([x, z], j) => { const t = 0.55 + 0.45 * Math.sin(j * 0.9 + bi * 2.1 + inset) * Math.sin(j * 0.37 + 1.3); const k2 = Math.min(1.2, 0.9 * t); const dx = cc.x - x, dz = cc.z - z, l = Math.hypot(dx, dz) || 1; return a.kind === 'disc' ? [x + dx / l * k2, z + dz / l * k2] : [x, z]; });
         for (let i = 0; i < loop.length; i++) {
           const [x0, z0] = loop[i], [x1, z1] = loop[(i + 1) % loop.length];
@@ -543,7 +546,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     chainKit.push(prep(taperTube(sag, (t) => 0.024 + 0.01 * Math.max(0, Math.cos(t * 90)), 5, 50), { color: scaleArr(K.rust, 1.1) }));
   }
 
-  // ---------------------------------------------------------- W9's rest behind LOOP.redress (off by default)
+  // ---------------------------------------------------------- W9's rest behind LOOP.redress (on in the loop since the user's yes)
   let tower = null, veil = null;
   const aqueduct = [];
   if (redress) {
@@ -993,7 +996,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       banks: S.map((s, i) => ({ id: s.id, op: r3(s.op), target: r3(s.target), lifting: !!s.lift, lifted: s.lifted, inside: s.inside, glow: r3(s.glow), keep: keeps[i] })),
       lifted: S.filter((s) => s.lifted).map((s) => s.id),
       back: BK.cur ? { placeId: BK.cur.id, t: r3(BK.cur.t), x: r3(BK.cur.x), z: r3(BK.cur.z) } : null, backs: BK.count,
-      dressing: { pads: padList.length, caps: capList.length, decals: decals.length, chains: chainTips.length, piers: piers.length, redress: !!redress, tower: !!tower, veil: !!veil },
+      dressing: { pads: padList.length, caps: capList.length, decals: decals.length, chains: chainTips.length, piers: piers.length, redress: !!redress, tower: !!tower, veil: !!veil, layers: layers.length },
       cut: r3(cut.uCutK.value),
       calls: stats().calls,
     };
