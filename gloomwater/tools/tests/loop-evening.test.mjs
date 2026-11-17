@@ -420,10 +420,11 @@ section('M1 step 3a: Sail toward a place (T129, PLAN CHOICE 7)');
 // =====================================================================================================================
 // fishing on a trip (fishing-env with the loop's data and a fake loop)
 const OPEN = 'open:mossmere';
-function tripEnv({ wick = 'wick', loopOver = {}, evening = 1, phase = 'calm', seed = 42, data = D, outing = 'trip', render = undefined } = {}) {
+// (GEAR-GATES §2.1: a trip sails with the start kit's Mire Worms on the hook, as a fresh save's does; `bait: null` is the bare hook)
+function tripEnv({ wick = 'wick', loopOver = {}, evening = 1, phase = 'calm', seed = 42, data = D, outing = 'trip', render = undefined, bait = 'mireworm' } = {}) {
   const loop = fakeLoop({ D, wick, ...loopOver });
   const env = makeFishingEnv({ data, mode: 'still', outing, phase, seed, loop, render,
-    runOver: { bait: {}, equippedBait: null, evening, character: wick, nightMode: 'still' } });
+    runOver: { bait: bait ? { [bait]: 99 } : {}, equippedBait: bait, evening, character: wick, nightMode: 'still' } });
   env.ctx.bus.on('fishing:bite', (e) => loop.noteBite(e));
   env.ctx.bus.on('fishing:miss', (e) => { if (e.reason === 'spooked') loop.noteBite(e); });
   env.loop = loop;
@@ -657,11 +658,11 @@ section('the Wicks on the water: Stub\'s spook exposure, recorded (WICKS §2.3)'
 }
 section('the Wicks on the water: Ashwick\'s comeback (WICKS §2.5)');
 {
-  const cb = { waterKey: OPEN, speciesId: 'weeping_carp', z: 2.05 };   // (WC-1: a fish the bare hook brings; a stray's comeback waits: watercraft.test.mjs)
+  const cb = { waterKey: OPEN, speciesId: 'weeping_carp', z: 1.65 };   // (WC-1: a fish the worms bring; a stray's comeback waits: watercraft.test.mjs; a Prize, under worms' cap on Twine)
   const E = tripEnv({ wick: 'ashwick', loopOver: { comeback: { ...cb } } });
   E.events.length = 0;
   ok(E.toBite({}), '(the bite is live)');
-  ok(E.dbg().species === 'weeping_carp' && Math.abs(E.dbg().z - 2.05) < 1e-9, 'Ashwick: the next bite at that water is that fish at the same z');
+  ok(E.dbg().species === 'weeping_carp' && Math.abs(E.dbg().z - 1.65) < 1e-9, 'Ashwick: the next bite at that water is that fish at the same z');
   ok(E.count('fishing:comeback') === 1, 'Ashwick: the float settles with the ember (fishing:comeback, the hiss)');
   const b = E.events.find((x) => x.e === 'fishing:bite')?.p;
   ok(b && b.comeback === true && b.waterKey === OPEN, 'Ashwick: fishing:bite {comeback: true, waterKey}');

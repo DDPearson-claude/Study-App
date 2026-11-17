@@ -19,7 +19,7 @@ export default async function (api) {
       const c = window.__gw, m = c.state.meta, L = m.loop;
       c.debug.loop.tutorial('done');
       for (const id of ['belled_matriarch', 'gloam_eel', 'dusk_minnow']) m.journal[id] = { ...(m.journal[id] || {}), caught: 1, biggest: 0, firstDay: 1, firstRun: 1, pbLength: id === 'belled_matriarch' ? 262 : 70 };
-      L.lures = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner'];
+      L.lures = ['bent_spoon', 'feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner'];
       L.bait.mossmere = { ...(L.bait.mossmere || {}), lumen_moss: 10, mireworm: 10 };
       L.fitted = { lure: 'bell_spinner', bait: 'lumen_moss' };
       c.game.save();

@@ -440,15 +440,17 @@ export function liftTitle(p, D) {
  * legend's first landing, the first giant sold, the first sale, the first Trophy or bigger. `rows` the tally's (tallyPlan), `said`
  * meta.loop.said, `listDone` the list complete on this save. → the sayOnce id, or null.
  */
-export function saleLineId({ rows = [], said = {}, listDone = false, empty = false } = {}) {
+export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false } = {}) {
   const S = isObj(said) ? said : {};
   if (listDone && !S.listComplete) return 'listComplete';
-  if (empty) return null;
+  const gearAway = away === true && !S.firstAway ? 'firstAway' : null;   // GEAR-GATES §4.3: the first trip a fish got away over the gear's cap
+  if (empty) return gearAway;
   const R = arr(rows);
   if (R.some((r) => r.legend) && !S.legendFirst) return 'legendFirst';
   if (R.some((r) => r.giant) && !S.firstGiant) return 'firstGiant';
   if (R.some((r) => r.jackpot) && !S.firstJackpot) return 'firstJackpot';   // (M1 step 5c: FINDS §9's three lines, each once)
   if (!S.firstSale) return 'firstSale';
+  if (gearAway) return gearAway;
   if (R.some((r) => r.find && r.kind !== 'treasure') && !S.firstPart) return 'firstPart';
   if (R.some((r) => r.find && r.kind === 'treasure') && !S.firstTreasure) return 'firstTreasure';
   if (R.some((r) => r.giant || r.legend || r.sizeClass === 'trophy' || r.sizeClass === 'elder') && !S.firstTrophy) return 'firstTrophy';
@@ -510,6 +512,10 @@ export function allowedWords(D) {
   { const tc = T_(D).teach; if (isObj(tc) && typeof tc.notches === 'string' && typeof tc.dots === 'string') out.add(`${tc.notches} ${tc.dots}`); }
   // the heart at an Elder's or an Ancient's hook set (ui-heart.js)
   for (const w of Object.values(isObj(T_(D).heart) ? T_(D).heart : {})) if (typeof w === 'string') out.add(w);
+  // GEAR-GATES §5.1: the logs' gate lines as composed ("Lands up to Prize.", "Needs the Glimmer Spoon.", "Needs Lumen Moss.")
+  { const G = T_(D).gate, gi = T_(D).gearItems;
+    if (isObj(G) && typeof G.upTo === 'string') for (const c of arr(D?.SIZE_CLASSES)) if (c?.label) out.add(G.upTo.replace('{class}', c.label));
+    if (isObj(G) && typeof G.needs === 'string' && isObj(gi)) for (const n of Object.values(gi)) if (typeof n === 'string') { out.add(G.needs.replace('{item}', n)); out.add(G.needs.replace('{item}', `the ${n}`)); } }
   return out;
 }
 const NUM_RE = /^[+]?\d[\d,]*(\.\d+)?[km]?$/;
@@ -1193,7 +1199,8 @@ export function createLoopView(K) {
     const w = typeof zone === 'string' && zone ? zone : run()?.zone || 'mossmere';
     const lc = L('listCount', w);
     const listDone = !!lc && num(Number(lc.need), 0) > 0 && num(Number(lc.have), 0) >= num(Number(lc.need), 0);
-    const id = saleLineId({ rows, said, listDone, empty });
+    const away = L('lastTrip')?.away === true;
+    const id = saleLineId({ rows, said, listDone, empty, away });
     const line = id ? L('sayOnce', id) : null;
     return { line: line || null, press: line && id === 'listComplete' ? 'catch' : null, count: lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null };
   }

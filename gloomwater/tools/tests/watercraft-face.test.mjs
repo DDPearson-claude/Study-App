@@ -249,7 +249,9 @@ section('the gear log: Who bites names no unmet fish; the pike "<1%" on worms; t
     const line = AF.gearLine(D, e, { names });
     const suits = WC.gradeTargets(e.id, D);
     const m = suits.filter((id) => met.has(id)).length;
-    ok(line === `+${e.hold} Hold on the fish it suits (${m} you have met).` && !all.some((n) => line.includes(n)), `${e.id}: "${line}"`);
+    const cap = AF.gearCapLine(D, e);   // (GEAR-GATES §5.1: the free hooks add "Lands up to {Class}.")
+    ok(line === `+${e.hold} Hold on the fish it suits (${m} you have met).${cap ? ` ${cap}` : ''}` && !all.some((n) => line.includes(n)), `${e.id}: "${line}"`);
+    ok(!!cap === ['bent_spoon', 'cut_strip'].includes(e.id), `${e.id}: a cap line only on the free hooks (${cap || 'none'})`);
   }
   eq0(ctx.errors);
   function eq0(errs) { ok(!errs.length, 'no progression errors', errs); }

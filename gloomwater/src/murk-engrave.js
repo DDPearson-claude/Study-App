@@ -214,6 +214,19 @@ function lureSpoon(P) {
   for (const a of [-0.5, 0.3, 1.1]) P.ink(`M152 120 c${f(Math.cos(a) * 10)} ${f(10 + Math.sin(a) * 3)} ${f(Math.cos(a) * 14 + 4)} ${f(Math.sin(a) * 4 + 2)} ${f(Math.cos(a) * 9 + 2)} ${f(Math.sin(a) * 2 - 3)}`, 1.1);
   return P;
 }
+/** The Bent Spoon (GEAR-GATES §2.1, free): a kitchen spoon's bowl, cut and bent, dull pewter: hatched mid all over, its far half dark
+ *  past the crease, a few dents and no glint; a split ring at the cut end, one plain hook at the tail (never the Glimmer's treble). */
+function lureBentSpoon(P) {
+  P.ground(100, 132, 44, 5);
+  const bowl = 'M62 54 C80 38 118 46 134 74 C146 96 130 112 112 104 C92 96 56 76 62 54Z';
+  P.paper(bowl).shade(bowl, 2);
+  P.shade('M92 48 C112 54 128 64 134 74 C146 96 130 112 112 104 C112 88 104 66 92 48Z', 3);   // past the bend
+  P.ink(bowl, 1.6).ink('M92 48 C104 64 112 84 112 104', 1.1);   // the crease
+  for (const [x, y] of [[78, 58], [98, 80], [122, 92]]) P.ink(`M${x} ${y} q4 -3 8 0`, 0.7, ' stroke-opacity=".7"');   // dents
+  P.ink(ell(60, 52, 4, 4), 1.3).ink('M56 48 l-7 -7', 1.2).ink(ell(46, 37, 4, 4), 1.2);   // the split ring and swivel
+  P.ink('M130 104 l6 10', 1.4).ink('M136 114 c4 10 -2 18 -10 14 c-3 -2 -3 -6 -1 -8', 1.3).ink('M125 120 l-3 -5', 1.1);   // one plain hook
+  return P;
+}
 function lureJig(P) {
   P.ground(100, 132, 50, 5);
   // the carved bone body: a tapering ridged shape behind a round lead head
@@ -544,14 +557,14 @@ export function engrave(card, { uid = 'e', geo = null } = {}) {
   // (level 0, the Willow Switch, Twine and the Wooden Winch, is drawn as itself: the Wick's sheet shows the tackle you start with)
   const key = plateKey(card), [kind, rest = ''] = key.split(':'), lv = rest !== '' && Number.isFinite(Number(rest)) ? Number(rest) : 1;
   const P = plate(String(uid).replace(/[^A-Za-z0-9_-]/g, ''), 200, 150, key);
-  const zoom = ({ 'lure:bell_spinner': [1.12, 100, 80], 'lure:glimmer_spoon': [1.24, 100, 78], 'lure:bone_jig': [1.3, 104, 80] })[key]
+  const zoom = ({ 'lure:bell_spinner': [1.12, 100, 80], 'lure:glimmer_spoon': [1.24, 100, 78], 'lure:bent_spoon': [1.24, 100, 80], 'lure:bone_jig': [1.3, 104, 80] })[key]
     || { lure: [1.4, 100, 84], lantern: [1.22, 100, 84], bait: [1.12, 100, 90], look: [1.12, 100, 90] }[kind];
   if (zoom) P.add(`<g transform="translate(${zoom[1]} ${zoom[2]}) scale(${zoom[0]}) translate(${-zoom[1]} ${-zoom[2]})">`);
   if (kind === 'rod') rod(P, lv);
   else if (kind === 'line') lineSpool(P, lv);
   else if (kind === 'reel') reel(P, lv);
   else if (kind === 'hold') creel(P, lv);
-  else if (kind === 'lure') ({ feather_fly: lureFly, glimmer_spoon: lureSpoon, bone_jig: lureJig, bell_spinner: lureBell }[rest] || lureSpoon)(P);
+  else if (kind === 'lure') ({ feather_fly: lureFly, glimmer_spoon: lureSpoon, bone_jig: lureJig, bell_spinner: lureBell, bent_spoon: lureBentSpoon }[rest] || lureSpoon)(P);
   else if (kind === 'tin' && rest === 'cut_strip') cutStrip(P);
   else if (kind === 'tin') tin(P, rest === 'lumen_moss' ? 'moss' : 'worm');
   else if (kind === 'bait') mossBall(P);

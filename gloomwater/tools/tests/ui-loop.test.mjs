@@ -345,7 +345,7 @@ section('T65/T67 (the view side): a done tutorial draws no cue and the goal line
   tut.start({ from: 'title' });
   const c = tut.cue();
   ok(c.tile === null && c.sail === false && c.line === null, 'no .gw-cue anywhere once done');
-  ok(U.goalLine(L.goal(), { D, wick: L.wick() })?.text === 'Next: Ashwood · 50', 'and the goal line drawn (the cheapest: Hold 4 at 200 is dearer)');
+  ok(U.goalLine(L.goal(), { D, wick: L.wick() })?.text === 'Next: Braided Gut · 50', 'and the goal line drawn (Line T1 first, GEAR-GATES §5–6)');
   const L2 = fakeLoop({ D, tutorial: { done: false, step: 'chart' }, wick: 'tallow' });
   const t2 = createLoopTutorial({ bus: core.createBus(), loop: L2, data: D });
   t2.start({ from: 'title' });

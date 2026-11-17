@@ -246,9 +246,9 @@ section('(e) pre-rolls: a stray\'s whole cast is exactly 1%; takeChance never pu
   const np = poolAt('buoy_lights', 'gloomtide', 'mireworm');
   const oe = WC.castOdds(D, { pool: np, phase: 'gloomtide', bait: 'mireworm', preroll: { sp: SPC('gloam_eel'), z: 0, base: 1 } });
   eq(WC.castShare(oe, 'gloam_eel'), 0, 'the Gloam Eel pre-rolled on worms never takes (its bait does not fit)');
-  // Taper's first bite refuses a pre-rolled common
-  const tp = poolAt(null, 'dusk', null, 'taper');
-  const ot = WC.castOdds(D, { pool: tp, area: 'margin', phase: 'dusk', wickId: 'taper', taperFirst: true, preroll: { sp: SPC('dusk_minnow'), z: 0, base: 1 } });
+  // Taper's first bite refuses a pre-rolled common (on worms: GEAR-GATES §2.2's bare hook brings the commons alone, so the rule waits there)
+  const tp = poolAt(null, 'dusk', 'mireworm', 'taper');
+  const ot = WC.castOdds(D, { pool: tp, area: 'margin', phase: 'dusk', bait: 'mireworm', wickId: 'taper', taperFirst: true, preroll: { sp: SPC('dusk_minnow'), z: 0, base: 1 } });
   ok(ot.taper && WC.castShare(ot, 'dusk_minnow') <= 0.01 + 1e-12, `Taper's first bite: a pre-rolled common does not take, the commons zeroed (the minnow ${pc(WC.castShare(ot, 'dusk_minnow'))})`);
 }
 
@@ -268,16 +268,18 @@ section('(f) the comeback: it waits on a stray, comes on the next cast whose hoo
 }
 
 // =====================================================================================
-section('(g) Cut Strip brings each hunter (each ≥ 2% somewhere it lives); every fish can be caught (the bare hook, Cut Strip or an M1 item)');
+section('(g) Cut Strip brings each hunter but the giants, the Spinner both giants (each ≥ 2% somewhere it lives); every fish can be caught (the bare hook, Cut Strip or an M1 item)');
 {
   for (const id of WC.HUNTERS) {
+    const giant = !!SPC(id).giant, hk = giant ? { lure: 'bell_spinner' } : { bait: 'cut_strip' };   // (GEAR-GATES §3: a giant needs a bought lure)
     let best = 0, at = '';
     for (const { area, place } of waters()) for (const phase of PHASES) {
-      const pool = poolAt(place, phase, 'cut_strip');
-      const o = WC.castOdds(D, { pool, area: pool.place ? null : area ?? 'open', phase, bait: 'cut_strip' });
+      const pool = poolAt(place, phase, hk.bait ?? null);
+      const o = WC.castOdds(D, { pool, area: pool.place ? null : area ?? 'open', phase, ...hk, D });
       const p = WC.castShare(o, id); if (p > best) { best = p; at = `${place ?? area}, ${phase}`; }
     }
-    ok(best >= 0.02, `Cut Strip brings ${SPC(id).name}: ${pc(best)} at ${at}`);
+    ok(best >= 0.02, `${giant ? 'The Spinner' : 'Cut Strip'} brings ${SPC(id).name}: ${pc(best)} at ${at}`);
+    if (giant) ok(WC.gradeOf(id, { bait: 'cut_strip' }) === 0, `… and Cut Strip no longer does (${SPC(id).name}: a stray on it)`);
   }
   for (const id of FISH) {
     if (id === 'belled_matriarch') continue;

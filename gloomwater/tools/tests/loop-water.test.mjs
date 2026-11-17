@@ -131,10 +131,10 @@ section('an owned place: its key, its pool, the draws (T122)');
     const bad = sharesMatch(r.counts, shares, N);
     ok(r.place === place && bad.length === 0, `T122: ${N} draws at ${place ?? 'open water'} (${phase}) match castOdds' shares on placePool within 3σ${bad.length ? ': ' + bad.join(', ') : ''}`);
   }
-  const L = waterEnv({ own: ALL, seed: 3 }).roll(N, { place: 'lily_maze' }).counts, O = waterEnv({ own: ALL, seed: 3 }).roll(N, { place: null }).counts;
+  const L = waterEnv({ own: ALL, seed: 3 }).roll(N, { place: 'lily_maze', bait: 'lumen_moss' }).counts, O = waterEnv({ own: ALL, seed: 3 }).roll(N, { place: null, bait: 'lumen_moss' }).counts;
   const ratio = (C, a, b) => (C[a] || 0) / Math.max(1, C[b] || 0);
   // (the koi's ×3 against the carp's ×1.5 there: twice their open-water ratio; WC-1: on the bare hook the Kissmark is a stray, so the
-  // ratio is taken against the carp, a taker; the hour tilts cancel)
+  // ratio is taken against the carp, a taker; the hour tilts cancel. GEAR-GATES §2.2: the bare hook brings neither, so both on Lumen Moss)
   const koi = ratio(L, 'candlefin_koi', 'weeping_carp'), ko = ratio(O, 'candlefin_koi', 'weeping_carp'), com = (L.dusk_minnow / N) / (O.dusk_minnow / N);
   ok(Math.abs(koi / ko - 3 / 1.5) < 0.25, `T122: the Lily Maze's koi ×3 and carp ×1.5 (the koi against the carp ×${(koi / ko).toFixed(2)} of open water's)`);
   const kt = WC.tilt('candlefin_koi', 'calm') / WC.tilt('weeping_carp', 'calm');
@@ -183,8 +183,9 @@ section('a giant through fishing (T124)');
   ok(f.terms.some((t) => t.family === 'place' && t.id === 'giant' && t.value === D.LOOP.giant.favour), `T124: +${D.LOOP.giant.favour} in its favour terms`);
   ok(!E.F.favourAt(centre('under_the_span')).terms.some((t) => t.id === 'giant'), '… never in the float\'s (the float names no fish)');
   const N = 20000;
-  // (WC-1: a giant takes Cut Strip; on the bare hook it is a stray, ≤ 1%: watercraft.test.mjs)
-  const share = (place, phase, wick = 'wick') => { const W = waterEnv({ own: ALL, phase, wick, seed: 11 }); W.loop.s.taperFirst = true; return (W.roll(N, { place, bait: 'cut_strip' }).counts[place === 'buoy_lights' ? 'hullkiss_lamprey' : 'thousandcast_pike'] || 0) / N; };
+  // (WC-1: on the bare hook a giant is a stray, ≤ 1%: watercraft.test.mjs; GEAR-GATES §3: it needs a bought lure, so the Glimmer Spoon, which
+  // takes both and names neither, ×1 on their share)
+  const share = (place, phase, wick = 'wick') => { const W = waterEnv({ own: ALL, phase, wick, seed: 11, runOver: { lure: 'glimmer_spoon' } }); W.loop.s.taperFirst = true; return (W.roll(N, { place }).counts[place === 'buoy_lights' ? 'hullkiss_lamprey' : 'thousandcast_pike'] || 0) / N; };
   const sd = (p) => 3 * Math.sqrt(p * (1 - p) / N);
   const dusk = share('under_the_span', 'dusk'), night = share('under_the_span', 'gloomtide'), day = share('under_the_span', 'calm');
   ok(Math.abs(dusk - 0.06) <= 0.01 && Math.abs(night - 0.06) <= 0.01, `T124: the Thousandcast at Under the Span 6% ± 1 at dusk and night (${(100 * dusk).toFixed(2)}%, ${(100 * night).toFixed(2)}%)`);
@@ -200,8 +201,8 @@ section('a giant through fishing (T124)');
     ok(wrong.length === 0, `T124: never hooked outside its place (${p ?? 'open water'}, ${ph})${wrong.length ? ': ' + wrong : ''}`);
   }
   // Taper's first bite at a giant's place: the commons zeroed, the giant keeps its share
-  const T = waterEnv({ own: ALL, phase: 'dusk', wick: 'taper', seed: 17 });
-  const tr = T.roll(N, { place: 'under_the_span', bait: 'cut_strip' }).counts;
+  const T = waterEnv({ own: ALL, phase: 'dusk', wick: 'taper', seed: 17, runOver: { lure: 'glimmer_spoon' } });
+  const tr = T.roll(N, { place: 'under_the_span' }).counts;
   ok(!Object.keys(tr).some((id) => D.SPECIES_BY_ID[id].rarity === 'common') && Math.abs((tr.thousandcast_pike || 0) / N - 0.078) <= 0.012, `Taper's first bite there: no common, the giant at its share (${(100 * (tr.thousandcast_pike || 0) / N).toFixed(2)}%)`);
 }
 
@@ -287,6 +288,9 @@ section('a lost giant and its mark (T127)');
   const g = E.last('fish:escaped');
   ok(g && g.speciesId === 'thousandcast_pike' && g.sizeClass === 'keeper' && g.markedFish === true && g.place === 'under_the_span', 'T127: a giant lost at Keeper: the got-away (fish:escaped) carries markedFish: true and its place');
   ok(E.events.some((x) => x.e === 'fishing:escaped' && !('speciesId' in x.p)), '(fishing:escaped itself names no fish, as built: F17)');
+  // (the land roll's plumbing, not the gear's size caps: GEAR-GATES' caps are off here, so a Prize on the bare hook keeps its own chance;
+  // gear-gates.test.mjs covers the cap's got-away)
+  const GC = D.LOOP.gearCap; D.LOOP.gearCap = null;
   const pOf = (marked) => {
     const W = waterEnv({ own: ALL, phase: 'dusk' });
     if (marked) W.loop.s.marked.thousandcast_pike = 1;
@@ -313,6 +317,7 @@ section('a lost giant and its mark (T127)');
   K.ctx.progression.getLoadout = () => ({ rod: 1, line: 1, reel: 1, item: null });
   K.castAt({ x: 30, z: 30 }, { speciesId: 'kissmark_trout', z: 1.5 }); K.toBite(); K.ctx.debug.fishStrike('struck');
   ok(K.ctx.debug.fishChance() > 0.3, `a roster fish (the Kissmark Trout) lands at its own chance (${(100 * K.ctx.debug.fishChance()).toFixed(1)}%), not the floor`);
+  D.LOOP.gearCap = GC;
   const N = waterEnv({ own: ALL, phase: 'dusk' });
   N.castAt('under_the_span', { speciesId: 'mossback_perch', z: 0.4 }); N.toBite(); N.ctx.debug.fishOutcome('lose'); N.tick(3); N.F.onPointerDown({ input: 'mouse' }); N.F.onPointerUp(); N.toIdle();
   ok(N.last('fish:escaped')?.markedFish === false, '(any other fish lost at Keeper: not marked, as built)');

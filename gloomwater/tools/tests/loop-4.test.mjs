@@ -103,7 +103,7 @@ section('the shelf and the with gate (M1.md §2.5, SPEC §4.7, decision 38)');
   ok(!top.some((i) => /moth_popper|lantern_lure|spore_cake|ember_roe|glass_larva|shimmerfly|sporelamp|mirror_shard|ferry_coin/.test(i.id)), 'no later water\'s lure or tin is offered (the Moth Popper, the Lantern Lure, Spore Cake …)');
   const goal = PL.goalOf(top.filter((i) => !/^(bait|place|lake|hold|rod|line|reel):/.test(i.id) && !(i.tab === 'home' && !/^orders:/.test(i.id))));   // (M1 step 5b's home cards aside: loop-5b.test.mjs's)
   eq(goal, null, 'every step-4 permanent owned: no goal among them (a tin is a consumable, never the goal)');
-  ok(PL.goalOf(fresh)?.id === 'rod:1', 'the goal line is still the cheapest first: Ashwood · 50 (Hold 4 at 200 is dearer)', PL.goalOf(fresh));
+  ok(PL.goalOf(fresh)?.id === 'line:1', 'the goal line: Line T1 first (GEAR-GATES §5–6)', PL.goalOf(fresh));
 }
 
 section('buy, fit, the bag (SPEC §4.4, §4.5, §5.4)');
@@ -330,7 +330,7 @@ section('the words (SPEC §8.4, §8.6)');
   eq(TL.shelf.bell_spinner, "For the Mossmere's giants.", 'a giants\' lure: its water\'s giants (the polish audit, batch 3)');
   eq(TL.shelf.lumen_moss, 'For the Gloam Eel and the Candlefin Koi.', 'Lumen Moss: the fish it is for (SPEC §8.11, batch 3)');
   eq(['mireworm', 'cut_strip', 'feather_fly', 'glimmer_spoon', 'bone_jig'].map((id) => TL.shelf[id]), ['Nearly every fish takes a worm.', 'Meat, for the hunters.',
-    'For Dusk Minnows, Chub, Lampsippers and Koi.', 'Flash, for the hunters.', 'Hopped on the bottom, for bottom feeders.'], 'the tins\' and lures\' lines, SPEC §8.11 (WC-1, batch 3)');
+    'For Dusk Minnows, Chub, Lampsippers and Koi.', 'Flash, for pike and the big hunters.', 'Hopped deep, for big perch and bass.'], 'the tins\' and lures\' lines, SPEC §8.11 (WC-1, batch 3)');
   eq(TL.murk.firstSmall, 'Small ones make good bait. Press and hold \u201cLet go\u201d.', "Murk's first-Small line, SPEC §8.6");
   const strings = [];
   const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };

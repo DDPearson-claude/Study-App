@@ -188,6 +188,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
     id: r.id, name: nm(r.id), star: !!r.giant, legend: !!r.legend, pinned: !!r.pinned, share: sharePct(D, r.share),
     odds: r.legend ? landPct(D, r.land?.legend) : landPct(D, r.land?.[cls]),
     open: r.pinned && !r.legend ? CLASSES.map((c) => ({ cls: c, name: classLabel(D, c), pct: landPct(D, r.land?.[c]) })) : null,
+    capLine: r.pinned && !r.legend && r.cap && T.gate?.upTo ? fill(T.gate.upTo, { class: classLabel(D, r.cap) }) : '',   // (GEAR-GATES §5.1)
   }));
   const odds = {
     head: TS.odds || 'Odds', choices, hours, classes, here, size, sizeHead: T.teach?.notches || 'How big they run here.',
@@ -334,7 +335,7 @@ const CSS = `
 .gw-sh-table tr.gw-pinned td { font-weight: 700; }
 .gw-sh-table td .gw-ico { width: 18px; height: 18px; vertical-align: -3px; margin-right: 4px; }
 .gw-sh-table tr.gw-sh-open td { height: auto; padding: 2px 4px 8px; text-align: left; font-weight: 400; cursor: default; }
-.gw-sh-open-l { display: flex; flex-wrap: wrap; gap: 2px 12px; } .gw-sh-open-l span { white-space: nowrap; } .gw-sh-open-l i { font-style: normal; color: var(--cat-ink-2); margin-right: 4px; }
+.gw-sh-cap { margin: 4px 0 0; font-style: italic; color: var(--cat-ink-2); } .gw-sh-open-l { display: flex; flex-wrap: wrap; gap: 2px 12px; } .gw-sh-open-l span { white-space: nowrap; } .gw-sh-open-l i { font-style: normal; color: var(--cat-ink-2); margin-right: 4px; }
 .gw-sh-foot { margin: 8px 0 0; font: italic 400 17px/1.3 var(--f-body); color: var(--cat-ink-2); }
 .gw-sh-jump { display: none; }
 /* a phone: one column; plates fold to one row */
@@ -775,6 +776,7 @@ export function createSheetView(K) {
           const o = document.createElement('tr'); o.className = 'gw-sh-open';
           o.innerHTML = '<td colspan="3"><div class="gw-sh-open-l"></div></td>';
           for (const c of r.open) { const x = document.createElement('span'); x.innerHTML = '<i></i><span></span>'; x.querySelector('i').textContent = c.name; x.querySelector('span').textContent = c.pct; o.querySelector('div').appendChild(x); }
+          if (r.capLine) { const cl = document.createElement('p'); cl.className = 'gw-sh-cap'; cl.textContent = r.capLine; o.querySelector('td').appendChild(cl); }
           tbody.appendChild(o);
         }
       }

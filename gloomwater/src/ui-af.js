@@ -260,6 +260,20 @@ const holdText = (h) => { h = num(h); return Math.abs(h - Math.round(h)) < 0.05 
  */
 export function gearLine(D, e, { names = {} } = {}) {
   if (!e) return '';
+  const line = gearLine0(D, e, { names }), cap = gearCapLine(D, e);
+  return cap ? `${line} ${cap}` : line;
+}
+/** GEAR-GATES §5.1 (the loop only): the gear log's "Lands up to {Class}." on the three free hooks (LOOP.gearCap.item) and on the Line
+ *  slot (LOOP.gearCap.line by tier); '' for every other row and off the loop. */
+export function gearCapLine(D, e) {
+  const G = D?.LOOP_ENABLED ? D?.LOOP?.gearCap : null, tpl = D?.TEXT_LOOP?.gate?.upTo;
+  if (!G || !tpl || !e) return '';
+  let cls = null;
+  if (e.kind === 'line' && Number.isFinite(Number(e.tier))) { const L = arr(G.line); cls = L[Math.max(0, Math.min(L.length - 1, Math.trunc(Number(e.tier))))] ?? null; }
+  else if ((e.kind === 'bait' || e.kind === 'lure') && typeof e.id === 'string') cls = G.item?.[e.id] ?? null;
+  return cls ? fill(tpl, { class: classLabel(D, cls) }) : '';
+}
+function gearLine0(D, e, { names = {} } = {}) {
   const G = T(D).gear || {};
   // a per-run level (P1–P2 rows carry the slot's Hold now and the gain of the next level): the line says what buying it adds
   const hold = holdText(e.upgrade && !e.maxed && num(e.gain) > 0 ? e.gain : e.hold);

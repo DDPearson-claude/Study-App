@@ -115,7 +115,7 @@ section('createTrip (§2.1 item 6, T34, T45, T60) and a trip\'s stats (T1, T61)'
   const r = startTrip(env, { water: 'sporewood', character: 'taper' });
   ok(r.outing === 'trip' && r.nightMode === 'still' && r.zone === 'mossmere', "T45: a water not open falls back to the Mossmere; outing 'trip', night 'still'");
   eq(r.character, 'stub', "T60: the trip's Wick is meta.loop.wick");
-  eq([r.shells, r.bait, r.boons, r.upgrades, r.lures, r.equippedBait, r.equipped], [0, {}, {}, {}, {}, null, null], 'T34: no Shells, no free bait, no start boon, no kit');
+  eq([r.shells, r.bait, r.boons, r.upgrades, r.lures, r.equippedBait, r.equipped], [0, { mireworm: 10 }, {}, {}, {}, 'mireworm', 'mireworm'], 'T34: no Shells, no start boon, no kit but the start kit\'s tin of Mire Worms, fitted (GEAR-GATES §2.1)');
   eq([r.creel, r.bites, r.mercy, r.evening, r.comeback, r.flags.openBite, r.flags.taperFirst], [[], {}, {}, 1, null, null, false], 'a fresh trip: an empty hold, no bites, evening 1');
   ok(meta.runs === 7 && meta.lastCharacter === 'tallow', 'CHOICE 3: meta.runs and meta.lastCharacter are never written');
   const st = env.P.getStats();
@@ -330,7 +330,7 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   const meta = freshLoopMeta(D);
   const env = makeEnv({ meta, debug: true });
   env.ctx.flow = 'home';
-  eq(env.L.goal(), { id: 'rod:1', name: 'Ashwood', price: 50, slot: 'rod', level: 1 }, 'the goal: the cheapest, Ashwood · 50 (Hold 4 at 200 is dearer)');
+  eq(env.L.goal(), { id: 'line:1', name: 'Braided Gut', price: 50, slot: 'line', level: 1 }, 'the goal: Line T1 first (GEAR-GATES §5–6), Braided Gut · 50');
   eq(env.L.buy('hold').ok, false, 'no clams: refused');
   eq(env.L.debugGive(400), 400, 'debugGive (a debug build)');
   eq(env.L.buy('hold:5').ok, false, 'T24: Hold 5 is refused before Hold 4');
@@ -347,7 +347,7 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   eq(no4(env.L.shelf().tabs[1].items).map((i) => [i.id, i.price]), [['hold:5', 500]], 'the next open: Hold 5 · 500');
   ok(env.L.buy('rod:1').ok && meta.loop.tackle.rod === 1, 'T23: Rod T1 for 50');
   const lo = env.P.getLoadout();
-  ok(lo.rod === 1 && lo.perRun === false && lo.runless === true && lo.item === null && lo.hold.rod === D.TACKLE.rod[1].hold, 'T25: at home, getLoadout reads meta.loop.tackle (perRun false)');
+  ok(lo.rod === 1 && lo.perRun === false && lo.runless === true && lo.item === 'mireworm' && lo.hold.rod === D.TACKLE.rod[1].hold, 'T25: at home, getLoadout reads meta.loop.tackle (perRun false; the item the fitted start worms)');
   const row = env.P.getGearLog().find((x) => x.kind === 'rod' && x.tier === 1);
   ok(row?.owned === true && row.fitted === true && row.price === 50 && row.proof === null, 'T25: the gear log shows the T1 rod owned, at its loop price');
   // (M1 step 4: the water's tins have their rows, loop-4.test.mjs's; no other bait has one)
@@ -546,7 +546,17 @@ section("Ashwick: a fish that gets away comes back (T80)");
   const r2 = startTrip(e2);
   bite(e2); e2.ctx.bus.emit('fish:escaped', { speciesId: 'reedjaw_pike', z: 2.8, sizeClass: 'elder', markedFish: true, zone: 'mossmere' });
   ok(r2.comeback === null && (m2.markedFish || []).length === 1, 'another Wick: no comeback, the built Marked Fish');
-  eq(env.ctx.errors.concat(e2.ctx.errors), [], 'no errors');
+  // GEAR-GATES §4.2–§4.3: a fish lost over the gear's cap comes back at the cap (LOOP.gearCap.ashwick), and the trip remembers a cap loss
+  // for Murk's once-line at home (lastTrip.away)
+  const m3 = freshLoopMeta(D); m3.loop.wick = 'ashwick';
+  const e3 = makeEnv({ meta: m3 }), r3 = startTrip(e3);
+  bite(e3); e3.ctx.bus.emit('fish:escaped', { speciesId: 'mossback_perch', z: 2.2, sizeClass: 'trophy', zone: 'mossmere', place: null, reason: 'snapped', markedFish: false,
+    overCap: { by: 'line', cls: 'prize', z: D.BALANCE_V3.size.classMaxZ.prize, key: 'line' } });
+  ok(r3.comeback?.speciesId === 'mossback_perch' && Math.abs(r3.comeback.z - (D.BALANCE_V3.size.classMaxZ.prize - 0.001)) < 1e-9 && r3.flags.capLost === true,
+    `GEAR-GATES: a cap loss comes back at the cap (z ${r3.comeback?.z}) and marks the trip`);
+  endTrip(e3);
+  ok(m3.loop.lastTrip?.away === true, 'GEAR-GATES: the tally remembers the cap loss (lastTrip.away)');
+  eq(env.ctx.errors.concat(e2.ctx.errors, e3.ctx.errors), [], 'no errors');
 }
 
 // =====================================================================================
@@ -663,7 +673,7 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   eq(env.L.seals(), sw.seals, 'seals(): the next water\'s three keys');
   const cat = env.L.catalogue('mossmere');
   ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds?.rows?.look?.length === 3, 'catalogue: the twelve, then the three places with fish');
-  ok(env.L.fitted().bait === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: nothing fitted, no pick, nothing lifted');
+  ok(env.L.fitted().bait === 'mireworm' && env.L.fitted().lure === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: the start kit\'s worms fitted (an old save with no bait, GEAR-GATES §2.1), no pick, nothing lifted');
   ok(env.L.fit('bait', 'heartmoss').ok === false && env.L.markLifted('lily_maze') === false
     && env.L.spendBait('heartmoss') === false && env.L.takeGiantMark('thousandcast_pike') === false, 'the writers refuse what the save lacks: no ball to fit, no place to lift, no trip, no mark');
   eq(env.L.setPick({ water: 'mossmere', place: null }), { ok: true, pick: { water: 'mossmere', place: null } }, 'setPick: open water of an owned lake');

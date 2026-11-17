@@ -806,6 +806,11 @@
 .gw-strike.gw-on .gw-strike-w { animation: gwStrikeWord 1.15s ease-out forwards; }
 .gw-strike-w.gw-tone-clean { font-size: 34px; color: #f6f3ff; text-shadow: 0 0 18px rgba(160, 150, 240, .95), 0 0 34px rgba(160, 150, 240, .5), 0 1px 2px rgba(4, 5, 12, .95); }
 .gw-strike-w.gw-tone-dim { font-size: 26px; color: #a9a7d4; text-shadow: 0 0 10px rgba(126, 129, 180, .5), 0 1px 2px rgba(4, 5, 12, .95); }
+/* GEAR-GATES §4.3: the got-away line of a fish over the gear's cap, in the strike word's slot (no ring; one line, inside the screen) */
+.gw-strike[data-grade="gear"] .gw-strike-burst { display: none; }
+.gw-strike-w.gw-strike-gear { font: italic 400 21px/1.2 var(--f-body); letter-spacing: .02em; margin-right: 0; max-width: calc(100vw - 32px); color: var(--ink); }
+.gw-strike.gw-on .gw-strike-w.gw-strike-gear { animation: gwStrikeGear 2.5s ease-out forwards; }
+@keyframes gwStrikeGear { 0% { opacity: 0; transform: translate(-50%, -4px); } 10% { opacity: 1; transform: translate(-50%, 0); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, 4px); } }
 
 /* the play: the class estimate stamp and the hurry mark, where the reel line was */
 .gw-fishui > .gw-play { left: 50%; top: auto; bottom: calc(var(--sab) + max(118px, 30vh - 28px)); transform: translateX(-50%); width: min(440px, 92vw); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; transition: opacity .4s ease; pointer-events: none; }
@@ -1835,6 +1840,7 @@
   .gw-strike-w { font-size: 26px; top: 32px; }
   .gw-strike-w.gw-tone-clean { font-size: 30px; }
   .gw-strike-w.gw-tone-dim { font-size: 23px; }
+  .gw-strike-w.gw-strike-gear { font-size: 19px; }
   .gw-away { top: calc(var(--sat) + max(220px, 31vh)); white-space: normal; text-align: center; justify-content: center; width: max-content; font-size: 18.5px; padding: 12px 34px 13px 32px; }
   .gw-away b { font-size: 20px; }
   .gw-gotaway { bottom: auto; top: 31vh; width: calc(100vw - 20px); margin-left: calc(50vw * -1 + 10px); grid-template-columns: 92px minmax(0, 1fr); gap: 2px 12px; padding: 24px 24px 18px 16px; }
@@ -2811,6 +2817,7 @@
 .gw-loop-on .gw-cat-odds { display: block; margin: 10px auto 2px; font-size: 18px; min-height: 44px; }
 .gw-loop-on .gw-cat-species { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 6px; }
 .gw-loop-on .gw-cat-species .gw-jr-detail::before { display: none; }
+.gw-loop-on .gw-cat-species .gw-cat-gate { margin: 4px 4px 2px; font: italic 400 18px/1.3 var(--f-body); color: var(--ink); }
 .gw-loop-on .gw-cat-back { margin: 0 0 4px; min-height: 44px; }
 .gw-loop-on .gw-tab--giants { min-width: 64px; }
 .gw-loop-on .gw-tab--giants .gw-ico { width: 22px; height: 22px; color: var(--gold); }

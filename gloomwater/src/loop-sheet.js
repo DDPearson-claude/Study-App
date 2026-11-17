@@ -79,6 +79,7 @@ export function favourHere(D, metaLoop, { place = null, light = 'dusk', bait = n
   if (b) { const bv = num(T.bait?.[b], num(baitRec(D, b)?.bonus?.weightBias, 0)); if (bv) terms.push({ family: 'tackle', id: b, value: bv }); }
   const L = lureRec(D, lure);
   if (L && !L.family && (!L.night || phase === 'gloomtide')) { const lv = num(T.lure?.[L.id], num(L.favour, 0)); if (lv) terms.push({ family: 'tackle', id: L.id, value: lv }); }
+  if (!b && !L && num(D?.LOOP?.bare?.favour, 0)) terms.push({ family: 'tackle', id: 'bare', value: num(D.LOOP.bare.favour, 0) });   // (GEAR-GATES §2.2, fishing.baseTerms)
   if (num(quiet)) terms.push({ family: 'quiet', id: 'quiet', value: num(quiet) });
   if (num(mercy)) terms.push({ family: 'letGo', id: 'letGo', value: num(mercy) });
   terms.push(...raftTerms(D, metaLoop, phase));
@@ -321,15 +322,18 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     const sp = spOf(D, id);
     if (sp?.rarity === 'legendary') { rows.push({ id, giant: false, legend: true, pinned: pin?.speciesId === id, share, land: { legend: landOf(D, id, 'legend', kit) } }); continue; }
     const mu = fishMu(D, here, sp, { bait: hookBait, lure: hookLure }), so = shares(D, mu, floorOf(D, sp), capOf(D, sp, P));
+    // GEAR-GATES §5.1: a class over the hook's and the line's size cap lands never (it gets away): its cell reads "—", as a class it cannot roll
+    const gc = WC.gearCap(D, id, { lure: hookLure, bait: hookBait === ball ? null : hookBait, line: tackle.line }), top = gc ? SHEET_CLASSES.indexOf(gc.cls) : SHEET_CLASSES.length - 1;
     const land = {};
     for (const c of SHEET_CLASSES) {
+      if (SHEET_CLASSES.indexOf(c) > top) { land[c] = null; continue; }
       if (c === 'elder') {
         if (!(so.elder > 1e-9)) { land.elder = null; continue; }
         const a = Math.min(1, so.ancient / so.elder), pe = landOf(D, id, 'elder', kit), pa = landOf(D, id, 'ancient', kit);
         land.elder = pe == null ? null : (1 - a) * pe + a * (pa ?? pe);
       } else land[c] = so[c] > 1e-9 ? landOf(D, id, c, kit) : null;
     }
-    rows.push({ id, giant: !!sp?.giant, legend: false, pinned: pin?.speciesId === id, share, land, grade: WC.gradeOf(id, { lure: hookLure, bait: hookBait }) });
+    rows.push({ id, giant: !!sp?.giant, legend: false, pinned: pin?.speciesId === id, share, land, grade: WC.gradeOf(id, { lure: hookLure, bait: hookBait }), cap: gc ? gc.cls : null });
   }
   rows.sort((a, b) => b.share - a.share || (a.id < b.id ? -1 : 1));
   // the size lines: the plain cast's, each favoured family's, the pinned fish's own where its terms differ
