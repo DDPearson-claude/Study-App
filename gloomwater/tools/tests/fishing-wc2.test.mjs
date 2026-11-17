@@ -96,7 +96,7 @@ section('silhouettes in the game (§6)');
   E.ctx.bus.on('sign:spawn', (p) => { if (p.kind === 'sight') { const f = E.ctx.debug.fishSights().find((q) => q.id === p.id); if (f) spawned.push({ ...f, raft: [E.ctx.player.position.x, E.ctx.player.position.z] }); } });
   for (let i = 0; i < 30 * 600; i += 30) { E.tick(30); maxAlive = Math.max(maxAlive, E.ctx.debug.fishSights().length); }
   ok(spawned.length >= 8, `${spawned.length} silhouettes in 10 min at dusk`);
-  ok(maxAlive <= 4 && maxAlive >= 1, `at most 4 alive (${maxAlive})`);
+  ok(maxAlive <= 2 && maxAlive >= 1, `at most 2 alive (${maxAlive})`);
   let where = 0, never = 0, len = 0, dist = 0;
   for (const f of spawned) {
     if (!(f.depth < 0.45) || !SIGHT_AREAS.has(f.area)) where++;
