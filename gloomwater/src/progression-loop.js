@@ -381,7 +381,8 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   const tierLabel = (slot, t) => (first ? tierName(D, slot, t) : TL.gearItems?.[tiersOf(D, gw, slot)[t]?.id] ?? tierName(D, slot, t));
   const tierLine = (slot, t) => (first ? TL.shelf?.[slot] ?? '' : TL.shelf?.[tiersOf(D, gw, slot)[t]?.id] ?? TL.shelf?.[slot] ?? '');
   const tier = (slot, t, bought) => ({ id: `${slot}:${t}`, tab: 'tackle', slot, level: t, name: tierLabel(slot, t), goalName: tierLabel(slot, t),
-    line: tierLine(slot, t), price: G ? num(tiersOf(D, gw, slot)[t]?.price, T.price[t]) : T.price[t], bought });
+    line: tierLine(slot, t), price: G ? num(tiersOf(D, gw, slot)[t]?.price, T.price[t]) : T.price[t], bought,
+    ...(first ? {} : { itemId: tiersOf(D, gw, slot)[t]?.id ?? null, gearWater: gw }) });   // (LAKE 2: a later water's tier names its item, for its engraving)
   for (const slot of SLOTS) {
     const top = G ? tiersOf(D, gw, slot).length - 1 : T.price.length - 1, onShelf = (t) => t >= 1 && t <= top;
     const cur = clampInt(ml.tackle?.[slot], 0, T.price.length - 1);
@@ -392,7 +393,8 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   const H = L.hold, GH = isObj(G?.hold) ? G.hold : H, h = clampInt(ml.holdSlots, H.start, H.max), step = (n) => arr(GH.ladder).find((s) => s.slots === n);
   const holdLine = first ? TL.shelf?.hold ?? '' : TL.shelfAt?.[gw]?.hold ?? TL.shelf?.hold ?? '';
   const hold = (n, bought) => ({ id: `hold:${n}`, tab: 'raft', slot: 'hold', level: n, name: step(n)?.name ?? '',
-    goalName: String(TL.holdName ?? 'Hold {n}').replace('{n}', n), line: holdLine, price: step(n)?.price ?? 0, bought });
+    goalName: String(TL.holdName ?? 'Hold {n}').replace('{n}', n), line: holdLine, price: step(n)?.price ?? 0, bought,
+    ...(first ? {} : { itemId: step(n)?.id ?? null, gearWater: gw }) });
   const shelfMax = num(GH.shelfMax, H.shelfMax);
   if (h > H.start && ses.has(`hold:${h}`)) out.push(hold(h, true));
   else if (h + 1 <= shelfMax && step(h + 1)) out.push(hold(h + 1, false));

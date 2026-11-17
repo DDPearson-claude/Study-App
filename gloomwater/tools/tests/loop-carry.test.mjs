@@ -234,7 +234,9 @@ section('each water\'s shelf (LAKE2 §5.6, §7.1): its own tiers, creels, raft p
   D.LOOP.shipped = 'sporewood';   // (a water's lures and tins are offered once it ships: LOOP.shipped raised for the test)
   const sh = PL.shelfItems(D, env.L.state());
   const by = (id) => sh.find((i) => i.id === id);
-  eq(['rod:1', 'line:1', 'reel:1'].map((id) => [by(id)?.name, by(id)?.price]), [['Stalkwood', 300], ['Rootthread', 300], ['Capwheel', 300]], 'Sporewood\'s first tiers (×1 in node)');
+  eq(['rod:1', 'line:1', 'reel:1'].map((id) => [by(id)?.name, by(id)?.price, by(id)?.itemId]), [['Stalkwood', 300, 'stalkwood'], ['Rootthread', 300, 'rootthread'], ['Capwheel', 300, 'capwheel']],
+    'Sporewood\'s first tiers (×1 in node), each naming its item (for its engraving)');
+  ok(PL.shelfItems(D, freshLoopMeta(D).loop).every((i) => i.itemId === undefined && i.gearWater === undefined), 'the Mossmere\'s cards as before (no new fields)');
   eq([by('hold:5')?.name, by('hold:5')?.price, by('hold:4')], ['Rootwoven Creel', 500, undefined], 'Hold 5 its first creel (Hold 4 is carried: never offered)');
   eq(['oars:1', 'keel:1', 'lantern:1'].map((id) => [by(id)?.name, by(id)?.price]), [['Capleaf Oars I', 100], ['Root Keel I', 200], ['Glowcap Lantern I', 200]], 'its own raft parts');
   eq(sh.filter((i) => i.slot === 'lure').map((i) => i.lureId), ['spore_moth', 'ember_minnow', 'root_jig', 'sporelamp_fly'], 'its four lures on the shelf (the Twirl never: the start kit\'s)');

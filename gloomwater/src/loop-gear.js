@@ -100,7 +100,7 @@ export function gearItems(D, metaLoop, session = []) {
     const name = (lv) => (GR && tab === 'raft' ? D?.TEXT_LOOP?.gearNamesAt?.[gw]?.[slot]?.[lv - 1] ?? levelName(D, slot, lv) : levelName(D, slot, lv));
     const line = GR && tab === 'raft' ? D?.TEXT_LOOP?.shelfAt?.[gw]?.[slot] ?? TL.shelf?.[slot] ?? '' : TL.shelf?.[slot] ?? '';
     const card = (lv, bought) => ({ id: `${slot}:${lv}`, tab, slot, level: lv, art: ART[slot] || 'star', name: name(lv), goalName: name(lv),
-      line, price: num(prices[lv - 1], 0), bought });
+      line, price: num(prices[lv - 1], 0), bought, ...(GR && tab === 'raft' ? { gearWater: gw } : {}) });
     if (cur >= 1 && ses.has(`${slot}:${cur}`)) out.push(card(cur, true));
     else if (on(cur + 1)) out.push(card(cur + 1, false));
     else if (cur >= 1) out.push(card(cur, true));
