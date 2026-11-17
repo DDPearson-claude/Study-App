@@ -4952,7 +4952,7 @@ export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 na
   introLine3: 'Its last candles fish from lamp to lamp.',   // the film's line 3 under the loop (LORE §12; the apply block sets it)
   // Settings under the loop (PLAN CHOICE 43, SPEC §8.5): the word itself, the strike ring's first option and the hurry row's line
   settings: { label: 'Settings', ringFirst: 'First evening',
-    hurry: 'From your second evening, hold anywhere to hurry a small fish in. It never changes the outcome' },
+    hurry: 'From your second evening, press anywhere to hurry a small fish in.' },
   forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm: 'Every clam, every piece of gear and every name in the Journal will be lost.' },
 };   // no tagline: §8.5 gives none, so the loop's title draws none (the lead's ruling, PLAN §7.2)
 // >>> MVP teach (the user's play-test, 16 November 2026: "add a one-time teaching moment for both"): the float's two marks, each
@@ -5004,7 +5004,9 @@ Object.assign(TEXT_LOOP.shelf, {
 });
 TEXT_LOOP.gearNames = { oars: ['Oars I', 'Oars II'], keel: ['Keel I', 'Keel II', 'Keel III'], lantern: ['Lantern I', 'Lantern II'],
   orders: ["Murk's Order Board I", "Murk's Order Board II", "Murk's Order Board III"] };
-TEXT_LOOP.murk.firstSmall = 'Small ones make good bait. Hold Let go.';
+TEXT_LOOP.murk.firstSmall = 'Small ones make good bait. Press and hold \u201cLet go\u201d.';
+// the first trip's cast word under the loop (the polish pass: "Hold" is the Hold stat's word, so the gesture says press)
+TEXT_LOOP.castTip = 'Press on the water. Let go to cast.';
 TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
 // the items' names as the shelf, the slots and the gear log show them (the built LURES / BAITS names, SPEC §4.4, §4.5)
 TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
@@ -5927,6 +5929,7 @@ if (V3_ENABLED) {
     TEXT.loop = TEXT_LOOP;
     CATCH_V3.buffs.wicks.ashwick = { hold: LOOP.wicks.ashwick.hold };
     INTRO.text[2] = INTRO.cove.text[2] = TEXT_LOOP.introLine3;
+    FIRST_EVENING.tips.fe_cast = TEXT_LOOP.castTip;   // (the gesture says press: "Hold" is the Hold stat's word)
     INTRO.lines[2].out = 15.2;   // line 3's longer words stay ≤ the A5 reading rate (17.4 a second; the gap to line 4 stays 0.5 s)
   }
   if (LOOP_ENABLED) {   // >>> M1 step 4 (lane 4; SPEC §4.4, §4.5, M1.md §2.3, §2.4): under the loop only, so no v3 table moves off it

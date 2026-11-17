@@ -589,7 +589,13 @@ export function makeKit(api, { label = 'loop' } = {}) {
     K.need(ok.ok, `${what}: the catch card opens`, ok);
     await K.settle(250);
     if (dwell > 0) await K.secs(dwell);   // (gw-show's count-up starts after the stamp press: t0 + 1100 ms)
+    // (the polish pass: the shot waits for Keep's count to land, so the card's figure is the one the tally pays)
+    const keepShown = () => g(() => { const em = document.querySelector('[data-modal=catch] [data-action=keep] em[data-to]'); return em ? { to: Number(em.dataset.to), shown: Number((em.querySelector('b')?.textContent || '').replace(/[^0-9]/g, '')) } : null; });
+    let landed = await keepShown();
+    for (let i = 0; i < 20 && landed && landed.shown !== landed.to; i++) { await K.settle(200); landed = await keepShown(); }   // (wall time: the count runs on performance.now)
+    landed = { ok: !landed || landed.shown === landed.to, ...landed };
     const cd = await K.card();
+    K.check(landed.ok, `${what}: Keep's count lands on its data-to`, landed);
     K.check(cd.keep && cd.keep.to !== null && cd.keep.to === cd.price, `${what}: Keep's em[data-to] is loop.priceOf(fish)`, cd);
     K.check(cd.keep && !cd.keep.disabled && cd.letgo, `${what}: the card offers Keep and Let go`, cd.buttons);
     if (scan) await K.scan('the card');
@@ -1744,7 +1750,7 @@ export async function dryRun() {
   const R = wordRules(D);
   const yes = [[TL.holdFull], [TL.home], [TL.sold], [TL.yours], [TL.murk.wake], [`“${TL.murk.firstSale}”`], [TL.murk.firstChartBy.tallow], [TL.wicks.ashwick], [TL.wicks.tallow],
     ...Object.values(TL.passives || {}).map((n) => [n]), ['Next: Hold 4 · 30'], ['Next: Hold 4 ·'], ['Next: Ashwood · 50'], ['Hold 5'], ['Dusk Minnow'], ['Keeper'], ['The Mossmere'], ['Taper'], ['Prologue'],
-    ['Hold on the water. Let go to cast.'], ['Now. Tap.'], ['Lidded Creel'], ['Ashwood'], ['Bellwether'], ['12.4k'], ['+43'], ['9,999'], ['3 / 6'],
+    ['Press on the water. Let go to cast.'], ['Now. Tap.'], ['Lidded Creel'], ['Ashwood'], ['Bellwether'], ['12.4k'], ['+43'], ['9,999'], ['3 / 6'],
     ['6 oz'], ['4 lb 12 oz'], ['¼ oz'], ['lb'], ['·'], ['Dusk Minnow · 6 oz'], ['length', { card: true }], ['23.4 cm', { card: true }], [TL.settings.label], [TL.resume]];
   for (const [t, wh] of yes) ok(classifyText(t, R, wh || {}) === 'ok', `T43 allows "${t}"`, classifyText(t, R, wh || {}));
   const no = [['12 Shells', 'banned:shells'], ['Shell', 'banned:shells'], ['Memories', 'banned:memories'], ['New Descent', 'banned:descent'], ['Descend', 'unknown'],

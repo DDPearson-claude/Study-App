@@ -352,8 +352,10 @@ export function recordLines(D, { records = [], isNew = false, species = null, le
   const name = species?.name || '';
   const out = [];
   const seen = new Set();
+  const loop = D?.LOOP_ENABLED === true;   // (the loop has no Old Ledger, no Elder Log and no Memories: their records are never told)
   for (const r of arr(records)) {
     if (!r || typeof r !== 'object') continue;
+    if (loop && (r.kind === 'oldLedger' || r.kind === 'elderLog')) continue;
     let line = null;
     if (r.kind === 'pb') {
       const now = fishWeight(species, { length: r.length ?? length, weight: r.weight ?? weight });
@@ -368,7 +370,7 @@ export function recordLines(D, { records = [], isNew = false, species = null, le
       line = { kind: 'pb', text: prev > 0 ? fill(tpl, { w: fmtWeight(now), was: fmtWeight(prev) }) : fill(tpl, { w: fmtWeight(now) }).replace(/\s*\(was \{was\}\)/, ''), sub, tone: 'gold' };
     } else if (r.kind === 'classFirst') {
       const cls = classInfo(D, r.sizeClass, !!r.ancient)?.label || cap(r.sizeClass);
-      line = { kind: 'classFirst', text: fill(T.classFirst || 'First {class} {species}', { class: cls, species: name }).replace(/\s+$/, ''), sub: r.memories ? `+${r.memories} Memories` : '', tone: r.ancient ? 'gold' : 'seal' };
+      line = { kind: 'classFirst', text: fill(T.classFirst || 'First {class} {species}', { class: cls, species: name }).replace(/\s+$/, ''), sub: r.memories && !loop ? `+${r.memories} Memories` : '', tone: r.ancient ? 'gold' : 'seal' };
     } else if (r.kind === 'oldLedger') {
       line = { kind: 'oldLedger', text: T.oldLedger || 'Old Ledger beaten', sub: "Murk's bell rings across the lake", tone: 'gold' };
     } else if (r.kind === 'elderLog') {
@@ -378,7 +380,7 @@ export function recordLines(D, { records = [], isNew = false, species = null, le
     }
     if (line && !seen.has(line.kind + line.text)) { seen.add(line.kind + line.text); out.push(line); }
   }
-  if (isNew && !out.some((l) => l.kind === 'pb')) out.push({ kind: 'isNew', text: 'A new name for the Journal', sub: name, tone: 'pink' });
+  if (isNew && !out.some((l) => l.kind === 'pb')) out.push({ kind: 'isNew', text: 'A new name for the\u00a0Journal', sub: name, tone: 'pink' });
   out.sort((a, b) => (RECORD_ORDER[a.kind] ?? 9) - (RECORD_ORDER[b.kind] ?? 9));
   return out.slice(0, Math.max(0, max));
 }

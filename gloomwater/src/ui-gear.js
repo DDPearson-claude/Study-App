@@ -221,7 +221,7 @@ export function createGearView({ K, L, D, report = () => {}, murkToast = null })
   }
   try { for (const ev of ['run:start', 'run:end', 'bait:change', 'fishing:cast', 'fishing:bite', 'fish:action', 'flow:change', 'home:enter', 'loop:fit']) K.ctx?.bus?.on?.(ev, () => { hudKey = ''; paintHud(); }); } catch (e) { report('gear.hudBus', e); }
 
-  // Murk's first-Small line (SPEC §8.6: "Small ones make good bait. Hold Let go."), once a save, when the first Small is kept
+  // Murk's first-Small line (SPEC §8.6: "Small ones make good bait. Press and hold “Let go”."), once a save, when the first Small is kept
   try {
     K.ctx?.bus?.on?.('fish:action', (p) => {
       if (p?.action !== 'keep' || p?.fish?.sizeClass !== 'small' || K.ctx?.state?.run?.outing !== 'trip') return;
