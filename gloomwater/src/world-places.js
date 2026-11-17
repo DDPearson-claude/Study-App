@@ -30,6 +30,7 @@ import { INK, setupSurface, evenOutline } from './toon.js';
 import { makeRng } from './core.js';
 import { TAU, prep, merge, mat, taperTube, latheGeo, wobble, lin, mixArr, scaleArr, vnoise3 } from './world-geo.js';
 import { inkToon, outlineMat, makeSeeCut } from './world-fx.js';
+import { notchHalfW } from './world-layout.js';   // (the cut's width where its old arch stands)
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -370,7 +371,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       const a = p.area;
       const s1 = a.kind === 'disc' ? [0, a.x, a.z, a.r] : a.kind === 'path' ? [1, a.pts[0][0], a.pts[0][1], a.w / 2] : [2, a.x, a.z, a.w / 2];
       const s2 = a.kind === 'path' ? [a.pts[a.pts.length - 1][0], a.pts[a.pts.length - 1][1], 0, 0] : a.kind === 'rect' ? [a.d / 2, 0, 0, 0] : [0, 0, 0, 0];
-      const k = keeps[bi], tall = p.id === 'veilback_brook' ? 3 : 1;   // (LOST-TACKLE §5.2: the brook's bank fills its cut behind the Veil)
+      // (LOST-TACKLE §5.2: the brook's bank stood three times as tall to fill its cut behind the Veil; the Sail through it then passed
+      // under pale flat layers with a curtain round them, a lit box. The cliff's plug hides the shut cut now (world-art), so its bank is
+      // a low mist like any other's, with no curtain: the cut's own banks close it)
+      const k = keeps[bi], tall = 1, brook = p.id === 'veilback_brook';
       for (const [hy0, wgt, shrink] of layers) {
         const hy = hy0 * tall;
         // (each layer's quad only as large as its own drawn-in footprint can reach: the billow draws in, never out, so a fragment past
@@ -386,7 +390,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       }
       // the curtains inside the bank's edge (BANK.curtains: inset, height, weight): quads from the water up
       const cc = footprintCentre(a);
-      for (const [inset, H0, wgt] of liteBank ? BANK.curtains.slice(0, 1) : BANK.curtains) {
+      for (const [inset, H0, wgt] of brook ? [] : liteBank ? BANK.curtains.slice(0, 1) : BANK.curtains) {
         const H = H0 * tall;
         // (a curtain wanders inward, never out: its own seeded jitter along the edge)
         const loop0 = footprintLoop(a, inset, liteBank ? 2 : 1.2);
@@ -628,7 +632,9 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const yA = 16, ySpring = yA - 3.4, TW = 2.1, back = NT ? 1.8 : 0.6, du = NT ? 3.0 : 0;
     const yFoot = NT ? -0.6 : yA - 11;   // (by the cut the piers stand down to the water, never a slab hung on the cliff: the look)
     const bx = cx * (r0 + back), bz = cz * (r0 + back), ryA = Math.atan2(-cx, -cz);   // local +x along the cliff (the tangent)
-    const piersU = [0.9 + du, 6.1 + du, 11.3 + du];
+    // (the review: the broken arch over the cut's mouth hung there, a pale slab over the Sail through the Veil. By the cut the arch over
+    // the mouth is whole, on a pier in each bank's rock, and the Veil falls through the breach in its trough's floor)
+    const piersU = NT ? [-(NT.hw + 0.9), 0.9 + du, 6.1 + du, 11.3 + du] : [0.9 + du, 6.1 + du, 11.3 + du];
     const arch = (u0, u1, broken) => {
       const R = (u1 - u0) / 2, mu = (u0 + u1) / 2, sh = new THREE.Shape();
       const yIn = (u) => ySpring + Math.sqrt(Math.max(0, R * R - (u - mu) * (u - mu)));
@@ -650,9 +656,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       }
       return uS;
     };
-    const lip = arch(-4.3 + du, piersU[0], true);
-    arch(piersU[0], piersU[1], false);
-    arch(piersU[1], piersU[2], false);
+    const lip = NT ? 0 : arch(-4.3 + du, piersU[0], true);
+    for (let k = 0; k + 1 < piersU.length; k++) arch(piersU[k], piersU[k + 1], false);
     for (const u of piersU) {
       const pg = new THREE.BoxGeometry(1.1, ySpring - yFoot, TW + 0.3, 1, 3, 1);
       wobble(pg, 0.05, 1.6, u);
@@ -667,7 +672,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const card = (w, h, x, z, yaw, segX = 1) => { const g = new THREE.PlaneGeometry(w, h, segX, 8); g.translate(0, h / 2, 0); g.applyMatrix4(mat(x, -0.1, z, 0, yaw, 0)); veilCards.push(g); };
     if (NT) {
       const va = NT.r0 + 1.25;
-      card(6.4, vh, va * NT.ca, va * NT.sa, Math.atan2(-NT.ca, -NT.sa), 4);
+      card(8.6, vh, va * NT.ca, va * NT.sa, Math.atan2(-NT.ca, -NT.sa), 4);   // (wider than the mouth: its feathered sides lie over the banks' rock)
       const ca2 = NT.end - 0.55, h2 = 1.75;
       card(1.6, h2, ca2 * NT.ca, ca2 * NT.sa, Math.atan2(-NT.ca, -NT.sa));
     } else card(2.6, vh, lipX - cx * 1.2, lipZ - cz * 1.2, Math.atan2(-cx, -cz));
@@ -681,12 +686,17 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
         ${NOISE}
         void main(){
           float x = vUv.x, y = vUv.y;
-          // (the review: a lit glass box with hard edges; its sides, top and foot are feathered, the foot's line broken by the fall)
-          float edge = smoothstep(0.0, 0.3, x) * smoothstep(1.0, 0.7, x) * smoothstep(1.0, 0.86, y);
-          float s = wpN(vec2(x * 11.0, y * 3.0 + uTime * 1.6)) * 0.6 + wpN(vec2(x * 23.0, y * 6.0 + uTime * 2.3)) * 0.4;
-          float a = edge * (0.08 + 0.36 * smoothstep(0.5, 0.88, s)) * (0.45 + 0.55 * y) * uK;
-          float foot = smoothstep(0.05 + 0.12 * s, 0.0, y) * 0.22;
-          gl_FragColor = vec4(uCol, clamp(a + foot * edge, 0.0, 0.6) * smoothstep(2.0, 8.0, vD));
+          // (the review, twice: a lit glass box with hard edges. Now a soft falling curtain: no sheet of its own, only falling strands and
+          // drifting spray; its sides wander and feather over the banks' rock, its top thins into the trough's lip, its foot is mist)
+          float wob = (wpN(vec2(y * 2.3 + 1.7, uTime * 0.21)) - 0.5) * 0.22 + (wpN(vec2(y * 7.0, uTime * 0.5 + 4.0)) - 0.5) * 0.08;
+          float edge = smoothstep(0.02, 0.34, x + wob) * smoothstep(0.98, 0.66, x - wob) * smoothstep(1.0, 0.8, y + wob * 0.3);
+          float fall = y * 3.2 + uTime * 2.1;
+          float st = smoothstep(0.58, 0.96, wpN(vec2(x * 34.0, fall))) * 0.55 + smoothstep(0.62, 0.95, wpN(vec2(x * 15.0 + 7.3, fall * 0.7 + 3.0))) * 0.45;
+          float spray = wpN(vec2(x * 5.0 + uTime * 0.07, y * 4.0 - uTime * 0.33)) * 0.6 + wpN(vec2(x * 11.0 - uTime * 0.05, y * 9.0 - uTime * 0.6)) * 0.4;
+          float foot = (1.0 - smoothstep(0.0, 0.16 + 0.12 * spray, y)) * smoothstep(0.3, 0.75, spray);
+          float a = edge * (st * (0.18 + 0.2 * y) + spray * spray * 0.07 + foot * 0.34) * uK;
+          vec3 c = mix(uCol * 0.62, uCol, clamp(st + foot * 0.5, 0.0, 1.0));
+          gl_FragColor = vec4(c, clamp(a, 0.0, 0.5) * smoothstep(2.0, 8.0, vD));
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }`,
@@ -720,7 +730,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       put(archPiece(NT.endHw * 0.42, 0.42, 0.55, 0, Math.PI, -1.2, 0.9), NT.end - 0.45);
       // the old arch across the cut a third of the way in, springing from the banks' ledges, broken at its crown (the north haunch shorter)
       // (near the head, so it frames the culvert ahead of a raft fishing the brook and never stands between the lens and the Wick)
-      const al1 = NT.r0 + 0.84 * (NT.end - NT.r0), R1 = NT.hw + 0.5;
+      // (the review: on a desktop frame its haunches filled the frame's sides; it stands back by the culvert now, as wide as the cut is there)
+      const t1 = 0.92, al1 = NT.r0 + t1 * (NT.end - NT.r0), R1 = notchHalfW(NT, t1) + 0.45;
       put(archPiece(R1, 0.4, 1.2, 0, 1.05, 0.3, 1.0), al1);
       put(archPiece(R1, 0.4, 1.2, 2.25, Math.PI, 0.3, 1.0), al1);
     }

@@ -110,7 +110,7 @@ export function create(ctx) {
     uBandN: { value: new THREE.Vector3(1, 0, 0) },
     // v3 night sparkle (setGlowtide; DESIGN §25.8.3): the one uniform the v3 water adds in P1 (CONTRACT §13.9)
     ...(V3W ? { uGlowtide: { value: 0 } } : {}),
-    ...(WCW ? { uWc: { value: 0 }, uLane: { value: new THREE.Vector4(0, 0, 0, 0) } } : {}),   // (WC-3: the face and the wind lane)
+    ...(WCW ? { uWc: { value: 0 }, uLane: { value: new THREE.Vector4(0, 0, 0, 0) }, uCut: { value: new THREE.Vector4(1, 0, 0, 0) } } : {}),   // (uCut: the cut behind the Veil, LOST-TACKLE §5.1)   // (WC-3: the face and the wind lane)
   }]);
   // Clear Night: the planar reflection, the key light and its shadow map (added after merge(): the matrices are shared
   // by reference with the virtual camera's and the light's own)
@@ -734,7 +734,10 @@ export function create(ctx) {
     const S = depthJob.half;
     const end = Math.min(DEPTH_RES, depthJob.row + 24);
     if (depthJob.row === 0) depthJob.face = WCW && wcFaceNow();   // (WC-3: the face's masks for the lake being baked)
-    if (depthJob.row === 0) { const N = typeof w.getNotch === 'function' ? w.getNotch() : null; depthJob.notch = N && Number.isFinite(N.r0) ? N : null; }
+    if (depthJob.row === 0) {
+      const N = typeof w.getNotch === 'function' ? w.getNotch() : null; depthJob.notch = N && Number.isFinite(N.r0) ? N : null;
+      if (U.uCut) { if (depthJob.notch) U.uCut.value.set(N.ca, N.sa, N.r0, 1); else U.uCut.value.w = 0; }
+    }
     try {
       for (let r = depthJob.row; r < end; r++) {
         const z = ((r + 0.5) / DEPTH_RES) * 2 * S - S;
@@ -753,16 +756,20 @@ export function create(ctx) {
           // light. Inside it the bake reads deep, dark water well off a shore (the lake's mid water), the foam kept to the last half metre
           // at its banks)
           const Nb = depthJob.notch;
+          let still = 0;   // (how far inside the cut: its water is still, so the inflow's seam and the gravel fan stop at its mouth)
           if (Nb) {
             const f = notchFrame(Nb, x, z), hw = notchHalfW(Nb, f.t);
             const k = clamp((f.along - Nb.r0 + 1.5) / 3, 0, 1) * clamp((hw - Math.abs(f.lc)) / 0.6, 0, 1);
             if (k > 0) { sd += (Math.max(sd, 10) - sd) * k; depthData[i] = Math.round(clamp(d + (Math.max(d, 0.9) - d) * k, 0, 1) * 255); }
+            // (the review, §5.1: the seam's foam threads (the inflow's, running at z ≈ 4 along the whole brook) lay down its middle, a
+            // milky band in every light; inside the cut only the culvert's own spill keeps a little, its last 2.5 m)
+            still = clamp((f.along - Nb.r0 + 0.5) / 2.5, 0, 1) * clamp((hw + 0.8 - Math.abs(f.lc)) / 1.2, 0, 1) * (1 - clamp((f.along - (Nb.end - 2.5)) / 2, 0, 1) * 0.7);
           }
           depthData[i + 1] = Math.round(clamp((sd + 16) / 32, 0, 1) * 255);
           if (WCW) {
-            const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sd, notch: typeof w.getNotch === 'function' ? w.getNotch() : null }) : null;
-            depthData[i + 2] = m ? Math.round(m.seam * 255) : 0;
-            depthData[i + 3] = m ? Math.round(m.fan * 255) : 0;
+            const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sd, notch: Nb }) : null;
+            depthData[i + 2] = m ? Math.round(m.seam * (1 - still) * 255) : 0;
+            depthData[i + 3] = m ? Math.round(m.fan * (1 - still) * 255) : 0;
           }
         }
       }

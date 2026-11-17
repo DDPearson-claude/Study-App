@@ -5327,7 +5327,7 @@ LOOP.guests = { mossmere: ['rosefleck_trout', 'rainglass_darter', 'nightbloom_ca
 // is its own fish and its draws, nothing else of the open water; `good` its good bites an evening (goodBitesFor's `place`); `glide` the
 // Sail's glide in through the Veil (loop-home: the raft set at its first point, then the glide).
 LOOP.places.veilback_brook = { water: 'mossmere', kind: 'day', secret: true, revealedBy: 'veil_notebook', price: 0, good: 1, only: true,
-  own: ['rosefleck_trout', 'rainglass_darter'], draws: { dusk_minnow: 1.5, kissmark_trout: 1 },
+  own: ['rosefleck_trout', 'rainglass_darter'], draws: { dusk_minnow: 1.5 },   // (the owner's pacing choice: a quieter brook, no Kissmark among its draws; LOST-TACKLE §11.2)
   glide: [[45, 0], [50, 0.25], [58.6, 4], [68.5, 5]], glideSec: 4.5 };   // (north of the east dock's posts, clear of the drowned roof, through the Veil, 10 m in)
 const VEILBACK_V3 = Object.freeze({ id: 'veilback_brook', name: 'Veilback Brook', access: 'raft', stand: null, secret: true, x: 66, z: 4.5, phase: 2,
   water: { kind: 'path', pts: [[60, 4.1], [75, 5.1]], w: 5, depth: [0.5, 0.7] }, landmark: { x: 74, y: 2, z: 5 },

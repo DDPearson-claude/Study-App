@@ -681,7 +681,7 @@ export function create(ctx) {
       lc = Math.max(-lim, Math.min(lim, lc));
       along = Math.min(along, N.end - r);
     }
-    for (const s of [-1, 1]) {   // the mouth's corners
+    for (let s = -1; s <= 1; s += 2) {   // the mouth's corners (no array a frame: it runs every frame while the cut is open)
       const dA = along - N.r0, dL = lc - s * hw0, d = Math.hypot(dA, dL);
       if (d < r && d > 1e-6) { along = N.r0 + (dA / d) * r; lc = s * hw0 + (dL / d) * r; }
     }

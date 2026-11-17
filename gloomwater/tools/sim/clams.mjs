@@ -353,7 +353,7 @@ const SP = Object.fromEntries(SPECIES.map((s) => [s.id + '@' + s.water, s]));
 const LT = D.LOOP.lostTackle || {};
 const GUEST = Object.fromEntries(WC.GUESTS.map((id) => { const h = SPECIES.find((x) => x.id === id && x.water !== 'mossmere'); return [id, h ? { ...h, water: 'mossmere', home: h.water, kind: 'open', ownPlace: undefined, guest: true } : null]; }).filter(([, x]) => x));
 export const BROOK = { id: 'veilback_brook', water: 'mossmere', kind: 'day', extra: false, inLake: true, name: 'Veilback Brook', price: 0, giants: [], legend: null, good: 1, secret: true, only: true,
-  own: ['rosefleck_trout', 'rainglass_darter'].filter((id) => GUEST[id]), draws: { dusk_minnow: 1.5, kissmark_trout: 1 } };
+  own: ['rosefleck_trout', 'rainglass_darter'].filter((id) => GUEST[id]), draws: { dusk_minnow: 1.5 } };   // (no Kissmark: the owner's quieter brook, §11.2)
 PLACE[BROOK.id] = BROOK;   // (in PLACE for the trip, never in the shelf's W.places: no map, no price)
 // <<< LOST-TACKLE
 for (const W of LOOP.waters) W.species = SPECIES.filter((s) => s.water === W.id);
@@ -546,6 +546,8 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
     if (s.kind !== 'open' || s.giant || s.legend || s.never || s.hours.includes(phase) || (s.bait && s.bait !== bait) || (only && !only(s))) continue;
     const w = (RW[s.rarity] ?? 6) * (lureMatch(lure, s) && !(wc && wcRow(s)) ? lureAttract(lure, s) : 1); list.push([s, w]); others += w;
   }
+  // (…and the brook's own fish out of their hours, as data.placePool's top-up has them: a night brook of one draw tops up with the guests the game's records hold)
+  if (P === BROOK && others < (RW.common ?? 70)) for (const id of BROOK.own) { const g = GUEST[id], r = D.SPECIES.find((x) => x?.id === id); if (g && r && !D.loopHours(r).includes(phase) && !(r.bait && r.bait !== bait) && (!r.kind || r.kind === 'open') && !r.place) { const w = RW[g.rarity] ?? 6; list.push([g, w]); others += w; } }
   if (wc) {   // WC-1: the area or the tilt, the hook (§4 steps 4–6), the pull on takers, the giant and the strays' cap (steps 10–11)
     // LOST-TACKLE §4: a notebook's boosts (hookWeights) and its guest in its area and light (finishPool), the game's own noteTerms on the sim's records
     const NT = NB ? WC.noteTerms(D, NB, { area: P ? null : area, place: P ? P.id : null, phase }) : null;

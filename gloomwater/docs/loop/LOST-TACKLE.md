@@ -194,7 +194,7 @@ stone, rust; green only as the reeds' trace).
 |---|---|---|
 | **Rosefleck Trout** | Glasswater Vault (guest), uncommon | its own fish (`own`), day and dusk. Its main home in M1 |
 | **Rainglass Darter** | Glasswater Vault (guest), rare | its own fish, day and dusk; found only here in M1. "Carries the last rain on its sail and will not let it dry." Hook: Feather Fly 3, worms 1, button 2, every other 0 |
-| Dusk Minnow · Kissmark Trout | the Mossmere | drawn in (`draws: { dusk_minnow: 1.5, kissmark_trout: 1 }`), so the night brook still bites |
+| Dusk Minnow | the Mossmere | drawn in (`draws: { dusk_minnow: 1.5 }`; the Kissmark taken out, the owner's quieter brook, §11.2), so the night brook still bites |
 
 It gives **1 good bite an evening** (`good: 1` on the place, read by `goodBitesFor`: a short brook, and the measured choice, §7.2).
 Its favour is a day place's (+0.15 + 0.4). It holds no giant and has no rule. Its size cap is GEAR-GATES' cap as on every water.
@@ -228,7 +228,7 @@ So the brook is **a notch and a place**, not a new scene:
 | the banks | one more reed arc pair along both sides (WC-3's reed InstancedMesh, about 60 stems) and one lily bed of 8 pads (the pads' InstancedMesh) | 0 (instances) |
 | the head | a low culvert arch built with the aqueduct's own `arch()` extrude, with a second small veil card (1.6 m) spilling from it, merged with the aqueduct | +1 at most |
 | sound | the inflow's trickle (`audio-mossmere` WATER_VOICES) placed at the culvert as well | — |
-| the place | `LOOP.places.veilback_brook = { water: 'mossmere', kind: 'day', secret: true, revealedBy: 'veil_notebook', price: 0, good: 1, own: ['rosefleck_trout', 'rainglass_darter'], draws: { dusk_minnow: 1.5, kissmark_trout: 1 } }`; `MOSSMERE_V3.places` gets its geometry `{ id: 'veilback_brook', name: 'Veilback Brook', water: { kind: 'path', pts: [[60, 4.1], [75, 5.1]], w: 5, depth: [0.5, 0.7] }, landmark: { x: 74, y: 2, z: 5 }, lore: 'Behind the falling water, the old cut still runs.', look: 'a reed-banked brook under broken arches' }` | — |
+| the place | `LOOP.places.veilback_brook = { water: 'mossmere', kind: 'day', secret: true, revealedBy: 'veil_notebook', price: 0, good: 1, own: ['rosefleck_trout', 'rainglass_darter'], draws: { dusk_minnow: 1.5 } }`; `MOSSMERE_V3.places` gets its geometry `{ id: 'veilback_brook', name: 'Veilback Brook', water: { kind: 'path', pts: [[60, 4.1], [75, 5.1]], w: 5, depth: [0.5, 0.7] }, landmark: { x: 74, y: 2, z: 5 }, lore: 'Behind the falling water, the old cut still runs.', look: 'a reed-banked brook under broken arches' }` | — |
 
 **Risks to check in the browser**: the play camera between 16 m walls (the cove's notch is proof it works, but it is wider), and
 the Veil hiding the cut at every screen shape before the reveal (358 × 664 and 1280 × 720, day and night).
@@ -425,9 +425,9 @@ line and the camera's hold on the chart table at the reveal (W, C).
 | the Veil Angler's Notebook | p50 1.24 h; **100% by the empty shelf** (6,000 players) |
 | pieces owned at the empty shelf | 2.14 (one 27% · two 41% · three 23% · four 7% · five 1%); each other piece 22–24% |
 | the empty shelf, finds off | 5.20 h (82 trips) |
-| **finds on** (the notebook at 1.24 h: the brook, the boost, the guest) | **4.68 h, −10.0%** (gate ±10%: passes, at its edge) |
-| a lucky player (notebook at 0.49 h, the other notebook, the Thread and the Winch from 3 h) | 4.71 h, −9.3% |
-| the terms | the brook and the Rosefleck at the Veil, no boost: −8.0% · the Kissmark boost ×1.1 −8.1%, **×1.2 −10.0% (built)**, ×1.3 −10.8% (fails) |
+| **finds on** (the notebook at 1.24 h: the brook, the boost, the guest) | **5.00 h, −3.7%** (gate ±10%: passes; the quieter brook, below) |
+| a lucky player (notebook at 0.49 h, the other notebook, the Thread and the Winch from 3 h) | 5.10 h, −1.9% |
+| the terms (before the quieter brook) | the brook and the Rosefleck at the Veil, no boost: −8.0% · the Kissmark boost ×1.1 −8.1%, **×1.2 −10.0%**, ×1.3 −10.8% (fails) |
 
 **Re-measured after the review (the sim's brook made the game's).** The first figures (−9.3% with ×1.6) were taken on a sim brook that
 was an ordinary day place with the guests on top: every open-water fish bit there. The game's brook is `only` (its own fish and its
@@ -436,6 +436,12 @@ good bite is mostly the Rosefleck, the Darter and the Kissmark, so the brook alo
 built at **×1.2** (§4.2's ×1.6 fails the gate); FINDS' treasure sales (−4 to −7%, unmodelled: `clams.mjs` sells no treasure) would
 push any of these past ±10%. **Question for the user**: a quieter brook (no Kissmark among its draws), a smaller boost, or a wider
 gate. The Hold-step check (Hold 4 −5.9% a minute) fails as it did before this lane (GEAR-GATES' open item).
+
+**The owner's answer: a quieter brook (17 November 2026).** The Kissmark Trout is out of the brook's own draws (`draws: { dusk_minnow:
+1.5 }`; the Veil notebook's ×1.2 Kissmark boost stays, on the open water where the Kissmark lives). Re-measured (`clams.mjs
+--shipped=mossmere --quick`): the empty shelf with the finds on **5.00 h against 5.20 h, −3.7%**; the lucky player 5.10 h, −1.9%; the
+first piece and the notebook's draw unchanged (p50 1.02 h and 1.24 h). The night brook, with one draw, tops up with the Rosefleck out
+of its hours as `data.placePool` does (the sim's `poolFor` now does the same; T104 holds on the brook in every light).
 
 ## 12. Build notes (lanes W and C, branch gw-brook)
 

@@ -96,6 +96,7 @@ uniform float uGlowtide;      // v3 night sparkle 0..1 (water.setGlowtide; the t
 // channels carry the baked masks (B the inflow's seam and the outflow's pull, A the gravel fan under the Sluice Veil)
 uniform float uWc;            // 1 on the Mossmere under the loop (the face and the water-white Glowtide), else 0
 uniform vec4 uLane;           // the wind lane (watercraft.laneFor(evening)): centre x, z, heading (rad), strength (day and dusk 1, night 0)
+uniform vec4 uCut;            // the cut behind the Veil (LOST-TACKLE §5.1): its bearing (cos, sin), its mouth's radius, on
 // <<< WC-3
 #endif
 uniform vec2 uMood;           // the night 0..1 and the dawn's warmth 0..1 (world's mood)
@@ -1020,6 +1021,14 @@ void main() {
 #endif
 #endif
 
+#ifdef GW_WC
+  // (the review, §5.1: still, dark, reflective. The cut's 6 m of water lay under its pale lights and sky in every light, a milky sheet;
+  // inside its mouth it is the lake's deep ink, its lights' pools kept but held down)
+  if (uCut.w > 0.5) {
+    float cutK = smoothstep(uCut.z - 1.0, uCut.z + 4.0, dot(xz, uCut.xy)) * (1.0 - smoothstep(6.0, 9.0, abs(dot(xz, vec2(-uCut.y, uCut.x)))));
+    col = mix(col, mix(col * 0.4, uDeep * 0.5, 0.35), cutK * 0.85);
+  }
+#endif
   gl_FragColor = vec4(max(col, 0.0), 1.0);
 #ifndef GW_REFL
   #include <fog_fragment>
