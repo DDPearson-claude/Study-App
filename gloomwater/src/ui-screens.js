@@ -10,7 +10,7 @@ import * as AF from './ui-af.js';
 // >>> LOOP 1a (lane C): the Full Hold's words and models (docs/loop/slice-1a/PLAN.md §2.3 item 5); read only under data.LOOP_ENABLED
 import { titleModel, descentModel, settingsWords, journalFirst, journalModel, cardActions, CARD_KEYS, catalogueView, giantsView } from './ui-loop.js';
 import { renderPrintsPage } from './ui-prints.js';   // M1 step 5b (lane 5b-home): the Journal's Prints page
-import { listFor as loopListFor, catalogueFor, gateLine } from './progression-loop.js';
+import { listFor as loopListFor, catalogueFor, gateLine, needsHint } from './progression-loop.js';
 import { cardHooks as gearCardHooks, whoBitesHtml } from './ui-gear.js';   // (WC-3: the gear log's Who bites)   // M1 step 4 (lane 4): the card's chalk tick and Cut Strip
 import { fmtClams } from './core.js';
 import { createSheetView } from './ui-sheet.js';   // the Wick's sheet (SHEET.md): the Journal's first tab under the loop
@@ -1732,6 +1732,17 @@ export function createScreens(K) {
   function catGlyphs(glyphs) {
     return `<span class="gw-cat-glyphs" aria-hidden="true">${arr(glyphs).map((g) => `<i class="gw-cat-glyph gw-cat-glyph--${esc(g)}">${icon(g)}</i>`).join('')}</span>`;
   }
+  /** The Journal's hint (the user, 17 Nov 2026): one short line under a card the save's own gear cannot catch yet ("Needs a lure.";
+   *  a met fish names the item), gone the moment it owns something that can (progression-loop.needsHint). */
+  function catNeed(b, id) {
+    const nh = safe(() => needsHint(D(), meta(), id), null);
+    if (!nh?.text) return;
+    const p = h('small', 'gw-cat-need');
+    p.dataset.loop = 'need';
+    p.textContent = nh.text;
+    b.appendChild(p);
+    b.setAttribute('aria-label', `${b.getAttribute('aria-label')}. ${nh.text}`);
+  }
   function catCard(entry, c) {
     const s = entry.state;
     const sp = K.speciesData(c.id);
@@ -1753,6 +1764,7 @@ export function createScreens(K) {
     b.insertAdjacentHTML('beforeend', `<span class="gw-cat-name">${c.star ? '<i class="gw-cat-star" aria-hidden="true">★</i>' : ''}<span></span></span>${catGlyphs(c.glyphs)}`);
     b.querySelector('.gw-cat-name > span').textContent = c.name;
     if (c.listed) b.insertAdjacentHTML('beforeend', `<i class="gw-jr-notch${c.caught ? ' gw-on' : ''}" aria-hidden="true"></i>`);
+    catNeed(b, c.id);
     b.addEventListener('click', (e) => {
       e.stopPropagation(); sfx('ui_click');
       s.pageScroll = b.closest('.gw-cat-scroll')?.scrollTop ?? 0;
@@ -1815,7 +1827,7 @@ export function createScreens(K) {
       page.appendChild(det);
       // GEAR-GATES §5.1: what the save's own gear lands of a met fish, or what it needs (the player's log: words only, no odds), under its
       // name and class, above the lore, inside the page's own scroll
-      { const gl = J[s.sel] ? safe(() => gateLine(D(), m.loop, s.sel), null) : null;
+      { const gl = J[s.sel] ? safe(() => needsHint(D(), m, s.sel), null) || safe(() => gateLine(D(), m.loop, s.sel), null) : null;   // (the card's hint, word for word)
         if (gl?.text) { const p = h('p', 'gw-cat-gate'); p.textContent = gl.text; const lore = det.querySelector('.gw-lore'); if (lore) det.insertBefore(p, lore); else det.appendChild(p); } }
       // Murk's orders (the user, 17 Nov 2026): "Murk wants one." while an open order names this fish (TEXT_LOOP.orderSay.wants)
       { const w = J[s.sel] ? speciesWanted(safe(() => ctx.progression?.loop?.orders?.(), []), s.sel) : false;
@@ -1931,6 +1943,7 @@ export function createScreens(K) {
       b.insertAdjacentHTML('beforeend', `<span class="gw-cat-name"><i class="gw-cat-star" aria-hidden="true">★</i><span></span></span>${g.weight ? '<small class="gw-cat-gw"></small>' : ''}`);
       b.querySelector('.gw-cat-name > span').textContent = g.name;
       if (g.weight) b.querySelector('.gw-cat-gw').textContent = g.weight;
+      catNeed(b, g.id);
       b.addEventListener('click', (e) => {
         e.stopPropagation(); sfx('ui_click');
         s.pageScroll = null;

@@ -258,5 +258,54 @@ section('GG9 the ladder: each buy raises a cap the design names; the firstAway l
   ok(typeof WC.castOdds === 'function' && WC.HOOK_ITEMS.includes('bent_spoon'), 'GG9: the sim and the game draw from the same castOdds and HOOK_ITEMS');
 }
 
+// =====================================================================================
+section('GG10 the Journal\'s hint (the user, 17 Nov 2026: "Needs a lure", so nobody hunts a fish they can\'t catch yet)');
+{
+  const H = D.TEXT_LOOP.gate.hint, hint = (m, id) => PL.needsHint(D, m, id)?.text ?? null;
+  const fresh = () => { const m = freshLoopMeta(D); m.journal = {}; return m; };
+  let m = fresh();
+  // owned gear → no hint: the start kit lands every standard fish, the carp and koi (worms), the sturgeon; the legend has none
+  for (const id of ['dusk_minnow', 'mossback_perch', 'weeping_carp', 'candlefin_koi', 'bridgechain_sturgeon', 'belled_matriarch']) eq(hint(m, id), null, `a fresh save: no hint on ${id}`);
+  // unmet → generic, never the item
+  eq([hint(m, 'reedjaw_pike'), hint(m, 'thousandcast_pike'), hint(m, 'hullkiss_lamprey'), hint(m, 'gloam_eel')], [H.lure, H.lure, H.lure, H.bait], 'unmet: "Needs a lure." on the pike and the giants, "Needs bait." on the Gloam Eel');
+  // met → names the item, word for word the species page's
+  m.journal = { thousandcast_pike: { seen: 1, caught: 0 }, gloam_eel: { seen: 1, caught: 0 } };
+  eq([hint(m, 'thousandcast_pike'), hint(m, 'gloam_eel')], ['Needs the Glimmer Spoon.', 'Needs Lumen Moss.'], 'met: the item named');
+  eq(hint(m, 'thousandcast_pike'), PL.gateLine(D, m.loop, 'thousandcast_pike').text, '… as the species page says it');
+  // owning the gear takes it away: a bought lure, a tin (even one run dry: it refills at the shelf)
+  m = fresh(); m.loop.lures = [...m.loop.lures, 'glimmer_spoon'];
+  eq([hint(m, 'reedjaw_pike'), hint(m, 'thousandcast_pike'), hint(m, 'hullkiss_lamprey')], [null, null, null], 'the Glimmer Spoon owned: the pike and both giants lose the hint');
+  m = fresh(); m.loop.bait.mossmere.lumen_moss = 0;
+  eq(hint(m, 'gloam_eel'), null, 'a tin of Lumen Moss held once (now empty): the eel has no hint');
+  m = fresh(); m.loop.bait.mossmere = {};
+  eq(hint(m, 'weeping_carp'), H.bait, 'no worm ever held: the carp needs bait');
+  // Cut Strip counts once it can be cut: a strip in the bag, or a fish it may cut already landed (never a giant's)
+  m = fresh(); m.journal = { thousandcast_pike: { caught: 1 }, reedjaw_pike: { seen: 1, caught: 0 } };
+  eq(hint(m, 'reedjaw_pike'), 'Needs the Glimmer Spoon.', 'only a giant landed: no strip yet, the met pike still needs the spoon');
+  m = fresh(); m.journal = { dusk_minnow: { caught: 1 } };
+  eq(hint(m, 'reedjaw_pike'), null, 'a Dusk Minnow landed (it can be cut): the pike has no hint');
+  m = fresh(); m.loop.bait.mossmere.cut_strip = 2;
+  eq(hint(m, 'reedjaw_pike'), null, 'strips in the bag: no hint');
+  // found tackle counts: the Gate-Guard's Button takes the pike (never a giant)
+  m = fresh(); m.loop.lures = [...m.loop.lures, 'guard_button'];
+  eq([hint(m, 'reedjaw_pike'), hint(m, 'thousandcast_pike')], [null, H.lure], 'the found button owned: the pike open, the giant still hinted');
+  // the line-cap case: a giant that only comes over a Prize (a doctored minZ) on Twine with the Spinner owned → "Needs a better line."
+  const DL = { ...D, LOOP: { ...D.LOOP, giant: { ...D.LOOP.giant, minZ: 2.0 } } };
+  m = fresh(); m.loop.lures = [...m.loop.lures, 'glimmer_spoon'];
+  eq(PL.needsHint(DL, m, 'thousandcast_pike')?.item, 'bell_spinner', 'the spoon owned but capped by its own grade: the lure that lands it (the Spinner), not the line');
+  m.loop.lures.push('bell_spinner');
+  eq(PL.needsHint(DL, m, 'thousandcast_pike')?.text, H.line, 'the line\'s cap alone stops it: "Needs a better line."');
+  eq(PL.needsHint(DL, { ...m, loop: { ...m.loop, tackle: { ...m.loop.tackle, line: 1 } } }, 'thousandcast_pike'), null, '… Line T1 bought: no hint');
+  const fl = { ...m.loop, found: { ...(m.loop.found || {}), line: 'ferry_thread' }, finds: { ...(m.loop.finds || {}), got: { ...(m.loop.finds?.got || {}), ferry_thread: 1 } } };
+  eq(PL.needsHint(DL, { ...m, loop: fl }, 'thousandcast_pike'), null, '… or the found Ferry Thread fitted (lands up to Trophy): no hint');
+  // the words: few, no fish, no number, allowed
+  const W = U.allowedWords(D), names = D.SPECIES.map((s) => s.name);
+  for (const t of Object.values(H)) {
+    ok(t.split(/\s+/).length <= 4 && !/\d/.test(t) && !names.some((n) => t.includes(n)), `"${t}": ≤ 4 words, no number, no fish`);
+    ok(U.textAllowed(t, { D, words: W }), `textAllowed: "${t}"`);
+  }
+  eq(PL.needsHint(DV3, freshLoopMeta(D), 'reedjaw_pike'), null, 'off the loop: no hint');
+}
+
 console.log(`gear-gates: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
