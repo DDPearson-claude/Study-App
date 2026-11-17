@@ -15,6 +15,7 @@ import { startRoute, tripKeyAllowed, loopFreshSave } from './loop-rules.js';
 import { createLoopHome } from './loop-home.js';
 import { createLoopTow } from './loop-tow.js';   // M1 step 5b (LANE 5B-TOW): the opening at the Landing and the tow
 import { attachHeron } from './actors-heron.js';   // WC-3 (WATERCRAFT §5.4): the heron on the Mossmere under the loop
+import { attachWildlife } from './actors-wildlife.js';   // the Mossmere's wildlife (LOOP.wildlife; ?wild=0 off): the moths and the lampbills
 // >>> INTRO LANE B: import (the opening cut scene's director; docs/v3/intro/SPEC.md, CONTRACT §13.13)
 import { create as createIntro, markIntroSeen, replayOffered } from './intro.js';
 // <<< INTRO LANE B
@@ -549,6 +550,7 @@ Object.assign(game, {
 // number and record; the screens are ui's (lane C). Off the loop nothing here runs.
 const SKIP_KEYS = () => (Array.isArray(INTRO?.skip?.keys) ? INTRO.skip.keys : ['Escape', 'Enter', 'NumpadEnter', 'Space']);
 let heronW = null;   // WC-3: the heron (attached on the first frame under the loop; false if it cannot be)
+let wildW = null;    // the wildlife (the same: attached on the first frame under the loop with LOOP.wildlife.on; false if not)
 const loopHome = LOOP_ON ? createLoopHome({
   ctx, data, report, setFlow, resetBeats, showLake, save: () => game.save(), lockRunMode, lake: INTRO_LAKE,
   savedRun: { get: () => savedRun, set: (r) => { savedRun = r; } },
@@ -1246,6 +1248,7 @@ function frame(now) {
   // M1 step 5b (LANE 5B-TOW): the tow's clock (real time; it waits by itself while another screen is over its Chart)
   if (loopTow) { try { loopTow.update(realDt); } catch (e) { const n = (errorCounts.get('loopTow') || 0) + 1; errorCounts.set('loopTow', n); if (n <= 3) report('update(loopTow)', e); } }
   if (LOOP_ON && heronW !== false) { try { if (!heronW) { heronW = attachHeron(ctx) || false; if (heronW) ctx.debug.heron = heronW.state; } if (heronW) heronW.update(running ? realDt : 0); } catch (e) { heronW = false; report('update(heron)', e); } }   // WC-3: the heron
+  if (LOOP_ON && wildW !== false) { try { if (!wildW) { wildW = attachWildlife(ctx) || false; if (wildW) ctx.debug.wildlife = wildW.state; } if (wildW) wildW.update(running ? realDt : 0); } catch (e) { wildW = false; report('update(wildlife)', e); } }   // the moths and the lampbills
   if (FE_ON) {
     // the First Evening's clock (lines, beats) runs on the hub's game time (stopped by a pause or a blocking card); the hearth cut
     if (ctx.firstEvening) { try { ctx.firstEvening.update(inHub ? time.gameDt : 0); } catch (e) { const n = (errorCounts.get('firstEvening') || 0) + 1; errorCounts.set('firstEvening', n); if (n <= 3) report('update(firstEvening)', e); } }

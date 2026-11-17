@@ -714,6 +714,7 @@ export function createHome(ctx) {
   const waterLight = { position: new THREE.Vector3(), color: new THREE.Color(0xffa95a), intensity: 0, distance: 6, streak: 0.75, radius: 4.5 };
   /** World point of a local barge point. */
   const toWorld = (x, y, z, out = new THREE.Vector3()) => { object3d.updateMatrixWorld(); return bob.localToWorld(out.set(x, y, z)); };
+  const wildMoths = () => ctx.data?.LOOP?.wildlife?.on === true && (ctx.render?.quality || 'high') !== 'low';
   const api = {
     object3d, mats, timber, glow, outline,
     get anchors() { return A; },
@@ -785,7 +786,7 @@ export function createHome(ctx) {
         ctx.models?.emitSmoke?.(tmp, { color: 0xffa040, vy: 0.9, spread: 0.05, size: 0.035, sizeGrow: -0.02, lifeT: 1.1, alpha: 0.95, jitter: 0.08 });
       }
       mothT -= dt;
-      if (mothT <= 0 && lampPts.length && K.lantern > 0.25) {
+      if (mothT <= 0 && lampPts.length && K.lantern > 0.25 && !wildMoths()) {   // (the wildlife's own moths take over where they fly)
         mothT = 0.35 + Math.random() * 0.5;
         const L0 = lampPts[(Math.random() * lampPts.length) | 0];
         toWorld(L0[0] + (Math.random() - 0.5) * 0.3, L0[1] + 0.05 + Math.random() * 0.2, L0[2] + (Math.random() - 0.5) * 0.3, tmp);
@@ -796,6 +797,8 @@ export function createHome(ctx) {
       if (sigT <= 0) { sigT = 0.5; try { setVariants(homeVariants(ctx.state?.meta?.loop, api.waterOrder)); chartTop?.refresh(variant?.stones || []); } catch { /* keep the last */ } }
     },
     waterOrder: ['mossmere'],
+    /** The rail lanterns in the world while they burn, for the wildlife's moths: → {pts: [[x, y, z]], k} (no points while hidden). */
+    lamps() { const pts = object3d.visible && K.lantern > 0.25 ? lampPts.map((L0) => toWorld(L0[0], L0[1], L0[2]).toArray()) : []; return { pts, k: Math.min(1, K.lantern) }; },
     /** Draw calls this actor adds (main / mirror / shadow): the budget's own count (M1 §2.14). */
     calls() { return { main: 2 + (outline ? 1 : 0) + (chartTop ? 1 : 0), mirror: 2, shadow: 1 }; },   // (M1 step 5b: + the chart table's top)
     stats() {

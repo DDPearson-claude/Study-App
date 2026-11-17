@@ -253,6 +253,17 @@ export function applyRedressFlag(g = globalThis) {
 }
 /** How this page load resolved the re-dress's switch (read once, beside LOOP_FLAGS, before data.js evaluates). */
 export const REDRESS_FLAGS = applyRedressFlag();
+/** The Mossmere's wildlife (LOOP.wildlife.on = LOOP_ENABLED && GW_WILD !== false): `?wild=0` writes GW_WILD = false before data.js
+ *  evaluates, as ?redress does; a preset GW_WILD (boolean) wins; node tools are never touched. → {on} */
+export const WILD_FLAGS = (() => {
+  const g = globalThis;
+  if (typeof g.document === 'undefined' || typeof g.GW_WILD === 'boolean') return { on: g.GW_WILD !== false };
+  let q = null;
+  try { q = new URLSearchParams(g.location?.search || ''); } catch { q = null; }
+  const u = q && q.has('wild') ? parseFlagOn(q.get('wild')) : null;
+  if (u !== null) g.GW_WILD = u;
+  return { on: u !== false };
+})();
 
 /** How this page load resolved the switch (read by main's debug hooks). */
 export const V3_FLAGS = applyV3Flags();

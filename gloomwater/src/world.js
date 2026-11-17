@@ -576,6 +576,24 @@ export function create(ctx) {
     }
     return watchLamps;
   }
+  /** The lake's lit things as the wildlife's moths read them (actors-wildlife.js): the bollards' and lamp-posts' lanterns, the dock
+   *  buoy-lamps (the watch-lamps at their own level), the gate towers' low slits and the Buoy Lights' caps while they burn.
+   *  → [{key, kind, x, y, z, k}] (k 0..1+: how lit; the same objects each call, re-read in place) */
+  let lampSpots = null, lampArena = null;
+  function getLampSpots() {
+    if (!arena) return [];
+    if (lampArena !== arena) {
+      lampArena = arena; lampSpots = [];
+      const red = arena.redress === true;
+      (arena.lampPosts || []).forEach((p, i) => { if (p.light !== false) lampSpots.push({ key: `post${i}`, kind: 'post', x: p.x + Math.cos(-p.ry) * (red ? 0.68 : 0.75), y: p.y + (red ? 2.4 : p.h - 0.35), z: p.z + Math.sin(-p.ry) * (red ? 0.68 : 0.75), k: 1 }); });
+      (arena.dockBuoys || []).forEach((f, i) => lampSpots.push({ key: `buoy${i}`, kind: 'buoy', x: f.x, y: 1.0 * (f.s || 1), z: f.z, k: 1, dock: i, watch: !!f.watch }));
+      (arena.slits || []).forEach((q, i) => lampSpots.push({ key: `slit${i}`, kind: 'slit', x: q.x, y: q.y, z: q.z, k: 1 }));
+    }
+    for (const l of lampSpots) if (l.watch) { const li = watchLamps.findIndex((w) => w.dock === l.dock); l.k = li >= 0 ? Math.min(1, Number(v3Info.lamps[li]?.k) || 0) : 1; }
+    let caps = [];
+    try { caps = placesVis?.lamps?.() || []; } catch { caps = []; }
+    return caps.length ? lampSpots.concat(caps) : lampSpots;
+  }
   /** What the v3 visuals show this frame (render-only reads: night mode, phase, the lamp-watch, the legend pool's state). */
   function updateV3(dt, t) {
     const run = ctx.state?.run;
@@ -779,6 +797,7 @@ export function create(ctx) {
     // ---- v3 (CONTRACT §13.7 world; empty arrays in a flag-off build)
     /** The lake's two watch-lamps [{id, name, position, x, z, radius, lit, dock, kind}] (the same array each call). */
     getWatchLamps,
+    getLampSpots,   // (the loop's wildlife: the lamps the moths fly)
     /** The stopgap's holdsGiants water [{id, kind: 'ring'|'disc', x, z, r}] in a lake whose places are not in the build. */
     getGiantSpots: () => giantSpots,
     // ---- the loop's places (M1 step 3a, PLAN §3.4; inert with the loop off or on a lake with no places)
