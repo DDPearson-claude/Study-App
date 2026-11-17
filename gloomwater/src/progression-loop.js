@@ -115,7 +115,8 @@ export function freshLoop(D) {
     maps: { lakes: [firstWater(D)], places: [] }, raft: { oars: 0, keel: 0, lantern: 0 }, home: { orders: 0, baitBed: 0, wall: 0, lights: 0 },
     looks: [], orders: [], legends: {}, giants: {}, prints: {}, ledgerPaid: [],
     said: {}, lastTrip: null, wick: null, tutorial: null, firsts: { seen: [], seals: [], best: {} },
-    finds: { got: {}, worn: {}, share: {} },   // M1 step 5c (FINDS §10): additive, filled for every block (no schema step)
+    finds: { got: {}, worn: {}, share: {}, tackleMiss: {} },   // M1 step 5c (FINDS §10): additive, filled for every block (no schema step)
+    places: { revealed: [] },   // LOST-TACKLE §8: the places a lost notebook has shown (loop-finds.fillFinds makes it whole)
     // M1 step 3a (PLAN §3.3): the places whose lift has played; the best fish there (`<placeId | open:<water>>` → {speciesId, length},
     // never a weight); the Chart's pick {water, place}, null until one is made (never filled as an object: 3b reads a non-object as the
     // tutorial's first open). LOOP_SCHEMA stays 3: the keys are additive, the fill below gives them to every block (PLAN CHOICE 1)

@@ -385,3 +385,21 @@ night. Run it at 1280 × 720, 960 × 540, 390 × 844 and 358 × 664, with two lo
 1. The guarantee brings **the Veil Angler's Notebook first** (default), or any piece first (most players then miss the brook in Lake 1).
 2. The Thread and the Winch: **keep them** (default), or give them only looks and sound (then the rod and the lure carry the "stats you can't have").
 3. Veilback Brook: **the cut behind the Veil (lane W)** (default), or **W-lite** for now (a place at the Veil's foot; the cut later).
+
+---
+
+## 11. Build notes (lanes L1 and L2, branch gw-tackle)
+
+| what | where |
+|---|---|
+| the six pieces | `LOOP.finds.items` (`kind: 'tackle'`, `slot`, `pose`, `size`; the pole 3.0 m); `LOOP.finds.tackle` (§2.2's knobs); `LOOP.lostTackle` (§3.2's stats, unread until L3 and L4) |
+| the draw | `loop-finds.findShares` (the pieces' term, `partCap`); `noteSnag` (the misses, capped at the count that reaches 40%; a piece leaves the parts' share be); `fillFinds` (`tackleMiss`, `places.revealed`); `bookFinds` (the guaranteed piece's count goes; `reveals` → `meta.loop.places.revealed`) |
+| the reveal flag | `meta.loop.places = { revealed: [] }` (fresh loops carry it; `fillFinds` makes it whole); read it with `loop-finds.placeRevealed(metaLoop, id)` / `revealedPlaces(metaLoop)` |
+| words | `TEXT_LOOP.finds.items[id] = {name, does, line}`; `findDoes(D, id)`; `TEXT_LOOP.murk.firstTackle` (said once by `saleLineId`; a part's line no longer fires for a piece) |
+| on screen | the card (`findCardView().does`, the `hook` stamp, Keep's `rack` / `table` glyph); the tally (group 6, `gw-trow--tackle`); the catalogue's fourth row (`rows.tackle`, three to a row, two on a phone); sounds `tackle_glint`, `tackle_knock` |
+| at home | `actors-finds.tackleHomeParts` merged into the barge's timber (rack: the pole, the winch, the thread, the button; chart table: the Veil Angler's open at its map, the Lily Gardener's shut); `findHomeSig` appends `:` and six flags once one is owned |
+| tests | `tools/tests/lost-tackle.test.mjs` (LT1, LT2, LT3's tally and reveal, LT7's node half, the views, the props, the barge); `tools/tests/loop-lost-tackle.scenario.mjs` (the browser half) |
+
+Not built here: fitting (L3: when a fitted piece leaves the rack is L3's call), the notebooks' boosts and guests (L4), the logs' effect
+lines (L5; the catalogue's tap shows `does` until then), the sim (L6), the brook, its Chart line and the camera's hold on the chart
+table at the reveal (W, C).

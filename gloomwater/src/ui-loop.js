@@ -169,7 +169,7 @@ export function tallyPlan(tally, { D = null, pace = {} } = {}) {
     return num(Number(l.length), 0);
   };
   // (M1 step 5c: a find after the fish: the treasures by value, the jackpot last and alone, then the parts and looks: FINDS §6.4)
-  const fg = (l) => (l.kind === 'treasure' ? (l.grade === 'jackpot' || l.jackpot === true ? 4 : 3) : 5);
+  const fg = (l) => (l.kind === 'treasure' ? (l.grade === 'jackpot' || l.jackpot === true ? 4 : 3) : l.kind === 'tackle' ? 6 : 5);   // (lost tackle after the parts and looks)
   // (the jackpot's row rides as a giant's for its pause, then the post-pass below names it: never a ★ or a giant's line)
   const keyed = lines.map((l, i) => (typeof l.find === 'string' ? { l: { ...l, giant: l.kind === 'treasure' && (l.grade === 'jackpot' || l.jackpot === true) }, i, oz: num(Number(l.clams), 0), g: fg(l) }
     : { l, i, oz: wOz(l), g: l.giant === true ? 2 : l.legend === true ? 1 : 0 }));
@@ -451,7 +451,8 @@ export function saleLineId({ rows = [], said = {}, listDone = false, empty = fal
   if (R.some((r) => r.jackpot) && !S.firstJackpot) return 'firstJackpot';   // (M1 step 5c: FINDS §9's three lines, each once)
   if (!S.firstSale) return 'firstSale';
   if (gearAway) return gearAway;
-  if (R.some((r) => r.find && r.kind !== 'treasure') && !S.firstPart) return 'firstPart';
+  if (R.some((r) => r.find && r.kind === 'tackle') && !S.firstTackle) return 'firstTackle';   // (LOST-TACKLE §6.1: the first piece aboard, once)
+  if (R.some((r) => r.find && (r.kind === 'part' || r.kind === 'look')) && !S.firstPart) return 'firstPart';
   if (R.some((r) => r.find && r.kind === 'treasure') && !S.firstTreasure) return 'firstTreasure';
   if (R.some((r) => r.giant || r.legend || r.sizeClass === 'trophy' || r.sizeClass === 'elder') && !S.firstTrophy) return 'firstTrophy';
   return null;
@@ -1106,6 +1107,7 @@ export function createLoopView(K) {
       if (r.find) {
         art.classList.add('gw-trow-find'); drawFindArt(art, D(), r.find, { w: 56, h: 28, pad: 0.06, gold: r.jackpot });
         if (r.jackpot) li.classList.add('gw-trow--giant');
+        if (r.kind === 'tackle') li.classList.add('gw-trow--tackle');   // (LOST-TACKLE §2.1: carried aboard, its name in dim ink)
         if (r.kind !== 'treasure') li.querySelector('.gw-trow-v').innerHTML = FIND_GLYPHS[whereOf(D()?.LOOP?.finds?.items?.find((x) => x.id === r.find))] || '';
       }
       ol.appendChild(li);
@@ -1134,7 +1136,8 @@ export function createLoopView(K) {
       const prev = s.ticks.get(i) || 0;
       if (!init && !s.done && at.ticked > prev) {
         // (M1 step 5c: a part or a look carried aboard knocks softly on wood; the jackpot's clink is heavier)
-        if (r.find && r.kind !== 'treasure') audioPlay('creel', { volume: 0.4, pitch: 0.8 });
+        if (r.find && r.kind === 'tackle') { if (!audioPlay('tackle_knock', { volume: 0.45 })) audioPlay('creel', { volume: 0.4, pitch: 0.7 }); }
+        else if (r.find && r.kind !== 'treasure') audioPlay('creel', { volume: 0.4, pitch: 0.8 });
         else coin(r.first && at.ticked >= 2 || r.jackpot, { volume: r.jackpot ? 0.5 : 0.32, pitch: r.jackpot ? 0.7 : 0.95 + 0.05 * Math.min(6, i) });
       }
       s.ticks.set(i, at.ticked);

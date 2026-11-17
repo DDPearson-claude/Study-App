@@ -273,20 +273,40 @@ if (process.argv.includes('--loop')) {
       ok4(JSON.stringify(set.filter((i) => i.kind === 'treasure').map((i) => i.grade).sort()) === JSON.stringify(['fine', 'jackpot', 'plain', 'precious', 'rare']), `LOOP.finds ${w}: five treasures, one per grade`);
       ok4(JSON.stringify(set.filter((i) => i.kind === 'part').map((i) => i.effect).sort()) === JSON.stringify(['bait', 'bite', 'order']), `LOOP.finds ${w}: three parts, one of each effect`);
       ok4(set.filter((i) => i.kind === 'look').length === 3 && new Set(set.filter((i) => i.kind === 'look').map((i) => i.wearer)).size === 3, `LOOP.finds ${w}: three looks, one per wearer`);
-      ok4(set.filter((i) => i.kind !== 'treasure').every((i) => SLOTS.includes(i.slot)), `LOOP.finds ${w}: every part's and look's slot is known`);
+      ok4(set.filter((i) => i.kind === 'part' || i.kind === 'look').every((i) => SLOTS.includes(i.slot)), `LOOP.finds ${w}: every part's and look's slot is known`);
+      ok4(set.every((i) => ['treasure', 'part', 'look', 'tackle'].includes(i.kind)), `LOOP.finds ${w}: every find's kind is known (treasure, part, look, tackle)`);
       ok4(set.every((i) => ['pinch', 'both', 'alongside'].includes(i.pose) && Number(i.size) > 0), `LOOP.finds ${w}: every find has a built pose and a size`);
-      const unowned = set.filter((i) => i.kind !== 'treasure').length;
+      const unowned = set.filter((i) => i.kind === 'part' || i.kind === 'look').length;
       ok4(FD.kind.share / unowned >= 0.01 - 1e-12, `LOOP.finds ${w}: the kind share ÷ the set's parts and looks (${(FD.kind.share / unowned).toFixed(4)}) is ≥ the jackpot's 1%`);
       const sums = [];
-      const meta = (got, share) => ({ loop: { maps: { lakes: [w] }, finds: { got, worn: {}, share: share == null ? {} : { [w]: share } } } });
-      const ids6 = set.filter((i) => i.kind !== 'treasure').map((i) => i.id);
-      for (const m of [meta({}, null), meta(Object.fromEntries(ids6.slice(1).map((id) => [id, 1])), null), meta({}, FD.kind.cap), meta(Object.fromEntries(ids6.map((id) => [id, 1])), null)]) {
+      const meta = (got, share, miss = null) => ({ loop: { maps: { lakes: [w] }, finds: { got, worn: {}, share: share == null ? {} : { [w]: share }, tackleMiss: miss == null ? {} : { [w]: miss } } } });
+      const ids6 = set.filter((i) => i.kind === 'part' || i.kind === 'look').map((i) => i.id), tk = set.filter((i) => i.kind === 'tackle').map((i) => i.id);
+      const all = (ids) => Object.fromEntries(ids.map((id) => [id, 1]));
+      // (lost tackle, LOST-TACKLE §9 L1: a fresh set, the guarantee at its cap with the parts' share at its own cap, one piece left, the set owned)
+      for (const m of [meta({}, null), meta(all(ids6.slice(1)), null), meta({}, FD.kind.cap), meta(all(ids6), null), meta({}, FD.kind.cap, 99),
+        meta(all([...ids6, ...tk.slice(1)]), null), meta(all([...ids6, ...tk]), null), meta(all(tk.slice(1)), FD.kind.cap, 99)]) {
         const sh = L4.findShares(m, L4, w), s = Object.values(sh).reduce((a, b) => a + b, 0);
         sums.push(s);
         ok4(Object.values(sh).filter((x) => x > 0).every((x) => x >= 0.01 - 1e-12), `LOOP.finds ${w}: no find is rarer than the jackpot (a state of the set)`);
         ok4(Math.abs(sh[set.find((i) => i.grade === 'jackpot').id] - 0.01) < 1e-12, `LOOP.finds ${w}: the jackpot is exactly 1% of the snags (a state of the set)`);
       }
       ok4(sums.every((s) => Math.abs(s - 1) < 1e-9), `LOOP.finds ${w}: findShares sums to 1 for a fresh set, one short, at the cap and finished (${sums.map((s) => s.toFixed(6)).join(', ')})`);
+      if (tk.length) {
+        const TK = FD.tackle || {}, GU = TK.guarantee || {};
+        ok4(set.filter((i) => i.kind === 'tackle').every((i) => ['rod', 'line', 'reel', 'lure', 'notebook'].includes(i.slot)), `LOOP.finds ${w}: every lost-tackle piece's slot is known (rod, line, reel, lure, notebook)`);
+        ok4(TK.each >= 0.01 - 1e-12 && GU.cap > TK.each && GU.step > 0 && TK.partCap <= FD.kind.cap + 1e-12, `LOOP.finds.tackle: each piece ≥ the jackpot's 1%, the guarantee climbs to a cap above it, partCap ≤ kind.cap`);
+        ok4(GU.item == null || tk.includes(GU.item) || its.some((i) => i.id === GU.item && i.kind === 'tackle'), 'LOOP.finds.tackle.guarantee.item: a lost-tackle piece');
+        const topT = GU.cap + (tk.length - 1) * TK.each;
+        ok4(TK.partCap - topT >= FD.kind.share - 1e-12, `LOOP.finds ${w}: with the guarantee at its cap (${topT.toFixed(2)}), partCap leaves the parts and looks at least their base share`);
+        const pf2 = FD.grades.plain.share + FD.grades.fine.share;
+        ok4(FD.grades.plain.share - TK.partCap * FD.grades.plain.share / pf2 >= 0.01 - 1e-12 && FD.grades.fine.share - TK.partCap * FD.grades.fine.share / pf2 >= 0.01 - 1e-12, `LOOP.finds ${w}: at partCap the plain and fine each keep ≥ 1%`);
+        const sh = L4.findShares(meta({}, null), L4, w);
+        ok4(tk.every((id) => Math.abs(sh[id] - TK.each) < 1e-12), `LOOP.finds ${w}: a fresh set gives each lost-tackle piece ${TK.each * 100}%`);
+        const capd = L4.findShares(meta({}, null, 99), L4, w);
+        ok4(GU.item == null || Math.abs(capd[GU.item] - GU.cap) < 1e-12, `LOOP.finds ${w}: the guaranteed piece climbs to its cap (${GU.cap * 100}%)`);
+        for (const id of tk) ok4(LP.lostTackle?.[id]?.slot === its.find((i) => i.id === id)?.slot, `LOOP.lostTackle.${id}: its stats, under the find's own slot`);
+        for (const [id, v] of Object.entries(LP.lostTackle || {})) if (v?.reveals != null) ok4(typeof v.reveals === 'string' && tk.includes(id), `LOOP.lostTackle.${id}.reveals: a place id on a piece of this water`);
+      }
     }
     const gs = Object.values(FD.grades || {}).reduce((a, g) => a + g.share, 0);
     ok4(Math.abs(gs - 1) < 1e-9 && FD.grades.jackpot.share === 0.01, 'LOOP.finds.grades: the shares sum to 1, the jackpot\'s exactly 0.01 (the user\'s 1%)');
@@ -301,9 +321,16 @@ if (process.argv.includes('--loop')) {
       // the lead rules on the doc's own lines)
       ok4(!!w && typeof w.name === 'string' && w.name.length > 0 && typeof w.line === 'string' && w.line.trim().split(/\s+/).length <= 8 && w.line.length <= 44, `TEXT_LOOP.finds.${i.id}: a name and a line of ≤ 8 words ("${w?.line}")`);
       ok4(!ORIGINALITY_BANNED.test(`${w?.name} ${w?.line}`), `TEXT_LOOP.finds.${i.id}: the names rule`);
+      // lost tackle (LOST-TACKLE §6.1): the card's one plain line and the owner's, each ≤ 8 words and ≤ 36 characters, no digits
+      if (i.kind === 'tackle') {
+        const fits = (x) => typeof x === 'string' && x.trim().length > 0 && x.trim().split(/\s+/).length <= 8 && x.length <= 36 && !/\d/.test(x);
+        ok4(fits(w?.does) && fits(w?.line) && w.name.length <= 36 && !/\d/.test(w.name), `TEXT_LOOP.finds.${i.id}: does and line ≤ 8 words and 36 characters, no digits ("${w?.does}" · "${w?.line}")`);
+        ok4(!ORIGINALITY_BANNED.test(String(w?.does)), `TEXT_LOOP.finds.${i.id}: the names rule (does)`);
+      }
     }
     ok4(typeof TL.finds?.snags === 'string' && typeof TL.finds?.biteIn === 'string' && TL.finds.biteIn.includes('{n}'), 'TEXT_LOOP.finds: the row\'s heading words (Snags · 1 bite in {n})');
     ok4(['firstTreasure', 'firstPart', 'firstJackpot'].every((k) => typeof TL.murk[k] === 'string' && TL.murk[k].trim().split(/\s+/).length <= 9), "TEXT_LOOP.murk: Murk's three find lines (FINDS §9)");
+    if (its.some((i) => i.kind === 'tackle')) ok4(typeof TL.murk.firstTackle === 'string' && TL.murk.firstTackle.trim().split(/\s+/).length <= 9, "TEXT_LOOP.murk.firstTackle: Murk's lost-tackle line (LOST-TACKLE §6.1)");
   }
   const T = LP.tutorial, rr = L4.BALANCE.move.raftRadius, pad = rr + 0.3;
   const clear = (Lay, a, b) => {

@@ -34,12 +34,21 @@ export const FIND_GLYPHS = Object.freeze({
   chalk: SV('<rect x="3.5" y="4.5" width="17" height="12" rx="1.5"/><path d="M7 9h7M7 12.5h4"/><path d="M14.5 20.5l5-3" stroke-width="2.6"/>'),   // a slate and its chalk
   float: SV('<path d="M12 3v5"/><ellipse cx="12" cy="13" rx="4" ry="5"/><path d="M8 13h8"/>'),
   tick: SV('<path d="M5 13l4 4 10-10"/>'),
+  // lost tackle (LOST-TACKLE §2.1): the kind stamp (a hook), and where a piece goes: the barge's gear rack, or the chart table
+  hook: SV('<circle cx="14.5" cy="4.2" r="1.7"/><path d="M14.5 5.9V14.5a4.2 4.2 0 0 1-8.4 0v-2.6l2.6 2.2"/>'),
+  rack: SV('<path d="M4 7.5h16M4 16.5h16"/><path d="M8.5 3.5l.8 17M15.5 3.5l-.8 17"/><path d="M12 9.5v4" stroke-width="2.4"/>'),
+  table: SV('<path d="M3 12.5h18M6 12.5V20M18 12.5V20"/><path d="M6.5 10.5l5.5-2.2 5.5 2.2M12 8.3v2.2"/>'),
 });
-const KIND_GLYPH = { treasure: 'coin', part: 'hull', look: 'ribbon' };
+const KIND_GLYPH = { treasure: 'coin', part: 'hull', look: 'ribbon', tackle: 'hook' };
 const WHERE_GLYPH = { wick: 'wick', raft: 'raft', barge: 'barge' };
 const EFFECT_GLYPH = { bait: 'tin', order: 'chalk', bite: 'float' };
-/** The glyph a part or a look's Keep shows: where it goes (a part to the barge; a look to its wearer). */
-export function whereOf(it) { return it?.kind === 'part' ? 'barge' : WHERE_GLYPH[it?.wearer] || 'barge'; }
+/** The glyph a find's Keep shows: where it goes (a part to the barge; a look to its wearer; lost tackle to the gear rack, a notebook
+ *  to the chart table). */
+export function whereOf(it) {
+  if (it?.kind === 'tackle') return it.slot === 'notebook' ? 'table' : 'rack';
+  return it?.kind === 'part' ? 'barge' : WHERE_GLYPH[it?.wearer] || 'barge';
+}
+const doesOf = (D, id) => (itemOf(D, id)?.kind === 'tackle' ? T_(D).finds?.items?.[id]?.does || '' : '');
 
 // ------------------------------------------------------------------ the find's outline in a unit box (x right, y down; ~[0, 1]²)
 /** Trace a find's outline into a 2D context in unit space (the caller scales): its silhouette (fill 'evenodd') and, for the ink drawing,
@@ -59,11 +68,28 @@ export function findInkPath(g, id, { detail = false } = {}) {
     case 'rod_tassel': E(0.5, 0.16, 0.12, 0.1); g.moveTo(0.42, 0.22); g.lineTo(0.3, 0.92); g.lineTo(0.7, 0.92); g.lineTo(0.58, 0.22); g.closePath(); if (detail) { for (const x of [0.4, 0.5, 0.6]) { g.moveTo(x, 0.3); g.lineTo(x - 0.02, 0.88); } } return { aspect: 0.6 };
     case 'toll_vane': g.moveTo(0.94, 0.4); g.quadraticCurveTo(0.7, 0.18, 0.36, 0.32); g.lineTo(0.14, 0.16); g.lineTo(0.2, 0.4); g.lineTo(0.14, 0.64); g.lineTo(0.36, 0.48); g.quadraticCurveTo(0.7, 0.62, 0.94, 0.4); g.closePath(); R(0.48, 0.52, 0.04, 0.44); if (detail) { E(0.8, 0.37, 0.025, 0.025); } return { aspect: 1.5 };
     case 'lily_boxes': R(0.04, 0.56, 0.42, 0.34); R(0.54, 0.56, 0.42, 0.34); for (const x of [0.14, 0.25, 0.36, 0.64, 0.75, 0.86]) { g.moveTo(x - 0.06, 0.56); g.lineTo(x, 0.36); g.lineTo(x + 0.06, 0.56); g.closePath(); } return { aspect: 1.8 };
+    // lost tackle (LOST-TACKLE §3.1, §4): no two closed shapes overlap (the fill and the hatch's clip are even-odd)
+    case 'lamp_pole': R(0.02, 0.44, 0.08, 0.14); R(0.1, 0.47, 0.76, 0.08); E(0.92, 0.36, 0.055, 0.2); E(0.92, 0.36, 0.028, 0.12);
+      if (detail) { for (const x of [0.3, 0.55]) { g.moveTo(x, 0.47); g.lineTo(x, 0.55); } g.moveTo(0.86, 0.51); g.lineTo(0.9, 0.55); } return { aspect: 6 };
+    case 'belfry_winch': {   // a clock wheel (one toothed outline, its hub open) and its crank's knob
+      const cx = 0.42, cy = 0.52, n = 12;
+      for (let i = 0; i <= n * 2; i++) { const a = (i / (n * 2)) * Math.PI * 2, r = i % 2 ? 0.36 : 0.44; const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; if (i) g.lineTo(x, y); else g.moveTo(x, y); }
+      g.closePath(); E(cx, cy, 0.09, 0.09); E(0.92, 0.12, 0.06, 0.06);
+      if (detail) { E(cx, cy, 0.26, 0.26); g.moveTo(cx + 0.09, cy - 0.06); g.lineTo(0.88, 0.16); } return { aspect: 1.15 };
+    }
+    case 'ferry_thread': R(0.14, 0.08, 0.6, 0.1); R(0.22, 0.18, 0.44, 0.64); R(0.14, 0.82, 0.6, 0.1); E(0.9, 0.66, 0.07, 0.07);
+      if (detail) { for (const y of [0.3, 0.42, 0.54, 0.66]) { g.moveTo(0.24, y); g.lineTo(0.64, y + 0.04); } g.moveTo(0.66, 0.4); g.quadraticCurveTo(0.84, 0.44, 0.9, 0.59); } return { aspect: 1 };
+    case 'guard_button': E(0.38, 0.5, 0.34, 0.34); E(0.87, 0.66, 0.1, 0.15); E(0.87, 0.66, 0.055, 0.1);
+      if (detail) { E(0.38, 0.5, 0.25, 0.25); g.moveTo(0.28, 0.46); g.quadraticCurveTo(0.38, 0.36, 0.48, 0.46); g.moveTo(0.72, 0.52); g.lineTo(0.8, 0.56); } return { aspect: 1.3 };
+    case 'veil_notebook': R(0.08, 0.18, 0.74, 0.74); g.moveTo(0.56, 0.18); g.lineTo(0.64, 0.02); g.lineTo(0.92, 0.08); g.lineTo(0.82, 0.18); g.closePath();
+      if (detail) { g.moveTo(0.08, 0.56); g.lineTo(0.82, 0.52); g.moveTo(0.46, 0.18); g.lineTo(0.48, 0.92); g.moveTo(0.82, 0.3); g.quadraticCurveTo(0.86, 0.5, 0.82, 0.7); } return { aspect: 1.1 };
+    case 'lily_notebook': R(0.16, 0.06, 0.66, 0.8); g.moveTo(0.6, 0.86); g.lineTo(0.64, 1.0); g.lineTo(0.7, 0.92); g.lineTo(0.74, 0.86); g.closePath();
+      if (detail) { g.moveTo(0.49, 0.62); g.quadraticCurveTo(0.36, 0.4, 0.49, 0.26); g.quadraticCurveTo(0.62, 0.4, 0.49, 0.62); g.moveTo(0.49, 0.62); g.quadraticCurveTo(0.32, 0.56, 0.3, 0.42); g.moveTo(0.49, 0.62); g.quadraticCurveTo(0.66, 0.56, 0.68, 0.42); g.moveTo(0.22, 0.06); g.lineTo(0.22, 0.86); } return { aspect: 0.95 };
     default: E(0.5, 0.5, 0.4, 0.4); return { aspect: 1 };
   }
 }
 const ASPECT = (id) => { try { return findInkPath({ moveTo() {}, lineTo() {}, ellipse() {}, rect() {}, quadraticCurveTo() {}, closePath() {} }, id).aspect || 1; } catch { return 1; } };
-const TINT = { treasure: 'rgba(232, 190, 119, .22)', part: 'rgba(174, 172, 208, .2)', look: 'rgba(210, 150, 174, .2)' };
+const TINT = { treasure: 'rgba(232, 190, 119, .22)', part: 'rgba(174, 172, 208, .2)', look: 'rgba(210, 150, 174, .2)', tackle: 'rgba(196, 178, 152, .2)' };
 /**
  * Draw a find (DOM): its ink drawing (a pale line on its tint, the jackpot gold), or, for one not yet had, its soft hatched silhouette
  * (SPEC §8.8's hatch on the prop's outline: 0.75 px lines 3 px apart at 45°, the edge at 1 px and again at 2 px and 25% ink; gold for
@@ -110,13 +136,14 @@ export function drawFindArt(canvas, D, id, { w = 116, h = 62, hatch = false, gol
 }
 
 // ------------------------------------------------------------------ the card (FINDS §6.3)
-/** The find card's words and buttons: {id, name, line, kind, gold, stamp (glyph), keep: {label, clams | null, clamsText, glyph | null,
- *  disabled}, letGo: {label}}. Keep is dimmed (no words) when the hold is full, Let go then focused. Pure. */
+/** The find card's words and buttons: {id, name, line, does (a lost-tackle piece's one plain line, shown in its line's place; '' for
+ *  any other find), kind, gold, stamp (glyph), keep: {label, clams | null, clamsText, glyph | null, disabled}, letGo: {label}}. Keep is
+ *  dimmed (no words) when the hold is full, Let go then focused. Pure. */
 export function findCardView(entry, D, { full = false } = {}) {
   const id = entry?.find, it = itemOf(D, id), TL = T_(D);
   if (!it) return null;
   const treasure = it.kind === 'treasure', clams = treasure ? Math.max(0, Math.round(num(Number(entry.clams), 0))) : null;
-  return { id, name: nameOf(D, id), line: lineOf(D, id), kind: it.kind, gold: it.grade === 'jackpot', stamp: KIND_GLYPH[it.kind] || 'coin',
+  return { id, name: nameOf(D, id), line: lineOf(D, id), does: doesOf(D, id), kind: it.kind, gold: it.grade === 'jackpot', stamp: KIND_GLYPH[it.kind] || 'coin',
     keep: { label: TL.keep || 'Keep', clams, clamsText: clams != null ? fmtClams(clams) : null, glyph: treasure ? null : whereOf(it), disabled: full === true },
     letGo: { label: TL.letGo || 'Let go' } };
 }
@@ -131,7 +158,7 @@ export function findsRowView(finds, D) {
     count: c.kind === 'treasure' && num(c.count, 0) > 1 ? `×${c.count}` : null, rateText: c.tick ? null : c.rateText ?? null,
     tick: c.tick === true, gold: c.gold === true, glyph: c.kind === 'part' && c.tick ? EFFECT_GLYPH[c.effect] || null : null });
   return { heading: finds.heading?.snags || T_(D).finds?.snags || 'Snags', rate: finds.heading?.rate || '',
-    rows: ['treasure', 'part', 'look'].map((k) => ({ kind: k, cards: arr(finds.rows[k]).map(card) })) };
+    rows: ['treasure', 'part', 'look', 'tackle'].filter((k) => k !== 'tackle' || arr(finds.rows[k]).length).map((k) => ({ kind: k, cards: arr(finds.rows[k]).map(card) })) };
 }
 
 let styled = false;
@@ -150,6 +177,8 @@ function style() {
 .gw-p-find .gw-fd-name { font-size: 22px; margin: 4px 0 2px; color: var(--ink-hi); letter-spacing: .02em; }
 .gw-p-find.gw-fd-gold .gw-fd-name { color: var(--gold); }
 .gw-p-find .gw-fd-line { font-size: 17px; font-style: italic; color: var(--ink-dim); margin: 2px 12px 8px; }
+.gw-p-find .gw-fd-does { font-size: 17px; color: var(--ink-hi); margin: 2px 12px 8px; letter-spacing: .01em; }
+.gw-trow.gw-trow--tackle .gw-trow-name b { color: var(--ink-dim); font-weight: 500; }
 .gw-p-find .gw-fd-stamp { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border: 1.5px solid var(--ink-line); border-radius: 50%; color: var(--ink-dim); margin-bottom: 4px; }
 .gw-p-find.gw-fd-gold .gw-fd-stamp { color: var(--gold); border-color: rgba(232, 190, 119, .6); }
 .gw-p-find .gw-fd-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -167,7 +196,10 @@ function style() {
 .gw-cat-finds .gw-cat-card .gw-cat-rate .gw-fd-glyph { width: 15px; height: 15px; }
 .gw-cat-finds .gw-fd-big { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; text-align: center; }
 .gw-cat-finds .gw-fd-big p { font-size: 16px; color: var(--ink-dim); font-style: italic; margin: 0; }
-@media (max-width: 700px) { .gw-cat-finds { scroll-margin-top: 104px; } .gw-cat-finds .gw-cat-card .gw-cat-rate { font-size: 16px; } .gw-p-find .gw-fd-name { font-size: 20px; } }
+.gw-cat-finds .gw-fd-big p.gw-fd-does { font-style: normal; color: var(--ink-hi); }
+/* lost tackle's row: three to a row (two on a phone), so its long names ("Lamplighter's") never run into the next card */
+.gw-cat-finds .gw-cat-grid[data-row=tackle] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 700px) { .gw-cat-finds .gw-cat-grid[data-row=tackle] { grid-template-columns: repeat(2, minmax(0, 1fr)); } .gw-cat-finds { scroll-margin-top: 104px; } .gw-cat-finds .gw-cat-card .gw-cat-rate { font-size: 16px; } .gw-p-find .gw-fd-name { font-size: 20px; } }
 `;
   document.head.appendChild(s);
 }
@@ -219,7 +251,10 @@ export function renderFindsRow(K, entry, v, { phone = false } = {}) {
       cv.style.width = `${bw}px`; cv.style.height = `${bh}px`;
       drawFindArt(cv, D, c.id, { w: bw, h: bh, hatch: !c.had, gold: c.gold });
       bx.appendChild(cv);
-      if (c.had) { const nm = h('b'); nm.textContent = c.name; bx.appendChild(nm); const p = h('p'); p.textContent = lineOf(D, c.id); bx.appendChild(p); }
+      if (c.had) {
+        const nm = h('b'); nm.textContent = c.name; bx.appendChild(nm); const p = h('p'); p.textContent = lineOf(D, c.id); bx.appendChild(p);
+        const dz = doesOf(D, c.id); if (dz) { const q = h('p', 'gw-fd-does'); q.textContent = dz; bx.appendChild(q); }   // (lost tackle: what it does)
+      }
       const r = h('span', 'gw-cat-rate');
       if (c.tick) r.innerHTML = FIND_GLYPHS.tick; else r.textContent = c.rateText || '';
       bx.appendChild(r);
@@ -250,8 +285,10 @@ export function createFindsView(K) {
     if (!entry) return;
     pending = { entry, at: (typeof performance !== 'undefined' ? performance.now() : Date.now()), restored: p.restored === true };
     if (pending.restored) return;   // Continue with the card open (progression.restorePendingTrip): no glint; update() reopens the card
-    // the reveal's glint: a soft chime, warmer and longer for the jackpot (FINDS §8; the built bright coin until the find's own)
-    if (entry.grade === 'jackpot') { if (!audio('coinBright', { volume: 0.5, pitch: 0.8 })) audio('coin', { volume: 0.5, pitch: 0.7 }); }
+    // the reveal's glint: a soft chime, warmer and longer for the jackpot (FINDS §8; the built bright coin until the find's own); lost
+    // tackle's own, lower and older (old brass and a dry tock: LOST-TACKLE §2.1)
+    if (entry.kind === 'tackle') { if (!audio('tackle_glint', { volume: 0.4 })) audio('coin', { volume: 0.26, pitch: 0.9 }); }
+    else if (entry.grade === 'jackpot') { if (!audio('coinBright', { volume: 0.5, pitch: 0.8 })) audio('coin', { volume: 0.5, pitch: 0.7 }); }
     else audio('coin', { volume: 0.28, pitch: 1.35 });
   });
   on('fishing:show', (p) => { if (p.phase === 'card' && pending && (!p.uid || p.uid === pending.entry.uid)) openCard(); });
@@ -282,7 +319,7 @@ export function createFindsView(K) {
     const res = action === 'keep' ? L?.keepFind?.(e.state.entry) : L?.letGoFind?.(e.state.entry);
     if (action === 'keep' && res && res.ok === false) { K.toast?.(res.msg || '', 'bad'); return; }
     e.state.locked = true;
-    if (action === 'keep') audio(e.state.entry.kind === 'treasure' ? 'coin' : 'creel', { volume: 0.4 });
+    if (action === 'keep') { const k = e.state.entry.kind; if (!(k === 'tackle' && audio('tackle_knock', { volume: 0.45 }))) audio(k === 'treasure' ? 'coin' : 'creel', { volume: 0.4 }); }
     K.closeModal('catch');
   }
   function renderCard(entry, body) {
@@ -302,9 +339,10 @@ export function createFindsView(K) {
     drawFindArt(cv, D(), v.id, { w, h: hh, gold: v.gold, pad: 0.08 });
     hero.appendChild(cv);
     content.appendChild(hero);
-    content.insertAdjacentHTML('beforeend', `<span class="gw-fd-stamp" aria-hidden="true">${FIND_GLYPHS[v.stamp] || ''}</span><h2 class="gw-fd-name"></h2><p class="gw-fd-line"></p>`);
+    // (lost tackle: under the name one plain line saying what it does, in the owner's line's place: LOST-TACKLE §2.1, §6.2)
+    content.insertAdjacentHTML('beforeend', `<span class="gw-fd-stamp" aria-hidden="true">${FIND_GLYPHS[v.stamp] || ''}</span><h2 class="gw-fd-name"></h2><p class="${v.does ? 'gw-fd-does' : 'gw-fd-line'}"></p>`);
     content.querySelector('.gw-fd-name').textContent = v.name;
-    content.querySelector('.gw-fd-line').textContent = v.line;
+    content.querySelector(v.does ? '.gw-fd-does' : '.gw-fd-line').textContent = v.does || v.line;
     foot.classList.add('gw-fd-actions');
     const A = { hooks: false, brush: true };
     const keepLabel = v.keep.clams != null ? `${escH(v.keep.label)} <em>${icon('clam')}<b>${escH(v.keep.clamsText)}</b></em>` : `${escH(v.keep.label)} <em>${FIND_GLYPHS[v.keep.glyph] || ''}</em>`;

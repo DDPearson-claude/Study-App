@@ -5236,6 +5236,40 @@ Object.assign(TEXT_LOOP.murk, { firstTreasure: 'The water keeps what it takes. M
 /** M1 step 5c (FINDS §10): the share of the water's next snag for each of its finds as the save stands (pure; loop-finds.js). */
 export function findShares(meta, D = { LOOP, TEXT_LOOP }, waterId = 'mossmere', opts = {}) { return findSharesOf(meta, D, waterId, opts); }
 // <<< M1 step 5c (lane 5C)
+// >>> Lost tackle (docs/loop/LOST-TACKLE.md §2, §3, §6; lane L1): old fishing gear from the water, a fourth kind of find. Additive,
+// loop-only (LOOP and TEXT_LOOP are not in the v3 fingerprint). Each piece is 1% of its water's snags; the soft guarantee climbs the
+// Veil Angler's Notebook +5 points a snag to 40% (meta.loop.finds.tackleMiss) and leaves the other five at 1% (loop-finds.findShares).
+LOOP.finds.items.push(
+  { id: 'lamp_pole', water: 'mossmere', kind: 'tackle', slot: 'rod', pose: 'alongside', size: 3.0 },
+  { id: 'belfry_winch', water: 'mossmere', kind: 'tackle', slot: 'reel', pose: 'both', size: 0.24 },
+  { id: 'ferry_thread', water: 'mossmere', kind: 'tackle', slot: 'line', pose: 'both', size: 0.14 },
+  { id: 'guard_button', water: 'mossmere', kind: 'tackle', slot: 'lure', pose: 'pinch', size: 0.06 },
+  { id: 'veil_notebook', water: 'mossmere', kind: 'tackle', slot: 'notebook', pose: 'both', size: 0.22 },
+  { id: 'lily_notebook', water: 'mossmere', kind: 'tackle', slot: 'notebook', pose: 'both', size: 0.18 },
+);
+LOOP.finds.tackle = { each: 0.01, guarantee: { item: 'veil_notebook', step: 0.05, cap: 0.4 }, partCap: 0.8 };
+// each piece's stats (§3.2, §4; lanes L3 and L4 read them): `reveals` is the place the piece's tally adds to meta.loop.places.revealed
+LOOP.lostTackle = {
+  lamp_pole: { slot: 'rod', castMax: 26, hookWindow: 1.0, hold: 0 },
+  belfry_winch: { slot: 'reel', playMult: 0.6, hold: 2 },
+  ferry_thread: { slot: 'line', waitMult: 0.8, hold: 2, cap: 'trophy' },
+  guard_button: { slot: 'lure' },
+  veil_notebook: { slot: 'notebook', boost: { kissmark_trout: 1.6 },
+    guest: { id: 'rosefleck_trout', from: 'glasswater', areas: ['inflow'], lights: ['day', 'dusk'], share: 0.04 }, reveals: 'veilback_brook' },
+  lily_notebook: { slot: 'notebook', boost: { weeping_carp: 1.5, candlefin_koi: 1.5 },
+    guest: { id: 'nightbloom_carp', from: 'sporewood', areas: ['pads'], lights: ['night'], share: 0.03 } },
+};
+// the words (§6.1): the name, `does` (the card's one plain line) and `line` (the owner's, in the catalogue and the log)
+Object.assign(TEXT_LOOP.finds.items, {
+  lamp_pole: { name: "Lamplighter's Pole", does: 'Casts farther than any rod sold.', line: 'It lit the drowned buoys, once.' },
+  belfry_winch: { name: 'Belfry Winch', does: 'Brings every fish in quicker.', line: "Cut from the belfry's clockwork." },
+  ferry_thread: { name: "Ferrywife's Thread", does: 'Fish bite sooner on it.', line: 'Spun on the ferry between rows.' },
+  guard_button: { name: "Gate-Guard's Button", does: 'Most fish take it. Never giants.', line: "Off a gate guard's coat, drilled." },
+  veil_notebook: { name: "The Veil Angler's Notebook", does: 'Trout notes, and a hidden water.', line: 'Fished the Veil every day, it says.' },
+  lily_notebook: { name: "The Lily Gardener's Notebook", does: 'Carp notes, and one far carp.', line: 'Every carp in the moat, by name.' },
+});
+TEXT_LOOP.murk.firstTackle = 'Somebody fished here before you.';   // once, at the first piece's tally (§6.1)
+// <<< Lost tackle (lane L1)
 /** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
  *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
  *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the

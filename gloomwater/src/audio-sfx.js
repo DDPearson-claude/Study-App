@@ -419,6 +419,19 @@ export const SFX = {
     g.g.gain.cancelScheduledValues(t); envSwell(g.g.gain, t, 0.8, 0.35, 0.15);
     v.tone(out, { type: 'sawtooth', f: 90 * p, f2: 140 * p, glide: 0.35, t, a: 0.3, d: 0.15, peak: 0.08, ft: 'lowpass', ff: 600 });
   } },
+  // lost tackle (LOST-TACKLE §2.1; FINDS §8): the reveal's glint, lower and older than a treasure's (worn brass, a dry tock under
+  // it), and the soft wooden knock of a piece carried aboard at the tally (a little brass in it)
+  tackle_glint: { gain: 0.55, gap: 0.3, max: 1, pri: 2, wet: 0.35, pj: 0.03, fn(v, out, t, p) {
+    v.burst(out, { t, a: 0.002, d: 0.05, peak: 0.12, ft: 'bandpass', f: 900 * p, q: 2 });
+    v.tone(out, { type: 'sine', f: 1568 * p, t, a: 0.002, d: 0.5, peak: 0.22 });
+    v.tone(out, { type: 'sine', f: 2349 * p, t: t + 0.09, a: 0.002, d: 0.7, peak: 0.15 });
+    v.tone(out, { type: 'sine', f: 3136 * p, t: t + 0.18, a: 0.002, d: 0.6, peak: 0.05 });
+  } },
+  tackle_knock: { gain: 0.6, gap: 0.15, max: 2, pri: 2, wet: 0.15, fn(v, out, t, p) {
+    v.tone(out, { type: 'sine', f: 210 * p, f2: 150 * p, glide: 0.08, t, a: 0.002, d: 0.14, peak: 0.42 });
+    v.burst(out, { kind: 'pink', t, a: 0.002, d: 0.06, peak: 0.35, ft: 'bandpass', f: 520 * p, q: 2.5 });
+    v.tone(out, { type: 'sine', f: 1180 * p, t: t + 0.04, a: 0.001, d: 0.09, peak: 0.07 });
+  } },
   creel: { gain: 0.65, gap: 0.2, max: 1, pri: 2, fn(v, out, t, p) {
     v.burst(out, { kind: 'pink', t, a: 0.004, d: 0.12, peak: 0.5, ft: 'bandpass', f: 700 * p, q: 1.2 });
     v.tone(out, { type: 'sine', f: 160 * p, f2: 90 * p, glide: 0.06, t, a: 0.002, d: 0.1, peak: 0.4 });
