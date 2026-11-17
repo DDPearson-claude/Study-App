@@ -403,3 +403,20 @@ night. Run it at 1280 × 720, 960 × 540, 390 × 844 and 358 × 664, with two lo
 Not built here: fitting (L3: when a fitted piece leaves the rack is L3's call), the notebooks' boosts and guests (L4), the logs' effect
 lines (L5; the catalogue's tap shows `does` until then), the sim (L6), the brook, its Chart line and the camera's hold on the chart
 table at the reveal (W, C).
+
+## 12. Build notes (lanes W and C, branch gw-brook)
+
+| what | where |
+|---|---|
+| the place | `LOOP.places.veilback_brook` (`secret`, `price` 0, `good` 1, `only`: its own fish and its draws, `glide`/`glideSec`: the Sail's glide in); its record joins `MOSSMERE_V3.places` under the loop only (the v3 fingerprint unchanged); `goodBitesFor({place})`; `placePool` honours `only` and finds a guest of its own by id |
+| the reveal | the notebook's tally adds the brook to `places.revealed` and to `maps.places` (owned, free; `fillFinds` does the same for an older save); `mapCards` never offers a secret place; the Chart, the catalogue and `sail` show or go to it only once owned |
+| the cut | `ZONES[0].arena.shoreNotch` under the loop (`a` 3.9, `w` 6, `len` 18, a pool to 8.4 m, a 2.4 m head); `world-layout`: `notchFrame`, `notchHalfW`, `notchSdf`, `notchShoreR`, `shoreDist`, depth behind the shore (every depth inside it as built); shut until its place is owned (`world.setPlaces`): no water, the raft held at the Veil, a cast lands short |
+| the world | the ring's mouth dropped and a U of the same rock (banks, wet ledge, walls, tops, the head) in the cliffs' mesh; its own boulders, two reed banks (83 stems), one lily bed of 8 pads, the culvert's arch and an old broken arch near the head (the places' stone); the Veil 6.4 m across the mouth with the culvert's 1.6 m spill in the same mesh, denser while shut, thinner with the raft inside; the aqueduct 3 m along and 1.2 m back so its broken arch spans the mouth, its piers down to the water; the brook's mist bank three times as tall; the seam down the cut; the culvert's trickle and a splash as the glide passes the Veil. No new mesh, draw call or light (168–172 calls in the brook on the dev build) |
+| the view | the play camera turns down the brook while the raft is in it (`world.viewYaw`, the home swing's eased orbit), and on the Sail's glide in: its fixed north view would stand behind the south bank |
+| the water | the bake covers the cut (`world.getBakeHalf`, `getShoreDist`; 160 texels in a loop build, about 1 m each as before) |
+| lane C | `TEXT_LOOP.murk.brook`, said before any other first; `render.holdChart(1.2)` then the Jetty; `waterGeometry().notch`; `chart-gild.brookStep`/`brookCard` (the shore opens, the double line runs off the sheet, the reeds hatched, the Veil's strokes; 1.2 s once, kept in `meta.loop.places.inked`); the brook's own mark on the Chart |
+| tests | `tools/tests/veilback-brook.test.mjs` (50); the Sail's refusal and glide in `loop-evening`; the validator's secret-place checks; `tools/tests/loop-brook.scenario.mjs` (the browser half) |
+
+Open: the Rosefleck Trout's and the Rainglass Darter's records, hook rows and models are L4's (until they merge the brook bites its
+draws, the Dusk Minnow and the Kissmark Trout); the sim has no brook yet (L6), so T104 checks the other places; no lasting wisp at
+the culvert beyond its spill.

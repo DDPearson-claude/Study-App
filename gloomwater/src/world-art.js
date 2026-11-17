@@ -273,7 +273,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
         for (let j = 0; j <= segY; j++) {
           const [o, f] = PROF[j], y0 = crestRow(j) ? f * H : f;
           const n1 = fbm3(p0[0] * 0.16 + ox, y0 * 0.11, p0[1] * 0.16 + oz, 3), n2 = vnoise3(p0[0] * 0.55 + oz, y0 * 0.3, p0[1] * 0.55 + ox);
-          let d = o + (crestRow(j) ? (n1 - 0.5) * 1.5 + (n2 - 0.5) * 0.5 : (n2 - 0.5) * 0.22), y = y0;
+          // (the bank's lip and ledge wander in and out and up and down, so it reads as mud and stone, never a kerb)
+          const nl = vnoise3(c.al * 0.42 + (c.s || 0) * 7.3, j * 0.6, c.lc * 0.3);
+          let d = o + (crestRow(j) ? (n1 - 0.5) * 1.5 + (n2 - 0.5) * 0.5 : j >= 2 ? (nl - 0.5) * 0.9 : (n2 - 0.5) * 0.22), y = y0 + (j === 2 || j === 3 ? (nl - 0.5) * 0.34 : 0);
           if (j === 11) y += (n2 - 0.4) * 1.6;
           // the culvert: a dark recess in the head under its arch
           if (c.s === 0 && Math.abs(c.lc) < 1.15 && j >= 1 && j <= 4) { d += 1.7; y = Math.min(y, 1.75); }
@@ -293,7 +295,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
         let c = rockCol(y, Math.min(1, Math.max(0, y / Math.max(1, Hh))), n1, n2);
         const f = notchFrame(N, x, z);
         if (f.along > N.end - 3 && Math.abs(f.lc) < 1.3 && y < 1.9 && y > -0.5 && Math.hypot(f.along - N.end, 0) < 3.2 && j >= 1 && j <= 4) c = scaleArr(PL.ink, 0.6);   // (the culvert's dark)
-        else if (j >= 2 && j <= 3) c = mixArr(c, mixArr(K.moss, K.mossHi, n2), 0.55);   // (the ledge: moss and mud under the reeds)
+        else if (j >= 2 && j <= 3) c = scaleArr(mixArr(c, K.moss, 0.5), 0.5 + 0.2 * n2);   // (the ledge: wet moss and mud under the reeds, dark)
         col.push(c[0], c[1], c[2]);
       }));
       for (let k = 0; k + 1 < all.length; k++) for (let j = 0; j < segY; j++) {

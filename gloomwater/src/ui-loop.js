@@ -445,6 +445,8 @@ const BROOK_HOLD = 1.2;
 export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false } = {}) {
   const S = isObj(said) ? said : {};
   if (listDone && !S.listComplete) return 'listComplete';
+  // (LOST-TACKLE §5.2: the notebook home shows the brook: its line, and the hold on the chart table, before any other first)
+  if (arr(rows).some((r) => r.find === 'veil_notebook') && !S.brook) return 'brook';
   const gearAway = away === true && !S.firstAway ? 'firstAway' : null;   // GEAR-GATES §4.3: the first trip a fish got away over the gear's cap
   if (empty) return gearAway;
   const R = arr(rows);
@@ -453,7 +455,6 @@ export function saleLineId({ rows = [], said = {}, listDone = false, empty = fal
   if (R.some((r) => r.jackpot) && !S.firstJackpot) return 'firstJackpot';   // (M1 step 5c: FINDS §9's three lines, each once)
   if (!S.firstSale) return 'firstSale';
   if (gearAway) return gearAway;
-  if (R.some((r) => r.find === 'veil_notebook') && !S.brook) return 'brook';   // (LOST-TACKLE §5.2: the notebook home, the brook shown, once)
   if (R.some((r) => r.find && r.kind === 'tackle') && !S.firstTackle) return 'firstTackle';   // (LOST-TACKLE §6.1: the first piece aboard, once)
   if (R.some((r) => r.find && (r.kind === 'part' || r.kind === 'look')) && !S.firstPart) return 'firstPart';
   if (R.some((r) => r.find && r.kind === 'treasure') && !S.firstTreasure) return 'firstTreasure';

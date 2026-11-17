@@ -367,22 +367,24 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       const a = p.area;
       const s1 = a.kind === 'disc' ? [0, a.x, a.z, a.r] : a.kind === 'path' ? [1, a.pts[0][0], a.pts[0][1], a.w / 2] : [2, a.x, a.z, a.w / 2];
       const s2 = a.kind === 'path' ? [a.pts[a.pts.length - 1][0], a.pts[a.pts.length - 1][1], 0, 0] : a.kind === 'rect' ? [a.d / 2, 0, 0, 0] : [0, 0, 0, 0];
-      const k = keeps[bi];
-      for (const [hy, wgt, shrink] of layers) {
+      const k = keeps[bi], tall = p.id === 'veilback_brook' ? 3 : 1;   // (LOST-TACKLE §5.2: the brook's bank fills its cut behind the Veil)
+      for (const [hy0, wgt, shrink] of layers) {
+        const hy = hy0 * tall;
         // (each layer's quad only as large as its own drawn-in footprint can reach: the billow draws in, never out, so a fragment past
         // footprint + feather − shrink is never drawn; the fix pass, for T148's fill on software GL)
         const b = footprintBox(a, Math.max(0.2, BANK.feather + 0.2 - shrink));
         const n = liteBank ? 4 : 8;   // a grid per layer (the fragment does the shape; the finer grid lets an upper layer swell)
         for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) {
           pos.push(b.x0 + (b.x1 - b.x0) * (i / n), hy, b.z0 + (b.z1 - b.z0) * (j / n));
-          aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(hy, wgt, shrink); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
+          aBank.push(bi); aS1.push(...s1); aS2.push(...s2); aL.push(hy0, wgt, shrink); aK.push(k ? k.x : 0, k ? k.z : 0, k ? k.r : 0);
         }
         for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const q = base + j * (n + 1) + i; ix.push(q, q + n + 1, q + 1, q + 1, q + n + 1, q + n + 2); }
         base += (n + 1) * (n + 1);
       }
       // the curtains inside the bank's edge (BANK.curtains: inset, height, weight): quads from the water up
       const cc = footprintCentre(a);
-      for (const [inset, H, wgt] of liteBank ? BANK.curtains.slice(0, 1) : BANK.curtains) {
+      for (const [inset, H0, wgt] of liteBank ? BANK.curtains.slice(0, 1) : BANK.curtains) {
+        const H = H0 * tall;
         // (a curtain wanders inward, never out: its own seeded jitter along the edge)
         const loop0 = footprintLoop(a, inset, liteBank ? 2 : 1.2);
         const loop = loop0.map(([x, z], j) => { const t = 0.55 + 0.45 * Math.sin(j * 0.9 + bi * 2.1 + inset) * Math.sin(j * 0.37 + 1.3); const k2 = Math.min(1.2, 0.9 * t); const dx = cc.x - x, dz = cc.z - z, l = Math.hypot(dx, dz) || 1; return a.kind === 'disc' ? [x + dx / l * k2, z + dz / l * k2] : [x, z]; });
@@ -558,7 +560,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     const NT = L?.notch || null;
     const ang = NT ? NT.a : Math.atan2(4, 58), rS = (a) => (typeof L?.shoreR === 'function' ? L.shoreR(a) : 60);
     const r0 = rS(ang), cx = Math.cos(ang), cz = Math.sin(ang);
-    const yA = 16, ySpring = yA - 3.4, yFoot = yA - 11, TW = 2.1, back = NT ? 1.8 : 0.6, du = NT ? 3.0 : 0;
+    const yA = 16, ySpring = yA - 3.4, TW = 2.1, back = NT ? 1.8 : 0.6, du = NT ? 3.0 : 0;
+    const yFoot = NT ? -0.6 : yA - 11;   // (by the cut the piers stand down to the water, never a slab hung on the cliff: the look)
     const bx = cx * (r0 + back), bz = cz * (r0 + back), ryA = Math.atan2(-cx, -cz);   // local +x along the cliff (the tangent)
     const piersU = [0.9 + du, 6.1 + du, 11.3 + du];
     const arch = (u0, u1, broken) => {
@@ -650,9 +653,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       // the culvert: a low round arch set in the head, its sill under the water
       put(archPiece(NT.endHw * 0.42, 0.42, 0.55, 0, Math.PI, -1.2, 0.9), NT.end - 0.45);
       // the old arch across the cut a third of the way in, springing from the banks' ledges, broken at its crown (the north haunch shorter)
-      const al1 = NT.r0 + 0.3 * (NT.end - NT.r0), R1 = NT.hw + 0.55;
-      put(archPiece(R1, 0.5, 1.5, 0, 1.12, 0.3, 1.3), al1);
-      put(archPiece(R1, 0.5, 1.5, 2.3, Math.PI, 0.3, 1.3), al1);
+      // (near the head, so it frames the culvert ahead of a raft fishing the brook and never stands between the lens and the Wick)
+      const al1 = NT.r0 + 0.84 * (NT.end - NT.r0), R1 = NT.hw + 0.5;
+      put(archPiece(R1, 0.4, 1.2, 0, 1.05, 0.3, 1.0), al1);
+      put(archPiece(R1, 0.4, 1.2, 2.25, Math.PI, 0.3, 1.0), al1);
     }
     // the leaning toll-tower on the Sunken Gate (beyond the cliffs, a hero landmark's stone)
     if (hero && Number.isFinite(hero.x)) {
@@ -988,7 +992,7 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
       vu2.uTime.value = t;
       // (LOST-TACKLE §5.3: with the raft in the cut behind it, the Veil thins: the lens looks back through falling water, never a wall)
       const Nv = L?.notch, inCut = !!Nv && !!raft && raft.x * Nv.ca + raft.z * Nv.sa > Nv.r0 + 0.5;
-      vu2.uK.value = easeOpacity(vu2.uK.value, inCut ? 0.45 : 1, dt, 0.8);
+      vu2.uK.value = easeOpacity(vu2.uK.value, inCut ? 0.45 : Nv && !Nv.open ? 1.4 : 1, dt, 0.8);   // (denser while the cut is shut)
     }
     if (stone) { const ol = stone.children[0]?.material; if (ol?.color) { ol.color.set(INK); if (fog) ol.color.lerp(fog, 0.1 + 0.2 * n); } }
     updateBack(dt, info.phase || null, raft);

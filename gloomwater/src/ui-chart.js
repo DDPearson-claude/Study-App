@@ -286,7 +286,7 @@ export function createChartView(deps) {
         }
       }
       const G5 = gildStep(ml, m, now(), st, opts.reduced); more ||= G5.more;   // M1 step 5b: the gilding's re-inking (on the page's own clock)
-      const B5 = brookStep(ml, m, now(), st, opts.reduced); more ||= B5.more;   // LOST-TACKLE §5.2: the brook's ink-in, once
+      const B5 = S.inkHold != null ? { k: S.inkHold, more: false } : brookStep(ml, m, now(), st, opts.reduced); more ||= B5.more;   // LOST-TACKLE §5.2: the brook's ink-in, once
       const g = cv.getContext('2d');
       const view = {
         gild: (c, d, mm, a, v) => { brookCard(c, d, mm, a * B5.k, v); return gildCard(c, d, mm, a * G5.k, v); },
