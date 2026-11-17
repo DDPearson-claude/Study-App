@@ -1,7 +1,7 @@
 // Headless Chromium smoke test for Gloomwater.
 //
 //   node tools/playtest.mjs [--html=index.html] [--shots=tools/out/shots] [--script=path.mjs]
-//                           [--width=1280] [--height=720] [--mobile] [--wait=4000] [--lean[=0.45]]
+//                           [--width=1280] [--height=720] [--mobile] [--touch] [--dpr=1] [--wait=4000] [--lean[=0.45]]
 //
 // Default scenario: load page, wait, screenshot title, start a new run, wait,
 // screenshot, perform a cast (hold+release), wait, screenshot. Prints all console
@@ -33,8 +33,9 @@ const browser = await chromium.launch({
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-webgl'],
 });
 const context = await browser.newContext({
-  viewport: { width, height }, deviceScaleFactor: 1,
-  hasTouch: !!args.mobile, isMobile: !!args.mobile,
+  // --dpr=2 and --touch: a touch laptop or tablet (a fine pointer and a touch screen, e.g. 1280 × 800 at 200%) without the phone's isMobile
+  viewport: { width, height }, deviceScaleFactor: Number(args.dpr) || 1,
+  hasTouch: !!args.mobile || !!args.touch, isMobile: !!args.mobile,
 });
 // v3 debug builds (CONTRACT §13.1, §13.11): hidden-state hooks register only when GW_DEBUG is set before the page's scripts
 // run; scenarios get them unless --release (a release build: no species, roll, plan or pre-roll on window.__gw)
