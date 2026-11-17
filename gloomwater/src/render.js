@@ -180,7 +180,11 @@ export function create(ctx) {
     hp.fragmentShader = hp.fragmentShader
       .replace('uniform float smoothWidth;', 'uniform float smoothWidth;\nuniform float uBloomClamp;')
       .replace('gl_FragColor = mix( outputColor, texel, alpha );',
-        'float lum = max(luminance( texel.xyz ), 1e-4);\n\t\t\ttexel.rgb *= min(1.0, uBloomClamp / lum);\n\t\t\tgl_FragColor = mix( outputColor, texel, alpha );');
+        // (a NaN or an Inf, e.g. a half-float overflow on some AMD GPUs, is dropped before the clamp: Inf × 0 is NaN, and one
+        // NaN texel spreads through the mips into a black square at the flame; a player saw it on a Legion Go, 17 Nov 2026)
+        'if (any(isnan(texel.rgb)) || any(isinf(texel.rgb))) texel.rgb = vec3(0.0);\n\t\t\t'
+        + 'texel.rgb = clamp(texel.rgb, 0.0, 6.0e4);\n\t\t\t'
+        + 'float lum = max(luminance( texel.xyz ), 1e-4);\n\t\t\ttexel.rgb *= min(1.0, uBloomClamp / lum);\n\t\t\tgl_FragColor = mix( outputColor, texel, alpha );');
     hp.needsUpdate = true;
   }
   const gradePass = new ShaderPass(GradeShader);
