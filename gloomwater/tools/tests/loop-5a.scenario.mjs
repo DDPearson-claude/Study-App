@@ -62,15 +62,37 @@ export default async function (api) {
     K.check(s.barge?.visible && Math.hypot(s.barge.x - s.mooring.hull.x, s.barge.z - s.mooring.hull.z) < 0.01, 'the Slow Hearth at its mooring, shown', s.barge);
     K.check(s.murk.mode === 'moored' && s.murk.lampLit === 0 && s.murk.light === 0 && Math.hypot(s.murk.x - s.mooring.murk.x, s.murk.z - s.mooring.murk.z) < 0.01, 'Murk moored at his slot, his lamp\'s PointLight at 0', s.murk);
     K.check(s.homeLights === 0, 'the barge carries no PointLight', s.homeLights);
-    const want = ['murk', 'chart', 'journal', 'wall'];
-    K.check(JSON.stringify(s.btns.map((b) => b.id)) === JSON.stringify(want), 'the targets in the tiles\' order: Murk, Chart, Journal, then the doorway (wing I)', s.btns.map((b) => b.id));
+    // (SHEET.md §2.3: the rod rack, target `rack`, opens the Wick's sheet at Tackle, after `journal` and before `wall`; ui-loop's homeTargetIds)
+    const want = ['murk', 'chart', 'journal', 'rack', 'wall'];
+    K.check(JSON.stringify(s.btns.map((b) => b.id)) === JSON.stringify(want), 'the targets in the tiles\' order: Murk, Chart, Journal, the rod rack (SHEET.md §2.3), then the doorway (wing I)', s.btns.map((b) => b.id));
     K.check(s.btns.every((b) => b.w >= 43.5 && b.h >= 43.5), 'every target at least 44 px each way', s.btns.map((b) => [b.id, Math.round(b.w), Math.round(b.h)]));
     K.check(overlaps(s.btns).length === 0, 'no two targets overlap', overlaps(s.btns));
     const vw = await g(() => [innerWidth, innerHeight]);
     K.check(s.btns.every((b) => b.l >= -0.5 && b.t >= -0.5 && b.r <= vw[0] + 0.5 && b.b <= vw[1] + 0.5), 'every target inside the screen', vw);
     const T = await g(() => window.__gw.data.TEXT_LOOP.jetty);
-    K.check(s.btns.filter((b) => b.id !== 'wall').every((b) => b.word === T[b.id]) && s.btns.find((b) => b.id === 'wall')?.word === '' && s.btns.find((b) => b.id === 'wall')?.label === T.wall,
-      'each target carries its tile\'s word (Murk, Chart, Journal); the doorway none, its accessible name only', s.btns.map((b) => [b.id, b.word, b.label]));
+    // the rack's accessible name: TEXT_LOOP.sheet.title with the Wick's name ("{name}'s Sheet", SHEET.md §6)
+    const sheetName = await g(() => { const d = window.__gw.data, id = d.loopWickId?.(window.__gw.progression.loop.wick?.()) || 'wick'; const n = (d.CHARACTERS || []).find((c) => c.id === id)?.name || ''; return String(d.TEXT_LOOP.sheet?.title || '').replace('{name}', n); });
+    const nameOf = { wall: T.wall, rack: sheetName };
+    K.check(s.btns.filter((b) => !nameOf[b.id]).every((b) => b.word === T[b.id]) && ['wall', 'rack'].every((id) => s.btns.find((b) => b.id === id)?.word === '' && s.btns.find((b) => b.id === id)?.label === nameOf[id]),
+      'each target carries its tile\'s word (Murk, Chart, Journal); the rod rack and the doorway none, their accessible names only', s.btns.map((b) => [b.id, b.word, b.label]));
+    // int-C's word layout (CONTRACT, home-targets.js): the word-less rack and doorway get no word box and no hooks; the words drawn stay
+    // 16 px from each other and from the word-less targets' buttons by 8 px (layoutTargets' gap and boxGap)
+    const wl = await g(() => [...document.querySelectorAll('[data-modal=jetty] .gw-jetty-target')].filter(window.__lp.visible).map((b) => {
+      const w = b.querySelector('.gw-jetty-tword'), r = w ? w.getBoundingClientRect() : null, br = b.getBoundingClientRect();
+      return { id: b.dataset.tile, word: r && r.width > 0 ? { l: r.left, t: r.top, r: r.right, b: r.bottom } : null, slot: !!w, box: { l: br.left, t: br.top, r: br.right, b: br.bottom } };
+    }));
+    const apart = (a, b) => Math.max(a.l - b.r, b.l - a.r, a.t - b.b, b.t - a.b);
+    const wordFaults = [];
+    for (const a of wl) {
+      if (['rack', 'wall'].includes(a.id) && a.slot) wordFaults.push(`${a.id} has a word slot`);
+      if (!a.word) continue;
+      for (const b of wl) {
+        if (b === a) continue;
+        if (b.word && b.id > a.id && apart(a.word, b.word) < 16 - 0.5) wordFaults.push(`${a.id}/${b.id} words ${apart(a.word, b.word).toFixed(1)} px apart`);
+        if (!b.word && apart(a.word, b.box) < 8 - 0.5) wordFaults.push(`${a.id}'s word ${apart(a.word, b.box).toFixed(1)} px from ${b.id}'s button`);
+      }
+    }
+    K.check(wordFaults.length === 0, 'int-C\'s word layout: no word on the rack or the doorway; words 16 px apart and 8 px off the word-less buttons', { faults: wordFaults, wl });
     const tg = await g(() => window.__gw.ui.loop.debug().targets);
     K.check(tg?.ok === true, 'the targets\' layout reports no fault', tg?.faults);
     // each button sits over its own object (its object's box inside the button, or the button grown round it to 44 px)
@@ -87,13 +109,14 @@ export default async function (api) {
 
     // ------------------------------------------------------------------ each target opens its screen; Escape / close comes home
     K.step('5a: each target opens its screen; Escape and close come home');
-    const opens = { murk: 'shelf', chart: 'chart', journal: 'journal', wall: 'gallery' };   // (M1 step 5b: the doorway opens the cabin's gallery)
+    const opens = { murk: 'shelf', chart: 'chart', journal: 'journal', rack: 'journal', wall: 'gallery' };   // (M1 step 5b: the doorway opens the cabin's gallery; the rack the Journal on its sheet, SHEET.md §2.3)
     for (const id of want) {
       const b = await K.tap(`[data-modal=jetty] [data-tile=${id}]`);
       K.need(b, `the ${id} target can be tapped`);
       await K.settle(300); await K.steps(3);
       const m = await top();
       K.check(m === opens[id], `[data-tile=${id}] opens its screen (${opens[id]})`, m);
+      if (id === 'rack') K.check(await g(() => !!document.querySelector('[data-modal=journal] .gw-sheet')), '[data-tile=rack] opens the Journal on the Wick\'s sheet');
       if (id === 'chart') await K.shoot('chart-open');
       await K.key('Escape');
       await K.settle(400); await K.steps(3);
