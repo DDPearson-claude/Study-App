@@ -107,7 +107,7 @@ export default async function (api) {
     K.check((await g(() => window.__lp.text('[data-loop=shelf]') || '')).includes(TL.yours), 'the bought plate is stamped "Yours."');
     await K.shoot('cat-bought');
 
-    K.step('cat: the Maps chapter and the gear log');
+    K.step('cat: the Maps chapter and the sheet\'s Odds');
     K.check(!!(await K.tap('[data-loop=shelf] [role=tab]', TL.tabs.maps)), 'the fore-edge tab Maps');
     await page.waitForTimeout(650);
     await K.shoot('cat-maps');
@@ -116,10 +116,35 @@ export default async function (api) {
       await page.waitForTimeout(650);
       await K.shoot('cat-odds');
       await K.scan('the book: the gear log\'s page');
-      K.check(!!(await K.tap('[data-loop=shelf] .gw-shelf-odds')), 'Odds › opens the gear log');
+      // (under the loop Taper's Sheet replaces the gear log, SHEET.md §8.5 and §2.4: the book's Odds › opens the Journal on its sheet
+      // tab at the sheet's Odds, over the book; Back or Escape returns to the book at the same page. Where Odds is, SHEET.md §4.1-4.2:
+      // on a desktop spread "opening at Odds scrolls the right page to its head", the picks that govern Buffs and Odds; on a phone's
+      // one scroll the Odds section's own head)
+      K.check(!!(await K.tap('[data-loop=shelf] .gw-shelf-odds')), 'Odds › opens the Wick\'s sheet');
       await K.settle(500);
-      K.check((await g(() => window.__gw.debug.ui().openModal)) === 'gear', 'the gear log is open', await g(() => window.__gw.debug.ui().openModal));
-      await K.key('Escape'); await K.settle(300);
+      const sh = await g(() => {
+        const c = window.__gw, root = document.querySelector('[data-modal=journal] .gw-sheet'), desk = root?.dataset.layout === 'desktop';
+        const sec = root?.querySelector(desk ? '[data-sec=picks]' : '[data-sec=odds]'), odds = root?.querySelector('[data-sec=odds]');
+        let at = null;
+        if (sec) {
+          const r = sec.getBoundingClientRect();
+          let clip = { top: 0, bottom: innerHeight };   // the section's head inside every scrolling box round it and the window
+          for (let n = sec.parentElement; n && n !== document.body; n = n.parentElement) {
+            const cs = getComputedStyle(n);
+            if (/(auto|scroll|hidden)/.test(cs.overflowY)) { const q = n.getBoundingClientRect(); clip = { top: Math.max(clip.top, q.top), bottom: Math.min(clip.bottom, q.bottom) }; }
+          }
+          // (a desktop's Odds sits on the right page under the picks: that page, its Odds in it, scrolled to its head)
+          const pg = desk ? sec.parentElement : null, sameP = !desk || (!!odds && pg.contains(odds));
+          at = { layout: root.dataset.layout, top: Math.round(r.top), clipTop: Math.round(clip.top), clipBottom: Math.round(clip.bottom), scrollTop: pg ? pg.scrollTop : null,
+            shown: r.top >= clip.top - 2 && r.top + 24 <= clip.bottom && sameP && (!desk || pg.scrollTop <= 1) };
+        }
+        return { modal: c.debug.ui().openModal, stack: c.debug.ui().stack, sheet: !!root, odds: at };
+      });
+      K.check(sh.modal === 'journal' && sh.sheet, 'the Journal is open on the Wick\'s sheet (its first tab), not the gear log', sh);
+      K.check(sh.odds?.shown === true, 'the sheet opens at its Odds (SHEET.md §4: a desktop\'s right page at its head, the picks over Buffs and Odds; a phone\'s Odds section head on screen)', sh.odds);
+      await K.shoot('cat-sheet-odds');
+      await K.key('Escape'); await K.settle(400);
+      K.check((await g(() => window.__gw.debug.ui().openModal)) === 'shelf', 'Escape on the sheet returns to the book', await g(() => window.__gw.debug.ui().openModal));
     }
     K.step('cat: Home chapter');
     await K.tap('[data-loop=shelf] [role=tab]', TL.tabs.home);
