@@ -102,7 +102,7 @@ section('the shelf: the Home tab on a fresh save, each ladder\'s next level, not
   eq(HS.homeItems(DL, later).filter((i) => i.slot !== 'look' && !i.bought).map((i) => i.id), ['baitBed:3', 'lights:2'], 'with the Pallid Deep\'s map, Bait Bed III and Barge lights II (the era rule, decision 38)');
   const sum = H.reduce((a, i) => a + i.price, 0);
   eq([H.length, sum], [6, 1870], 'step 5b\'s first cards: six, 1,870 clams (seven with Bait Bed II, 2,570; with lane 4\'s and the earlier steps\', M1\'s 32 and 7,750)');
-  ok(PL.goalOf(PL.shelfItems(D, fresh)).id === 'rod:1', 'the goal line is still the cheapest: Ashwood · 50 (Hold 4 at 200 is dearer)', PL.goalOf(PL.shelfItems(D, fresh)));
+  ok(PL.goalOf(PL.shelfItems(D, fresh)).id === 'line:1', 'the goal line: Line T1 first (GEAR-GATES §5–6)', PL.goalOf(PL.shelfItems(D, fresh)));
 }
 
 section('the buy: a home level and a look through the real ledger, saved at once');

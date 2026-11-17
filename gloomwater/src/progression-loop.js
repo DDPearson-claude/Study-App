@@ -123,6 +123,7 @@ export function freshLoop(D) {
     // the home barge (SPEC §6.5, M1 §2.11): its own field, apart from `home` (the upgrades); the opening's tow writes `towed`
     barge: { water: firstWater(D), towed: [] },
     sheetSeen: kit.lures.map((id) => `lure:${id}`),   // the Wick's sheet (SHEET.md §5.2): the owned keys the player has seen on the sheet (a fresh save marks nothing: its start kit is seen)
+    startKit: true,   // GEAR-GATES §2.1: the start kit is given (migrateLoop gives an older save its kit once, then sets this)
   };
 }
 
@@ -176,16 +177,31 @@ export function migrateLoop(meta, D, { hasTrip = false } = {}) {
     if (!(v0 >= 4) && !isObj(L.barge)) L.barge = { water: first, towed: [first] };
     L.v = LOOP_SCHEMA;
   }
+  const kitDue = L.startKit !== true;   // read before the fill (which would copy the fresh block's true)
   // fill and normalise (every block, every boot)
   for (const [k, v] of Object.entries(fresh)) {
     if (L[k] === undefined) { L[k] = v; continue; }
     if (isObj(v) && !isObj(L[k])) L[k] = v;
     else if (Array.isArray(v) && !Array.isArray(L[k])) L[k] = v;
   }
-  for (const k of ['tackle', 'fitted', 'maps', 'raft', 'home', 'firsts', 'barge']) for (const [kk, vv] of Object.entries(fresh[k])) if (L[k][kk] === undefined) L[k][kk] = vv;
+  for (const k of ['tackle', 'fitted', 'maps', 'raft', 'home', 'firsts', 'barge']) for (const [kk, vv] of Object.entries(fresh[k])) if (L[k][kk] === undefined) L[k][kk] = k === 'fitted' ? null : vv;   // (a missing fitted key is empty: the kit below fits)
   if (L.fitted.lure != null && L.fitted.bait != null) L.fitted.bait = null;   // one thing on the hook: a save holding both keeps the lure
-  // GEAR-GATES §2.1: a save from before the start kit gets its free lure (never a bait; nothing is taken away)
-  if (Array.isArray(L.lures)) for (const id of fresh.lures) if (!L.lures.includes(id)) { L.lures.push(id); if (seeded && Array.isArray(L.sheetSeen)) L.sheetSeen.push(`lure:${id}`); }
+  // GEAR-GATES §2.1: a save from before the start kit gets it once, as a new save has it (nothing is taken away): the free lure; a tin
+  // when it owns no bait at all; fitted when nothing is on the hook (the tin, else the lure), so its next trip is not on the bare hook
+  if (kitDue) {
+    const kit = startKit(D), seen = (k) => { if (seeded && Array.isArray(L.sheetSeen)) L.sheetSeen.push(k); };
+    if (!Array.isArray(L.lures)) L.lures = [];
+    for (const id of kit.lures) if (!L.lures.includes(id)) { L.lures.push(id); seen(`lure:${id}`); }
+    if (!isObj(L.bait)) L.bait = {};
+    const bags = Object.values(L.bait).filter(isObj), none = !bags.some((b) => Object.values(b).some((n) => int(n) > 0));
+    let gave = false;
+    if (none) for (const [w, bag] of Object.entries(kit.bait)) { const into = isObj(L.bait[w]) ? L.bait[w] : (L.bait[w] = {}); for (const [id, n] of Object.entries(bag)) { into[id] = int(into[id]) + int(n); gave = true; } }
+    if (L.fitted.lure == null && L.fitted.bait == null) {
+      if (gave && kit.fit) L.fitted.bait = kit.fit;
+      else if (kit.lures[0] && L.lures.includes(kit.lures[0])) L.fitted.lure = kit.lures[0];
+    }
+    L.startKit = true;
+  }
   // the barge: a known water (else the first), the waters it was towed to as a list of known ids, each once
   { const known = (id) => typeof id === 'string' && (isObj(D?.LOOP?.waters?.[id]) || id === first);
     if (!known(L.barge.water)) L.barge.water = first;
@@ -380,12 +396,16 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
     .map((it) => (it.tab === 'maps' || it.price == null ? it : { ...it, price: costed(D, it.price) }));
 }
 
-/** The goal line's item (SPEC §8.3, PLAN CHOICEs 6 and 11): the cheapest permanent card not bought (the first on a tie), or null when
- *  none is left. A consumable (the legend bait, later the tins) and a sealed card (no price) are never the goal. */
+/** GEAR-GATES §5–6: the goal line's first card while it is on the shelf, Line T1 (the first buy: the only one that lifts Twine's cap). */
+export const GOAL_FIRST = ['line:1'];
+/** The goal line's item (SPEC §8.3, PLAN CHOICEs 6 and 11): a GOAL_FIRST card not bought, else the cheapest permanent card not bought
+ *  (the first on a tie), or null when none is left. A consumable (the legend bait, the tins) and a sealed card (no price) are never the goal. */
 export function goalOf(items) {
   let best = null;
   const goalable = (it) => isObj(it) && !it.bought && it.consumable !== true && it.sealed !== true && it.price != null && Number.isFinite(Number(it.price));
-  for (const it of Array.isArray(items) ? items : []) if (goalable(it) && (!best || num(it.price) < num(best.price))) best = it;
+  const list = Array.isArray(items) ? items : [];
+  for (const id of GOAL_FIRST) { best = list.find((it) => goalable(it) && it.id === id) || null; if (best) break; }
+  if (!best) for (const it of list) if (goalable(it) && (!best || num(it.price) < num(best.price))) best = it;
   return best ? { id: best.id, name: best.goalName ?? best.name, price: best.price, slot: best.slot, level: best.level } : null;
 }
 

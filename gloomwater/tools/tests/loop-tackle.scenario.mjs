@@ -90,7 +90,7 @@ export default async function (api) {
       const c = window.__gw, m = c.state.meta.loop;
       c.debug.loop.tutorial('done');
       m.bait.mossmere = { ...(m.bait.mossmere || {}), mireworm: 10, lumen_moss: 10, heartmoss: 1 };
-      m.lures = ['feather_fly', 'glimmer_spoon', 'bell_spinner'];
+      m.lures = ['bent_spoon', 'feather_fly', 'glimmer_spoon', 'bell_spinner'];   // (every save owns the Bent Spoon: GEAR-GATES §2.1's start kit)
       m.fitted = { bait: 'mireworm', lure: null };
       c.game.save();
     });
@@ -99,6 +99,11 @@ export default async function (api) {
     K.need(await K.tap('[data-modal=title] .gw-tbtn', TL.continue), 'the title\'s Continue');
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Continue: home');
     await K.secs(1.2);
+    // the home's goal line (GEAR-GATES §5–6): Line T1 first
+    const jt = await g(() => document.querySelector('[data-loop=jetty]')?.innerText || '');
+    const l1 = await g(() => window.__gw.data.TACKLE?.line?.[1]?.name);
+    K.check(new RegExp(`Next:\\s*${l1}`, 'i').test(jt), `the home's goal line names Line T1 (${l1})`, jt.slice(0, 160));
+    await K.shoot(`home-${width}x${height}`);
     await g(() => window.__gw.debug.loop.sail('mossmere'));
     K.need((await K.until("c.flow === 'playing' && c.state.run?.outing === 'trip' && !c.loopHome?.gliding?.()", 14)).ok || (await K.until("c.flow === 'playing'", 2)).ok, 'the trip begins');
     await K.secs(3);
@@ -134,7 +139,7 @@ export default async function (api) {
     const pressed = await g(() => [...document.querySelectorAll('[data-loop=tackle] [aria-pressed=true]')].map((b) => b.dataset.bait ?? b.dataset.lure));
     K.check(JSON.stringify(pressed) === JSON.stringify(['mireworm']), 'pressed: Mire Worms alone (one thing on the hook)', pressed);
     const rows = await g(() => ['bait', 'lure'].map((k) => [...document.querySelectorAll(`[data-loop=tackle] [data-row=${k}] .gw-tk-it`)].map((b) => b.dataset[k])));
-    K.check(JSON.stringify(rows) === JSON.stringify([['heartmoss', 'mireworm', 'lumen_moss', ''], ['feather_fly', 'glimmer_spoon', 'bell_spinner', '']]), 'Bait: the ball, the two tins, a bare hook; Lure: the three owned, none', rows);
+    K.check(JSON.stringify(rows) === JSON.stringify([['heartmoss', 'mireworm', 'lumen_moss', ''], ['bent_spoon', 'feather_fly', 'glimmer_spoon', 'bell_spinner', '']]), 'Bait: the ball, the two tins, a bare hook; Lure: the Bent Spoon, the three bought, none', rows);
     const words = await g(() => document.querySelector('[data-loop=tackle]')?.innerText || '');
     K.check(!/%|likes?\b|odds|chance/i.test(words), 'no odds, no percentage, no likes on the drawer', words);
     await K.scan('the tackle drawer');
@@ -244,6 +249,16 @@ export default async function (api) {
       await K.settle(300);
       K.check((await modal()) !== 'tackle', `the drawer closes (${w}×${hgt})`);
     }
+    K.step('tk: the Bent Spoon on: its own glyph in the tin');
+    K.need(await K.tap('[data-loop=tin]'), 'a tap on the tin');
+    await K.settle(400);
+    K.need(await K.tap('[data-loop=tackle] [data-lure=bent_spoon]'), 'a tap on the Bent Spoon');
+    await K.settle(300);
+    { const x = await K.box('[data-loop=tackle] [data-action=close]'); if (x) await K.tapXY(x.x, x.y); else await K.key('Escape'); }
+    await K.settle(400);
+    t = await TK();
+    K.check(t.lure === 'bent_spoon', 'the tin shows the Bent Spoon', t);
+    await K.shoot(`tin-bent-spoon-${width}x${height}`);
     await K.noErrors('the end');
   } catch (e) {
     if (!(e instanceof Abort)) { K.failures.push(`[${K.part}] threw: ${String(e?.stack || e).split('\n').slice(0, 3).join(' | ')}`); log('THREW', e); }

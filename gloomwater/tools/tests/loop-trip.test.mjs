@@ -330,7 +330,7 @@ section('the shelf at home: buy, the order, the session, the gear log (T23, T24,
   const meta = freshLoopMeta(D);
   const env = makeEnv({ meta, debug: true });
   env.ctx.flow = 'home';
-  eq(env.L.goal(), { id: 'rod:1', name: 'Ashwood', price: 50, slot: 'rod', level: 1 }, 'the goal: the cheapest, Ashwood · 50 (Hold 4 at 200 is dearer)');
+  eq(env.L.goal(), { id: 'line:1', name: 'Braided Gut', price: 50, slot: 'line', level: 1 }, 'the goal: Line T1 first (GEAR-GATES §5–6), Braided Gut · 50');
   eq(env.L.buy('hold').ok, false, 'no clams: refused');
   eq(env.L.debugGive(400), 400, 'debugGive (a debug build)');
   eq(env.L.buy('hold:5').ok, false, 'T24: Hold 5 is refused before Hold 4');
@@ -673,7 +673,7 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   eq(env.L.seals(), sw.seals, 'seals(): the next water\'s three keys');
   const cat = env.L.catalogue('mossmere');
   ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds?.rows?.look?.length === 3, 'catalogue: the twelve, then the three places with fish');
-  ok(env.L.fitted().bait === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: nothing fitted, no pick, nothing lifted');
+  ok(env.L.fitted().bait === 'mireworm' && env.L.fitted().lure === null && env.L.pick() === null && env.L.lifted().length === 0, 'the reads: the start kit\'s worms fitted (an old save with no bait, GEAR-GATES §2.1), no pick, nothing lifted');
   ok(env.L.fit('bait', 'heartmoss').ok === false && env.L.markLifted('lily_maze') === false
     && env.L.spendBait('heartmoss') === false && env.L.takeGiantMark('thousandcast_pike') === false, 'the writers refuse what the save lacks: no ball to fit, no place to lift, no trip, no mark');
   eq(env.L.setPick({ water: 'mossmere', place: null }), { ok: true, pick: { water: 'mossmere', place: null } }, 'setPick: open water of an owned lake');

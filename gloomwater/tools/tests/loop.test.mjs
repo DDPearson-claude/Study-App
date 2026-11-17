@@ -228,7 +228,8 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
     [['bait:heartmoss', 60, false], ['place:lily_maze', 60, false], ['place:under_the_span', 150, false], ['lake:sporewood', null, false]], 'M1 step 3a: the Bait tab and the Maps tab (two place maps and the sealed card)');
   eq(shelf0.find((i) => i.id === 'hold:4').name, 'Lidded Creel', "a hold card names the ladder's step");
   ok(!shelf0.some((i) => i.id === 'hold:5' || i.id === 'rod:2'), 'T24: Hold 5 and T2 wait for the step below');
-  eq(PL.goalOf(shelf0), { id: 'rod:1', name: 'Ashwood', price: 50, slot: 'rod', level: 1 }, 'the goal line: the cheapest, "Ashwood · 50" (Hold 4 at 200 is dearer)');
+  eq(PL.goalOf(shelf0), { id: 'line:1', name: 'Braided Gut', price: 50, slot: 'line', level: 1 }, 'the goal line: Line T1 first (GEAR-GATES §5–6), "Braided Gut · 50"');
+  eq(PL.goalOf(shelf0.map((i) => (i.id === 'line:1' ? { ...i, bought: true } : i)))?.id, 'rod:1', 'then the cheapest: Ashwood · 50 (Hold 4 at 200 is dearer)');
   const after = { ...PL.freshLoop(D), holdSlots: 4, tackle: { rod: 1, line: 0, reel: 0 } };
   const ses = PL.shelfItems(D, after, ['hold:4', 'rod:1']);
   eq(ses.filter((i) => i.bought).map((i) => i.id), ['rod:1', 'hold:4'], 'CHOICE 26: bought while open, the card reads Yours. in place');

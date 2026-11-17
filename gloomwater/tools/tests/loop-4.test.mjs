@@ -103,7 +103,7 @@ section('the shelf and the with gate (M1.md §2.5, SPEC §4.7, decision 38)');
   ok(!top.some((i) => /moth_popper|lantern_lure|spore_cake|ember_roe|glass_larva|shimmerfly|sporelamp|mirror_shard|ferry_coin/.test(i.id)), 'no later water\'s lure or tin is offered (the Moth Popper, the Lantern Lure, Spore Cake …)');
   const goal = PL.goalOf(top.filter((i) => !/^(bait|place|lake|hold|rod|line|reel):/.test(i.id) && !(i.tab === 'home' && !/^orders:/.test(i.id))));   // (M1 step 5b's home cards aside: loop-5b.test.mjs's)
   eq(goal, null, 'every step-4 permanent owned: no goal among them (a tin is a consumable, never the goal)');
-  ok(PL.goalOf(fresh)?.id === 'rod:1', 'the goal line is still the cheapest first: Ashwood · 50 (Hold 4 at 200 is dearer)', PL.goalOf(fresh));
+  ok(PL.goalOf(fresh)?.id === 'line:1', 'the goal line: Line T1 first (GEAR-GATES §5–6)', PL.goalOf(fresh));
 }
 
 section('buy, fit, the bag (SPEC §4.4, §4.5, §5.4)');

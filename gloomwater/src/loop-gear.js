@@ -53,7 +53,7 @@ export function gearName(D, id) {
 }
 const ROMAN = ['I', 'II', 'III', 'IV'];
 /** The shelf cards' drawings (ui-icons' names). */
-const ART = { feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'spoon', mireworm: 'worm', lumen_moss: 'moss',
+const ART = { feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'bentspoon', mireworm: 'worm', lumen_moss: 'moss',
   oars: 'oar', keel: 'hull', lantern: 'lantern', orders: 'ledger' };
 function levelName(D, slot, lv) {
   const n = D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1];

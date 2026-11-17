@@ -80,13 +80,14 @@ export function looseRe(s) {
   return new RegExp(String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*'));
 }
 /** What the main pass expects of a Wick at the start (PLAN §2.4 as WICKS §5 rewrites it: counts from the hold, not "three"). */
-export function expectFor(L, T, wick, cost = (b) => b) {
+export function expectFor(L, T, wick, cost = (b) => b, line1 = null) {
   const W = L.wicks, H = L.hold, s0 = slotsFor(W, H.start, wick);
   // (`cost(base, step)` the page's Murk price of a step's base price, data.loopCost: the shipped game doubles PLAN's prices, LOOP.cost.shipped)
   const step = (n) => { const x = H.ladder.find((y) => y.slots === n); return x ? { ...x, price: cost(x.price, x) } : x; };
   return {
     slots0: s0, slots4: slotsFor(W, 4, wick), slots5: slotsFor(W, 5, wick), firstChart: firstChartLine(T, wick),
-    goal0: goalText(T, W, { id: 'hold:4', level: 4, price: step(4)?.price }, wick),
+    // (GEAR-GATES §5–6: the first goal is Line T1, `line1` {name, price} at the page's price; null when the caller has none)
+    goal0: line1 ? goalText(T, W, { id: 'line:1', level: 1, name: line1.name, price: line1.price }, wick) : null,
     goalHold5: goalText(T, W, { id: 'hold:5', level: 5, price: step(5)?.price }, wick),
   };
 }
@@ -660,6 +661,7 @@ export default async function (api) {
     const cost = (b) => (typeof d.loopCost === 'function' ? d.loopCost(b) : b);
     return { loop: d.LOOP_ENABLED === true, phase: d.V3_PHASE, LOOP: { wicks: d.LOOP?.wicks, hold: d.LOOP?.hold, tutorial: d.LOOP?.tutorial }, T: d.TEXT_LOOP,
       prices: Object.fromEntries((d.LOOP?.hold?.ladder || []).map((x) => [x.slots, cost(x.price)])), factor: d.LOOP?.cost?.factor ?? 1,
+      line1: { name: d.TACKLE?.line?.[1]?.name, price: cost(d.LOOP?.tackle?.price?.[1]) },
       names: Object.fromEntries((d.CHARACTERS || []).map((c) => [c.id, c.name])), tips: d.FIRST_EVENING?.tips || {},
       rarity: Object.fromEntries((d.SPECIES || []).map((s) => [s.id, s.rarity])), cer: d.AUTOFISH?.time?.ceremony || {} };
   });
@@ -701,7 +703,7 @@ export default async function (api) {
       const D = await data();
       K.need(D.loop, 'a loop build: data.LOOP_ENABLED at ?loop=1', D.phase);
       K.need((D.LOOP.wicks?.order || []).includes(wick), `--wick=${wick} names a Wick of LOOP.wicks.order`, D.LOOP.wicks?.order);
-      const TL = D.T, E = expectFor(D.LOOP, TL, wick, (b, st) => D.prices[st?.slots] ?? b), order = D.LOOP.wicks.order;
+      const TL = D.T, E = expectFor(D.LOOP, TL, wick, (b, st) => D.prices[st?.slots] ?? b, D.line1), order = D.LOOP.wicks.order;
       const p4 = D.prices[4] ?? D.LOOP.hold.ladder[0].price;   // Hold 4 at Murk's price on this page
       log('expect', JSON.stringify(E));
       await g(() => { window.__gw.debug.intro?.('auto', true); window.__gw.ui.showTitle(); });
@@ -1257,7 +1259,7 @@ export default async function (api) {
       s = await K.state();
       K.check(looseRe(E.goal0).test(j.text), `the goal line "${E.goal0}"`, j.text.slice(0, 200));
       const gl0 = await goalLineText(TL, D.LOOP.wicks, s.goal, wick);
-      K.check(gl0 === E.goal0, 'the goal line from loop.goal() (ui-loop\'s goalLine) is the one PLAN §0 names', { goalLine: gl0, plan: E.goal0, goal: s.goal });
+      K.check(gl0 === E.goal0, 'the goal line from loop.goal() (ui-loop\'s goalLine) is the design\'s first buy, Line T1 (GEAR-GATES §5)', { goalLine: gl0, plan: E.goal0, goal: s.goal });
       K.check(j.text.includes(clamText(s.loop?.clams ?? -1)), 'the purse shows the clams (fmtClams)', { clams: s.loop?.clams });
       K.check(j.cues === 0, 'T67: with the tutorial done no .gw-cue anywhere', j.cues);
       K.check(j.text.includes(TL.murk.firstSale), 'Murk\'s firstSale line after the first Sold', j.text.slice(0, 200));
@@ -1748,6 +1750,7 @@ export async function dryRun() {
   const { loadLoopData } = await import('./loop-fixture.mjs');
   const D = await loadLoopData();
   const { fmtClams } = await import('../../src/core.js');
+  const PL1a = await import('../../src/progression-loop.js');
   const bad = [];
   let n = 0;
   const ok = (c, m, x) => { n++; if (!c) bad.push(`${m}${x !== undefined ? ` :: ${JSON.stringify(x)}` : ''}`); };
@@ -1757,9 +1760,9 @@ export async function dryRun() {
   const TL = D.TEXT_LOOP, L = D.LOOP;
   for (const id of L.wicks.order) {
     for (const hs of [3, 4, 5, 6, 7, 8]) ok(slotsFor(L.wicks, hs, id) === D.wickSlots(hs, id), `slotsFor(${hs}, ${id})`);
-    const E = expectFor(L, TL, id);
+    const E = expectFor(L, TL, id, undefined, { name: D.TACKLE.line[1].name, price: L.tackle.price[1] });
     ok(E.slots0 === (id === 'tallow' ? 4 : 3) && E.slots4 === E.slots0 + 1 && E.slots5 === E.slots0 + 2, `${id}: the slot counts`, E);
-    ok(E.goal0 === `Next: Hold ${id === 'tallow' ? 5 : 4} · ${clamText(L.hold.ladder[0].price)}`, `${id}: the first goal line (PLAN §0's D row; Hold 4's base price from the data)`, E.goal0);
+    ok(E.goal0 === `Next: ${D.TACKLE.line[1].name} · ${clamText(L.tackle.price[1])}` && PL1a.goalOf(PL1a.shelfItems(D, PL1a.freshLoop(D)))?.id === 'line:1', `${id}: the first goal line is Line T1 (GEAR-GATES §5–6; its base price from the data)`, E.goal0);
     ok(E.firstChart === (id === 'tallow' ? TL.murk.firstChartBy.tallow : TL.murk.firstChart), `${id}: Murk's departure line`, E.firstChart);
     const plan = catchPlan(E.slots0);
     ok(plan.length === E.slots0 && plan.at(-1).via === 'real' && new Set(plan.map((p) => p.speciesId)).size === plan.length, `${id}: the first trip's catches`, plan);
