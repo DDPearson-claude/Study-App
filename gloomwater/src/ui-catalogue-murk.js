@@ -229,6 +229,9 @@ const CSS = `
 .gw-book[data-layout=phone] .gw-plate-low .gw-plate-price { align-self: flex-end; }
 .gw-book[data-layout=phone] .gw-mb-title { font-size: 34px; }
 .gw-book[data-layout=phone] .gw-mb-chap h3 { font-size: 24px; }
+/* ("Yours." on the phone's drawing, as on a short spread: centred on the drawing's column, not the plate, so it never lies on the
+   name, the place or the line beside it; a size smaller to keep inside the column at 358 px) */
+.gw-book[data-layout=phone] .gw-mb-stamp { left: 22%; top: 56%; padding: 3px 10px 1px; font-size: clamp(16px, calc(var(--pw) / 17), 22px); letter-spacing: .08em; }
 /* a name with a long word (THOUSANDCAST) set a size smaller, so the word is never cut; a lone plate on a page of two takes its width */
 .gw-book .gw-plate-name.gw-long { font-size: 17px; }
 .gw-mb-grid[data-rows="1"] .gw-plate:only-child { grid-column: 1 / -1; }
@@ -281,6 +284,10 @@ const CSS = `
 .gw-book.gw-tall .gw-plate-kick, .gw-book.gw-tall .gw-plate-name { text-align: center; }
 .gw-book.gw-tall .gw-plate-name { transform-origin: 50% 50%; margin: 2px -8%; width: 116%; }
 .gw-book.gw-tall .gw-plate-art { height: auto; flex: 1; min-height: 0; }
+/* (an engraving drawn to its ink fills its box to the edge: on a full spread and a tall phone page, where the drawing sits between the
+   name and the line, a little paper above and below it so the strokes never crowd the words) */
+.gw-book.gw-tall .gw-plate:not(.gw-plate--map):not(.gw-plate--sealed) .gw-plate-art,
+.gw-book[data-layout=desktop]:not(.gw-short):not(.gw-low) .gw-plate:not(.gw-plate--map):not(.gw-plate--sealed) .gw-plate-art { box-sizing: border-box; padding: 8px 4px 6px; }
 .gw-book.gw-tall .gw-plate-low { flex-direction: row; align-items: flex-end; }
 .gw-book.gw-tall .gw-plate-line { text-align: left; -webkit-line-clamp: 2; }
 .gw-book.gw-tall .gw-plate-hours { justify-content: center; }
@@ -590,11 +597,12 @@ export function createMurkBook(deps) {
     };
     try { go(); requestAnimationFrame(go); } catch (e) { report('cat.ribbon', e); }
   }
-  /** On a short or a low spread (960 x 540, a phone turned to landscape) an item's engraving is drawn to its ink: its viewBox cropped to
-   *  the drawn strokes (a small margin round them, never more than 1.6 times larger), so a squat tin or a flat keel fills its column
-   *  instead of floating small in the 200 x 150 plate (the review of integration B: drawings of 60 px in a 140 px row). */
+  /** At every size an item's engraving is drawn to its ink: its viewBox cropped to the drawn strokes (a small margin round them, never
+   *  more than 1.6 times larger), so a squat tin or a flat keel fills its column instead of floating small in the 200 x 150 plate (the
+   *  review of integration B: drawings of 60 px in a 140 px row, on a short or a low spread; the MVP's regression: the same on a phone's
+   *  narrow drawing column, a rod of 114 px in a 358 px page, and on a full spread, a tin of 113 x 76 px). */
   function fitInk(scope) {
-    if (!live || (live.B.size !== 'short' && live.B.size !== 'low')) return;
+    if (!live) return;
     const go = () => {
       for (const svg of scope.querySelectorAll('.gw-plate:not(.gw-plate--map):not(.gw-plate--sealed) .gw-plate-art svg.cat-eng')) {
         if (svg.dataset.ink) continue;
