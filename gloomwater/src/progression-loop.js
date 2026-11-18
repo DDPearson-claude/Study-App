@@ -1148,7 +1148,11 @@ export function createLoop(S) {
     if (it.slot === 'hold') L.holdSlots = it.level;
     else if (applyHome(D(), L, it)) { /* M1 step 5b: a home level or a look (src/home-shelf.js) */ }
     else if (it.slot === 'place') { if (!L.maps.places.includes(it.placeId)) L.maps.places.push(it.placeId); }
-    else if (it.slot === 'lake') { if (!L.maps.lakes.includes(it.waterId)) L.maps.lakes.push(it.waterId); }
+    else if (it.slot === 'lake') {
+      if (!L.maps.lakes.includes(it.waterId)) L.maps.lakes.push(it.waterId);
+      // (LAKE 2, lane C: the places a lake map opens (LOOP.places' `lake`, Sporewood's Lullaby and Gill Harp) are owned with it)
+      for (const [pid, p] of Object.entries(isObj(LOOP().places) ? LOOP().places : {})) if (isObj(p) && p.water === it.waterId && p.lake === true && !L.maps.places.includes(pid)) L.maps.places.push(pid);
+    }
     else if (it.slot === 'bait') {
       if (!isObj(L.bait)) L.bait = {};
       const bag = isObj(L.bait[it.water]) ? L.bait[it.water] : (L.bait[it.water] = {});
@@ -1188,7 +1192,9 @@ export function createLoop(S) {
       return lines[i];
     }
     if (L.said[id]) return null;
-    const text = id === 'firstChart' ? (M.firstChartBy?.[wickNow()] ?? M.firstChart) : M[id];
+    // (LAKE 2, lane C: 'at:<water>:<key>', a later water's own line, TEXT_LOOP.murk.at[water][key], each once)
+    const atK = /^at:([a-z_]+):([a-z]+)$/.exec(id);
+    const text = atK ? M.at?.[atK[1]]?.[atK[2]] : id === 'firstChart' ? (M.firstChartBy?.[wickNow()] ?? M.firstChart) : M[id];
     if (typeof text !== 'string' || !text) return null;
     L.said[id] = true;
     requestSave();

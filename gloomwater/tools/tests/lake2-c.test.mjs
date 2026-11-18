@@ -169,5 +169,51 @@ section('the Mossmere\'s Chart with one water owned: its layout as it was (no sh
   ok(L.cards[0].lake.ox === 0 && L.cards[0].lake.oz === 0, 'the Mossmere\'s lake centred on its own centre, as built');
 }
 
+section('Murk\'s lake map bought (a real progression): the water\'s map owned, and the places its map opens with it (LAKE2 §3.2)');
+{
+  const THREE = await import('three');
+  const { createBus } = await import('../../src/core.js');
+  const { create } = await import('../../src/progression.js');
+  const meta = endMeta({ map: false }); meta.loop.clams = 12000;
+  const bus = createBus();
+  const ctx = { THREE, bus, data: D, state: { meta, run: null }, time: { dt: 0.016, gameDt: 0.016, t: 0, gameT: 0, timeScale: 1, frame: 1 },
+    flow: 'home', paused: false, debug: {}, errors: [], isMobile: false, input: {}, core: { debugEnabled: () => false }, game: { save() {} },
+    survival: { getPhaseInfo: () => ({ phase: 'calm', day: 1, time: 0, duration: 40, k: 0, isNight: false }), addOil() {}, addSatiety() {}, heal() {} },
+    actors: { merchant: { present: false, position: new THREE.Vector3(), arrive() {}, leave() {} }, setRaftLevel() {}, setCharacter() {} },
+    world: { getMerchantDock: () => ({ position: new THREE.Vector3(24, 0, 38), yaw: 1 }), setGateState() {}, getGate: () => null, getDepth: () => 0.5 },
+    player: { position: new THREE.Vector3(0, 0, 0), isNear() { return true; } }, combat: { addXp() {} },
+    ui: { isBlocking: () => false, isShopOpen: () => false, floatText() {} },
+    fishing: { state: 'idle', hookLine: () => ({ state: 'idle', out: false, fishOn: false, castBait: null }), reelInQuiet: () => ({ ok: false }), spots: [], signs: [], addSpots() {}, armChum() {} } };
+  const was = D.LOOP.shipped;
+  D.LOOP.shipped = 'sporewood';
+  try {
+    ctx.progression = create(ctx); ctx.progression.init();
+    const L = ctx.progression.loop;
+    const card = PL.mapCards(D, meta.loop, { meta }).find((c) => c.id === 'lake:sporewood');
+    ok(card && card.sealed === false && card.price > 0, 'the lake map\'s card: unsealed and priced', card && { sealed: card.sealed, price: card.price });
+    const r = L.buy('lake:sporewood');
+    ok(r?.ok === true && meta.loop.maps.lakes.includes('sporewood'), 'bought: Sporewood\'s map owned', r);
+    ok(['lullaby', 'gill_harp'].every((id) => meta.loop.maps.places.includes(id)) && !meta.loop.maps.places.includes('veilwater') && !meta.loop.maps.places.includes('mothers_cup'), 'the Lullaby and the Gill Harp owned with it; the Veilwater and the Mother\'s Cup still to buy', meta.loop.maps.places);
+    ok(!PL.mapCards(D, meta.loop, { meta }).some((c) => c.price === 0), 'no map card at 0 clams after it', PL.mapCards(D, meta.loop, { meta }).map((c) => [c.id, c.price]));
+    const sp = U.chartModel(meta, D, {}).sheets.find((s) => s.waterId === 'sporewood');
+    ok(sp && sp.places.filter((p) => p.owned).map((p) => p.id).join() === 'lullaby,gill_harp' && sp.places.every((p) => p.price !== 0), 'the Chart: the two owned, no blot priced at 0', sp?.places);
+    // Murk's lines at a later water (LAKE2 §6.4), each once: the first evening home there, its first cap loss there
+    const at = D.TEXT_LOOP.murk.at.sporewood;
+    ok(L.sayOnce('at:sporewood:home') === at.home && L.sayOnce('at:sporewood:home') === null, 'sayOnce(at:sporewood:home): Murk\'s first-evening line there, once');
+    ok(L.sayOnce('at:sporewood:nothing') === null && L.sayOnce('at:nowhere:home') === null, 'no such line: nothing said');
+  } finally { D.LOOP.shipped = was; }
+}
+
+section('Murk\'s order of lines at a later water (saleLineId with its own lines): home first, then its own first cap loss');
+{
+  const at = D.TEXT_LOOP.murk.at.sporewood;
+  ok(U.saleLineId({ empty: true, water: 'sporewood', at }) === 'at:sporewood:home', 'the first evening home at Sporewood: its line');
+  ok(U.saleLineId({ empty: true, water: 'sporewood', at, listDone: true }) === 'listComplete', 'a list done the same evening comes first');
+  ok(U.saleLineId({ empty: true, away: true, water: 'sporewood', at, said: { 'at:sporewood:home': true, firstAway: true } }) === 'at:sporewood:away', 'its first cap loss there, though the Mossmere\'s was said');
+  ok(U.saleLineId({ empty: true, away: true, water: 'sporewood', at, said: { 'at:sporewood:home': true, 'at:sporewood:away': true } }) === null, 'each once');
+  ok(U.saleLineId({ empty: true, away: true }) === 'firstAway' && U.saleLineId({ empty: true, away: true, said: { firstAway: true } }) === null, 'the Mossmere (no lines of its own): GEAR-GATES\' firstAway as built');
+  ok(U.saleLineId({ rows: [{ speciesId: 'x' }], water: 'mossmere', at: null }) === 'firstSale', 'the Mossmere\'s first sale as built');
+}
+
 console.log(`\nlake2-c: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

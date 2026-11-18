@@ -290,6 +290,7 @@ const CSS = `
 .gw-book[data-layout=desktop]:not(.gw-short):not(.gw-low) .gw-plate:not(.gw-plate--map):not(.gw-plate--sealed) .gw-plate-art { box-sizing: border-box; padding: 8px 4px 6px; }
 .gw-book.gw-tall .gw-plate-low { flex-direction: row; align-items: flex-end; }
 .gw-book.gw-tall .gw-plate-line { text-align: left; -webkit-line-clamp: 2; }
+.gw-book .gw-plate-line.gw-plate-lakeline { display: block; -webkit-line-clamp: none; overflow: visible; }
 .gw-book.gw-tall .gw-plate-hours { justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .gw-mb-ring path, .gw-mb-stamp.gw-press, .gw-book-order { animation: none; } }
 `;
@@ -382,9 +383,11 @@ export function createMurkBook(deps) {
     // (LAKE 2, lane C: a shipped lake map's line is its own and "Moving on leaves bought gear behind.")
     const lineText = shippedLake ? [TL().maps?.[c.waterId], TL().mapLeaves].filter(Boolean).join(' ') : c.line;
     // the one line under the drawing (a desktop: its own row, the full width; a phone: beside the drawing), then the price
-    if (lineText && B.layout === 'desktop') { const ln = h('span', 'gw-plate-line'); ln.textContent = lineText; el.appendChild(ln); }
+    // (a shipped lake map's lines are never clamped: its page holds it alone, and the leaving note must be read whole)
+    const lineCls = shippedLake ? 'gw-plate-line gw-plate-lakeline' : 'gw-plate-line';
+    if (lineText && B.layout === 'desktop') { const ln = h('span', lineCls); ln.textContent = lineText; el.appendChild(ln); }
     const low = h('div', 'gw-plate-low');
-    if (lineText && B.layout !== 'desktop') { const ln = h('span', 'gw-plate-line'); ln.textContent = lineText; low.appendChild(ln); }
+    if (lineText && B.layout !== 'desktop') { const ln = h('span', lineCls); ln.textContent = lineText; low.appendChild(ln); }
     const price = h('span', 'gw-plate-price', c.price == null ? '' : clamTag(c.price));
     if (S.marked === c.id && !c.bought) price.insertAdjacentHTML('beforeend', RING);
     low.appendChild(price);

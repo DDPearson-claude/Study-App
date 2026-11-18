@@ -40,8 +40,8 @@ export default async function (api) {
   const overflow = (sel) => g((s) => {   // (no word cut or spilling its box: every text element inside its own box and inside the viewport)
     const out = [];
     for (const el of document.querySelectorAll(`${s} p, ${s} h2, ${s} b, ${s} button span, ${s} .gw-shelf-line, ${s} .gw-plate-line`)) {
-      const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
-      if (el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflow !== 'visible') out.push(['cut', el.className, el.textContent.slice(0, 30)]);
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height || el.closest('.gw-vh')) continue;   // (.gw-vh: words for a screen reader only)
+      if ((el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) && getComputedStyle(el).overflow !== 'visible') out.push(['cut', el.className, el.textContent.slice(0, 30)]);
       if (r.left < -0.5 || r.right > innerWidth + 0.5 || r.top < -0.5 || r.bottom > innerHeight + 0.5) out.push(['off', el.className, el.textContent.slice(0, 30), [r.left, r.top, r.right, r.bottom].map(Math.round)]);
     }
     return out;
