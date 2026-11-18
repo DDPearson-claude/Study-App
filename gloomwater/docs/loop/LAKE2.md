@@ -1416,7 +1416,7 @@ part-1 tests unchanged and green).
   shade line); the Gill Harp's dark silhouette, the banks' large-scale tint, the Veil's near stalk, the isles' near circles, the Skep
   Lid's hold and the Nightbloom's head are art passes not yet made.
 
-**The release gate (18 Nov 2026, gw-lake2): Sporewood opens.** `index.html` is not rebuilt here (the integration step does).
+**The release gate (18 Nov 2026, gw-lake2): Sporewood opens.** `index.html` is not rebuilt here (the integration step does: §9.12).
 
 - **The dev branch merged** (9315346: the soft fish shadows): no textual conflict. `fishing-sight.js` holds both sides, Sporewood's
   own outlines and never-seen (`OUTLINE_AT`, `NEVER_AT`, the water through `outlineOf`, `pickSight`, `createSight`) and the glide (a
@@ -1562,6 +1562,32 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
 - **Frames**: the look sheet (Sporewood's three lights beside the Mossmere's, before and after), the set pieces before and after, the
   fish sheet (each changed fish beside its relative in Sporewood's show light, its card ink) and the phone frames: the lane's scratch
   folder `l2-art/` (look-sheet.jpg, set-pieces.jpg, fish-sheet.jpg, phone/).
+
+### 9.12 The integration (gw-lake2, 18 Nov 2026): the gate and the art pass together, `index.html` built
+
+- **Merged**: gw-l2-art (8f68973, then 45b2b73) into the gate's gw-lake2. One conflict, this file (§9.10's gate notes and §9.11 both
+  kept); `data.js` and `validate-data.mjs` merged by git (`LOOP.shipped` and the gate's checks beside the art's `ZONE_LOOKS`,
+  `ROSTER_ART` and isle outlines). No generated file in a conflict. The dev branch (9315346) is in gw-lake2 already.
+- **The gate on the merged tree**: `check.mjs --quick` all green (83); `validate-data` plain, `--v3`, `--loop` OK (22,694 · 93,351 ·
+  2,344 checks). `clams.mjs --shipped=sporewood` all pass, two warnings as before; with the art's re-baked isle shares the first
+  evening loses **15%** of hooked fish and earns **64%** of the Mossmere's last trip (101% a minute); the map 34 min after the empty
+  shelf, Sporewood's empty shelf 3.28 h, the first giant at hour 1.65 (1.57 before the re-bake). `clams.mjs --shipped=mossmere --quick`
+  byte-identical to the gate's (its one older FAIL and warning). `build.mjs --game`: `chart-art.js` unchanged; `roster-export --check`
+  current. `index.html` built by `node build.mjs` (two builds, the same bytes).
+- **Two fixes the browser showed** (Sporewood only; the Mossmere's ring of shore mist as built): the shore mist band, 1.5 m back from an
+  outline shore, folded back on itself at one tight bend (45.6, −15.4) and stood as a pale, hard-edged slab against the far bank in the
+  first evening's view: the band thins to nothing there (`world-art.shoreBand`, its foot's v). And by Rootfoot's landing at night the
+  band's foot, 10 m from the raft's lens, laid a pale arc across the water by Murk's barge: an outline water's band fades in from 14 m
+  (`mistMaterial`'s `uNear`, 6 on the Mossmere as before), so it stays the far banks' mist.
+- **Browser** (a dev build of this tree): `loop-1a` main (`--mobile` 820 × 900): no console or game error; its two failures are T59's
+  phone grid, as at the gate. A Sporewood trip at **1280 × 800** and **390 × 844** (the Mossmere's end, the lake map bought, the Chart
+  with Sporewood open, the leaving card, Tow, the first evening, a Nightbloom Carp landed and shown, Keep, Sporewood by day and by night,
+  home at Rootfoot, the way back): no failure, no page, console or game error; no word cut or off the screen on the Chart, the leaving
+  card or the catch card.
+- **Left**: the near water under the lantern still reads amber on the play lens, most on a tall phone (§9.11's not done); at night a
+  faint trace of the band's arc by Murk's barge remains (gone from 18 m; 14 keeps the near banks' mist); the first cast's tip ("Press on
+  the water. Let go to cast.") sits unbacked on the bright far bank on a phone; the Skep Lid's tip and the Netcloud Fry's cupped hand
+  (§9.11).
 
 ## 10. Left for later (named, not built)
 
