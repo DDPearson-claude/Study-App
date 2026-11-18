@@ -1048,7 +1048,8 @@ nothing reads `ZONE_LOOKS` at all (Sporewood's flag-off arena is its twoBasins o
   green share **day 12.4** (11.3 · 15.4 · 10.6), **dusk 10.0** (9.0 · 12.7 · 8.2), **night 6.4** (5.3 · 7.7 · 6.1) against 12 · 10.5 ·
   6.5 (±10%): all three inside; teal ≤ 1.0% of every frame; the Mossmere's frame 0.0%. **The cost** (`clarity-perf --loop --sporewood`, 960 × 540, at night, the West Pool, the East Pool and the neck): medium 179–182
   calls and 236–238k triangles in all passes (≤ 230 and ≤ 320k), the world's own 32–34 calls, 6–8 fewer than the Mossmere's with its four
-  banks standing (40), cpuMs 6.9–8.8k against that Mossmere frame's 20.8k; high 182–187 calls and 344–353k triangles. The kit is 14
+  banks standing (40), cpuMs 6.9–8.8k against that Mossmere frame's 20.8k; high 182–187 calls and 344–353k triangles. On the phone (390 × 844, `--mobile`): low 97–99 calls, 104–107k triangles, cpuMs
+  1.7–2.0k against the Mossmere's banks frame's 4.9k; medium 178–181 calls, 230–240k triangles, cpuMs 2.6–2.8k against 5.6k. The kit is 14
   meshes (12 cells, the flowers, the fireflies), 28.8k triangles on high, 20.8k on medium; the arena builds in 150–260 ms warm on
   high (the Mossmere's 190) and 60–180 ms on low, the kit 27–94 ms of it (node, on the shared box).
 - **Left for the gate and C**: `LOOP.shipped = 'sporewood'` (nothing reaches it in play until then: the scenario puts the world on
