@@ -1453,6 +1453,15 @@ part-1 tests unchanged and green).
   pass, byte-identical before and after: the first evening loses **15%** of hooked fish (at most about one in five) and earns **64%** of
   the Mossmere's last trip (at least about 60%; 101% a minute); the map 34 min after the empty shelf; Sporewood's empty shelf 3.28 h.
   Two warnings as before (the list's p95, the return to the Mossmere's pace at trip 16).
+- **Browser** (a dev build of the gate's tree, `LOOP.shipped` from the source, never set in the page): `lake2-c` (the lake map at
+  2,800 on the shelf and the sealed seal alike, bought; the Chart with both sheets and Glasswater's "Coming soon"; the leaving card,
+  Not yet, Tow; the leg, the glide in, the first evening at Sporewood; home at Rootfoot; the way back both ways; a reload mid-leg) at
+  **1280 × 800** and **390 × 844**: no failure, no page, console or game error; nothing cut or overlapping in the frames, no ring round
+  the raft. `loop-1a` main (`--mobile` 820 × 900): no console or game error; its two failures are T59's phone grid, which at 820 px is
+  the desktop row (older than the gate, GEAR-GATES' note), and the goal line now reads "Next: Braided Gut · 100" as built.
+- **Left**: Glasswater has no gear key in `LOOP.access.gear` yet, so its sealed sheet's gear seal is a plain hollow rod seal (its
+  water's data comes with it); the M1 docs' "Sporewood's card still reads Coming soon" (M1 §2.5) is the pre-gate state; the review's
+  other findings (§11's lures, the art passes above) stand.
 
 ## 10. Left for later (named, not built)
 
