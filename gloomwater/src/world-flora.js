@@ -468,21 +468,23 @@ function prototypes(look, K) {
     for (let i = 0; i < P0.count; i++) { const x = P0.getX(i) - cx, y = P0.getY(i) - cy + r * 0.25, z = P0.getZ(i) - cz, l = Math.hypot(x, y, z) || 1; N0.setXYZ(i, x / l, y / l, z / l); }
     const yLo = cy - r * squash, span = 2 * r * squash;
     addGeo(S, g, (x, y, z, i) => {
-      const t = clamp01((y - yLo) / span), j = hash(i * 1.37 + seed);
+      // (a soft leafy dapple that drifts smoothly over the mound: a per-vertex jitter lit each triangle on its own and read as facets)
+      const t = clamp01((y - yLo) / span), j = hash(i * 1.37 + seed), d = 0.5 + 0.5 * Math.sin(x * 2.3 / r + seed) * Math.cos(z * 2.1 / r + y * 1.7 / r);
       let c = t < 0.3 ? mixArr(ink, dark, t / 0.3) : t < 0.7 ? mixArr(dark, mid, (t - 0.3) / 0.4) : mixArr(mid, hi, ((t - 0.7) / 0.3) * top);
-      c = scaleArr(c, (0.9 + 0.2 * j) * dim);
+      c = scaleArr(c, (0.92 + 0.14 * d) * dim);
       if (bloomK > 0 && t > 0.45 && j > 1 - bloomK) c = bloom[j > 1 - bloomK * 0.4 ? 1 : 0];
       return [c, sway * t, 0, 0.6 + 0.4 * t];
     });
     // the leaf cards: small pointed leaves on the mound's surface, tilted out, a little lighter toward their tips
+    // (most of them round the mound's waist and shoulders, where they break its outline into leaves; a few on its crown)
     for (let k = 0; k < cards; k++) {
-      const u = hash(seed * 3.1 + k * 1.91) * 1.5 - 0.45, a = hash(seed * 5.7 + k * 2.37) * TAU, q = Math.sqrt(Math.max(0, 1 - u * u));
+      const u = k % 4 === 3 ? 0.55 + hash(seed * 3.1 + k * 1.91) * 0.4 : hash(seed * 3.1 + k * 1.91) * 0.9 - 0.3, a = (k / cards) * TAU * 2.618 + hash(seed * 5.7 + k * 2.37) * 0.9, q = Math.sqrt(Math.max(0, 1 - u * u));
       const dx = q * Math.cos(a), dy = u, dz = q * Math.sin(a), f = lobe(dx, dy, dz);
       const px = cx + dx * r * f * 0.97, py = cy + dy * r * f * squash * 0.97, pz = cz + dz * r * f * 0.97;
       // (a leaf: its spine out from the mound and a little up, its blade across it)
       let ox = dx, oy = dy * 0.5 + 0.35, oz = dz; const ol = Math.hypot(ox, oy, oz) || 1; ox /= ol; oy /= ol; oz /= ol;
       let wx = -dz, wz = dx; const wl = Math.hypot(wx, wz) || 1; wx /= wl; wz /= wl;
-      const L = r * (0.2 + 0.12 * hash(k + seed)), W = L * 0.45, t = clamp01((py - yLo) / span);
+      const L = r * (0.26 + 0.14 * hash(k + seed)), W = L * 0.42, t = clamp01((py - yLo) / span);
       const base = t < 0.5 ? mixArr(dark, mid, t * 2) : mixArr(mid, hi, (t - 0.5) * 2 * top), tip = mixArr(base, hi, 0.35);
       const nx = dx, ny = dy + 0.25, nz = dz, sw = sway * (0.6 + t) + 0.02;
       const v0 = vtx(S, px - ox * L * 0.15, py - oy * L * 0.15, pz - oz * L * 0.15, nx, ny, nz, scaleArr(base, 0.9 * dim), sw * 0.5, 0, 1);
@@ -492,10 +494,10 @@ function prototypes(look, K) {
       tri(S, v0, v1, v2); tri(S, v0, v2, v3);
     }
   };
-  // a shrub: three soft lobed mounds, cream blossom on a few leaves (about 250)
+  // a shrub: three soft lobed mounds, cream blossom on a few leaves (about 560: rounder mounds and a leafy edge, the user's "blocky shrubs")
   {
     const S = soup();
-    [[0, 0.55, 0, 0.62], [0.45, 0.42, 0.22, 0.46], [-0.38, 0.44, -0.26, 0.5]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 11 + m * 17, { cards: 8, bloomK: 0.07, seg: [7, 6] }));
+    [[0, 0.55, 0, 0.62], [0.45, 0.42, 0.22, 0.46], [-0.38, 0.44, -0.26, 0.5]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 11 + m * 17, { cards: 14, bloomK: 0.07, seg: [11, 8] }));
     P.bush = S;
   }
   // a broadleaf bank tree, upright (the plan leans it): a trunk with two limbs and a crown of soft lobed masses (~1,100)
@@ -511,10 +513,10 @@ function prototypes(look, K) {
     masses.forEach(([cx, cy, cz, r], mi) => leafMass(S, cx, cy, cz, r, 101 + mi * 13, { cards: 9, squash: 0.76, sway: 0.05, seg: [10, 8] }));
     P.tree = S;
   }
-  // a far crown (the forest's edge behind the banks): two soft dark masses (~90)
+  // a far crown (the forest's edge behind the banks, 2–4 m across): two soft dark masses, round enough at that size (~310)
   {
     const S = soup();
-    [[0, 0.9, 0, 1], [0.62, 0.58, 0.36, 0.72]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 201 + m * 31, { cards: 4, squash: 0.85, sway: 0.02, top: 0.5, dim: 0.85, seg: [6, 4] }));
+    [[0, 0.9, 0, 1], [0.62, 0.58, 0.36, 0.72]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 201 + m * 31, { cards: 8, squash: 0.85, sway: 0.02, top: 0.5, dim: 0.85, seg: [10, 7] }));
     P.crown = S;
   }
   // <<< LAKE 2, the art pass

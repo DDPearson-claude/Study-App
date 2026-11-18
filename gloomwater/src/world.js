@@ -158,7 +158,7 @@ export function create(ctx) {
   // Mossmere, the flag-off game) keeps the built mood exactly: `lit` is null for it and none of this runs.
   let lit = null;
   const LIT_COLS = ['fog', 'horizon', 'key', 'amb', 'water', 'deep', 'tint'];
-  const LIT_NUMS = ['keyI', 'ambI', 'tintAmt', 'exposure', 'sat', 'stars', 'glow', 'elev', 'leaf'];
+  const LIT_NUMS = ['keyI', 'ambI', 'tintAmt', 'exposure', 'sat', 'stars', 'neb', 'glow', 'elev', 'leaf'];
   function litOf(z) {
     const Ls = lushLook(ctx.data, z?.id)?.air?.lights;
     if (!Ls || !Ls.day || !Ls.dusk || !Ls.night) return null;
@@ -436,7 +436,7 @@ export function create(ctx) {
     const stars = Number.isFinite(zc.stars) ? zc.stars : 1;
     env.starK = stars * (lit ? litNum('stars') : 0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
     env.starDen = (0.65 + 0.35 * stars) * (1 + 0.28 * n) * (1 - 0.3 * w) * STAR_DENSITY;
-    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w) * NEBULA_K * (lit ? 0.5 : 1);   // (LAKE 2, the art pass: its violet nebula an accent in the cap-rim window)
+    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w) * NEBULA_K * (lit ? litNum('neb') : 1);   // (LAKE 2, the art pass: its violet nebula an accent in the cap-rim window, by the hour)
     const s = scene();
     if (s) {
       if (!s.fog) s.fog = new THREE.FogExp2(col.fog.getHex(), density);
@@ -606,7 +606,8 @@ export function create(ctx) {
         const s = wl[i++];
         s.position.set(a.anchor.x, a.anchor.y, a.anchor.z); s.color.copy(a.anchor.color);
         s.intensity = a.anchor.intensity * a.k * env.glowK; s.distance = a.anchor.distance;
-        s.streak = 0.7;   // a candle's column on the water stays a gold thread, never a white pillar
+        s.streak = lit ? 0 : 0.7;   // a candle's column on the water stays a gold thread, never a white pillar (LAKE 2, the art pass: on
+        // Sporewood none: its glowcaps lay their pools and no thread of gold strung across the water)
         waterLights.push(s);
       }
     }

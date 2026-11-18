@@ -5980,18 +5980,19 @@ export const ZONE_LOOKS = Object.freeze({
       kit: Object.freeze({ rock: 0x1c2218, rockHi: 0x38422c, moss: 0x2c4a2e, mossHi: 0x5c7a46, wood: 0x2e2218, stone: 0x50584a, iron: 0x0e120e, bone: 0xd6caae, organic: 0xc6b898,
         cap: 0x6e4a24, capHi: 0xc49448 }),
       // (each light: fog the air and the sky's base, horizon the sky's low band, key and keyI the moon's or the sun's colour and strength,
-      // amb and ambI the fill, water and deep the water's own colour, tint and tintAmt the grade's, exposure, sat, stars (× the palette's),
+      // amb and ambI the fill, water and deep the water's own colour, tint and tintAmt the grade's, exposure, sat, stars (× the palette's), neb
+      // (the violet nebula in the cap-rim window, × the built: an accent, never the sky),
       // glow (the glowcaps' and the gills' light), elev (the key's elevation × this: the dusk's low light, long shadows), leaf (the
       // leaves' light through them))
       lights: Object.freeze({
         day: Object.freeze({ fog: 0x3c5a40, horizon: 0xc4c08a, key: 0xf6eab2, keyI: 2.8, amb: 0x587a52, ambI: 0.95, water: 0x22443a, deep: 0x0a1a12,
-          tint: 0x46622c, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.2, glow: 0.7, elev: 1, leaf: 1.2 }),
+          tint: 0x46622c, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.03, neb: 0.25, glow: 0.7, elev: 1, leaf: 1.2 }),
         // (dusk: the sky and the key amber-rose, the fill and the shadows blue-green, so the lit leaves turn olive-bronze and the shade
         // stays green, WATERS §3.2's dusk)
-        dusk: Object.freeze({ fog: 0x4a3e34, horizon: 0xeaa47a, key: 0xffcc9c, keyI: 2.4, amb: 0x3e5a4a, ambI: 0.74, water: 0x203a30, deep: 0x0a120e,
-          tint: 0x5a4a30, tintAmt: 0.08, exposure: 1.02, sat: 1.04, stars: 0.55, glow: 1.1, elev: 0.35, leaf: 1.4 }),
+        dusk: Object.freeze({ fog: 0x2e3c34, horizon: 0xf0a070, key: 0xffa874, keyI: 2.6, amb: 0x34524a, ambI: 0.7, water: 0x1c3a30, deep: 0x08120e,
+          tint: 0x404a34, tintAmt: 0.05, exposure: 0.98, sat: 1.1, stars: 0.22, neb: 0.4, glow: 1.15, elev: 0.35, leaf: 1.5 }),
         night: Object.freeze({ fog: 0x0b2428, horizon: 0x183c40, key: 0x88b8c8, keyI: 0.6, amb: 0x16343a, ambI: 0.36, water: 0x0a2024, deep: 0x02090a,
-          tint: 0x0e3a48, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.9, glow: 1.8, elev: 1, leaf: 0.85 }),
+          tint: 0x0e3a48, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.65, neb: 0.3, glow: 1.8, elev: 1, leaf: 0.85 }),
       }),
     }),
     // <<< LAKE 2, the art pass

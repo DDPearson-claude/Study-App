@@ -79,6 +79,9 @@ export default async function (api) {
       // (as the loop's lift frames it: loop-home's landmarkOf is the world's anchor for the place)
       const lift = await g(() => { const c = window.__gw, p = c.world.placeAnchor?.('veilwater'); if (!p) return false; c.render.frameLandmark?.(p, { dur: 30, back: 0.1 }); return true; });
       if (lift) { await put(-66, 31, 0); await K.secs(1.5); await K.settle(300); await K.shoot('veil-lift-shot'); await g(() => window.__gw.render.frameLandmark?.(null, { back: 0.01 })); await K.secs(0.3); }
+      // the Gill Harp from the West Pool's side of the neck (its two caps, their undersides and the strings hanging over the water) and
+      // Rootknot close (its moss-grown roots under a small cap with its own strings)
+      for (const [name, pos, look] of [['gill-harp-vista', [-17, 4.2, 13], [2, 5.5, 5], 55], ['rootknot', [29, 3.2, -3], [22, 1.6, -12], 50]]) { await cam(pos, look, 55); await K.secs(0.5); await K.settle(300); await K.shoot(`${name}-day`); }
       await cam([-6, 150, 120], [-6, 0, 0], 50); await K.secs(0.5); await K.settle(400); await K.shoot('overhead-day');
       for (const [name, pos, look] of [['isles-west', [-40, 40, 40], [-46, 0, 2]], ['isles-east', [40, 30, 26], [40, 0, -2]]]) { await cam(pos, look, 50); await K.secs(0.5); await K.settle(300); await K.shoot(name); }
       await uncam();
