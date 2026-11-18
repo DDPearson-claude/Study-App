@@ -1418,6 +1418,12 @@ part-1 tests unchanged and green).
 
 ### 9.11 The art pass (gw-l2-art, after the review of §9.10)
 
+**The greener palette** is commit 04e12c8 on gw-l2-art: Sporewood's air, light, water and leaves as first pulled to green (a green-gold
+day, green fog and grade, lime-bright leaves, about 30% green by day). The user's word on it (18 Nov 2026): "possibly too much green,
+we're making our way down the mountain so we want more green than the moss mere but not lots and lots of green yet", and "keep what
+you've got but do a colour palette change". The palette below is the muted one that followed; everything else is as 04e12c8 built it.
+To restore the greener palette, take `ZONE_LOOKS.sporewood`'s colour values and the WATERS row from 04e12c8.
+
 The user's words on the current frames: too purple, the three lights alike, blocky shrubs, gold on the water, three fish that read as
 one, a dark Gill Harp, a camouflage bank, a Veil that fills the lens, round isles. Fixed as follows, Sporewood only under the loop; the
 Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same) and so is the flag-off game (ZONES as fingerprinted).
@@ -1465,8 +1471,9 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   `headLen` 0.48), a stronger arch (`archK` 0.72), a darker plum #2e1630, so the cream petal edges carry.
 - **The Gill Harp and Rootknot**: every cap's underside and rim warm and light (a cream-ochre, lit by its gills); the gill strings cream
   (they were the caps' ochre: yellow sticks), the Harp's 24 (16), 6–8.6 m long, longer than the stalks' reach over the neck, hanging to
-  2.4 m over the water; the stalks, roots and fallen logs take the moss's floor in their shade (the banks' `gwFloraFloor`), so a cream
-  stalk seen from below reads as a stalk, not a black arch; Rootknot (what read as "a black spider on an islet": its seven dark arched
+  2.4 m over the water; the stalks, roots and fallen logs take the moss's floor in their shade (the banks' `gwFloraFloor`) and, on a
+  lush water, no ink hull (the tubes' hull drew over them: the Harp's stalks, the Veil's log and the cap trees read as black arches; the
+  kit and the landmarks never had one, and it is one draw fewer), so a cream stalk seen from below reads as a stalk; Rootknot (what read as "a black spider on an islet": its seven dark arched
   roots) takes low, thin, moss-grown roots, a small cap on its stump with its own lit strings and a glowcap lamp, moss cushions and ferns.
 - **The Skep Lid** is tipped back (its crown up and toward the lens, 54°), so the show sees coil over coil of a straw dome; square to the
   lens it read as a flat cream disc before the face. Its length (the size the show holds it by) is unchanged.
