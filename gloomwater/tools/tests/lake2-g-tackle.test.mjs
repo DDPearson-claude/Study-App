@@ -227,13 +227,22 @@ section('after the tow (LAKE2 §5.2, §5.3): the gear water\'s tiers named by th
     eq([keys(m, 'reel'), onLog(m, 'reel')], [['wooden_winch'], ['+2 Hold.']], 'the reel: the Wooden Winch on the carried +2');
     eq(keys(m, 'lure'), ['seedpod_twirl'], 'the lure row: Sporewood\'s own (its start lure); the Mossmere\'s wait there');
     eq([keys(m, 'bait'), onKey(m, 'bait')], [['spore_cake', 'bare'], ['spore_cake']], 'the bait row: the start kit\'s Spore Cake, fitted');
+    // a found lure travels and stands after the water's own (LAKE2 §5.4, §5.7); the drawer's row the same
+    L.state().finds.got.guard_button = 1; if (!L.state().lures.includes('guard_button')) L.state().lures.push('guard_button');
+    eq(keys(model(), 'lure'), ['seedpod_twirl', 'guard_button'], 'the found Gate-Guard\'s Button after Sporewood\'s own lures');
+    eq(UT.tackleModel(D, { run: { zone: 'sporewood', bait: {} }, metaLoop: L.state() }).lure.map((x) => x.id), ['seedpod_twirl', 'guard_button', null], '… the tin\'s drawer in the same order');
+    // the Wick's sheet at Sporewood: the start pieces by their names (they travel), a Sporewood tier by its own; the carried line
+    const SM = await import('../../src/loop-sheet.js');
+    const sh = SM.sheetModel(env.ctx.state.meta, D, {});
+    eq(sh.tackle.slots.map((p) => p.name), ['Amberheart', 'Rootthread', 'Wooden Winch'], 'the sheet\'s plates: Sporewood\'s Amberheart and Rootthread, the start reel by its name (never its id)');
+    eq(sh.tackle.carried, 'Carried +2 · +2 · +2', 'the sheet\'s carried line');
     ok(env.tap('rod', 'stalkwood').ok && L.holdOf().rod === 5 && onKey(model(), 'rod')[0] === 'stalkwood', 'a lower Sporewood rod fitted (3 + the carried 2)');
     ok(env.tap('rod', 'whalebone_rod').ok === false, 'a Mossmere rod left behind cannot be fitted');
     // the way back by the lamps (LAKE2 §6.3): the barge at the Mossmere, the gear water's tackle travels, the Mossmere's lures and tins
     ok(L.towTo('mossmere').ok, 'the way back');
     const b = model();
     eq([b.water, b.gearWater, keys(b, 'rod')], ['mossmere', 'sporewood', ['willow_switch', 'stalkwood', 'amberheart']], 'at the Mossmere: Sporewood\'s rods (the tackle travels)');
-    eq(keys(b, 'lure'), ['bent_spoon', 'feather_fly', 'glimmer_spoon'], '… and the Mossmere\'s own lures, waiting there');
+    eq(keys(b, 'lure'), ['bent_spoon', 'feather_fly', 'glimmer_spoon', 'guard_button'], '… and the Mossmere\'s own lures, waiting there (the found Button after them)');
     eq(keys(b, 'bait'), ['mireworm', 'lumen_moss', 'bare'], '… and its tins (Sporewood\'s Spore Cake, fitted there, waits there)');
     eq([onKey(b, 'bait'), onKey(b, 'lure')], [['bare'], []], '… the next trip here carries no Sporewood bait: the bare hook until a Mossmere bait is picked');
     eq(onLog(b, 'line'), ['+5 Hold.', 'Lands up to Elder.'], 'Rootthread\'s +5 against the Mossmere\'s lineAt: Elder (the Mossmere fishes easier)');

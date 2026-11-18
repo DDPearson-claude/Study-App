@@ -36,6 +36,8 @@ export function tackleWords(D) {
 }
 /** A bait's or a lure's name as the shelf names it (TEXT_LOOP.gearItems, else the built record's). */
 const nameOf = (D, id) => gearName(D, id) || arr(D?.BAITS).find((b) => b?.id === id)?.name || String(id);
+/** A lure row's order (LAKE 2, lane G): the water's own lures in LOOP.lures' order, then the found ones (they travel to every water). */
+const lureOrder = (D, ids) => [...ids.filter((id) => !D?.LOOP?.lures?.[id]?.found), ...ids.filter((id) => D?.LOOP?.lures?.[id]?.found)];
 /** The engraving's card for an item (murk-engrave's plateKey): a tin, Cut Strip, the legend's ball, a lure. */
 export function artCard(D, kind, id) {
   if (kind === 'lure') return { id: `lure:${id}` };
@@ -63,7 +65,7 @@ export function tackleModel(D, { run = null, metaLoop = null, line = null } = {}
     .map((id) => ({ id, name: nameOf(D, id), count: int(bag[id]), glyph: GEAR_GLYPH[id] || 'worm', on: id === baitOn }));
   bait.push({ id: null, name: W.bare, count: null, glyph: 'hook', on: baitOn == null && lureOn == null });   // (one thing on the hook: one pressed)
   const own = new Set(arr(ml.lures));
-  const lure = Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => (own.has(id) && lureHere(D, id, zone)) || id === lureOn)
+  const lure = lureOrder(D, Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => (own.has(id) && lureHere(D, id, zone)) || id === lureOn))
     .map((id) => ({ id, name: nameOf(D, id), glyph: GEAR_GLYPH[id] || 'spoon', on: id === lureOn, ...(D?.LOOP?.lures?.[id]?.found ? { found: true } : {}) }));
   lure.push({ id: null, name: W.none, glyph: null, on: false });
   const kit = ownedPieces(ml, D).map((id) => { const slot = D?.LOOP?.lostTackle?.[id]?.slot; return { id, slot, name: D?.TEXT_LOOP?.finds?.items?.[id]?.name || id, on: foundOf(ml, D, slot) === id }; });
@@ -142,7 +144,7 @@ export function tackleScreenModel(D, { metaLoop = null, run = null, line = null,
   const lureOn = trip ? (typeof run.lure === 'string' ? run.lure : null) : (typeof fl === 'string' && own.has(fl) && lureHere(D, fl, water) ? fl : null);
   const baitOn = trip ? (line?.out === true && typeof line.castBait === 'string' ? line.castBait : (typeof run.equippedBait === 'string' ? run.equippedBait : null))
     : (!lureOn && typeof fb === 'string' && int(bag[fb]) > 0 ? fb : null);
-  const lureItems = Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => (own.has(id) && lureHere(D, id, water)) || id === lureOn)
+  const lureItems = lureOrder(D, Object.keys(isObj(D?.LOOP?.lures) ? D.LOOP.lures : {}).filter((id) => (own.has(id) && lureHere(D, id, water)) || id === lureOn))
     .map((id) => ({ kind: 'lure', key: id, pick: id, name: nameOf(D, id), on: id === lureOn, ...(D?.LOOP?.lures?.[id]?.found ? { find: id } : { art: { id: `lure:${id}` } }),
       log: id === lureOn ? [upTo(G.item?.[id])].filter(Boolean) : [] }));
   rows.push({ kind: 'lure', head: S.lure, items: lureItems });
@@ -192,6 +194,7 @@ const PLAIN = {
     + '<path d="M115 74C109 72 104 76 104 81" stroke-width="3.6" stroke-opacity=".7"/><path d="M60 138H140" stroke-width="1.6" stroke-opacity=".45"/></g></svg>',
 };
 const glyphOf = (g) => (g ? icon(g) : SNAP_SVG);
+const FADE_R = 48;   // (the Tackle screen's strips: the right edge's fade, px; the left's is 32, over a chip's engraving only)
 
 const CSS = `
 .gw-loop-on .gw-hud.gw-tk-on .gw-gear-hud { display: none !important; }
@@ -298,7 +301,7 @@ const CSS = `
    cut (names wrap inside a chip); every target ≥ 44 px, text ≥ 16 px. A phone: the rows' heads above their strips, a sheet from below */
 .gw-m-tacklescreen .gw-scrim { background: radial-gradient(ellipse 80% 78% at 50% 48%, rgba(var(--veil-rgb), .56), rgba(var(--veil-rgb), .74) 66%, rgba(5, 6, 14, .9)); }
 .gw-m-tacklescreen .gw-modal-body { width: 100%; }
-.gw-ts { position: relative; isolation: isolate; box-sizing: border-box; width: min(980px, 100%); max-height: calc(100vh - 32px - var(--sat) - var(--sab));
+.gw-ts { position: relative; isolation: isolate; box-sizing: border-box; width: min(1360px, 100%); max-height: calc(100vh - 32px - var(--sat) - var(--sab));
   margin: 0 auto; display: flex; flex-direction: column; padding: 14px 24px 8px; color: var(--ink); }
 .gw-ts-pool { position: absolute; inset: -36px -48px; z-index: -1; pointer-events: none; background: rgba(var(--veil-rgb), .9);
   -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 72%, transparent 100%); mask: radial-gradient(ellipse 50% 50% at 50% 50%, #000 72%, transparent 100%); }
@@ -312,20 +315,21 @@ const CSS = `
 .gw-ts-rows::-webkit-scrollbar { display: none; }
 .gw-ts-row { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: center; column-gap: 10px; }
 .gw-ts-h { margin: 0; font: 400 16px/1.1 var(--f-display); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-dim); text-shadow: var(--ink-shadow); }
-.gw-ts-strip { display: flex; gap: 4px; min-width: 0; padding: 2px 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; }
+.gw-ts-strip { display: flex; gap: 4px; min-width: 0; padding: 2px 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; }
 .gw-ts-strip::-webkit-scrollbar { display: none; }
 .gw-ts-strip.gw-ts-r { -webkit-mask: linear-gradient(90deg, #000 calc(100% - 48px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 48px), transparent); }
-.gw-ts-strip.gw-ts-l { -webkit-mask: linear-gradient(90deg, transparent, #000 48px); mask: linear-gradient(90deg, transparent, #000 48px); }
-.gw-ts-strip.gw-ts-l.gw-ts-r { -webkit-mask: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); mask: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); }
+.gw-ts-strip.gw-ts-l { -webkit-mask: linear-gradient(90deg, transparent, #000 32px); mask: linear-gradient(90deg, transparent, #000 32px); }
+.gw-ts-strip.gw-ts-l.gw-ts-r { -webkit-mask: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 48px), transparent); mask: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 48px), transparent); }
+.gw-ts-end { flex: none; display: block; height: 1px; }
 .gw-ts-chip { position: relative; flex: none; display: grid; grid-template-columns: 64px auto; column-gap: 8px; align-items: center; min-height: 60px; padding: 4px 14px 4px 4px;
-  border: none; border-radius: 10px; background: none; color: var(--ink-dim); text-align: left; cursor: pointer; scroll-snap-align: start; scroll-margin: 0 48px;
+  border: none; border-radius: 10px; background: none; color: var(--ink-dim); text-align: left; cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: color .2s, background-color .2s; }
 .gw-ts-art { position: relative; display: block; width: 64px; height: 48px; color: var(--ink); opacity: .74; transition: opacity .2s, filter .2s; }
 .gw-ts-art .cat-eng, .gw-ts-art canvas { display: block; width: 100%; height: 100%; }
 .gw-ts-art .cat-pp { fill: #0d0f21; }
 .gw-ts-art .gw-tk-plain { opacity: .9; }
 .gw-ts-txt { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; max-width: 184px; }
-.gw-ts-name { position: relative; display: block; font: 400 17px/1.15 var(--f-body); color: inherit; overflow-wrap: normal; word-break: normal; hyphens: manual; text-shadow: var(--ink-shadow); }
+.gw-ts-name { position: relative; display: block; font: 400 17px/1.15 var(--f-body); color: inherit; white-space: pre-line; overflow-wrap: normal; word-break: normal; hyphens: manual; text-shadow: var(--ink-shadow); }
 .gw-ts-n { display: block; font: 500 16px/1.15 var(--f-body); color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .gw-ts-log { display: block; font: italic 400 16px/1.2 var(--f-body); color: var(--ink-dim); text-shadow: var(--ink-shadow); }
 .gw-ts-chip:hover, .gw-ts-chip:focus-visible { outline: none; color: var(--ink); background-color: rgba(174, 172, 208, .07); }
@@ -348,7 +352,7 @@ const CSS = `
   .gw-ts { width: 100%; max-height: calc(100vh - var(--sat) - 8px); padding: 16px max(16px, var(--sar)) calc(var(--sab) + 6px) max(16px, var(--sal)); }
   .gw-ts-pool { inset: -56px 0 0; background: rgba(var(--veil-rgb), .95);
     -webkit-mask: linear-gradient(0deg, #000 calc(100% - 72px), transparent); mask: linear-gradient(0deg, #000 calc(100% - 72px), transparent); }
-  .gw-ts-head { column-gap: 14px; margin-bottom: 6px; }
+  .gw-ts-head { column-gap: 14px; margin-bottom: 10px; }
   .gw-ts-title { font-size: 22px; }
   .gw-ts-sub { font-size: 16px; column-gap: 12px; }
   .gw-ts-rows { gap: 2px; }
@@ -358,16 +362,32 @@ const CSS = `
   .gw-ts-txt { max-width: 128px; }
   .gw-ts-name { font-size: 16px; }
   .gw-ts-foot { padding-top: 2px; }
+  .gw-ts-foot .gw-btn { padding: 2px 1.1em; }
 }
+/* a short screen (a phone held sideways): the foot beside the head, the five rows under both */
 @media (max-height: 499px) {
-  .gw-ts { max-height: calc(100vh - 12px - var(--sat) - var(--sab)); padding-top: 8px; padding-bottom: 4px; }
-  .gw-ts-head { margin-bottom: 4px; padding-right: 150px; }
-  .gw-ts-foot { position: absolute; top: 2px; right: 16px; padding: 0; }
-  .gw-ts-rows { gap: 0; }
-  .gw-ts-chip { min-height: 52px; grid-template-columns: 52px auto; padding-top: 2px; padding-bottom: 2px; }
+  .gw-ts { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); column-gap: 16px;
+    max-height: calc(100vh - 12px - var(--sat) - var(--sab)); padding-top: 8px; padding-bottom: 4px; }
+  .gw-ts-head { grid-column: 1; grid-row: 1; margin-bottom: 4px; }
+  .gw-ts-foot { grid-column: 2; grid-row: 1; align-self: start; flex-wrap: nowrap; padding: 0; }
+  .gw-ts-foot .gw-btn { padding: 2px 1.1em; }
+  .gw-ts-rows { grid-column: 1 / -1; grid-row: 2; gap: 0; }
+  .gw-ts-row { grid-template-columns: 76px minmax(0, 1fr); }
+  .gw-ts-chip { min-height: 52px; grid-template-columns: 52px auto; column-gap: 6px; padding-top: 2px; padding-bottom: 2px; padding-right: 8px; }
   .gw-ts-art { width: 52px; height: 39px; }
 }
 @media (prefers-reduced-motion: reduce) { .gw-m-tacklescreen .gw-modal-body { transition: none; } }
+/* a trip's tips and Murk's lines wait under the drawer and the Tackle screen (quiet modals, which ui.js's .gw-tipless does not count):
+   never a line over a chip or Done */
+.gw-loop-on.gw-tk-veiled .gw-loop-tip, .gw-loop-on.gw-tk-veiled .gw-toast--murk { opacity: 0 !important; visibility: hidden; }
+/* the pause menus' item while a fish is on: dimmed as the sheet's, its one line under it */
+.gw-mbtn.gw-loop-tackle.gw-locked > span { opacity: .32; }
+/* a phone held sideways: the pause menus, one item longer with Tackle, closer, so the panel's closing flourish stays under Settings */
+@media (max-height: 499px) {
+  .gw-p-trippause, .gw-p-homepause { padding-top: 10px; padding-bottom: 40px; }
+  .gw-p-trippause .gw-pause-menu, .gw-p-homepause .gw-pause-menu { margin-top: 2px; }
+  .gw-p-trippause .gw-mbtn, .gw-p-homepause .gw-mbtn { min-height: 44px; }
+}
 `;
 
 /**
@@ -578,8 +598,47 @@ export function createTackleView({ K, L, D, report = () => {} }) {
     const d = D(), wid = d?.loopWickId?.(L('wick')) || 'wick', nm = arr(d?.CHARACTERS).find((c) => c?.id === wid)?.name || 'The Wick';
     return String(d?.TEXT_LOOP?.sheet?.title || "{name}'s Sheet").replace('{name}', nm);
   };
-  /** A strip's edge fades: content beyond its left or right edge. */
-  const edges = (s) => { s.classList.toggle('gw-ts-l', s.scrollLeft > 2); s.classList.toggle('gw-ts-r', s.scrollLeft + s.clientWidth < s.scrollWidth - 2); };
+  /** A strip's edge fades: a chip beyond its left or right edge (the end's spacer is no chip). */
+  const edges = (s) => {
+    const c = s.querySelector('.gw-ts-chip:last-of-type'), sr = s.getBoundingClientRect(), end = c ? c.getBoundingClientRect().right - sr.left : 0;
+    s.classList.toggle('gw-ts-l', s.scrollLeft > 2);
+    s.classList.toggle('gw-ts-r', end > s.clientWidth + 2);
+  };
+  /**
+   * Turn a strip so a chip stands whole in view, clear of the right edge's fade, with the strip's left edge on a chip's own left edge
+   * (never part of a name at the left; the left fade lies over the first chip's engraving only): of the chips' left edges that show it so,
+   * the nearest to where the strip is. A spacer after the last chip lets the strip turn that far. A chip already clear stays put (with
+   * `snap`, only where the strip's left edge is on a chip's: a strip a swipe left between two is set on the nearest).
+   */
+  function reveal(s, chip, { snap = true } = {}) {
+    const chips = [...s.querySelectorAll('.gw-ts-chip')], i = chips.indexOf(chip);
+    if (i < 0) return;
+    const sr = s.getBoundingClientRect(), x0 = s.scrollLeft, cw = s.clientWidth;
+    const L = chips.map((c) => { const r = c.getBoundingClientRect(); return { l: r.left - sr.left + x0, r: r.right - sr.left + x0 }; });
+    const room = cw - (i === chips.length - 1 ? 0 : FADE_R);
+    const clear = (x) => L[i].l >= x - 0.5 && L[i].r <= x + room + 0.5;
+    if (clear(x0) && (!snap || x0 <= 0.5 || L.some((q) => Math.abs(q.l - x0) < 1))) return;
+    let x = null;
+    for (let j = 0; j <= i; j++) { const xj = j === 0 ? 0 : L[j].l; if (clear(xj) && (x == null || Math.abs(xj - x0) < Math.abs(x - x0))) x = xj; }
+    if (x == null) x = L[i].l;
+    let end = s.querySelector(':scope > .gw-ts-end');
+    const max = s.scrollWidth - cw;
+    if (x > max + 0.5) {
+      if (!end) { end = document.createElement('i'); end.className = 'gw-ts-end'; end.setAttribute('aria-hidden', 'true'); s.appendChild(end); }
+      end.style.width = `${Math.ceil(num(parseFloat(end.style.width), 0) + x - max)}px`;
+    }
+    s.scrollLeft = x;
+    edges(s);
+  }
+  /** A chip's name in its lines: a name over 14 letters with a space breaks at the space that halves it best ("Harbour-Bell" ·
+   *  "Spinner"), so the chip is as wide as its longer line (a wrap the browser makes leaves the box at its widest). */
+  const nameLines = (name) => {
+    const t = String(name ?? '');
+    if (t.length <= 14 || !t.includes(' ')) return [t];
+    let at = -1;
+    for (let i = t.indexOf(' '); i >= 0; i = t.indexOf(' ', i + 1)) if (at < 0 || Math.max(i, t.length - i - 1) < Math.max(at, t.length - at - 1)) at = i;
+    return [t.slice(0, at), t.slice(at + 1)];
+  };
   function screenChip(it, uid) {
     const b = h('button', 'gw-ts-chip');
     b.type = 'button';
@@ -590,7 +649,7 @@ export function createTackleView({ K, L, D, report = () => {} }) {
     if (!it.find) { try { art = it.plain ? PLAIN.bare : engrave(it.art, { uid }); } catch (e) { report('screen.art', e); } }
     b.innerHTML = `<span class="gw-ts-art" aria-hidden="true">${art}</span><span class="gw-ts-txt"><span class="gw-ts-name"></span></span>`;
     const txt = b.querySelector('.gw-ts-txt');
-    b.querySelector('.gw-ts-name').textContent = it.name;
+    b.querySelector('.gw-ts-name').textContent = nameLines(it.name).join('\n');   // (one text, its break kept by white-space: pre-line)
     if (it.count != null) { const n = h('span', 'gw-ts-n'); n.textContent = String(it.count); txt.appendChild(n); }
     for (const ln of arr(it.log)) { const l = h('span', 'gw-ts-log'); l.textContent = ln; txt.appendChild(l); }
     b.setAttribute('aria-label', [it.name, it.count != null ? String(it.count) : null, ...arr(it.log)].filter(Boolean).join(', '));
@@ -628,6 +687,11 @@ export function createTackleView({ K, L, D, report = () => {} }) {
       strip.setAttribute('aria-label', row.head);
       row.items.forEach((it, i) => strip.appendChild(screenChip(it, `ts-${row.kind}-${i}`)));
       strip.addEventListener('scroll', () => edges(strip), { passive: true });
+      // (a focus from the keys or the pad turns the strip to it; a tap's or a click's never moves the strip under the pointer)
+      strip.addEventListener('focusin', (e) => {
+        const c = e.target?.closest?.('.gw-ts-chip');
+        try { if (c && (c.matches(':focus-visible') || c.classList.contains('gw-padfocus'))) reveal(strip, c); } catch { /* ignore */ }
+      });
       // (a mouse's wheel turns a strip that overflows; at either end it passes to the page)
       strip.addEventListener('wheel', (e) => {
         const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : 0, max = strip.scrollWidth - strip.clientWidth;
@@ -661,8 +725,19 @@ export function createTackleView({ K, L, D, report = () => {} }) {
       for (const sec of box.querySelectorAll('.gw-ts-row')) {
         const s = sec.querySelector('.gw-ts-strip');
         if (!s) continue;
-        if (keep) s.scrollLeft = num(keep.scroll?.[sec.dataset.row], 0);
-        else { const on = s.querySelector('[aria-pressed=true]'); if (on && on.offsetLeft + on.offsetWidth > s.clientWidth) s.scrollLeft = Math.max(0, on.offsetLeft - 48); }
+        if (keep) {
+          const w = num(keep.ends?.[sec.dataset.row], 0);
+          if (w > 0) { const end = document.createElement('i'); end.className = 'gw-ts-end'; end.setAttribute('aria-hidden', 'true'); end.style.width = `${w}px`; s.appendChild(end); }
+          s.scrollLeft = num(keep.scroll?.[sec.dataset.row], 0);
+          // (after a fit the fitted chip is wider by its log lines: turned into view if it went under an edge)
+          const on = s.querySelector('[aria-pressed=true]');
+          if (on) reveal(s, on, { snap: false });
+        } else {
+          // (on opening, the fitted chip whole in view, the strip's left edge on a chip's: reveal)
+          const on = s.querySelector('[aria-pressed=true]');
+          s.scrollLeft = 0;
+          if (on) reveal(s, on);
+        }
         edges(s);
       }
       if (keep) {
@@ -670,13 +745,17 @@ export function createTackleView({ K, L, D, report = () => {} }) {
         if (keep.focus) { const f = [...box.querySelectorAll('.gw-ts-chip')].find((b) => `${b.dataset.slot}|${b.dataset.key}` === keep.focus); try { f?.focus({ preventScroll: true }); } catch { /* ignore */ } }
       }
     };
+    st.settle = settle;   // (openScreen runs it again once the modal is in the page: the first render is laid out before it is attached)
     if (box.isConnected) settle(); else { try { requestAnimationFrame(settle); } catch { /* ignore */ } }
   }
   function rerenderScreen() {
     const e = K.entry?.('tacklescreen');
     if (!e) return;
-    const el = e.el, keep = { scroll: {}, top: el.querySelector('.gw-ts-rows')?.scrollTop || 0, focus: null };
-    for (const sec of el.querySelectorAll('.gw-ts-row')) keep.scroll[sec.dataset.row] = sec.querySelector('.gw-ts-strip')?.scrollLeft || 0;
+    const el = e.el, keep = { scroll: {}, ends: {}, top: el.querySelector('.gw-ts-rows')?.scrollTop || 0, focus: null };
+    for (const sec of el.querySelectorAll('.gw-ts-row')) {
+      keep.scroll[sec.dataset.row] = sec.querySelector('.gw-ts-strip')?.scrollLeft || 0;
+      keep.ends[sec.dataset.row] = num(parseFloat(sec.querySelector('.gw-ts-end')?.style.width), 0);
+    }
     const a = typeof document !== 'undefined' ? document.activeElement : null;
     if (a && el.contains(a) && a.dataset?.key) keep.focus = `${a.dataset.slot}|${a.dataset.key}`;
     e.state.keep = keep;
@@ -713,7 +792,10 @@ export function createTackleView({ K, L, D, report = () => {} }) {
         to = grid[nr].reduce((best, b) => { const q = b.getBoundingClientRect(), d = Math.abs(q.left + q.width / 2 - cx); return !best || d < best.d ? { b, d } : best; }, null)?.b || null;
       }
     }
-    if (to && to !== a) { try { to.focus({ preventScroll: true }); to.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch { /* ignore */ } sfx('ui_hover', { volume: 0.3 }); }
+    if (to && to !== a) {
+      try { to.focus({ preventScroll: true }); const s = to.closest('.gw-ts-strip'); if (s) reveal(s, to); to.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch { /* ignore */ }
+      sfx('ui_hover', { volume: 0.3 });
+    }
     return true;
   }
   /**
@@ -728,6 +810,7 @@ export function createTackleView({ K, L, D, report = () => {} }) {
     sfx('ui_click', { volume: 0.42, pitch: 0.62 });   // the tin lid's click
     const entry = K.openModal('tacklescreen', renderScreen, { blocking: true, dismissable: true, quiet: true, focus: false, cls: 'gw-m-tacklescreen',
       onKey: screenKey, onClose: () => afterScreenClose(), state: { from, pauseChild: !!pauseChild } });
+    try { entry?.state?.settle?.(); } catch (e) { report('screen.settle', e); }
     return !!entry;
   }
   function closeScreen() { if (screenOpen()) K.closeModal('tacklescreen', { silent: true }); }
@@ -752,9 +835,12 @@ export function createTackleView({ K, L, D, report = () => {} }) {
   }
   try { for (const ev of ['run:end', 'home:enter']) ctx.bus?.on?.(ev, () => { if (screenOpen() && K.entry?.('tacklescreen')?.state?.from === 'tin') closeScreen(); }); } catch (e) { report('screen.bus', e); }
 
+  let veiled = false;
   function update(dt = 0) {
     if (noteT > 0) { noteT -= Math.max(0, Math.min(0.25, Number(dt) || 0)); if (noteT <= 0) note.classList.remove('gw-in'); }
     paint();
+    const v = isOpen() || screenOpen();
+    if (v !== veiled) { veiled = v; try { K.root?.classList.toggle('gw-tk-veiled', v); } catch { /* ignore */ } }
   }
   /** B on a trip (ui-loop's handleKey): open (or the denied line), or close an open drawer. → true when the key is the tin's. */
   function toggle() {

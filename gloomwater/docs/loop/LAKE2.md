@@ -1108,6 +1108,60 @@ nothing reads `ZONE_LOOKS` at all (Sporewood's flag-off arena is its twoBasins o
   Sporewood itself); the Chart's sheet 2; the sky's share measured on sky pixels (hue-report reads the whole frame); a look sheet beside
   the Mossmere's at the gate's index.html.
 
+### 9.6 Lane G as built (gw-l2-g): the Tackle screen
+
+§5.5, built over D2's ledger (`fitTackle`, `changeHook`, `canChangeHook`, `meta.loop.fit`); nothing of it reaches the flag-off game, and
+the Mossmere fishes as before (the screen only fits what the tin, the sheet's chips and the Kit row already fitted).
+
+- **`src/ui-tackle.js`, the pure half**: `tackleScreenModel(D, {metaLoop, run, line, canChange})` → the head (the water's name, the
+  carried line from the first tow on, "After this fish." while a fish is on) and the five rows **Rod · Line · Reel · Lure · Bait**. A
+  tackle row is the start piece, each tier bought at the gear water's shelf (a lower one can be fitted; the best bought is asked as `null`,
+  so a tier bought later fits itself) and the owned found pieces; the Lure row the water's own owned lures in `LOOP.lures`' order, then
+  the found ones (they travel); the Bait row the legend's ball, the water's tins and Cut Strip with any left, then the bare hook. At home
+  the hook is the save's fit for the barge's water (what the next trip carries); on a trip the run's (a line out: the cast's bait). Under
+  the fitted chip, its gear-log lines only: `+{n} Hold.` (the carry with the piece), `Casts {m} m.`, `Lands up to {class}.` (the line by
+  `lineAt`, a lure's or a bait's own cap), a found piece's own lines. No odds. `screenCall(item)` is the tap's ledger call
+  (`fitTackle(slot, pick)`; `changeHook({lure})`, `({bait})`, or both off for the bare hook: one thing on the hook). The start pieces keep
+  their names at every water (they travel); a later water's tier is named by its item (`TEXT_LOOP.gearItems`).
+- **The view**: `openScreen({from, pauseChild})`, `closeScreen`, `screenOpen`, `pauseItem`. A blocking modal (the evening waits): a veil
+  over the water, the head, the rows (each a head and a strip of engraved chips; the fitted chip inked and brushed under its name), a fixed
+  foot with **Done**. A strip that overflows scrolls sideways (a swipe, the wheel) with a fade at the edge it hides; on opening, and on
+  a focus from the keys or the pad, it turns the chip whole into view clear of the right fade with **its left edge on a chip's own** (never
+  part of a name at the left: the 32 px left fade lies over an engraving only; a spacer after the last chip lets it turn that far); a
+  tap never moves a strip under the finger. A name over 14 letters breaks at the space that halves it best ("Harbour-Bell ·
+  Spinner", "Gate-Guard's · Button"), so its chip is only as wide as its longer line. Up to 1,360 px wide (a row of six lures whole
+  from 1,280 px); under 700 px wide a sheet from below with each row's head above its strip; under 500 px tall (a phone held sideways)
+  the foot beside the head and the chips closer; the pause panels' items closer there too, so the closing flourish stays under
+  Settings with the Tackle item and two lock lines. A trip's tips and
+  Murk's lines wait under it and under the drawer (`.gw-tk-veiled`: both are quiet modals, which ui.js's `.gw-tipless` does not count).
+  One sound a fit (the tin's lid click); a waiting line brought in quietly by a fit gives the reel's ratchet when the screen closes.
+- **Ways in**: the barge's **rod rack** opens it (its accessible name "Tackle"), its foot carrying a link to the Wick's sheet at Tackle
+  (what the rack opened before, SHEET.md §2.3); **both pause menus** carry a *Tackle* item after the tutorial (home: Resume · Sheet ·
+  Tackle · Settings; the trip: Resume · Sheet · Tackle · Home · Settings), dimmed with "After this fish." while a fish is on (a tap: the
+  denied sound, nothing opens); on the water the **tin's drawer** carries a door at its Lure row's head, *Rod · Line · Reel*, only while no
+  line is out (a line out: the drawer as before). The screen opened from the tin closes when the trip ends.
+- **Input**: touch and mouse tap a chip; the keys: the arrows (and WASD) move along a row and to the nearest chip of the next row, then
+  the foot, Enter fits, Esc or B closes; a pad: input-pad's own focus (the UI's frame, never in the world) over the same buttons, the
+  D-pad or stick moves, A fits, B closes.
+- **The ledger**: `buy` of a tier fits it (a lower tier fitted on the screen gives way; a found piece stays fitted). The Wick's sheet
+  shows the carried line above its plates (`.gw-sh-carry`, the hand glyph), and names the start pieces at a later water.
+- **Words**: `TEXT_LOOP.tackle.screen = { rod, line, reel, done, hold }`; the title is the tin's ("Tackle"), the Lure and Bait heads the
+  drawer's, the log lines the built ones (`TEXT_LOOP.lost.log.cast`, `TEXT_LOOP.gate.upTo`); the carried line D1's `TEXT_LOOP.carry`
+  (added to the sheet's word list).
+- **Tests**: `tools/tests/lake2-g-tackle.test.mjs` (80 checks through the real ledger: the rows at the Mossmere and after the tow, found
+  pieces, the taps, a tier bought after a lower one, a trip with a line out and with a fish on, the way back, every word on the T43
+  list); `tools/tests/lake2-g-tackle.scenario.mjs` (every way in, every input and the layout's checks at each size: each target ≥ 44 px,
+  text ≥ 16 px, every name whole inside its chip, no two words over each other, nothing off screen, the five rows without a vertical
+  scroll, each fitted chip in view, a turned strip's left edge on a chip's; the home pause with its new item on screen at each size, the
+  trip pause with two lock lines at 844 × 390; the key's and the pad's chip whole in view; the tin's door, a line out, a fish on, no tip
+  over the screen; after the tow the head, the rows and the sheet's carried line).
+  `loop-5a` and `loop-sheet` read the rack's new screen and the pause menus' new item.
+- **Measured** (the scenario; desktop 960 × 540, 1280 × 720, 900 × 1000, 1920 × 1080; `--mobile` 390 × 844, 358 × 664, 690 × 760,
+  844 × 390 and the Legion Go's 1280 × 800 by touch): no layout fault at any size, no page or console error.
+- **Left for lane S**: Sporewood's engravings. The chips draw `murk-engrave`'s plates, which know the Mossmere's items only: a later
+  water's tier is drawn as the Mossmere's plate of its slot and level, the Seedpod Twirl as a spoon, the Spore Cake as the worm tin. The
+  screen's art card for a later water's tier carries `itemId` and `gearWater` beside `slot` and `level`, ready for `plateKey`.
+
 ---
 
 ## 10. Left for later (named, not built)

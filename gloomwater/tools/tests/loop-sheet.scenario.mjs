@@ -159,7 +159,7 @@ export default async function (api) {
       await g(() => window.__gw.ui.loop?.openHomePause?.());
       await K.settle(300);
       const items = await g(() => [...document.querySelectorAll('[data-modal=homepause] .gw-mbtn')].map((b) => b.querySelector('span:not(.gw-sh-wick)')?.textContent.trim()));
-      K.check(items.length === 3 && items[1] === "Taper's Sheet", 'after the tutorial: Resume · Taper\'s Sheet · Settings', items);
+      K.check(items.length === 4 && items[1] === "Taper's Sheet" && items[2] === 'Tackle', 'after the tutorial: Resume · Taper\'s Sheet · Tackle (LAKE2.md §5.5) · Settings', items);
       K.need(await K.tap('[data-modal=homepause] [data-loop=sheet]'), 'the pause item');
       K.need(await sheetOpen(), 'the sheet is open');
       await K.settle(500);
@@ -318,12 +318,16 @@ export default async function (api) {
       await K.settle(300);
       log('modals before the rack', JSON.stringify(await modals()));
       const rack = await g(() => { const b = document.querySelector('[data-modal=jetty] [data-tile=rack]'); return b ? { label: b.getAttribute('aria-label'), word: b.textContent.trim(), vis: getComputedStyle(b).visibility } : null; });
-      K.check(rack && rack.label === "Taper's Sheet" && rack.word === '', 'the rack target: no word, its accessible name "Taper\'s Sheet"', rack);
+      // (LAKE2.md §5.5: the rack opens the Tackle screen, whose foot links to the sheet at Tackle, as the rack opened it before)
+      K.check(rack && rack.label === 'Tackle' && rack.word === '', 'the rack target: no word, its accessible name "Tackle"', rack);
       if (rack && rack.vis !== 'hidden') {
         await K.tap('[data-modal=jetty] [data-tile=rack]');
         await K.settle(500);
+        K.check(await g(() => !!document.querySelector('[data-modal=tacklescreen] [data-loop=tackle-sheet]')), 'the rack opens the Tackle screen, with the sheet\'s link');
+        K.need(await tapIn('[data-modal=tacklescreen] [data-loop=tackle-sheet]'), 'its link to the sheet');
+        await K.settle(600);
         const M3 = await g(() => window.__gw.ui.sheet.model());
-        K.check(await sheetOpen(), 'the rack opens the sheet');
+        K.check(await sheetOpen() && !(await g(() => !!document.querySelector('[data-modal=tacklescreen]:not(.gw-out)'))), 'the link opens the sheet (the Tackle screen gives way)');
         await K.shoot('rack-tackle');
         await closeJournal();
       } else K.note('the rack target is not placed in this frame', rack);
@@ -339,7 +343,7 @@ export default async function (api) {
         await K.settle(900);
         if (!(await g(() => !!document.querySelector('[data-modal=pause]')))) { await g(() => window.__gw.game?.pause?.()); await K.settle(900); }
         const trip = await g(() => [...document.querySelectorAll('[data-modal=pause] .gw-mbtn')].map((b) => b.querySelector('span:not(.gw-sh-wick)')?.textContent.trim()));
-        K.check(trip[1] === "Taper's Sheet", 'the trip pause: Resume · Taper\'s Sheet · Home · Settings', trip);
+        K.check(trip[1] === "Taper's Sheet" && trip[2] === 'Tackle', 'the trip pause: Resume · Taper\'s Sheet · Tackle · Home · Settings', trip);
         log('trip: before the item', JSON.stringify({ modals: await modals(), locked: await g(() => window.__gw.ui.logLocked?.()), state: await g(() => window.__gw.fishing?.state ?? null) }));
         await g(() => document.querySelector('[data-modal=pause] [data-loop=sheet]')?.click());
         await K.settle(700);
