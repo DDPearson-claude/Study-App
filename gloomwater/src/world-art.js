@@ -1513,6 +1513,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
     m.renderOrder = -2; m.frustumCulled = false; m.name = 'shoreMist';
     mist.uniforms.uRep.value = Math.round(R / 3);
     if (L.outline) { mist.side = THREE.DoubleSide; mist.uniforms.uRep.value = Math.round(L.outline.len / 19); }   // (the band's grain as the ring's: about 3 m)
+    // (an outline shore comes close: by Rootfoot's landing at night the band's foot, seen from the raft's lens 10 m off, laid a pale arc
+    // across the water by Murk's barge. It fades in from 14 m, not 6, so it stays the far banks' mist; the Mossmere's ring as built)
+    if (L.outline) mist.uniforms.uNear.value = 14;
     group.add(m);
   }
   // foam/ripple rings hugging every island, pillar and gate stone

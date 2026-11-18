@@ -496,17 +496,17 @@ export function createShafts(list) {
 // ------------------------------------------------------------------ shore mist ring
 export function mistMaterial() {
   return new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color() }, uAmt: { value: 0.5 }, uTime: { value: 0 }, uRep: { value: 24 }, uAir: AIR.mist },
+    uniforms: { uColor: { value: new THREE.Color() }, uAmt: { value: 0.5 }, uTime: { value: 0 }, uRep: { value: 24 }, uAir: AIR.mist, uNear: { value: 6 } },
     vertexShader: /* glsl */`
       varying vec2 vUv; varying float vDist;
       void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vDist = distance(wp.xyz, cameraPosition); gl_Position = projectionMatrix * viewMatrix * wp; }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uColor; uniform float uAmt, uTime, uRep, uAir;
+      uniform vec3 uColor; uniform float uAmt, uTime, uRep, uAir, uNear;
       varying vec2 vUv; varying float vDist;
       ${NOISE_GLSL}
       void main(){
         float n = gwN(vec3(vUv.x * uRep * 6.0 + uTime * 0.05, vUv.y * 2.5 - uTime * 0.03, 0.0)) * 0.65 + gwN(vec3(vUv.x * uRep * 17.0 - uTime * 0.08, vUv.y * 5.0, 3.0)) * 0.35;
-        float a = pow(1.0 - vUv.y, 2.2) * (0.35 + 0.9 * n) * uAmt * uAir * smoothstep(6.0, 22.0, vDist);
+        float a = pow(1.0 - vUv.y, 2.2) * (0.35 + 0.9 * n) * uAmt * uAir * smoothstep(uNear, uNear + 16.0, vDist);
         gl_FragColor = vec4(uColor, clamp(a, 0.0, 1.0));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
