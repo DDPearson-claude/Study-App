@@ -2,7 +2,7 @@
 // signature and keys; `next` the sealed sheet, null in the tutorial), the layout's tap targets (none overlapping at 358 px or on a
 // desktop, each at least 44 px), nothing unowned drawn (a mist blot is never named; the tutorial letters the water alone; no place,
 // card or seal stands on a later sheet's ground), the Chart's case of the three-cards rule (only Murk's three blots priced and
-// tappable), the sealed sheet ("Coming soon", no price), no percentage anywhere, the phone (every word at 16 px or more in IM Fell
+// tappable), the sealed sheet (its map's price since the Lake 2 gate; "Coming soon", no price, past LOOP.shipped), no percentage anywhere, the phone (every word at 16 px or more in IM Fell
 // English or the margin hand at 358 px, at 390 x 844 and in Safari's 390 x 664; the lake kept; no two places' words meeting;
 // choosing a place moving no word), the byte budget (M1.md §3.2's lines read from
 // src/chart-art.js and from the game's bundle), the chart's faces, and the generated art's shape. A recording 2D context stands in
@@ -38,8 +38,11 @@ function fakeCtx() {
 const art = { sheets: CHART_ART.sheets.map((s) => ({ ...s, image: null })), paper: { ...CHART_ART.paper, image: null }, live: CHART_ART.live };
 const water = { mossmere: C.waterGeometry(D, 'mossmere') };
 const sites = C.placeSites(D, 'mossmere');
-function modelFor(state, { tutorial = false, meta = freshLoopMeta(D), pick = null } = {}) {
-  const m = U.chartModel(meta, D, { tutorial, slots: 3 });
+// (the Lake 2 gate: LOOP.shipped is Sporewood, so the Mossmere's next sheet carries its map's price; DM, the pre-gate data with
+// LOOP.shipped the Mossmere, keeps the "Coming soon" sheet a water past LOOP.shipped still draws)
+const DM = { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } };
+function modelFor(state, { tutorial = false, meta = freshLoopMeta(D), pick = null, data = D } = {}) {
+  const m = U.chartModel(meta, data, { tutorial, slots: 3 });
   m.sheets[0].places = C.chartPlaces(D, state === 'empty' ? [] : C.CHART_FIXTURE(D, state));
   if (pick) m.pick = pick;
   return m;
@@ -54,13 +57,15 @@ const SIZES = [[358, 560, 'a phone at 358 px'], [354, 612, 'a 390 x 844 phone'],
   [354, 432, 'a 390 x 664 phone (Safari\'s bars)'], [354, 372, 'a 390 x 664 phone, Murk\'s line'], [358, 364, 'a phone at the sheet\'s floor'],
   [892, 326, 'the 960 x 540 desktop'], [920, 420, 'a tall desktop']];
 
-section('the seam: chartModel(meta, D, opts) as M1.md §3.8 has it; next is the sealed sheet');
+section('the seam: chartModel(meta, D, opts) as M1.md §3.8 has it; next is the sealed sheet (Sporewood\'s, priced, since the Lake 2 gate)');
 {
   ok(typeof U.chartModel === 'function' && U.chartModel.length === 2, 'chartModel(meta, D, opts = {}): the one signature');
   const m = U.chartModel(freshLoopMeta(D), D, {});
   ok(JSON.stringify(Object.keys(m)) === JSON.stringify(['sheets', 'next', 'hold', 'fitted', 'pick', 'tutorial']), 'its keys are 1a\'s (sheets, next, hold, fitted, pick, tutorial): no field the plan does not name', Object.keys(m));
   const n = m.next;
-  ok(n && n.waterId === 'sporewood' && n.shipped === false && JSON.stringify(Object.keys(n.seals)) === JSON.stringify(['map', 'gear', 'catch']), 'next: {waterId, shipped: false, seals: {map, gear, catch}} (M1.md §3.8): Sporewood, past the last shipped water', n);
+  ok(n && n.waterId === 'sporewood' && n.shipped === true && n.seals.map.price === D.LOOP.waters.sporewood.lake && JSON.stringify(Object.keys(n.seals)) === JSON.stringify(['map', 'gear', 'catch']), 'next: {waterId, shipped: true, seals: {map, gear, catch}} (M1.md §3.8): Sporewood, the last shipped water, its map priced', n);
+  const nM = U.chartModel(freshLoopMeta(DM), DM, {}).next;
+  ok(nM && nM.waterId === 'sporewood' && nM.shipped === false && nM.seals.map.price === null, 'the fixture (LOOP.shipped the Mossmere): next {waterId, shipped: false}: Sporewood past the last shipped water, no price', nM);
   // the catch seal's need is the Mossmere's list as the data has it (listCount): 6 in slice 1a's fixture, 11 since step 2's roster fish
   const listNeed = (await import('../../src/progression-loop.js')).listCount(freshLoopMeta(D), D, 'mossmere').need;
   ok(n.seals.map.held === false && n.seals.gear.held === false && n.seals.gear.tier === 1 && n.seals.catch.held === false && listNeed > 0 && n.seals.catch.need === listNeed && n.seals.catch.have === 0, `a fresh save: three hollow seals; the gear is Rod T1, the catch the Mossmere's list (0/${listNeed})`, n.seals);
@@ -71,7 +76,11 @@ section('the seam: chartModel(meta, D, opts) as M1.md §3.8 has it; next is the 
   ok(U.chartModel(freshLoopMeta(D), D, { tutorial: true }).next === null, 'the tutorial\'s Chart: next is null (no wisp, no sealed sheet)');
   const old = freshLoopMeta(D); old.loop.maps.lakes = ['mossmere', 'sporewood'];
   const on = U.chartNext(old, D);
-  ok(on?.waterId === 'sporewood' && on.shipped === false && on.seals.map.held === true, 'an old save that owns Sporewood\'s map: Sporewood is still the next sheet, its map seal pressed, "Coming soon"', on);
+  ok(on?.waterId === 'sporewood' && on.shipped === true && on.seals.map.held === true, 'a save that owns Sporewood\'s map without its keys: Sporewood is still the next sheet, its map seal pressed', on);
+  const onL = CD.layoutChart({ ...modelFor('later', { meta: old }), next: on }, art, viewFor(892, 326));
+  ok(onL.sealed && onL.sealed.price === null && onL.targets.some((t) => t.kind === 'sealed' && t.water === 'sporewood'), '… its sheet no longer priced (the map is owned) and still one tap target', onL.sealed?.price);
+  const onM = U.chartNext(old, DM);
+  ok(onM?.waterId === 'sporewood' && onM.shipped === false && onM.seals.map.held === true, 'the fixture (LOOP.shipped the Mossmere): an old save that owns Sporewood\'s map: still the next sheet, its map seal pressed, "Coming soon"', onM);
   ok(U.chartNext({ loop: { maps: { lakes: ['mossmere'] } } }, { ...D, LOOP: { ...D.LOOP, shipped: 'sporewood', waters: { ...D.LOOP.waters, sporewood: { order: 2 } } } })?.shipped === true, 'a water within LOOP.shipped is shipped (no "Coming soon")');
 }
 
@@ -171,7 +180,12 @@ section('nothing unowned drawn; few words; no percentage');
     const allowed = new Set(['The Mossmere', ...owned, 'Coming soon', '★']);
     const odd = L.texts.filter((t) => !allowed.has(t) && !/^\d[\d,]*$/.test(t) && !/^\d+\/\d+$/.test(t) && !/^(\d+ lb( \d+ oz)?|\d+ oz|[¼½¾] oz)$/.test(t));
     ok(odd.length === 0, `${what}: every word is a name, a price, a weight, the catch count or "Coming soon" (M1.md §3.3)`, odd);
-    ok(L.texts.includes('Coming soon') && L.sealed && L.targets.some((t) => t.kind === 'sealed' && t.water === 'sporewood'), `${what}: the sealed sheet with "Coming soon", one tap target`);
+    const lake = String(D.LOOP.waters.sporewood.lake);
+    ok(!L.texts.includes('Coming soon') && L.texts.includes(lake) && L.sealed?.price === D.LOOP.waters.sporewood.lake && L.targets.filter((t) => t.kind === 'sealed' && t.water === 'sporewood').length === 1,
+      `${what}: the sealed sheet with its map's price where "Coming soon" stood (the Lake 2 gate), one tap target`, L.sealed?.price);
+    // the fixture (LOOP.shipped the Mossmere): a sheet past LOOP.shipped letters "Coming soon", no price, one tap target
+    const LM = draw(modelFor('later', { data: DM }), w, h);
+    ok(LM.texts.includes('Coming soon') && !LM.texts.includes(lake) && LM.sealed && LM.sealed.price == null && LM.targets.some((t) => t.kind === 'sealed' && t.water === 'sporewood'), `${what}: the fixture: the sealed sheet with "Coming soon", one tap target`);
     // the later sheet's ground (chart-veil.json, the generator's own masks): no place, card or seal stands on it
     const v = veil.find((q) => q.sheet === 1), c = L.cont;
     const grid = v.rows.map((r) => r.split(',').map((t) => t[0].repeat(Number(t.slice(1)))).join(''));
@@ -198,13 +212,17 @@ for (const [w, h, what] of SIZES) {
   ok(all.places.filter((p) => p.price != null).length === all.targets.filter((t) => t.kind === 'buy').length, `${what}: every priced blot, and no other, is a card's door`);
 }
 
-section('the sealed sheet: no price and no buy button; its three seals');
+section('the sealed sheet: no buy button; its three seals; its map\'s price once it ships (the Lake 2 gate), none past LOOP.shipped');
 {
   const L = draw(modelFor('later'), 892, 326);
   ok(L.sealed.seals.map((s) => s.key).join() === 'map,gear,catch', 'three seals in the user\'s order: map, gear, catch');
-  ok(L.targets.filter((t) => t.kind === 'sealed').length === 1 && !L.targets.some((t) => t.kind === 'buy' && t.water === 'sporewood'), 'one target, the sheet itself: never a buy');
+  ok(L.targets.filter((t) => t.kind === 'sealed').length === 1 && !L.targets.some((t) => t.kind === 'buy' && t.water === 'sporewood'), 'one target, the sheet itself: never a buy (a tap opens Murk\'s card)');
   const numbers = L.texts.filter((t) => /^\d[\d,]*$/.test(t));
-  ok(numbers.every((t) => ['260', '500'].includes(t)), 'no price on the sealed sheet (the only prices are the place maps\')', numbers);
+  ok(numbers.every((t) => ['260', '500', String(D.LOOP.waters.sporewood.lake)].includes(t)) && numbers.filter((t) => t === String(D.LOOP.waters.sporewood.lake)).length === 1 && L.sealed.price === D.LOOP.waters.sporewood.lake,
+    'the sealed sheet\'s one price is its map\'s; the only others are the place maps\'', numbers);
+  const LM = draw(modelFor('later', { data: DM }), 892, 326);
+  const numM = LM.texts.filter((t) => /^\d[\d,]*$/.test(t));
+  ok(numM.every((t) => ['260', '500'].includes(t)) && LM.sealed.price == null, 'the fixture (LOOP.shipped the Mossmere): no price on the sealed sheet (the only prices are the place maps\')', numM);
   const u = src('src/ui-chart.js'), body = u.slice(u.indexOf('function openSealed('), u.indexOf('function veilCheck('));
   ok(body.length > 400 && /TEXT_LOOP\?\.comingSoon/.test(body) && !/clamTag|price|dataset\.buy|data-buy|L\('buy'/.test(body), 'the sealed card letters "Coming soon" where the price button would be, and has no price and no buy (its source)');
 }

@@ -26,8 +26,9 @@ function fakeCtx() {
 }
 const art = { sheets: CHART_ART.sheets.map((s) => ({ ...s, image: null })), paper: { ...CHART_ART.paper, image: null }, live: CHART_ART.live };
 
-// a save at the Mossmere's end, Sporewood shipped (as the gate will set it): its gear bought, its list landed, the lake map bought
-const shipped = { ...D, LOOP: { ...D.LOOP, shipped: 'sporewood' } };
+// a save at the Mossmere's end, Sporewood shipped (the gate set it, 18 Nov 2026: D itself): its gear bought, its list landed, the lake
+// map bought. `pre` is the data as it stood before the gate (LOOP.shipped the Mossmere), kept as the fixture of a water past LOOP.shipped
+const shipped = D, pre = { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } };
 function endMeta({ map = true, keys = true, towed = false } = {}) {
   const meta = freshLoopMeta(D), l = meta.loop;
   if (keys) {
@@ -54,7 +55,8 @@ section('the art: sheet 2 baked ahead, its own box and pixels, the live layer\'s
 section('waterOpen: a later water opens once its map is owned and its keys held, or once the home has lain there (SPEC §5.5)');
 {
   ok(PL.waterOpen(freshLoopMeta(D), D, 'mossmere') === true, 'the first water: always open');
-  ok(PL.waterOpen(endMeta(), D, 'sporewood') === false, 'Sporewood not shipped (LOOP.shipped mossmere): never open, whatever the save');
+  ok(D.LOOP.shipped === 'sporewood', 'LOOP.shipped is Sporewood (the Lake 2 gate)');
+  ok(PL.waterOpen(endMeta(), pre, 'sporewood') === false && PL.waterOpen(endMeta({ towed: true }), pre, 'sporewood') === false, 'the fixture (LOOP.shipped the Mossmere): Sporewood never open, whatever the save');
   ok(PL.waterOpen(endMeta(), shipped, 'sporewood') === true, 'shipped, its map owned, the gear and catch keys held: open');
   ok(PL.waterOpen(endMeta({ map: false }), shipped, 'sporewood') === false, 'its map not bought: not open (the keys gate sailing, never buying)');
   ok(PL.waterOpen(endMeta({ keys: false }), shipped, 'sporewood') === false, 'its map bought, its keys not held: not open');
@@ -68,14 +70,17 @@ section('the Chart\'s model: the sheet drawn only once its water opens; the ship
   const m0 = U.chartModel(endMeta({ map: false }), shipped, {});
   ok(m0.sheets.map((s) => s.waterId).join() === 'mossmere' && m0.next?.waterId === 'sporewood' && m0.next.shipped === true && m0.next.seals.map.held === false, 'before the map: one sheet; Sporewood the sealed sheet, shipped, its map seal hollow', m0.next);
   const L0 = CD.layoutChart(m0, art, { w: 892, h: 420, dpr: 1, phone: false, F: C.CHART_FONTS, water: { mossmere: C.waterGeometry(D, 'mossmere') }, sites: C.placeSites(D, 'mossmere') });
-  ok(L0.sealed?.price === shipped.LOOP.waters.sporewood.lake * 2 || Number.isFinite(L0.sealed?.price), 'the sealed sheet carries the map\'s price where "Coming soon" stood', L0.sealed?.price);
+  ok(L0.sealed?.price === PL.costFactor(D) * shipped.LOOP.waters.sporewood.lake && L0.sealed.price === PL.mapCards(D, endMeta({ map: false }).loop).find((c) => c.waterId)?.price, 'the sealed sheet carries the map\'s price (Murk\'s, the shelf card\'s) where "Coming soon" stood', L0.sealed?.price);
   ok(L0.targets.some((t) => t.kind === 'sealed' && t.label === String(L0.sealed.price)), 'its target is labelled with the price', L0.targets.filter((t) => t.kind === 'sealed'));
   const mk = U.chartModel(endMeta({ keys: false }), shipped, {});
   ok(mk.sheets.length === 1 && mk.next?.waterId === 'sporewood' && mk.next.seals.map.held === true, 'the map bought but the keys not held: still the sealed sheet (its map seal pressed)', mk.next?.seals);
   const m2 = U.chartModel(endMeta(), shipped, {});
   ok(m2.sheets.map((s) => s.waterId).join() === 'mossmere,sporewood', 'open: both sheets drawn', m2.sheets.map((s) => s.waterId));
-  const mOff = U.chartModel(endMeta(), D, {});
-  ok(mOff.sheets.map((s) => s.waterId).join() === 'mossmere', 'Sporewood not shipped: the Mossmere\'s Chart as it was, whatever the save holds');
+  ok(m2.next?.waterId === 'glasswater' && m2.next.shipped === false && m2.next.seals.map.price === null, 'open: the next sheet is Glasswater\'s, sealed ("Coming soon", no price)', m2.next);
+  const L2 = CD.layoutChart(m2, art, { w: 892, h: 420, dpr: 1, phone: false, F: C.CHART_FONTS, water: { mossmere: C.waterGeometry(D, 'mossmere'), sporewood: C.waterGeometry(D, 'sporewood') }, sites: C.placeSites(D, 'mossmere') });
+  ok(L2.sealed && L2.sealed.water === 'glasswater' && L2.sealed.price == null && L2.targets.some((t) => t.kind === 'sealed' && t.label === 'Coming soon'), '… drawn as the sealed sheet, its target "Coming soon"', L2.sealed && { water: L2.sealed.water, price: L2.sealed.price });
+  const mOff = U.chartModel(endMeta(), pre, {});
+  ok(mOff.sheets.map((s) => s.waterId).join() === 'mossmere' && mOff.next?.shipped === false, 'the fixture (LOOP.shipped the Mossmere): the Mossmere\'s Chart as it was, whatever the save holds');
 }
 
 section('chartReach: the window over the owned sheets (one owned: the first sheet\'s own, exactly as M1 drew it)');
@@ -169,7 +174,9 @@ section('the Mossmere\'s Chart with one water owned: its layout as it was (no sh
 {
   const water = { mossmere: C.waterGeometry(D, 'mossmere') }, sites = C.placeSites(D, 'mossmere');
   const L = CD.layoutChart(U.chartModel(freshLoopMeta(D), D, {}), art, { w: 892, h: 420, dpr: 1, phone: false, F: C.CHART_FONTS, water, sites });
-  ok(L.reach === 1 && !L.targets.some((t) => t.kind === 'sheet') && L.sealed?.price === undefined, 'one sheet: reach 1, no sheet target, the sealed sheet unpriced ("Coming soon")');
+  ok(L.reach === 1 && !L.targets.some((t) => t.kind === 'sheet') && L.sealed?.price === D.LOOP.waters.sporewood.lake, 'one sheet: reach 1, no sheet target, the sealed sheet priced (the Lake 2 gate: Sporewood ships)', L.sealed?.price);
+  const LP0 = CD.layoutChart(U.chartModel(freshLoopMeta(pre), pre, {}), art, { w: 892, h: 420, dpr: 1, phone: false, F: C.CHART_FONTS, water, sites });
+  ok(LP0.reach === 1 && !LP0.targets.some((t) => t.kind === 'sheet') && LP0.sealed?.price === undefined, 'the fixture (LOOP.shipped the Mossmere): reach 1, the sealed sheet unpriced ("Coming soon")');
   ok(L.cards[0].lake.ox === 0 && L.cards[0].lake.oz === 0, 'the Mossmere\'s lake centred on its own centre, as built');
 }
 
@@ -189,7 +196,7 @@ section('Murk\'s lake map bought (a real progression): the water\'s map owned, a
     ui: { isBlocking: () => false, isShopOpen: () => false, floatText() {} },
     fishing: { state: 'idle', hookLine: () => ({ state: 'idle', out: false, fishOn: false, castBait: null }), reelInQuiet: () => ({ ok: false }), spots: [], signs: [], addSpots() {}, armChum() {} } };
   const was = D.LOOP.shipped;
-  D.LOOP.shipped = 'sporewood';
+  D.LOOP.shipped = 'sporewood';   // (since the gate it is so in the source; kept so the section reads the same before and after)
   try {
     ctx.progression = create(ctx); ctx.progression.init();
     const L = ctx.progression.loop;

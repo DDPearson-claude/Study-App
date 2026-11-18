@@ -1,5 +1,5 @@
 // Unit tests for M1 step 2 (docs/loop/M1.md §4 step 2, SPEC §13): the roster converter (src/roster-species.js), the allow-list export
-// (src/roster-shipped.js), SPECIES_LOOP for the Mossmere's 11, LOOP.shipped, the worked values on roster sizes, the phase pin's one
+// (src/roster-shipped.js), SPECIES_LOOP for the Mossmere's 11, LOOP.shipped (Sporewood since the Lake 2 gate), the worked values on roster sizes, the phase pin's one
 // lift, weights in pounds within ±30% of each cousin, and nothing of it off the loop.   node tools/tests/roster-species.test.mjs
 import fs from 'node:fs';
 import * as RS from '../../src/roster-species.js';
@@ -118,19 +118,25 @@ section('weights in pounds within ±30% of each cousin (pounds SPEC §6.4)');
   eq(D.fmtWeight(D.sizeWeight(D.SPECIES_BY_ID.likely_chub, 37.7)), '1 lb 9 oz', 'a weight is told in pounds and ounces (a typical Likely Chub)');
 }
 
-section('LOOP.shipped: the Mossmere; Sporewood never offered (decision 39)');
+section('LOOP.shipped: Sporewood (the Lake 2 gate, 18 Nov 2026); no water past it offered (decision 39)');
 {
-  eq(D.LOOP.shipped, 'mossmere', 'LOOP.shipped');
-  ok(D.loopShipped('mossmere') && !D.loopShipped('sporewood') && D.loopShippedOrder() === 1, 'loopShipped: the Mossmere ships, Sporewood is sealed');
-  // a later LOOP.waters with Sporewood in it (step 3's shape), its map on the shelf: never offered while LOOP.shipped is the Mossmere
-  const DD = { ...D, LOOP: { ...D.LOOP, waters: { ...D.LOOP.waters, sporewood: { order: 2, tier: 11, prices: {} } } } };
-  ok(PL.waterShipped(DD, 'mossmere') && !PL.waterShipped(DD, 'sporewood'), 'waterShipped: Sporewood (order 2) is past the Mossmere');
-  ok(PL.waterShipped({ ...DD, LOOP: { ...DD.LOOP, shipped: 'sporewood' } }, 'sporewood'), '… and ships once LOOP.shipped is Sporewood');
+  eq(D.LOOP.shipped, 'sporewood', 'LOOP.shipped');
+  ok(D.loopShipped('mossmere') && D.loopShipped('sporewood') && D.loopShippedOrder() === 2, 'loopShipped: the Mossmere and Sporewood ship (order 2 the last)');
+  ok(D.ZONES.filter((z) => z.id !== 'mossmere' && z.id !== 'sporewood').every((z) => !D.loopShipped(z.id) && !PL.waterShipped(D, z.id)), 'no water past Sporewood ships (Glasswater and on: sealed)');
+  ok(PL.waterShipped(D, 'mossmere') && PL.waterShipped(D, 'sporewood'), 'waterShipped: Sporewood (order 2) is inside what ships');
+  // the pre-gate state, kept as a fixture (decision 39 still holds for any water past LOOP.shipped): with LOOP.shipped the Mossmere,
+  // Sporewood is sealed and its map never offered
+  const DM = { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } };
+  ok(PL.waterShipped(DM, 'mossmere') && !PL.waterShipped(DM, 'sporewood'), 'the fixture (LOOP.shipped the Mossmere): Sporewood (order 2) is past it');
   for (const lakes of [['mossmere'], ['mossmere', 'sporewood']]) {
-    const items = PL.shelfItems(DD, { ...PL.freshLoop(DD), clams: 1e9, maps: { lakes, places: [] } });
-    // M1 step 3a: the Maps tab holds the place maps and the next water's card, always sealed past LOOP.shipped (no price, no buy)
-    ok(!items.some((i) => (i.tab === 'maps' && i.slot === 'lake' && (!i.sealed || i.price != null)) || (/sporewood/.test(i.id) && !i.sealed)), `the shelf offers no Sporewood map: a lake card past LOOP.shipped is sealed, with no price (lakes ${lakes.join(', ')})`);
+    const items = PL.shelfItems(DM, { ...PL.freshLoop(DM), clams: 1e9, maps: { lakes, places: [] } });
+    ok(!items.some((i) => (i.tab === 'maps' && i.slot === 'lake' && (!i.sealed || i.price != null)) || (/sporewood/.test(i.id) && !i.sealed)), `the fixture: no Sporewood map offered past LOOP.shipped: its lake card sealed, with no price (lakes ${lakes.join(', ')})`);
   }
+  // shipped: the Mossmere's shelf offers Sporewood's lake map, priced; once it is owned the next card is Glasswater's, sealed, no price
+  const lakeCard = (lakes) => PL.shelfItems(D, { ...PL.freshLoop(D), clams: 1e9, maps: { lakes, places: [] } }).filter((i) => i.tab === 'maps' && i.slot === 'lake');
+  const c1 = lakeCard(['mossmere']), c2 = lakeCard(['mossmere', 'sporewood']);
+  ok(c1.length === 1 && c1[0].id === 'lake:sporewood' && !c1[0].sealed && c1[0].price === D.LOOP.waters.sporewood.lake * (D.LOOP.cost?.factor ?? 1), `the Mossmere's shelf offers Sporewood's lake map, priced (${JSON.stringify(c1.map((i) => [i.id, i.sealed, i.price]))})`);
+  ok(c2.length === 1 && c2[0].id === 'lake:glasswater' && c2[0].sealed === true && c2[0].price == null, `with Sporewood's map owned the lake card is Glasswater's, sealed, no price (${JSON.stringify(c2.map((i) => [i.id, i.sealed, i.price]))})`);
   const src = fs.readFileSync(new URL('../../src/progression-loop.js', import.meta.url), 'utf8');
   ok(src.includes("!(it.tab === 'maps' && it.water && !waterShipped(D, it.water))") && src.includes('waterShipped(D(), waterId) && (L.maps?.lakes'), 'the shelf drops a map past LOOP.shipped; no trip opens a water past it');
 }

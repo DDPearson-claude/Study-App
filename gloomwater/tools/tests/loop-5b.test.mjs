@@ -185,13 +185,20 @@ section('the gallery: wing I at true size, the giants in gold, the legend on the
   eq(HP.galleryModel(m, D).wings, [], 'no wing bought: no gallery (the prints live in the Journal)');
   L.home.wall = 1;
   const g = HP.galleryModel(m, D);
-  eq(g.wings.map((w) => [w.n, w.waters]), [[1, ['mossmere']]], 'wing I: the Mossmere\'s wing (reach I\'s first water, the one that ships)');
+  eq(g.wings.map((w) => [w.n, w.waters]), [[1, ['mossmere', 'sporewood']]], 'wing I: reach I\'s waters that ship, the Mossmere and Sporewood (the Lake 2 gate)');
+  // the pre-gate state as a fixture (LOOP.shipped the Mossmere): wing I hung the Mossmere alone
+  eq(HP.wingWaters({ ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } }, 1), ['mossmere'], 'the fixture (LOOP.shipped the Mossmere): wing I is the Mossmere\'s alone');
   eq(g.wings[0].frames.map((f) => [f.id, f.length, f.gold]), [['dusk_minnow', 22, false], ['reedjaw_pike', 70, false], ['thousandcast_pike', 81, true]], 'its frames: each printed fish at its own length, the giant in gold; never the legend');
   eq(g.wings[0].span, 22 + 70 + 81 + 2 * 18, 'the wing\'s span: the prints end to end with their gaps (cm)');
   eq(g.eave, null, 'the legend printed but not home yet: no print on the eave');
   L.legends.belled_matriarch = 1;
   eq(HP.galleryModel(m, D).eave?.id, 'belled_matriarch', 'once she is home: her print along the eave');
   eq(HP.wingWaters(D, 2), [], 'wing II\'s waters (5–8) are not in M1\'s data');
+  // a Sporewood print hangs on wing I too, after the Mossmere's (the catalogue's order), at its own length
+  HP.notePrint(L, D, { speciesId: 'falsesmile_barb', length: 31 }, { evening: 9 });
+  const g2 = HP.galleryModel(m, D);
+  eq(g2.wings[0].frames.map((f) => [f.id, f.length, f.gold]).slice(-1), [['falsesmile_barb', 31, false]], 'a Sporewood fish\'s print hangs on wing I with the Mossmere\'s');
+  eq(g2.wings[0].frames.length, 4, '… beside the three it had');
 }
 
 section('the scene: every home level changes the barge, in the same three meshes (M1.md §2.6, §2.14)');

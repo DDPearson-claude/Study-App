@@ -667,9 +667,14 @@ section('M1 step 3a\'s seam (PLAN §2.0, §3.2, §3.3): the step-2 save opens, t
   const again = clone(meta.loop); PL.migrateLoop(meta, D);
   eq(meta.loop, again, 'T117: a second migrateLoop changes nothing');
   eq(env.L.liftDue(), [], 'no place owned: nothing to lift');
-  eq(env.L.mapCards().map((c) => c.id), ['place:lily_maze', 'place:under_the_span', 'lake:sporewood'], 'mapCards: the two cheapest place maps, then Sporewood\'s sealed card');
+  eq(env.L.mapCards().map((c) => c.id), ['place:lily_maze', 'place:under_the_span', 'lake:sporewood'], 'mapCards: the two cheapest place maps, then Sporewood\'s lake card');
   const sw = env.L.mapCards()[2];
-  ok(sw.sealed === true && sw.price === null && sw.seals.gear.held === true && sw.seals.catch.have === 8 && sw.seals.map.shipped === false, "Sporewood's card: sealed, no price; Rod T1 held, 8 of 12");
+  ok(sw.sealed === false && sw.price === D.LOOP.waters.sporewood.lake && sw.seals.gear.held === true && sw.seals.catch.have === 8 && sw.seals.catch.held === false && sw.seals.map.shipped === true && sw.seals.map.held === false,
+    "Sporewood's card (the Lake 2 gate: it ships): priced, its map not yet held; Rod T1 held, 8 of 12");
+  ok(PL.waterOpen(meta, D, 'sporewood') === false, '… and the step-2 save cannot sail there: no map, the list short');
+  // the pre-gate state as a fixture (LOOP.shipped the Mossmere): the same save's card sealed, no price
+  const swM = PL.mapCards({ ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } }, meta.loop, { meta })[2];
+  ok(swM?.id === 'lake:sporewood' && swM.sealed === true && swM.price === null && swM.seals.gear.held === true && swM.seals.catch.have === 8 && swM.seals.map.shipped === false, "the fixture (LOOP.shipped the Mossmere): Sporewood's card sealed, no price; Rod T1 held, 8 of 12");
   eq(env.L.seals(), sw.seals, 'seals(): the next water\'s three keys');
   const cat = env.L.catalogue('mossmere');
   ok(cat.list.length === 12 && cat.groups.map((g) => g.placeId).join() === 'under_the_span,buoy_lights,bell_pool' && cat.finds?.rows?.look?.length === 3, 'catalogue: the twelve, then the three places with fish');

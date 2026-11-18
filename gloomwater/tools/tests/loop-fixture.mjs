@@ -231,7 +231,10 @@ export function fakeLoop(over = {}) {
       if (it.slot === 'hold') s.holdSlots = it.level;
       else if (it.slot === 'place') s.maps = { ...s.maps, places: [...(s.maps.places || []), it.placeId] };
       else if (it.slot === 'bait') s.bag[it.baitId] = (s.bag[it.baitId] | 0) + 1;
-      else s.tackle[it.slot] = it.level;
+      else if (it.slot === 'lake') {   // (the Lake 2 gate: a shipped lake map is bought as the real ledger buys it, the places it opens with it)
+        const opens = Object.entries(D?.LOOP?.places || {}).filter(([, p]) => p && p.water === it.waterId && p.lake === true).map(([pid]) => pid);
+        s.maps = { ...s.maps, lakes: [...new Set([...(s.maps.lakes || []), it.waterId])], places: [...new Set([...(s.maps.places || []), ...opens])] };
+      } else s.tackle[it.slot] = it.level;
       if (!it.consumable) s.session.push(id);
       s.saves++;
       return { ok: true, msg: '', clams: s.clams };

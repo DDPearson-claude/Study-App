@@ -359,11 +359,14 @@ section('the Chart: chartModel (SPEC §5.4, M1.md §3.8)');
   const m = freshLoopMeta(D);
   const C = U.chartModel(m, D, {});
   ok(C.sheets.length === 1 && C.sheets[0].waterId === 'mossmere' && C.sheets[0].name === 'The Mossmere' && C.sheets[0].places.length === 4, 'a fresh save: one sheet, the Mossmere, its four places (M1 step 3a)');
-  ok(C.next?.waterId === 'sporewood' && C.next.shipped === false && C.pick.water === 'mossmere' && C.pick.place === null, 'the next water sealed (M1 step 3b: Sporewood, "Coming soon"); open water chosen');
+  ok(C.next?.waterId === 'sporewood' && C.next.shipped === true && C.next.seals.map.price === D.LOOP.waters.sporewood.lake && C.pick.water === 'mossmere' && C.pick.place === null, 'the next water Sporewood, shipped (the Lake 2 gate): its sealed sheet priced; open water chosen');
+  const CM = U.chartModel(m, { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } }, {});
+  ok(CM.next?.waterId === 'sporewood' && CM.next.shipped === false && CM.next.seals.map.price === null, 'the fixture (LOOP.shipped the Mossmere): the next water sealed (M1 step 3b: Sporewood, "Coming soon")');
   ok(C.hold.slots === 3, 'three slots');
   ok(U.chartModel(m, D, { slots: 4 }).hold.slots === 4, 'hold.slots from loop.hold().slots');
   ok(U.chartModel({ loop: { ...m.loop, wick: 'tallow' } }, D).hold.slots === 4, 'without it, data.loopSlots (Tallow four)');
-  ok(U.chartModel({ loop: { ...m.loop, maps: { lakes: ['mossmere', 'sporewood'], places: [] } } }, D).sheets.length === 1, 'no Sporewood row in 1a (only waters LOOP.waters ships)');
+  ok(U.chartModel({ loop: { ...m.loop, maps: { lakes: ['mossmere', 'sporewood'], places: [] } } }, D).sheets.length === 1, 'Sporewood\'s map owned without its gear and catch keys: no Sporewood row yet (SPEC §5.5)');
+  ok(U.chartModel({ loop: { ...m.loop, maps: { lakes: ['mossmere', 'sporewood'], places: [] } } }, { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } }).sheets.length === 1, 'the fixture (LOOP.shipped the Mossmere): no Sporewood row (only waters LOOP.shipped ships)');
   ok(U.chartModel(m, D, { tutorial: true }).next === null && U.chartModel(m, D, { tutorial: true }).tutorial === true, 'the tutorial\'s Chart: one water, one line');
   ok(U.chartModel(null, D).sheets[0]?.waterId === 'mossmere', 'no meta: the Mossmere, never a throw');
   const v = U.chartVignette(D, 'mossmere');
@@ -385,13 +388,19 @@ section('T133: chartModel\'s places and its one next (M1.md §3.8; the signature
   eq(P.map((p) => p.kind), ['day', 'old', 'night', 'crown'], 'their kinds');
   eq(P.map((p) => p.price), [60, 150, null, null], 'the prices are mapCards\' (Murk\'s three: the two cheapest place maps): 60, 150, null, null');
   ok(P.every((p) => p.owned === false && p.best === null && p.giantLanded === false && p.marked === false && p.wounds === 0), 'none owned, no best, no giant, no mark, no wound');
-  eq(C.next, { waterId: 'sporewood', shipped: false, seals: sealsOf(m, D, 'sporewood') }, 'next: {waterId: sporewood, shipped: false, seals: sealsOf\'s} (one source)');
+  eq(C.next, { waterId: 'sporewood', shipped: true, seals: sealsOf(m, D, 'sporewood') }, 'next: {waterId: sporewood, shipped: true (the Lake 2 gate), seals: sealsOf\'s} (one source)');
   const sl = C.next.seals;
   ok(typeof sl.map.held === 'boolean' && typeof sl.gear.held === 'boolean' && sl.gear.slot === 'rod' && sl.gear.tier === 1 && typeof sl.catch.held === 'boolean' && sl.catch.have === 0 && sl.catch.need === 12, 'a superset of 3b\'s chartNext shape (map.held, gear.held/slot/tier, catch.held/have/need)', sl);
   eq(U.chartNext(m, D), C.next, 'chartNext(meta, D) is the one next (3b\'s export, its seals sealsOf\'s)');
   const old = freshLoopMeta(D); old.loop.maps.lakes = ['mossmere', 'sporewood'];
   const on = U.chartNext(old, D);
-  ok(on?.waterId === 'sporewood' && on.shipped === false && on.seals.map.held === true, 'an old save that owns Sporewood\'s map: Sporewood is still the next sheet, its map seal pressed', on);
+  ok(on?.waterId === 'sporewood' && on.shipped === true && on.seals.map.held === true, 'a save that owns Sporewood\'s map without its keys: Sporewood is still the next sheet, its map seal pressed', on);
+  // its keys held too (Rod T1 and the Mossmere's twelve): Sporewood is drawn, and the next sheet is Glasswater's, sealed ("Coming soon")
+  const keys = placesMeta(D, { tackle: { rod: 1, line: 0, reel: 0 }, caught: D.LOOP.species.mossmere }); keys.loop.maps.lakes = ['mossmere', 'sporewood'];
+  const ck = U.chartModel(keys, D, {});
+  ok(ck.sheets.map((x) => x.waterId).join() === 'mossmere,sporewood' && ck.next?.waterId === 'glasswater' && ck.next.shipped === false && ck.next.seals.map.price === null, 'with the keys held: both sheets drawn; the next is Glasswater, sealed, no price', ck.next);
+  const onM = U.chartNext(old, { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } });
+  ok(onM?.waterId === 'sporewood' && onM.shipped === false && onM.seals.map.held === true, 'the fixture (LOOP.shipped the Mossmere): an old save that owns Sporewood\'s map: still the sealed sheet, its map seal pressed', onM);
   const T = U.chartModel(m, D, { tutorial: true });
   ok(T.next === null && T.sheets[0].places.every((p) => p.price === null), 'in the tutorial every price null and next null');
   // a later save: two owned, a best fish there, a giant landed, a mark, the Matriarch's wounds

@@ -170,8 +170,9 @@ if (process.argv.includes('--loop')) {
       const w = ref ? k * x.size.L50 ** 3 / 1000 : NaN, r = ref ? ref.kg * (x.size.L50 / ref.cm) ** 3 : NaN;
       ok4(ref && Math.abs(w / r - 1) <= 0.3, `${x.id}: ${w.toFixed(3)} kg at its L50 ${x.size.L50} cm is within ±30% of its cousin's ${r.toFixed(3)} kg (${ref ? Math.round((w / r - 1) * 100) : '—'}%)`);
     }
-    // LOOP.shipped (decision 39): the Mossmere; no lake map past it is offered, no sheet past it is drawn
-    ok4(LP.shipped === 'mossmere' && L4.loopShippedOrder() === 1 && L4.loopShipped('mossmere') && !L4.loopShipped('sporewood'), "LOOP.shipped is the Mossmere (order 1): Sporewood is sealed");
+    // LOOP.shipped (decision 39): Sporewood since the Lake 2 gate (18 Nov 2026); no lake map past it is offered, no sheet past it is drawn
+    ok4(LP.shipped === 'sporewood' && L4.loopShippedOrder() === 2 && L4.loopShipped('mossmere') && L4.loopShipped('sporewood') && L4.ZONES.every((z) => ['mossmere', 'sporewood'].includes(z.id) || !L4.loopShipped(z.id)),
+      "LOOP.shipped is Sporewood (order 2): the Mossmere and Sporewood ship, every water past it (Glasswater on) is sealed");
     // the names rule (SPEC §0 row 17, §13 allow-list): no research field, episode title, research name, series or presenter in src/ or
     // the built file (index.html); plain family words that are also a research row's whole name (carp, catfish) are the game's own
     const R = JSON.parse(fs.readFileSync(new URL('../docs/loop/research/river-monsters-fish.json', import.meta.url), 'utf8'));
@@ -637,11 +638,11 @@ if (process.argv.includes('--loop')) {
   // >>> LAKE 2, lane D1 (docs/loop/LAKE2.md §9; the user's answers of 17 Nov 2026): Sporewood Pools under the loop, as data. Every key,
   // every item a water's, no lure or tin in two waters, the hook table whole (the 1% stray rule as the Mossmere's), the line's cap by its
   // total Hold reproducing GEAR-GATES' Mossmere caps, the list rule, the repeats rule, the carry's shape (the raft's parts and the hold
-  // among it, answer 1), the words; and nothing of it reaches the Mossmere (LOOP.shipped stays 'mossmere')
+  // among it, answer 1), the words; and nothing of it reaches the Mossmere but its lake map (LOOP.shipped 'sporewood' since the Lake 2 gate)
   {
     const WC = await import('../src/watercraft.js'), SW = WC.WATERCRAFT.sporewood, W2 = LP.waters.sporewood, PLC = LP.places;
     const words = (t) => String(t).trim().split(/\s+/).length, noDigit = (t) => typeof t === 'string' && !/\d/.test(t);
-    ok4(LP.shipped === 'mossmere' && !PLM.waterShipped(L4, 'sporewood'), 'LAKE2 D1: LOOP.shipped stays the Mossmere (Sporewood ships at the integration gate)');
+    ok4(LP.shipped === 'sporewood' && PLM.waterShipped(L4, 'sporewood') && !PLM.waterShipped(L4, 'glasswater'), 'LAKE2 gate: LOOP.shipped is Sporewood (it shipped at the integration gate); no water past it ships');
     ok4(W2 && W2.order === 2 && W2.tier === 12 && same(W2.prices, { night: 1200, crown: 2200 }) && W2.lake === 1400 && W2.plainBait === LP.tins.sporewood?.[0],
       'LAKE2 D1: LOOP.waters.sporewood: order 2, tier 12 (lane D2\'s tuning, LAKE2 §8.4), the Veilwater 1,200 and the Mother\'s Cup 2,200, the lake map 1,400, its plain bait its first tin');
     // the places (§3.2)
@@ -765,10 +766,18 @@ if (process.argv.includes('--loop')) {
     ok4(typeof TL.guide?.newWater === 'string' && words(TL.guide.newWater) <= 30 && !('newWater' in (TL.guide.boxes || {})), 'LAKE2 D1: the new water\'s guide box (its own key, never one of the Mossmere\'s boxes)');
     ok4(Object.values(TL.shelfAt?.sporewood || {}).every((t) => words(t) <= 8 && noDigit(t)) && [...swLures.filter((id) => !LU[id].start), ...(LP.tins.sporewood || []), 'glowcap_bulb'].every((id) => typeof TL.shelf?.[id] === 'string' && words(TL.shelf[id]) <= 8),
       'LAKE2 D1: every Sporewood shelf line, ≤ 8 words');
-    // nothing reaches the Mossmere: its shelf, its map cards, its Chart's sheets and its catalogue tabs are as they were
+    // nothing of Sporewood reaches the Mossmere's shelf but its lake map (the Lake 2 gate: priced, the Mossmere's last goal); its place
+    // maps, lures, tins and tackle wait at Sporewood; once its map is owned the next card is Glasswater's, sealed
     const fresh = PLM.freshLoop(L4), shelf = PLM.shelfItems(L4, fresh);
-    ok4(!shelf.some((it) => it.water === 'sporewood' || swLures.includes(it.lureId) || (LP.tins.sporewood || []).includes(it.baitId)), 'LAKE2 D1: a fresh save\'s shelf offers nothing of Sporewood\'s');
-    ok4(PLM.mapCards(L4, fresh).every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood' && c.sealed === true), 'LAKE2 D1: the map cards are the Mossmere\'s and Sporewood\'s sealed card');
+    ok4(!shelf.some((it) => it.water === 'sporewood' || swLures.includes(it.lureId) || (LP.tins.sporewood || []).includes(it.baitId)), 'LAKE2 D1: a fresh save\'s shelf offers nothing of Sporewood\'s but its lake map');
+    const cards0 = PLM.mapCards(L4, fresh), lake0 = cards0.filter((c) => c.waterId);
+    ok4(cards0.every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood') && lake0.length === 1 && lake0[0].sealed === false && lake0[0].price === Math.round(W2.lake * PLM.costFactor(L4)),
+      'LAKE2 gate: the map cards are the Mossmere\'s place maps and Sporewood\'s lake map, priced (its base × Murk\'s factor)');
+    const owned = { ...fresh, maps: { ...fresh.maps, lakes: ['mossmere', 'sporewood'] } }, cards1 = PLM.mapCards(L4, owned).filter((c) => c.waterId);
+    ok4(cards1.length === 1 && cards1[0].waterId === 'glasswater' && cards1[0].sealed === true && cards1[0].price === null && !PLM.mapCards(L4, owned).some((c) => c.placeId && PLC[c.placeId].water === 'sporewood'),
+      'LAKE2 gate: Sporewood\'s map owned at the Mossmere: the lake card is Glasswater\'s, sealed, no price; Sporewood\'s place maps wait at Sporewood');
+    const LPre = { ...L4, LOOP: { ...LP, shipped: 'mossmere' } };
+    ok4(PLM.mapCards(LPre, fresh).every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood' && c.sealed === true && c.price === null), 'LAKE2 D1 (the pre-gate fixture, LOOP.shipped the Mossmere): the map cards are the Mossmere\'s and Sporewood\'s sealed card');
   }
   // <<< LAKE 2, lane D1
   // >>> LAKE 2, lane W1 (docs/loop/LAKE2.md §1A (2), §3.1, §3.2, §3.5): Sporewood's outline shore. The basin natural (a closed curve that

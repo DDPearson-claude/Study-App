@@ -4888,7 +4888,7 @@ export const LOOP = {
   },
   waters: { mossmere: { order: 1, tier: 7, prices: { day: 60, old: 150, night: 260, crown: 500 } } },
   // ---- M1 step 2 (SPEC §13, decision 39): the last water that ships. No lake map past it is offered and no sheet past it is drawn.
-  shipped: 'mossmere',
+  shipped: 'sporewood',
   // the Mossmere's open water as SPECIES_LOOP ships it (M1.md §2.3), in the Journal's order: the roster's eight on built plans and the
   // three built species the roster keeps (`kept`; the Lampsipper's phase-2 record lifted past the loop's phase pin)
   // (M1 step 3a: twelve with the Kissmark Trout, on its new plan; the places' own fish and giants follow them in SPECIES_LOOP, from

@@ -514,7 +514,7 @@ function baitGlyph(D, sp) {
 /**
  * The next water's three keys as the save stands (SPEC §5.5 (f)): {map: {held, price, shipped}, gear: {held, slot, tier, item},
  * catch: {held, have, need}}, a superset of 3b's chartNext seals. `shipped` as chartNext computes it; the map seal is held when its lake
- * map is owned, and priced only once shipped (in M1 always hollow: "Coming soon", price null); the gear key from LOOP.access.gear
+ * map is owned, and priced only once shipped (the price Murk asks, his factor on its base; a water past LOOP.shipped hollow: "Coming soon", price null); the gear key from LOOP.access.gear
  * (tackle by tier, the hold by its slots, a raft part by level); the catch from listCount of the water before it (the frontier).
  */
 export function sealsOf(meta, D, waterId = 'sporewood') {
@@ -525,7 +525,8 @@ export function sealsOf(meta, D, waterId = 'sporewood') {
   const zones = chartWaters(D), i = zones.indexOf(waterId), prev = i > 0 ? zones[i - 1] : null;
   const lc = prev ? listCount(meta, D, prev) : { have: 0, need: 0 };
   return {
-    map: { held: owned.includes(waterId), price: shipped && Number.isFinite(Number(W?.lake)) ? Number(W.lake) : null, shipped },
+    // (the Lake 2 gate: the price Murk asks, his factor on the lake map's base, so the Chart's sealed sheet and the shelf's card agree)
+    map: { held: owned.includes(waterId), price: shipped && Number.isFinite(Number(W?.lake)) ? costed(D, Number(W.lake)) : null, shipped },
     gear: { held: !!slot && tier > 0 && have >= tier, slot: slot || null, tier: tier || 1, item: item || null },
     catch: { held: lc.need > 0 && lc.have >= lc.need, have: lc.have, need: lc.need },
   };
@@ -568,7 +569,7 @@ export function mapCards(D, metaLoop, { meta = null } = {}) {
   const { next } = frontierOf(ml, D);
   if (!next) return places;
   const seals = sealsOf(isObj(meta) ? { ...meta, loop: ml } : { loop: ml }, D, next);
-  return [...places, { id: `lake:${next}`, waterId: next, sealed: !seals.map.shipped, price: seals.map.shipped ? costed(D, seals.map.price) : null, seals }];
+  return [...places, { id: `lake:${next}`, waterId: next, sealed: !seals.map.shipped, price: seals.map.shipped ? seals.map.price : null, seals }];
 }
 /** The owned places whose mist has not lifted yet (maps.places not in `lifted`, LOOP.places only), in price order (the Chart's on a tie). */
 export function liftDue(D, metaLoop) {
@@ -1142,7 +1143,8 @@ export function createLoop(S) {
   }
   const goal = () => { const L = ensureLoop(); return L ? goalOf(shelfItems(D(), L, [], { meta: meta() })) : null; };
   /** buy(itemId): a tackle tier, a hold step, (M1 step 3a) a place map 'place:<id>' (to maps.places), the legend bait 'bait:<id>' (+1 in
-   *  its water's bag; a consumable, never "Yours.") or an unsealed lake card 'lake:<id>' (none in M1: Sporewood's is sealed and refused).
+   *  its water's bag; a consumable, never "Yours.") or an unsealed lake card 'lake:<id>' (Sporewood's since the Lake 2 gate; a card
+   *  past LOOP.shipped is sealed and refused).
    *  The price comes off at once and the save is written before loop:buy {item, price, clams}. */
   function buy(itemId) {
     const L = ensureLoop();

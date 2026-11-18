@@ -216,12 +216,12 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
     }
     if (allowed) {
       orders++;
-      eq(tabOf(L.shelf().tabs.flatMap((t) => t.items), 'maps').map((c) => c.id), ['lake:sporewood'], `${order.join('>')}: all four owned, only the sealed card is left`);
+      eq(tabOf(L.shelf().tabs.flatMap((t) => t.items), 'maps').map((c) => c.id), ['lake:sporewood'], `${order.join('>')}: all four owned, only Sporewood's lake map is left`);
     }
   }
   console.log(`  the walk: ${orders} buying orders of the four maps allowed, ${refused} refused`);
   ok(orders >= 2 && refused >= 1, `the walk: ${orders} buying orders allowed, ${refused} refused (a dearer map before it is offered)`);
-  // Hold 6 after Hold 5; the ball; the sealed card
+  // Hold 6 after Hold 5; the ball; Sporewood's lake map (the Lake 2 gate: priced; past it, Glasswater's sealed card)
   const L = fakeLoop({ D, state: { clams: 1550, holdSlots: 5 } });
   const no4 = (items) => items.filter((i) => !(/^(lure|tin|cut|oars|keel|lantern|orders):/.test(i.id)));   // (M1 step 4's cards: loop-4.test.mjs's)
   const raft = () => no4(L.shelf().tabs.find((t) => t.id === 'raft').items);
@@ -233,12 +233,26 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
   eq(bait().map((i) => [i.id, i.price, i.name, i.line, i.count, i.consumable, i.bought]), [['bait:heartmoss', 60, 'Heartmoss Ball', D.TEXT_LOOP.shelf.heartmoss, 0, true, false]], 'the Bait tab: the Heartmoss Ball, 60, its line, a consumable with its count');
   ok(L.buy('bait:heartmoss').ok && L.buy('bait:heartmoss').ok && L.s.bag.heartmoss === 2, 'two balls bought: two in the bag');
   ok(bait()[0].bought === false && bait()[0].count === 2 && !L.s.session.includes('bait:heartmoss'), 'a consumable never reads Yours. (its count grows)');
-  ok(L.buy('lake:sporewood').ok === false && L.s.clams === 430, "Sporewood's sealed card is refused (no price, no buy)");
+  const swCard = () => no4(L.shelf().tabs.find((t) => t.id === 'maps').items).find((i) => i.id === 'lake:sporewood');
+  ok(swCard()?.sealed === false && swCard()?.price === D.LOOP.waters.sporewood.lake, 'Sporewood\'s lake card is priced: it ships (the Lake 2 gate)', swCard());
+  ok(L.buy('lake:sporewood').ok === false && L.s.clams === 430 && !L.s.maps.lakes.includes('sporewood'), 'Sporewood\'s lake map at 1,400 is refused with 430 clams (nothing taken)');
   const g = L.goal();
-  ok(g && g.id !== 'bait:heartmoss' && g.id !== 'lake:sporewood', 'the goal line never names the ball or the sealed card', g);
+  ok(g && g.id !== 'bait:heartmoss' && g.id !== 'lake:sporewood', 'the goal line never names the ball, nor the lake map while a cheaper card is left', g);
+  // the pre-gate state as a fixture (LOOP.shipped the Mossmere): its sealed card refused whatever the clams
+  const DM = { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } };
+  const LM = fakeLoop({ D: DM, state: { clams: 99999, holdSlots: 5 } });
+  ok(LM.buy('lake:sporewood').ok === false && LM.s.clams === 99999, 'the fixture (LOOP.shipped the Mossmere): Sporewood\'s sealed card is refused (no price, no buy)');
   const all = placesMeta(D, { own: FOUR, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
-  eq(PL.goalOf(no4(PL.shelfItems(D, all.loop)).filter((i) => i.tab !== 'home')), null, 'the empty shelf (step 3\'s): no goal line, though the ball and the sealed card are still there (M1 step 5b: the Home tab aside)');
-  ok(PL.shelfItems(D, all.loop).some((i) => i.id === 'bait:heartmoss') && PL.shelfItems(D, all.loop).some((i) => i.id === 'lake:sporewood'), '… the ball is always on the shelf, and Sporewood\'s card reads "Coming soon"');
+  eq(PL.goalOf(no4(PL.shelfItems(D, all.loop)).filter((i) => i.tab !== 'home')), { id: 'lake:sporewood', name: 'Sporewood Pools', price: 1400, slot: 'lake', level: null },
+    'the Mossmere\'s empty shelf (step 3\'s): the goal line is the Sporewood map (the ball a consumable; M1 step 5b: the Home tab aside)');
+  ok(PL.shelfItems(D, all.loop).some((i) => i.id === 'bait:heartmoss') && PL.shelfItems(D, all.loop).some((i) => i.id === 'lake:sporewood' && !i.sealed), '… the ball is always on the shelf, and Sporewood\'s card is open to buy');
+  eq(PL.goalOf(no4(PL.shelfItems(DM, all.loop)).filter((i) => i.tab !== 'home')), null, 'the fixture (LOOP.shipped the Mossmere): the empty shelf had no goal line, its card "Coming soon"');
+  // its map bought with the last clams: owned with the two places it opens; the next card is Glasswater's sealed one, and no goal is left
+  const LT = fakeLoop({ D, state: { clams: 1400, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 }, maps: { lakes: ['mossmere'], places: FOUR.slice() } } });
+  ok(LT.buy('lake:sporewood').ok === true && LT.s.clams === 0 && LT.s.maps.lakes.includes('sporewood') && ['lullaby', 'gill_harp'].every((p) => LT.s.maps.places.includes(p)), 'Sporewood\'s map bought: the lake owned, with the Lullaby and the Gill Harp');
+  LT.s.session = [];
+  eq(no4(LT.shelf().tabs.find((t) => t.id === 'maps')?.items || []).map((i) => [i.id, i.sealed, i.price]), [['lake:glasswater', true, null]], '… the Maps tab is Glasswater\'s sealed card, no price');
+  ok(LT.buy('lake:glasswater').ok === false, '… and Glasswater\'s sealed card is refused');
   // the shelf's ids for 3b's priced blots: a place card names its place and its fish
   const fresh = PL.shelfItems(D, PL.freshLoop(D)).filter((i) => i.slot === 'place');
   eq(fresh.map((i) => [i.placeId, i.name, i.fish, i.line, i.kind]), [['lily_maze', 'The Lily Maze', 'candlefin_koi', D.TEXT_LOOP.maps.lily_maze, 'day'], ['under_the_span', 'Under the Span', 'thousandcast_pike', D.TEXT_LOOP.maps.under_the_span, 'old']], 'a place card: its place, name, fish, line and kind');
@@ -251,14 +265,20 @@ section('T109: mapCards is the one rule (the shelf\'s Maps tab is exactly its ca
     const m = placesMeta(D, { own, caught: ['dusk_minnow', 'kissmark_trout'] });
     const cards = PL.mapCards(D, m.loop, { meta: m }), shelf = PL.shelfItems(D, m.loop, [], { meta: m }).filter((i) => i.tab === 'maps');
     eq(shelf.map((i) => [i.id, i.price]), cards.map((c) => [c.id, c.price]), `own [${own.join(', ')}]: the Maps tab is mapCards' cards, prices included`);
-    eq(shelf.find((i) => i.sealed)?.seals, cards.find((c) => c.sealed)?.seals, `own [${own.join(', ')}]: the sealed card's seals are mapCards'`);
+    ok(shelf.some((i) => i.waterId) && cards.some((c) => c.waterId), `own [${own.join(', ')}]: a lake card on both`);
+    eq(shelf.find((i) => i.waterId)?.seals, cards.find((c) => c.waterId)?.seals, `own [${own.join(', ')}]: the lake card's seals are mapCards'`);
     ok(cards.length <= 3, `own [${own.join(', ')}]: at most three cards`);
   }
   const m = placesMeta(D, { caught: ['dusk_minnow', 'kissmark_trout'] });
-  eq(PL.mapCards(D, m.loop, { meta: m }).find((c) => c.sealed).seals.catch, { held: false, have: 2, need: 12 }, "the sealed card's catch seal counts the journal given in {meta}");
-  eq(PL.mapCards(D, m.loop).find((c) => c.sealed).seals.catch.have, 0, '… and none without it');
+  eq(PL.mapCards(D, m.loop, { meta: m }).find((c) => c.waterId).seals.catch, { held: false, have: 2, need: 12 }, "the lake card's catch seal counts the journal given in {meta}");
+  eq(PL.mapCards(D, m.loop).find((c) => c.waterId).seals.catch.have, 0, '… and none without it');
+  // the pre-gate state as a fixture (LOOP.shipped the Mossmere): the same card sealed, its seals counted the same way
+  const DM = { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } };
+  const sm = PL.mapCards(DM, m.loop, { meta: m }).find((c) => c.sealed);
+  ok(sm?.waterId === 'sporewood' && sm.price === null && JSON.stringify(sm.seals.catch) === JSON.stringify({ held: false, have: 2, need: 12 }), 'the fixture (LOOP.shipped the Mossmere): Sporewood\'s sealed card, no price, its catch seal 2 of 12', sm);
   const tut = PL.mapCards(D, PL.freshLoop(D));
   eq(tut.map((c) => c.id), ['place:lily_maze', 'place:under_the_span', 'lake:sporewood'], 'a fresh save: the Lily Maze, Under the Span, then Sporewood');
+  ok(tut[2].sealed === false && tut[2].price === D.LOOP.waters.sporewood.lake, '… Sporewood\'s card priced (it ships)');
   eq(tut[0].hours, ['sun', 'dusk'], "the Lily Maze's card: the koi's day and dusk glyphs");
   eq(tut[1].hours, ['dusk', 'moon'], "Under the Span's card: the Thousandcast's dusk and moon glyphs");
 }
@@ -304,7 +324,14 @@ section('T115: catalogueFor (SPEC §8.8): the head, the list, the places\' group
 section('T116: sealsOf (SPEC §5.5 (f)): Sporewood\'s three keys');
 {
   const s0 = PL.sealsOf(freshLoopMeta(D), D, 'sporewood');
-  eq(s0.map, { held: false, price: null, shipped: false }, 'the map seal hollow, no price (not shipped: "Coming soon")');
+  eq(s0.map, { held: false, price: D.LOOP.waters.sporewood.lake, shipped: true }, 'the map seal hollow, priced (it ships: the Lake 2 gate)');
+  eq(PL.sealsOf(freshLoopMeta(D), { ...D, LOOP: { ...D.LOOP, shipped: 'mossmere' } }, 'sporewood').map, { held: false, price: null, shipped: false }, 'the fixture (LOOP.shipped the Mossmere): the map seal hollow, no price ("Coming soon")');
+  eq(PL.sealsOf(freshLoopMeta(D), D, 'glasswater').map, { held: false, price: null, shipped: false }, 'Glasswater, past LOOP.shipped: its map seal hollow, no price ("Coming soon")');
+  // at the game's price factor (×2 in a browser) the map seal, the shelf's lake card and the Chart's sealed sheet ask the one price
+  const D2 = { ...D, LOOP: { ...D.LOOP, cost: { ...D.LOOP.cost, factor: 2 } } }, f2 = freshLoopMeta(D2);
+  const s2 = PL.sealsOf(f2, D2, 'sporewood').map.price, c2 = PL.mapCards(D2, f2.loop, { meta: f2 }).find((c) => c.waterId)?.price, sh2 = PL.shelfItems(D2, f2.loop, [], { meta: f2 }).find((i) => i.id === 'lake:sporewood')?.price;
+  ok(s2 === 2800 && c2 === 2800 && sh2 === 2800, `at Murk's ×2 the Sporewood map is 2,800 on the seal, the card and the shelf alike (${s2}, ${c2}, ${sh2})`);
+  eq(PL.sealsOf(freshLoopMeta(D), D, 'glasswater').catch, { held: false, have: 0, need: 9 }, '… its catch seal Sporewood\'s list: 0 of 9');
   eq(s0.gear, { held: false, slot: 'rod', tier: 1, item: 'rod:1' }, 'the gear seal: Rod T1, not held');
   eq(s0.catch, { held: false, have: 0, need: 12 }, 'the catch seal: 0 of 12');
   ok(PL.sealsOf(placesMeta(D, { tackle: { rod: 1, line: 0, reel: 0 } }), D, 'sporewood').gear.held === true && PL.sealsOf(placesMeta(D, { tackle: { rod: 0, line: 2, reel: 2 } }), D, 'sporewood').gear.held === false, 'the gear seal held iff Rod T1 is owned');
