@@ -1152,7 +1152,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
     return mesh;
   };
   addStatic(kit.rock, rockMat, olRock, 'rocks');
-  addStatic(kit.org, orgMat, olOrg, 'organics');
+  // (LAKE 2, the art pass: on a lush water the organics take no ink hull, as its vegetation kit and landmarks take none: the tubes' hull
+  // drew over the cream cap stalks and the Veil's log as black arches, "a black spider on an islet")
+  addStatic(kit.org, orgMat, look ? null : olOrg, 'organics');
   // (WC-3: on the Mossmere under the loop the 'fine' static has its own material, the twitch's)
   const fineMat = wcOn ? M(twitchMat({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'wood', detailAmount: 0.7, grain: [0, 1, 0], wet: 0.5, gloss: 0.1, shine: 56, floor: 1 }, { fogScale: 0.9, fogMax: 1 }, 'reeds')) : orgMat;
   addStatic(kit.fine, fineMat, null, 'fine', false);   // reeds and coral twigs: too fine to cast
