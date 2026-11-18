@@ -1537,7 +1537,8 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   figures move with the shares by a hair (not re-run here; the gate's `clams.mjs --shipped=sporewood` re-measures them).
 - **The haze and the places' banks**: a warm cream (#e4dac6), slate-grey in shade and blue-grey at night, never lavender.
 
-- **Not done** (named): the Netcloud Fry's cloud centred in a cupped hand (the show holds a fry in a pinch; a cupped hand is a new pose
+- **Not done** (named): the Skep Lid's tip is in its model (a node build of the prop) but was not seen in a browser frame (the art
+  scenario's Sporewood could not force a Sporewood find); the Netcloud Fry's cloud centred in a cupped hand (the show holds a fry in a pinch; a cupped hand is a new pose
   in actors-show, left for a show pass); the near water inside the lantern's reach still reads warm under the low lens, most on a tall
   phone frame (the lantern's pool is the play's light; it is softer, and the water is dark teal beyond it); the dusk's and the night's
   green shares sit well under W2's 10.5 and 6.5: the amber-rose key turns the muted leaves bronze (the report's yellow and orange) and the
@@ -1553,7 +1554,9 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   (`clarity-perf --loop --sporewood`, at night, the West Pool, the East Pool and the neck; the palette change is colour values only, so
   the draws and triangles are 04e12c8's): on the phone (390 × 844, `--mobile`) **low 96–98 calls**, 94–100k triangles, the world's own
   25–27 calls (the Mossmere's banks frame 32), cpuMs 1.8–2.5k against that frame's 4.4k; medium 177–178 calls, 239–256k triangles (≤ 230
-  and ≤ 320k), cpuMs 2.6–2.7k against 5.2k; high 179–186 calls, 391–417k triangles, cpuMs 2.5–3.4k against 5.5k. DESKPERF The kit is
+  and ≤ 320k), cpuMs 2.6–2.7k against 5.2k; high 179–186 calls, 391–417k triangles, cpuMs 2.5–3.4k against 5.5k. At 960 × 540: low 97–98 calls, 99–102k triangles, cpuMs 2.7–8.7k against the Mossmere's banks frame's 15.4k (run alone; the browser
+  closed at the medium tier's giant show, the shared box's old failure); medium 177–181 calls and 250–256k triangles (the draws and
+  triangles from the run before the palette change, under load: its cpuMs are not a figure). The kit is
   64.5k triangles on high, 46.0k on medium, 26.8k on low, in 14 meshes on high and 7 on low (draws as W2's). A giant's show at night was
   not measured (the forced bite timed out at 240 s, as on the shared box before); it is a Mossmere case.
 - **Frames**: the look sheet (Sporewood's three lights beside the Mossmere's, before and after), the set pieces before and after, the
