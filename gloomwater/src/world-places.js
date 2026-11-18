@@ -363,7 +363,10 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
   const keeps = P.map((p) => bankKeep(p.area, L?.docks || []));   // (no bank over a dock)
 
   // ---------------------------------------------------------- the banks (one merged mesh)
-  const layers = BANK_LAYERS[liteBank ? 'low' : 'high'];
+  // (LAKE 2, lane W2: a lush water's banks are its spore-haze, `mist.lit` … its tint, sitting `mist.low` × as high; the Mossmere's as built)
+  const hazeT = mist && Number.isFinite(mist.lit) ? { lit: new THREE.Color(mist.lit), litN: new THREE.Color(mist.litN ?? mist.lit), shade: new THREE.Color(mist.shade ?? mist.lit), shadeN: new THREE.Color(mist.shadeN ?? mist.shade ?? mist.lit) } : null;
+  const lowK = hazeT ? num(mist.low, 1) : 1;
+  const layers = lowK === 1 ? BANK_LAYERS[liteBank ? 'low' : 'high'] : BANK_LAYERS[liteBank ? 'low' : 'high'].map(([h, w, sh]) => [h * lowK, w, sh]);
   const bank = (() => {
     const pos = [], aBank = [], aS1 = [], aS2 = [], aL = [], aK = [], ix = [];
     let base = 0;
@@ -1074,8 +1077,8 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     bu.uTime.value = t;
     // lavender by day and dusk, a moonlit violet at night; a breath of the air in it
     const fog = info.fog && info.fog.isColor ? info.fog : null;
-    tmpC.copy(LAV).lerp(LAV_N, n); if (fog) tmpC.lerp(fog, 0.12);
-    tmpC2.copy(SHADE).lerp(SHADE_N, n); if (fog) tmpC2.lerp(fog, 0.2);
+    tmpC.copy(hazeT ? hazeT.lit : LAV).lerp(hazeT ? hazeT.litN : LAV_N, n); if (fog) tmpC.lerp(fog, 0.12);
+    tmpC2.copy(hazeT ? hazeT.shade : SHADE).lerp(hazeT ? hazeT.shadeN : SHADE_N, n); if (fog) tmpC2.lerp(fog, 0.2);
     bu.uLit.value.copy(tmpC); bu.uShade.value.copy(tmpC2);
     bu.uAmt.value = 1 - 0.12 * n;
     // the dressing

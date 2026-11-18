@@ -1048,6 +1048,66 @@ Sporewood's words draws as its built plan, exactly.
   bites on the Mossmere's open water, desktop 1280 × 720 and the 390 × 844 phone; two look-and-fix rounds: the Harpstring's tubes, the
   lantern's glare, the Fry's cloud spread, the Barb's teeth too small to read, the Grove's whip).
 
+### 9.5 Lane W2 as built (gw-l2-w2): the ember garden made green
+
+Art only; `LOOP.shipped` stays `'mossmere'`. **The Mossmere does not move**: nothing of it reads a look (`ZONE_LOOKS` has no Mossmere,
+lush 0), so its programs, its draws and its geometry are as they were (outline-shore.test.mjs part 1 passes unchanged); off the loop
+nothing reads `ZONE_LOOKS` at all (Sporewood's flag-off arena is its twoBasins one, pinned).
+
+- **The colour script first** (`tools/loop-colour-script.py`, the lane's first commit): Sporewood's own frame (the East Pool toward the
+  neck: the cap-rim window, the neck's green walls, the Gill Harp's strings, the Mother Cap and its amber pool, the near moss banks, lily
+  rafts) at step 5's targets 12 · 10.5 · 6.5, fitted and measured, every lint and gate passing; the one exception to the step rule is
+  its `EXCEPT` table (the step into Sporewood holds the lower bounds; the step out prints as pending until the later waters re-step).
+  WATERS §1, §2, §5.3, §6 and §7 carry Sporewood's new row and the note.
+- **The look** (`data.js` `ZONE_LOOKS.sporewood`): §3.3's keys (lush 0.33, the leaf keys, `mossG`/`mossGHi` at 0.6, `bloom`, fireflies)
+  and three figures the frames needed: `gain` [0.82, 1.65, 0.62] and `albedo` 1.4 (Clear Night's violet light, ambient and shadow
+  split-tone render an olive albedo violet-grey: the gain carries the leaf track through it, so a lit leaf lands near its own key),
+  `floor` 0.17 by day and `night` {floor 0.3, trans 1.23} (WATERS §5.2's flora floor tint; the moon's light through the leaves). The
+  palette, its air and its grade are as built: the green is on surfaces only.
+- **The kit** (`src/world-flora.js`): six archetypes and the trees from prototypes stamped into merged meshes in 3 × 2 cells, two
+  materials a cell (`flora`: blades, strands, shrubs, trees, mirrored and casting; `flora.low`: cushions, ferns, pads), one on low;
+  opaque, double-sided, sway and the raft's parting in the vertex stage (reeds bend away, the Veil's curtain and the gill strings part
+  round the raft), the backlit translucency and the floor in the fragment stage. On high: 420 moss cushions and carpets, 162 ferns (12
+  tree-ferns), 252 reeds and 115 sedge, 150 lily and leaf rafts with 29 flowers, 42 shrubs, 6 broadleaf leaning over the water, 40 far
+  crowns, about 140 strands (the trees', the Veil's 76, the Gill Harp's 32, the Mother's 18, the willow arch's), 120 fireflies: about
+  28k triangles, 1,325 plants (medium 0.7×, low 0.4×). Reeds lie only on the water's reed runs and round the reed isles, the rafts on its
+  lily beds, the frogs' beats and the shallows: the art is where the fishing reads it. Tall kinds keep off the lens's side of the water
+  (the play lens is always south of the raft); the places, the mooring and every glide keep 2.4 m clear; fireflies only over the reeds,
+  ferns and shrubs. The banks' moss: `mossG` in drifts over about 60% of every bank top (whole where they lie, earth between), with the
+  kit's floor. Its own seeded stream (`L.artSeed ^ 0xF10A`).
+- **The landmarks** (`src/world-sporewood.js`; none of them stone): the cap-rim window (12 far caps, 28–40 m, in the landmarks'
+  statics), **the Mother Cap** on the Mother's Foot over the Cup (its cap 22 m across with lit gills, roots splaying into the water, 18
+  vines; **20 m, not the design's 30**: the sail lens looks about 11° down with the top of its frame about 17° up, so a 30 m cap was
+  never in a play frame), **the Gill Harp** (two caps leaning over the neck from both banks, the lens's side's foot 6.5 m back, their 32
+  gill strings and moss threads hanging to 2.9 m over the water), **the Veil** (a fallen cap stalk across the inlet's narrowest crossing
+  on the Veilwater's glide, 12.5 m, its broken cap half-sunk in the bank, a two-row curtain of 76 strands that parts round the raft),
+  **the Seep** (its own scrolling card and broken foam at its foot, mossy boulders and ferns in its ravine), **five Lantern groves** of
+  glowcaps and the two stools' caps (the spore moths' lamps), **14 cap trees** on the banks and the isles (Mossback's leaning cap,
+  Rootknot's roots, the Tussock's grass), **Rootfoot Landing** (a plank jetty on root-posts, a living willow arch with hanging leaves,
+  terracotta pots grown over with fern), the **spore-haze** (one mist-sheet draw in the coves and on the Reed Flats from dusk) and the
+  places' banks in its rose-cream tint, sitting 0.7× as high. Stalks and caps join world-art's statics (0 draws); the see-through cut
+  runs on Sporewood too, reading the Gill Harp's lens-side stalk and the willow arch.
+- **The water** (`GW_LUSH`, a define set only on a lush water, so the Mossmere's program is as built): the moon coins' static dapple
+  (the canopy's shade within 14 m of a bank, coins through its gaps; no animation, no glitter) and the shallows' weed film, baked in the
+  depth texture's spare channels (no new sampler).
+- **The lens** (`LOOP.camera.sporewood`, `render-camera.waterLens`): the sail framings × 0.8 and +4°; in the neck × 0.84 more and **5°
+  steeper, not lower** (lower put the neck's 2.5 m south bank across the foot of the frame).
+- **The life**: the spore moths are the wick-moths in Sporewood's colours (cream forewings, amber hindwings; the plum eye-spot is below a
+  pixel at their size and is left out) round its glowcaps; the lily frogs keep the lampbills' ways on a frog of their own (moss-green
+  back, cream throat, amber eyes) on the lily beds, plopping in within 10 m of the raft; the gill-flakes drift the outflow to the Root
+  Weir as the candle-boats do, with no flame.
+- **Measured** (`tools/tests/lake2-w2.scenario.mjs --hue --tier=medium`, 960 × 540, the spawn, the day water and the old water):
+  green share **day 12.4** (11.3 · 15.4 · 10.6), **dusk 10.0** (9.0 · 12.7 · 8.2), **night 6.4** (5.3 · 7.7 · 6.1) against 12 · 10.5 ·
+  6.5 (±10%): all three inside; teal ≤ 1.0% of every frame; the Mossmere's frame 0.0%. **The cost** (`clarity-perf --loop --sporewood`, 960 × 540, at night, the West Pool, the East Pool and the neck): medium 179–182
+  calls and 236–238k triangles in all passes (≤ 230 and ≤ 320k), the world's own 32–34 calls, 6–8 fewer than the Mossmere's with its four
+  banks standing (40), cpuMs 6.9–8.8k against that Mossmere frame's 20.8k; high 182–187 calls and 344–353k triangles. On the phone (390 × 844, `--mobile`): low 97–99 calls, 104–107k triangles, cpuMs
+  1.7–2.0k against the Mossmere's banks frame's 4.9k; medium 178–181 calls, 230–240k triangles, cpuMs 2.6–2.8k against 5.6k. The kit is 14
+  meshes (12 cells, the flowers, the fireflies), 28.8k triangles on high, 20.8k on medium; the arena builds in 150–260 ms warm on
+  high (the Mossmere's 190) and 60–180 ms on low, the kit 27–94 ms of it (node, on the shared box).
+- **Left for the gate and C**: `LOOP.shipped = 'sporewood'` (nothing reaches it in play until then: the scenario puts the world on
+  Sporewood itself); the Chart's sheet 2; the sky's share measured on sky pixels (hue-report reads the whole frame); a look sheet beside
+  the Mossmere's at the gate's index.html.
+
 ---
 
 ## 10. Left for later (named, not built)

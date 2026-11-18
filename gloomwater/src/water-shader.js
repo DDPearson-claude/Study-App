@@ -99,6 +99,11 @@ uniform vec4 uLane;           // the wind lane (watercraft.laneFor(evening)): ce
 uniform vec4 uCut;            // the cut behind the Veil (LOST-TACKLE §5.1): its bearing (cos, sin), its mouth's radius, on
 // <<< WC-3
 #endif
+#ifdef GW_LUSH
+// >>> LAKE 2, lane W2 (LAKE2 §3.3): a lush water's masks, baked in uDepthTex's B (the moon coins' dapple) and A (the shallows' weed film)
+uniform vec4 uLushWeed;       // the film's colour (rgb) and its strength
+uniform float uLushDapple;    // how dark the canopy's shade lays the water between the moon coins
+#endif
 uniform vec2 uMood;           // the night 0..1 and the dawn's warmth 0..1 (world's mood)
 #ifdef GW_REFL
 uniform sampler2D uReflTex;   // the scene mirrored about the water plane (water.renderReflection)
@@ -496,6 +501,9 @@ void main() {
   }
   // <<< WC-3
 #endif
+#ifdef GW_LUSH
+  vec4 lushTex = uDepthOn > 0.5 ? texture2D(uDepthTex, xz * uDepthScale + 0.5) : vec4(0.0, 0.0, 1.0, 0.0);
+#endif
 
   // ---- obstacle islands / pillars: foam rings, shallows, and inky mirror reflections
   float refl = 0.0;
@@ -710,6 +718,9 @@ void main() {
   // lying on it the open lake otherwise reads as a dark sheet, most of all on a tall phone frame; by night it is the
   // lake's floor colour and nothing more
   base *= 1.2 - 0.2 * uMood.x;
+#ifdef GW_LUSH
+  base = mix(base, uLushWeed.rgb, lushTex.a * uLushWeed.a);   // (the weed film in the shallows: on the water's own colour, never on the air)
+#endif
 #ifdef GW_WC
   // >>> WC-3: clean water over the pale gravel fan under the Veil (its speckle drops on low), and the Bell Pool's ink
   if (uWc > 0.5) {
@@ -842,6 +853,10 @@ void main() {
   // a breath paler than the mid water beyond the shelf's lip)
   col = mix(col, col * 0.42, wcRim * 0.62 * uWc);
   col += (uShallow * 0.1 + sheen * 0.05) * wcLip * 0.5 * uWc;
+#endif
+
+#ifdef GW_LUSH
+  col *= mix(1.0 - uLushDapple, 1.0, lushTex.b);   // (the canopy's shade between the moon coins: static, never a glitter)
 #endif
 
   // ---- lights: warm pools and dashed vertical streaks

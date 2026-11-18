@@ -12,6 +12,9 @@ import { sdfAt, sdfGrad, groundAt as outlineGround, shoreAt as outlineShoreAt } 
 import { ambientOn, debrisPieces, debrisGeos, createSlits, stepSlits } from './world-ambient.js';   // the loop's ambient (LOOP.ambient)
 import { inkToon, outlineMat, makeSeeCut, cutBlocked, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
+import { lushLook, lushColor, lushFloor, floraPlan, buildFlora } from './world-flora.js';   // LAKE 2, lane W2: the vegetation kit (a water with a look: Sporewood under the loop)
+import { buildSporewoodArt } from './world-sporewood.js';                // LAKE 2, lane W2: Sporewood's living landmarks
+import { WATERCRAFT } from './watercraft.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -91,6 +94,11 @@ export function buildArena(ctx, L, opts = {}) {
   if (zone.palette && zone.palette.candle == null) pal.candle = pal.lamp;
   const theme = L.theme;
   const K = {}; for (const [k, v] of Object.entries(KIT[theme] || KIT.mossmere)) K[k] = scaleArr(lin(v), ALBEDO[k] || 1);
+  // >>> LAKE 2, lane W2: a water built on an outline shore with a look (ZONE_LOOKS, lush > 0: Sporewood under the loop) is dressed by the
+  // vegetation kit and its living landmarks; everything below that reads `look` is skipped for any other water (the Mossmere: no look)
+  const look = L.outline && opts.face !== false ? lushLook(ctx?.data, zone.id || theme) : null;
+  const bankFloorU = { gwFloraFloor: { value: 0 } };   // (the banks' moss floor, by the mood)
+  // <<< LAKE 2, lane W2
   const keyDir = keyLightDir(theme);
   const PL = {}; for (const [k, v] of Object.entries(pal)) if (typeof v === 'number' && k !== 'fogDensity' && k !== 'stars') PL[k] = lin(v);
   // the accent lights a candle anchor casts lean pale gold: warm on the stone, never a second lantern
@@ -149,7 +157,7 @@ export function buildArena(ctx, L, opts = {}) {
   const twState = { i: 0, t: 0, linked: false };
   // (wave 2, audit #3 and #7: on the Mossmere under the loop the islands', pillars' and posts' stone and timber dither off the lens's line
   // to the Wick while one of the lake's obstacles stands on it (update); the places' stone shares the cut. Off the loop nothing changes)
-  const seeCut = wcOn ? makeSeeCut() : null;
+  const seeCut = wcOn || look ? makeSeeCut() : null;   // (LAKE 2, lane W2: a lush water's stalks on the lens's side take the cut too)
   if (seeCut) { seeCut.add(rockMat, true); seeCut.add(olRock, false); seeCut.add(orgMat, true); seeCut.add(olOrg, false); }
   const cutHook = (mesh) => { if (seeCut && (mesh.material === rockMat || mesh.material === orgMat || mesh.material === olRock || mesh.material === olOrg)) mesh.onBeforeRender = seeCut.setCut; };
   const TW_PARS = `
@@ -401,6 +409,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     const br = makeRng(((L.artSeed | 0) ^ 0xba4c5) >>> 0), ox = br() * 40, oz = br() * 40;
     const nv = n * n, pos = new Float32Array(nv * 3), col = new Float32Array(nv * 3), sv = new Float32Array(nv), g = { x: 0, z: 0 };
     const wetC = scaleArr(mixArr(K.rock, K.wood, 0.4), 0.55), earthC = mixArr(K.wood, K.rockHi, 0.35), rootC = mixArr(K.wood, K.rock, 0.5);
+    const LMG = look ? [lushColor(look, look.mossG, 1.45), lushColor(look, look.mossGHi, 1.2), Number(look.mossAmt) || 0.6] : null;
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
       const v = j * n + i;
       let x = x0 + i * c, z = x0 + j * c;
@@ -420,6 +429,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
         cc = mixArr(mixArr(earthC, rootC, n2), mixArr(K.moss, K.mossHi, n1 * 0.8), Math.min(1, top * (0.55 + 0.6 * n1)));
       }
       cc = scaleArr(cc, 0.5 + 0.22 * n1);   // (earth under the vault: dark, as the Mossmere's banks; lane W2's moss and ferns light it)
+      // (LAKE 2, lane W2: the green moss over the built violet: every bank top and the land behind it in drifts, the faces earth and root)
+      // (in drifts that cover about `mossAmt` of the tops, whole where they lie, the earth showing between them: a carpet, not a tint)
+      if (LMG) { const top = Math.min(1, Math.max(0, -s - 0.6) / 2.5), drift = Math.min(1, Math.max(0, (n1 * 1.05 + n2 * 0.15 - (1.02 - LMG[2])) * 2.6)); cc = mixArr(cc, mixArr(LMG[0], LMG[1], n2 * 0.8), 0.94 * top * drift); }
       col[v * 3] = cc[0]; col[v * 3 + 1] = cc[1]; col[v * 3 + 2] = cc[2];
     }
     const idx = [];
@@ -439,7 +451,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     geo.computeVertexNormals();
     // (smooth normals: the ground rolls; a flat-shaded grid zig-zags in the toon's steps. A low rim: seen at a grazing angle, a wide
     // ground takes the rim all over and reads as snow)
-    const bankMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.14, rimColor: rimC, rimPower: 0.8, steps: 3, detail: 'stone', detailAmount: 0.3, wet: 0.5, gloss: 0.06, shine: 48, floor: 1 }, { fogScale: 0.8, fogMax: 0.95 }));
+    const bankMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: look ? 0.05 : 0.14, rimColor: rimC, rimPower: 0.8, steps: 3, detail: 'stone', detailAmount: 0.3, wet: 0.5, gloss: 0.06, shine: 48, floor: 1 }, { fogScale: 0.8, fogMax: 0.95 }));
+    if (look) { lushFloor(bankMat, bankFloorU, 'banks'); bankFloorU.gwFloraFloor.value = Number(look.floor) || 0.2; }   // (LAKE 2, lane W2: the moss's floor)
     const mesh = new THREE.Mesh(geo, bankMat);
     mesh.name = 'banks';
     setupSurface(mesh);
@@ -863,6 +876,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
       if (o.big || rng() < 0.55) { const lx = o.x + rng.range(-0.3, 0.3) * o.r, lz = o.z + rng.range(-0.3, 0.3) * o.r; P.lamp(lx, surf(o, lx, lz), lz, rng.range(2.8, 3.8)); }
       const nr = 3 + ((rng() * 4) | 0);
       for (let i = 0; i < nr; i++) { const a = rng() * TAU, d = o.r * rng.range(1.05, 1.35); P.reeds(o.x + Math.cos(a) * d, o.z + Math.sin(a) * d, 4 + ((rng() * 4) | 0), rng.range(1.0, 1.9)); }
+    } else if (theme === 'sporewood' && look) {
+      // (LAKE 2, lane W2: the isles are dressed by kind in world-sporewood.js)
     } else if (theme === 'sporewood') {
       const nm = o.big ? 3 : 1 + ((rng() * 2) | 0);
       for (let i = 0; i < nm; i++) {
@@ -966,6 +981,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
 
   // ---------------- hero landmarks just beyond the cliffs (real 3D parallax against the rings)
   const hero = { ink: [], glow: [] };
+  let lushArt = null;   // (LAKE 2, lane W2: Sporewood's landmarks, a water with a look)
   const gateSlits = [];   // the Sunken Gate's eight candle slits: their glow boxes' vertices and halos (the loop's ambient flickers them)
   {
     // landmarks rise behind the Descent Gate (north, i.e. up-screen, for a gate at the lake centre)
@@ -1007,6 +1023,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
       }
       const arch = taperTube([V(-13, 26, 0), V(-8, 33, 0), V(0, 35.5, 0), V(6, 34, 0)], () => 1.6, 6, 16);
       hero.ink.push(prep(arch, { matrix: mat(x, 0, z, 0, face, 0), color: inkC }));
+    } else if (theme === 'sporewood' && look) {
+      // (LAKE 2, lane W2: the cap-rim window, the Mother Cap and the rest: world-sporewood.js, below)
+      lushArt = buildSporewoodArt({ ctx, L, look, kit, hero, P, K, PL, halos, addAnchor, low, inkC });
     } else if (theme === 'sporewood') {
       for (let i = 0; i < 4; i++) {
         const a = ga + (i - 1.5) * 0.42 + rng.range(-0.08, 0.08);
@@ -1157,6 +1176,29 @@ vec2 gwTwitch(vec2 p, float hgt) {
   })() : null;
 
   mark('merge');
+  // >>> LAKE 2, lane W2: the vegetation kit, stamped from its plan (its own seeded stream, after every builder), the Seep's fall and the
+  // spore-haze (each one draw)
+  let flora = null;
+  if (look) {
+    const D = ctx?.data, zid = zone.id || theme;
+    const tierR = (() => { try { return ctx.render?.getQuality?.(); } catch { return null; } })();
+    const tier = low ? 'low' : tierR === 'medium' || tierR === 'low' ? 'medium' : 'high';
+    const glides = Object.values(D?.LOOP?.places || {}).filter((p) => p?.water === zid && Array.isArray(p.out)).map((p) => p.out);
+    if (Array.isArray(D?.LOOP?.tutorial?.outPath?.[zid])) glides.push(D.LOOP.tutorial.outPath[zid]);
+    const cam = D?.LOOP?.mooring?.[zid]?.cam, lens = [];
+    for (const c of cam ? [cam, cam.portrait].filter(Boolean) : []) {
+      lens.push({ x: c.pos[0], z: c.pos[2], r: 3 });
+      for (let k = 1; k <= 6; k++) lens.push({ x: c.pos[0] + (c.look[0] - c.pos[0]) * k / 7, z: c.pos[2] + (c.look[2] - c.pos[2]) * k / 7, r: 1.5 });
+    }
+    const plan = floraPlan(L, look, { tier, avoid: WF.avoidList(L, D, zid), glides, geo: WATERCRAFT[zid]?.geometry || null, lens, caps: lushArt?.caps || [], extra: lushArt?.extra || [], rafts: D?.LOOP?.wildlife?.[zid]?.frogs?.groups || [] });
+    flora = buildFlora(L, look, { tier, low, K, rimC, plan });
+    group.add(flora.group);
+    for (const m of flora.meshes) statics.push(m);
+    if (lushArt?.falls) { G(lushArt.falls.geo); M(lushArt.falls.mat); group.add(lushArt.falls.mesh); }
+    if (lushArt?.haze) { G(lushArt.haze.geo); M(lushArt.haze.mat); group.add(lushArt.haze.mesh); }
+    prof.flora = flora.stats();
+  }
+  // <<< LAKE 2, lane W2
   // ==================================================================== FLOATERS
   const floaters = [];  // {mesh, i, x, z, y, ry, s, bob, hover, spin, halo, dx, dz, ph}
   const floatMeshes = [];
@@ -1280,6 +1322,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     }
     if (aBed) { aBed.needsUpdate = true; padT.instanceMatrix.needsUpdate = true; prof.wcPads = bedPads.length; }
     // <<< WC-3
+  } else if (theme === 'sporewood' && look) {
+    // (LAKE 2, lane W2: the lily caps became the kit's lily and leaf rafts)
   } else if (theme === 'sporewood') {
     const capG = latheGeo([[0.01, 0], [0.2, -0.02], [0.34, 0.02], [0.22, 0.12], [0.01, 0.16]], 10);
     prep(capG, { colorFn: (x, y) => (y < 0.01 ? scaleArr(PL.glow, 1.6) : mixArr(K.cap, K.capHi, y * 4)) });
@@ -1540,6 +1584,16 @@ vec2 gwTwitch(vec2 p, float hgt) {
     olRock.color.set(INK).lerp(env.fog, 0.1 + 0.2 * n); olOrg.color.copy(olRock.color);
     for (const p of particles) p.uniforms.uBright.value = env.partK;
     // ink outlines pick up a hint of fog at distance automatically (fog:true)
+    // >>> LAKE 2, lane W2: the kit's night (flowers, fireflies, the leaves' light), the spore-haze from dusk, the Seep's foam
+    if (flora) flora.applyMood(env);
+    if (look) bankFloorU.gwFloraFloor.value = (Number(look.floor) || 0.2) + ((Number(look.night?.floor) || Number(look.floor) || 0.2) - (Number(look.floor) || 0.2)) * n;
+    if (lushArt?.haze) {
+      const H = look.haze || {}, hu = lushArt.haze.uniforms, k = Math.min(1, Math.max(0, (Math.max(n, w * 0.8) - (H.from ?? 0.25)) / 0.35));
+      hu.uColor.value.set(H.tint ?? 0xe6c6cc).lerp(env.fog, 0.35 + 0.3 * n);
+      hu.uAmt.value = (H.amt ?? 0.42) * k;
+    }
+    if (lushArt?.falls) { lushArt.falls.mat.uniforms.uColor.value.set(pal.foam).lerp(env.fog, 0.15 + 0.35 * n); lushArt.falls.mat.uniforms.uK.value = 1 - 0.35 * n; }
+    // <<< LAKE 2, lane W2
   }
 
   // ==================================================================== per-frame
@@ -1564,7 +1618,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
       if ((seeCut.tick -= dt) <= 0) {
         seeCut.tick = 0.1;
         const e = cam?.matrixWorld?.elements;
-        seeCut.block = !!e && (cutBlocked(L.obstacles, e[12], e[14], focus.x, focus.z) || cutBlocked(L.gate?.none ? null : L.gateObstacles, e[12], e[14], focus.x, focus.z));
+        seeCut.block = !!e && (cutBlocked(L.obstacles, e[12], e[14], focus.x, focus.z) || cutBlocked(L.gate?.none ? null : L.gateObstacles, e[12], e[14], focus.x, focus.z)
+          || (!!lushArt && cutBlocked(lushArt.cuts, e[12], e[14], focus.x, focus.z, 1)));
       }
       const target = seeCut.hold ? 0 : Math.max(seeCut.block ? 1 : 0, seeCut.want || 0), k = seeCut.u.uCutK.value, st = Math.max(0, dt) / 0.35;
       seeCut.u.uCutK.value = k < target ? Math.min(target, k + st) : Math.max(target, k - st);
@@ -1589,6 +1644,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
     }
     gate.viewH(viewH);
     gate.update(dt, t, env);
+    if (flora) flora.update(dt, t, focus, r);   // (LAKE 2, lane W2: the kit's sway, the raft's parting, the fireflies)
+    if (lushArt?.falls) lushArt.falls.mat.uniforms.uTime.value = t;
+    if (lushArt?.haze) lushArt.haze.uniforms.uTime.value = t;
     if (slitFx) slitFx.step(dt);   // the loop's ambient: the gate's candle slits
     // floaters bob on the water
     let touched = false;
@@ -1626,6 +1684,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
 
   function dispose() {
     group.parent?.remove(group);
+    if (flora) flora.dispose();
     group.traverse((o) => { if (o.isInstancedMesh) o.dispose(); });
     for (const g of bin.geos) g.dispose();
     for (const m of bin.mats) m.dispose();
@@ -1638,6 +1697,8 @@ vec2 gwTwitch(vec2 p, float hgt) {
     crackTop, crackBottom, dockBuoys, halos,
     piers, lampPosts, redress: redressOn,   // M1 step 3a: the Toppled Bridge's piers and the street lamp-posts as drawn (records)
     slits,   // the wildlife's moths: the gate towers' low candle slits (records; k how lit, the loop's ambient)
+    capLamps: lushArt?.lamps || [],   // (LAKE 2, lane W2) the Lantern Stalks' and the stools' glowcaps: the spore moths' lamps
+    lush: look ? { flora: flora?.stats() ?? null, art: lushArt?.info ?? null } : null,   // (LAKE 2, lane W2) the kit and the landmarks as built
     seeCut,   // (wave 2) the see-through cut the places' stone shares; null off the Mossmere's loop
     slitFx,  // the loop's ambient: the gate's eight slits' flicker ({S}: k each, the one out) or null
     // >>> WC-3: the stems tell's nudge (WC-2 calls world.stems.nudge(x, z, k)): the reeds and pads within a few metres twitch, then

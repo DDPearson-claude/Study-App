@@ -61,11 +61,11 @@ export function alongLine(L, s, out = {}) {
   return out;
 }
 /** The boats on their lines (LOOP.ambient.boats), seeded; the boats sharing a line spread along it. `n` caps the count. → B */
-export function createBoats(D, rng = Math.random, n = null) {
-  const C = ambientOn(D)?.boats;
+export function createBoats(D, rng = Math.random, n = null, C = ambientOn(D)?.boats) {   // (C: another water's drifters, LAKE 2's gill-flakes)
   if (!C || !Array.isArray(C.lines) || !C.lines.length) return { boats: [], lines: [], C: null, t: 0 };
   const lines = C.lines.map(lineOf);
-  const N = Math.min(n == null ? boatCount(D, 'high') : n, boatCount(D, 'high'));
+  const hi = Math.max(0, num(C.count?.high, 0) | 0);
+  const N = Math.min(n == null ? hi : n, hi);
   const order = Array.isArray(C.order) && C.order.length ? C.order : [0];
   const lineOfBoat = Array.from({ length: N }, (_, i) => (order[i % order.length] | 0) % lines.length);
   const boats = [];
@@ -295,14 +295,36 @@ function boatGeo(C) {
 /** The flame's height over the boat's origin (m). */
 const flameY = (C) => (0.085 * 0.7 + 0.13) * (num(C.len, 0.5) / 0.5);
 
+// ------------------------------------------------------------------ the gill-flake (LAKE 2, lane W2: Sporewood's drifters)
+/** A pale ochre flake of cap gill: a thin curled crescent, its underside a step darker (6 triangles). */
+function flakeGeo(C) {
+  const c0 = lin(C.color ?? 0xd4a85c), c1 = scaleArr(c0, 0.7), s = num(C.len, 0.45);
+  const pos = [], col = [];
+  const n = 4;
+  for (let i = 0; i < n; i++) {
+    const a0 = -1 + (i / n) * 2, a1 = -1 + ((i + 1) / n) * 2;
+    const p = (a, w) => [Math.sin(a * 1.1) * 0.5 * s, 0.03 * s * (1 - a * a) + 0.012, (Math.cos(a * 1.1) - 0.7) * 0.5 * s * w];
+    const A0 = p(a0, 1), A1 = p(a1, 1), B0 = p(a0, 0.45), B1 = p(a1, 0.45);
+    pos.push(...A0, ...A1, ...B1, ...A0, ...B1, ...B0);
+    for (let k = 0; k < 6; k++) col.push(...(k % 3 === 2 ? c1 : c0));
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
 // ------------------------------------------------------------------ main's line
-/** Under the loop with the ambient on: the candle-boats on the Mossmere (high and medium; none on low). → {update, state, dispose} or null */
+/** Under the loop with the ambient on: the candle-boats on the Mossmere and the gill-flakes on Sporewood (high and medium; none on low).
+ *  → {update, state, dispose} or null */
 export function attachAmbient(ctx) {
   const A = ambientOn(ctx?.data);
   const scene = ctx?.render?.scene;
   if (!A || !scene || ctx.render.isStub) return null;
   const C = A.boats, max = Math.max(boatCount(ctx.data, 'high'), boatCount(ctx.data, 'medium'));
-  if (!C || !(max > 0)) return null;
+  const flakes = attachFlakes(ctx, A.sporewood?.flakes, scene);
+  if (!C || !(max > 0)) return flakes;
   const rng = faceRng(0xb0a7c4);
   const B = createBoats(ctx.data, rng, max);
   const geo = boatGeo(C);
@@ -331,6 +353,7 @@ export function attachAmbient(ctx) {
   const step = { dt: 0.016, raft: null, rng }, raft = { x: 0, z: 0 };   // (one options object and one raft, mutated each frame)
   const zoneId = () => { try { return ctx.world?.getZone?.()?.id ?? ctx.state?.run?.zone ?? null; } catch { return null; } };
   function update(dt = 0.016, { show = false } = {}) {
+    if (flakes) flakes.update(dt, { show });
     const q0 = ctx.render?.quality || 'high';
     const flow = ctx.flow;
     const on = q0 !== 'low' && faceOn(ctx.data, zoneId()) && (flow === 'playing' || flow === 'home') && !ctx.cinematic && !show;
@@ -374,7 +397,57 @@ export function attachAmbient(ctx) {
     update,
     state: () => ({ on: S.on, lit: +S.lit.toFixed(2), boats: B.boats.map((b) => ({ line: b.line, mode: b.mode, x: +b.x.toFixed(2), z: +b.z.toFixed(2), k: +b.k.toFixed(2), launches: b.launches, outs: b.outs })),
       slits: (() => { try { return ctx.world?.ambient?.() ?? null; } catch { return null; } })() }),
-    calls: () => (S.on ? 2 : 0),
-    dispose() { scene.remove(mesh); scene.remove(H.points); geo.dispose(); m.dispose(); H.geo.dispose(); H.mat.dispose(); },
+    calls: () => (S.on ? 2 : 0) + (flakes ? flakes.calls() : 0),
+    flakes: () => (flakes ? flakes.state() : null),
+    dispose() { scene.remove(mesh); scene.remove(H.points); geo.dispose(); m.dispose(); H.geo.dispose(); H.mat.dispose(); flakes?.dispose(); },
+  };
+}
+
+/** Sporewood's gill-flakes (LOOP.ambient.sporewood.flakes): the candle-boats' drift with no flame, on its outflow to the Root Weir. */
+function attachFlakes(ctx, FC, scene) {
+  const max = FC ? Math.max(num(FC.count?.high, 0), num(FC.count?.medium, 0)) | 0 : 0;
+  if (!(max > 0)) return null;
+  const rng = faceRng(0xf1a4e5);
+  const B = createBoats(ctx.data, rng, max, FC);
+  const geo = flakeGeo(FC);
+  const m = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.25, rimColor: 0xe8d8c8, steps: 3, side: THREE.DoubleSide });
+  const mesh = new THREE.InstancedMesh(geo, m, max);
+  mesh.name = 'gillFlakes'; mesh.frustumCulled = false; mesh.visible = false;
+  setupSurface(mesh, { cast: false, reflect: false });
+  scene.add(mesh);
+  const S = { on: false };
+  const v = new THREE.Vector3(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3();
+  const step = { dt: 0.016, raft: null, rng }, raft = { x: 0, z: 0 };
+  const zoneId = () => { try { return ctx.world?.getZone?.()?.id ?? ctx.state?.run?.zone ?? null; } catch { return null; } };
+  function update(dt = 0.016, { show = false } = {}) {
+    const q0 = ctx.render?.quality || 'high', flow = ctx.flow;
+    const on = q0 !== 'low' && ctx.data?.LOOP_ENABLED === true && zoneId() === 'sporewood' && (flow === 'playing' || flow === 'home') && !ctx.cinematic && !show;
+    S.on = on; mesh.visible = on;
+    if (!on) return;
+    const d = Math.min(0.1, Math.max(0, num(dt, 0)));
+    const p = ctx.player?.position;
+    if (p) { raft.x = p.x; raft.z = p.z; }
+    step.dt = d; step.raft = p ? raft : null;
+    stepBoats(B, step);
+    const n = Math.min(B.boats.length, Math.max(0, num(FC.count?.[q0], 0) | 0));
+    for (let i = 0; i < n; i++) {
+      const b = B.boats[i];
+      let wy = 0;
+      try { wy = ctx.water && !ctx.water.isStub ? num(ctx.water.getHeight?.(b.x, b.z), 0) : 0; } catch { wy = 0; }
+      const shown = b.mode !== 'wait' && b.fade > 0.01;
+      // (it turns slowly as it drifts, and tips as it sinks at the weir)
+      e.set(Math.sin(B.t * 0.9 + b.ph) * 0.12, b.yaw + B.t * 0.15 * (b.ph > Math.PI ? 1 : -1), Math.cos(B.t * 0.8 + b.ph) * 0.1 + (1 - b.fade) * 0.6, 'YXZ');
+      q.setFromEuler(e);
+      sc.setScalar(shown ? 0.6 + 0.4 * b.fade : 1e-4);
+      mesh.setMatrixAt(i, m4.compose(v.set(b.x, wy + b.y * 0.6, b.z), q, sc));
+    }
+    mesh.count = n;
+    mesh.instanceMatrix.needsUpdate = true;
+  }
+  return {
+    update,
+    state: () => ({ on: S.on, flakes: B.boats.map((b) => ({ line: b.line, mode: b.mode, x: +b.x.toFixed(2), z: +b.z.toFixed(2), launches: b.launches })) }),
+    calls: () => (S.on ? 1 : 0),
+    dispose() { scene.remove(mesh); geo.dispose(); m.dispose(); },
   };
 }

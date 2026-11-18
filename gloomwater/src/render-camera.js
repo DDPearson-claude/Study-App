@@ -136,6 +136,26 @@ export function portraitFit(tgt, aspect, mode = 'sail', w = 0, W = WATCH) {
   return tgt;
 }
 
+/**
+ * LAKE2 §1A (3), lane W2: a water's own lens on its open water (LOOP.camera[water]): the sail framings' distance × `eye` (lower and
+ * closer: the water feels narrow and held), the fov + `fov`°; within `neck.r` m of (neck.x, neck.z) it eases on to × neck.eye and
+ * neck.elev° lower (full inside half that radius), so the fronds and the gill strings pass across the top of the frame and the lens keeps
+ * over the water between the neck's banks. In place on `tgt`; a water with no profile (the Mossmere) is left exactly as it was.
+ */
+export function waterLens(tgt, prof, at = null) {
+  if (!prof || typeof prof !== 'object') return tgt;
+  const N = prof.neck;
+  let k = 0;
+  if (N && at && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+    const d = Math.hypot(at.x - num(N.x, 0), at.z - num(N.z, 0)), r = Math.max(1, num(N.r, 16)), t = clamp((r - d) / (r * 0.5), 0, 1);
+    k = t * t * (3 - 2 * t);
+  }
+  tgt.dist *= num(prof.eye, 1) * (1 + (num(N?.eye, 1) - 1) * k);
+  tgt.fov += num(prof.fov, 0);
+  tgt.elev -= num(N?.elev, 0) * k;
+  return tgt;
+}
+
 /** The night overview's target weight (v3): 1 only while combat.swarmActive and the run is in play; never the phase. */
 export function nightTarget({ playing, swarmActive }) { return playing && swarmActive === true ? 1 : 0; }
 

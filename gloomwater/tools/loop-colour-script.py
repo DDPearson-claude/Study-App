@@ -57,14 +57,18 @@ SKY, LAND, LEAF, WATER, WLEAF, OTHER = 1, 2, 3, 4, 5, 6
 
 # The light on the leaves at dusk and at night, as a multiplier on the foliage value (the rose key's and the moon's translucency
 # through the leaves, which the build sets per water): fitted with --fit so the dusk and night shares meet the doc's targets.
-LIGHT = {'dusk': {2: 0.931, 3: 0.881, 4: 0.975, 5: 0.809, 6: 0.966, 7: 0.902, 8: 0.94, 9: 0.824, 10: 0.908, 11: 0.849, 12: 0.861,
+LIGHT = {'dusk': {2: 0.976, 3: 0.881, 4: 0.975, 5: 0.809, 6: 0.966, 7: 0.902, 8: 0.94, 9: 0.824, 10: 0.908, 11: 0.849, 12: 0.861,
                   13: 0.938, 14: 0.956, 15: 0.813, 16: 1.02},
-         'night': {2: 0.824, 3: 0.856, 4: 0.928, 5: 0.788, 6: 0.881, 7: 0.837, 8: 1.029, 9: 0.845, 10: 1.017, 11: 0.886, 12: 0.973,
+         'night': {2: 0.919, 3: 0.856, 4: 0.928, 5: 0.788, 6: 0.881, 7: 0.837, 8: 1.029, 9: 0.845, 10: 1.017, 11: 0.886, 12: 0.973,
                    13: 1.109, 14: 0.874, 15: 1.025, 16: 1.15}}
 # The foliage amount each water's frame is painted with (0 = none). Fitted with --fit so the day share meets the doc's target;
 # the geometry it drives is fixed per kind, so dusk and night are measured, not fitted.
-AMOUNT = {1: 0.0, 2: 0.909, 3: 1.332, 4: 1.202, 5: 0.47, 6: 1.124, 7: 2.298, 8: 0.944, 9: 2.0, 10: 0.976, 11: 0.684, 12: 1.279,
+AMOUNT = {1: 0.0, 2: 0.671, 3: 1.332, 4: 1.202, 5: 0.47, 6: 1.124, 7: 2.298, 8: 0.944, 9: 2.0, 10: 0.976, 11: 0.684, 12: 1.279,
           13: 0.67, 14: 1.129, 15: 0.72, 16: 0.699}
+# The one exception to the step rule (WATERS.md section 7; LAKE2.md section 1A, the user's binding words "more greenery than the moss
+# mere"): Sporewood takes step 5's green at once. Its own step in is held to the lower bounds only (it must rise, never fall), and the
+# step out of it is reported as pending, not failed, until the waters after it are re-stepped from it as each ships.
+EXCEPT = {2: 'LAKE2 section 1A: Sporewood takes step 5 at once; the waters after it re-step from it when each ships'}
 
 
 # ----------------------------------------------------------------------------------------------------------- colour helpers
@@ -181,7 +185,7 @@ def lint(waters, repaint):
                 errs.append(f"{w['name']}: day mid foliage hue {hd:.0f} is outside 82-135")
             if not (125 <= hn <= 158):
                 errs.append(f"{w['name']}: night mid foliage hue {hn:.0f} is outside 125-158")
-            if prev and prev['step']:
+            if prev and prev['step'] and prev['n'] not in EXCEPT:
                 for p, phase in enumerate(PHASES):
                     a, b = hsv(prev['leaf'][p]), hsv(w['leaf'][p])
                     if b[0] * 360 < a[0] * 360 - 0.5 or b[2] < a[2] - 0.004:
@@ -553,6 +557,116 @@ def paint_lake(c, w, phase, p, rng, amt, T, style):
     return crowns, y0
 
 
+def paint_pools(c, w, phase, p, rng, amt, T, style):
+    """Sporewood Pools as the loop builds it (LAKE2 sections 1A and 3.3): the sail camera on the East Pool looking west to the neck's
+    mouth. A ragged window of sky framed by far cap rims; the neck's green walls closing to a gap with the West Pool's far bank beyond;
+    the Gill Harp's two cap trees leaning over the neck, their gill strings hanging; the Mother Cap towering on the right, its amber
+    gills laying a pool of warm light on the water; near banks on both sides (intimate: banks near on two sides), moss carpets, ferns,
+    reeds, shrubs; lily rafts in the shallows. Air, light and water stay the ember garden's; the green is on surfaces only."""
+    y0 = int(CH * 0.37)                              # the far waterline: the neck's mouth
+    sky(c, w, phase, p, y0, rng)
+    stone = stone_of(w, phase, p)
+    capC = mix((150, 96, 52), w['fog'][p], 0.3 if phase != 'night' else 0.62)        # autumn-ochre caps
+    capFar = far_mix(mix(capC, INK, 0.35), w, p, 0.55)
+    gill = {'day': (226, 168, 84), 'dusk': (236, 164, 86), 'night': (232, 172, 76)}[phase]   # the amber gills (the built glow)
+    stalk = mix(stone, (120, 100, 110), 0.3)
+    # the cap-rim window: far cap silhouettes on the far rim, lavender with distance, framing the sky at the top corners
+    for (cx, cy, rx, ry) in ((CW * 0.02, y0 * 0.20, 34, 10), (CW * 0.22, y0 * 0.05, 26, 7), (CW * 0.97, y0 * 0.12, 30, 9), (CW * 0.66, -2, 22, 6)):
+        c.rect([cx - 2, cy, cx + 2, y0], far_mix(stalk, w, p, 0.6), LAND)
+        c.ell([cx - rx, cy - ry, cx + rx, cy + ry], capFar, LAND)
+        c.ell([cx - rx * 0.86, cy + ry * 0.35, cx + rx * 0.86, cy + ry * 0.9], far_mix(gill, w, p, 0.5), OTHER)
+    # beyond the neck: the West Pool's far bank, low and lavender, its far crowns
+    gx = CW * 0.46                                   # the neck's mouth
+    c.poly([(gx - 30, y0), (gx - 22, y0 - 9), (gx + 4, y0 - 11), (gx + 26, y0 - 7), (gx + 34, y0)], far_mix(stone, w, p, 0.45), LAND)
+    crowns = bank_row(c, rng, gx - 28, gx + 30, y0 - 6, 1.6 + 1.2 * amt, amt, T, ['round', 'tuft'], w, p, far=0.42)
+    # the neck's green walls closing on the gap from both sides (2-3 m, grown over: moss carpet, ferns, shrubs)
+    for sgn in (-1, 1):
+        x_edge = 0 if sgn < 0 else CW
+        inner = gx + sgn * 10
+        wall = [(x_edge, y0 - 26), (inner + sgn * 22, y0 - 18), (inner + sgn * 6, y0 - 9), (inner, y0 + 1), (x_edge, y0 + 1)]
+        c.poly(wall, mix(stone, INK, 0.38), LAND)
+        cover = min(1.0, 0.6 * amt)                  # (the moss carpet over the walls, as much of them as the foliage amount grows)
+        top_ = [(x_edge, y0 - 26), (inner + sgn * 22, y0 - 18), (inner + sgn * 6, y0 - 9)]
+        foot = [(x_edge, y0 - 26 + 16 * cover), (inner + sgn * 22, y0 - 18 + 9 * cover), (inner + sgn * 6, y0 - 9 + 8 * cover)]
+        if cover > 0.02:
+            c.poly(top_ + foot[::-1], T['dark'], LEAF)
+            c.poly(top_[:2] + [(p_[0], p_[1] - 4 * cover) for p_ in foot[:2][::-1]], T['mid'], LEAF)
+        crowns += bank_row(c, rng, min(x_edge, inner + sgn * 30), max(x_edge, inner + sgn * 30), y0 - 14, 2.2 + 2.2 * amt, amt * 1.1, T, ['round', 'fern', 'tuft'], w, p, far=0.12)
+    # the Gill Harp: two cap trees leaning over the neck from both banks, their gills hanging down in long strings over the water
+    for sgn, top in ((-1, y0 - 44), (1, y0 - 40)):
+        bx = gx + sgn * 26
+        tx = gx + sgn * 7
+        c.line([(bx, y0 - 10), ((bx + tx) / 2 + sgn * 3, (y0 - 10 + top) / 2), (tx, top + 3)], mix(stalk, INK, 0.25), LAND, width=3)
+        c.ell([tx - 15, top - 4, tx + 15, top + 5], mix(capC, INK, 0.15), LAND)
+        c.ell([tx - 13, top + 2, tx + 13, top + 6], gill, OTHER)
+        for k in range(7):                           # the gill strings (amber) and moss threads (green) hanging over the neck
+            sx = tx - 11 + k * 3.6
+            if k % 2:
+                c.line([(sx, top + 5), (sx + rng.uniform(-1, 1), top + 5 + rng.uniform(16, 30))], mix(gill, INK, 0.25), OTHER)
+            else:
+                c.line([(sx, top + 5), (sx + rng.uniform(-1, 1), top + 5 + rng.uniform(10, 22) * (0.4 + amt))], T['mid'], LEAF)
+    # the Mother Cap: 30 m on the Mother's Foot, its cap overhanging the right of the frame, moss and ferns at its foot, vines from its rim
+    mx = CW * 0.84
+    c.poly([(mx - 7, y0 + 2), (mx - 3, y0 - 60), (mx + 4, y0 - 60), (mx + 9, y0 + 2)], mix(stalk, INK, 0.2), LAND)
+    c.poly([(mx - 9, y0 + 3), (mx - 6, y0 - 8 - 10 * amt), (mx + 8, y0 - 6 - 10 * amt), (mx + 13, y0 + 3)], T['dark'], LEAF)   # moss up its foot
+    cap_y = y0 - 66
+    c.ell([mx - 46, cap_y - 14, mx + 40, cap_y + 12], mix(capC, INK, 0.05), LAND)
+    c.d.chord([mx - 40, cap_y - 14, mx + 20, cap_y + 4], 180, 320, fill=mix(capC, (240, 200, 150), 0.25) + (255,))
+    c.ell([mx - 42, cap_y + 4, mx + 36, cap_y + 14], gill, OTHER)
+    for k in range(9):                               # vines hanging from its rim
+        vx = mx - 40 + k * 9 + rng.uniform(-2, 2)
+        strands(c, vx, cap_y + 10, (14 + 14 * amt) * rng.uniform(0.6, 1.0), T, rng, n=1, col=T['dark'] if k % 3 else T['mid'])
+    # the near banks on both sides: earth and root faces under moss carpets, ferns, reeds and shrubs, wide near and narrow far
+    for sgn in (-1, 1):
+        x_edge = 0 if sgn < 0 else CW
+        reach = CW * 0.24                            # (the near banks are near on two sides: their earth is there whatever grows on it)
+        inner = lambda t: x_edge - sgn * reach * (0.18 + 0.82 * t)
+        yy = lambda t: y0 + 1 + (CH - y0) * t
+        c.poly([(x_edge, y0 - 2), (inner(0), y0 + 1), (inner(1), CH), (x_edge, CH)], mix(stone, INK, 0.45), LAND)
+        cov = min(1.0, 0.7 * amt)                    # (the moss carpet over the bank's top, the foliage amount's share of it)
+        top = [(inner(t) + sgn * 3, yy(t) - (3 + 10 * cov) * (0.3 + 0.7 * t)) for t in [i / 10 for i in range(11)]]
+        inn = [(x_edge + (x_ - x_edge) * cov, y_) for (x_, y_) in top]
+        c.poly(inn + [(x_edge, CH)] + [(x_edge, y0 - 4)], T['dark'], LEAF)
+        c.poly([(x_edge + (x_ + sgn * 5 - x_edge) * cov * 0.8, y_ + 3) for (x_, y_) in top] + [(x_edge, CH), (x_edge, y0 - 4)], T['mid'], LEAF)
+        for j in range(int(6 + 18 * amt)):
+            t = rng.random() ** 0.8
+            bx = inner(t) + sgn * rng.uniform(0, 5) * (0.3 + t)
+            by = yy(t) - (2 + 8 * amt) * (0.3 + 0.7 * t)
+            sz = (1.2 + 3.6 * amt) * (0.35 + 0.9 * t)
+            kd = rng.choice(['fern', 'tuft', 'reed', 'round'])
+            hgt = sz * (3.0 if kd == 'reed' else 2.0)
+            crown(c, bx, by, sz, hgt, T, rng, kd)
+            crowns.append((bx, by - hgt, sz, kd))
+    # the water: plum, deepening toward the viewer, the sky in the far grazing water; the banks and caps in the mirror
+    for y in range(y0, CH):
+        t = (y - y0) / (CH - y0)
+        col = mix(mix(w['water'][p], w['sky'][p], 0.42 * (1 - t) ** 2), mul(w['water'][p], 0.62), t ** 0.9)
+        x0, x1 = 0, CW
+        px = c.img.load()
+        lab = c.lab.load()
+        for x in range(CW):
+            if lab[x, y] in (OTHER,) and px[x, y] == INK:
+                px[x, y] = col
+                lab[x, y] = WATER
+    mirror(c, w, p, max(0, y0 - 46), y0, 44)
+    ripples(c, w, p, y0, rng, 30, CW - 30)
+    # the amber pools under the caps on the water (warm light, never a ring: soft, falling off)
+    for (px_, py_, rr) in ((mx - 4, y0 + 10, 22), (gx, y0 + 6, 12)):
+        for k in range(6, 0, -1):
+            c.d.ellipse([px_ - rr * k / 6, py_ - rr * k / 24, px_ + rr * k / 6, py_ + rr * k / 24], fill=gill + (int(10 + 8 * (6 - k) * (1.3 if phase == 'night' else 1.0)),))
+    # lily and leaf rafts in the shallows by the near banks; cream and rose flowers on them by day and dusk
+    for _ in range(int(4 + 12 * amt)):
+        sgn = rng.choice((-1, 1))
+        t = rng.uniform(0.15, 0.9)
+        x = (0 if sgn < 0 else CW) - sgn * CW * 0.24 * (0.18 + 0.82 * t) - sgn * rng.uniform(4, 16) * (0.3 + t)
+        y = y0 + 1 + (CH - y0) * t + rng.uniform(-2, 2)
+        for q in range(rng.randint(2, 5)):
+            rr = (1.6 + 2.2 * t) * rng.uniform(0.7, 1.1)
+            qx, qy = x + rng.uniform(-6, 6) * (0.4 + t), y + rng.uniform(-1.5, 1.5)
+            c.ell([qx - rr, qy - rr * 0.35, qx + rr, qy + rr * 0.35], T['dark'] if phase == 'night' else mix(T['mid'], w['water'][p], 0.2), WLEAF)
+    return crowns, y0
+
+
 def paint_river(c, w, phase, p, rng, amt, T, style):
     """The sail camera looks up the channel (it yaws to the river's tangent): banks converge to a bend under the landmark."""
     k = w['step']
@@ -706,7 +820,7 @@ def paint_river(c, w, phase, p, rng, amt, T, style):
     return crowns, y0
 
 
-STYLE = {1: ('lake', 'mossmere'), 2: ('lake', 'sporewood'), 3: ('lake', 'glass'), 4: ('lake', 'pallid'), 5: ('lake', 'fjord'),
+STYLE = {1: ('lake', 'mossmere'), 2: ('lake', 'pools'), 3: ('lake', 'glass'), 4: ('lake', 'pallid'), 5: ('lake', 'fjord'),
          6: ('river', 'braided'), 7: ('lake', 'sea'), 8: ('river', 'gorge'), 9: ('lake', 'reef'), 10: ('river', 'stair'),
          11: ('lake', 'fen'), 12: ('river', 'tidal'), 13: ('lake', 'swamp'), 14: ('river', 'wide'), 15: ('lake', 'lagoon'),
          16: ('river', 'canopy')}
@@ -723,7 +837,7 @@ def paint(w, phase, amt):
     c = Cell()
     T = tones(w, phase, p)
     layout, style = STYLE[w['n']]
-    crowns, y0 = (paint_lake if layout == 'lake' else paint_river)(c, w, phase, p, rng, amt, T, style)
+    crowns, y0 = (paint_pools if style == 'pools' else paint_lake if layout == 'lake' else paint_river)(c, w, phase, p, rng, amt, T, style)
     flowers_and_lights(c, w, phase, p, crowns or [(CW * 0.5, y0 - 4, 6, 'x')], random.Random(77 + w['n']), w['step'], night_lights(w['step']))
     candle(c, w, phase, int(CW * 0.5), int(CH * 0.86))
     return c
@@ -816,7 +930,16 @@ def gates(waters, M):
                 fails.append(f"{w['name']} day: green families {', '.join(f'{x:.0f}' for x in mm['fam'])}% (each >= 10% from step 6)")
         if m['night']['share'] < 0.25 * m['day']['share'] - 0.2:
             fails.append(f"{w['name']}: night {m['night']['share']:.1f}% is under 25% of day {m['day']['share']:.1f}%")
-        if prev is not None:
+        if prev is not None and prev['n'] in EXCEPT:
+            pass                                      # (the step out of the exception: pending until re-stepped, main() prints it)
+        elif prev is not None and n in EXCEPT:
+            pm = M[prev['n']]                          # (the step into it: it must rise by at least a step, with no upper bound)
+            for phase, least in (('day', 1.5), ('dusk', 1.0), ('night', 0.5)):
+                if m[phase]['share'] - pm[phase]['share'] < least:
+                    fails.append(f"{prev['name']} -> {w['name']}: the {phase} step is {m[phase]['share'] - pm[phase]['share']:+.1f} points (>= {least}, the exception)")
+            if m['night']['ff'] < pm['night']['ff']:
+                fails.append(f"{prev['name']} -> {w['name']}: the night lights fall ({pm['night']['ff']} -> {m['night']['ff']})")
+        elif prev is not None:
             pm = M[prev['n']]
             d = m['day']['share'] - pm['day']['share']
             if not (1.5 <= d <= 5.0):
@@ -949,6 +1072,10 @@ def main():
         m = M[w['n']]
         print(f"{w['n']:>2} {w['name'][:20]:<20} {w['step']:>3}  " + '  '.join(f"{m[ph]['share']:5.1f} ({w['share'][p]:>4g})" for p, ph in enumerate(PHASES))
               + f"  {m['day']['skyfrac']:4.0f}  {m['night']['cover']:5.0f}  {m['night']['ff']:5d}   {m['day']['water']:4.1f}/{m['day']['bank']:4.1f}   {m['day']['oka']:+.4f}/{m['night']['oka']:+.4f}")
+    for i, w in enumerate(waters[1:], 1):
+        if waters[i - 1]['n'] in EXCEPT:
+            pm, m = M[waters[i - 1]['n']], M[w['n']]
+            print(f"PENDING {waters[i - 1]['name']} -> {w['name']}: day {m['day']['share'] - pm['day']['share']:+.1f} points ({EXCEPT[waters[i - 1]['n']]})")
     for e in errs:
         print('LINT ', e)
     for f_ in fails:

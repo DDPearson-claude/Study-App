@@ -5906,6 +5906,59 @@ export const SPOREWOOD_ARENA = Object.freeze({
 LOOP.tutorial.outPath.sporewood = [[36.59, 32.5], [42.4, 30.8], [42, 20]];
 // <<< LAKE 2, lane W1
 
+// >>> LAKE 2, lane W2 (docs/loop/LAKE2.md §1A, §3.3–§3.6; WATERS §3, §5, §6): Sporewood's look, its landmarks' and its life's figures.
+// Read only under the loop (world-flora.lushLook, world-art, actors-wildlife, world-ambient, render): the flag-off game and the Mossmere
+// (lush 0, no look) never reach any of it, so their programs and geometry stay as they are (outline-shore.test.mjs part 1).
+// ZONE_LOOKS[zone]: `lush` (WATERS' step / 15; Sporewood takes step 5's at once, the user's binding words), the leaf keys on the step-5
+// track (inside its neon cap: saturation ≤ 0.45, value ≤ 0.70), `mossG` / `mossGHi` laid at `mossAmt` over the built violet moss on
+// every upward bank top, root and stalk foot, `bloom` the flowers (cream, rose), `fireflies` (no light), `albedo` the leaves' reflectance
+// under the vault (as world-art's ALBEDO), `flora` the kit's counts on high (medium ×0.7, low ×0.4; §1A's table), `haze` the spore-haze
+// (rose-cream, under 1.2 m in the coves and the Reed Flats from dusk), `mist` the places' banks in its tint and sitting lower, `dapple`
+// the moon coins' mask on the water (a static low-frequency pattern; `k` how dark between them), `weed` the shallows' film; `gain` and
+// `floor` (below) carry the leaf keys through the night's light
+export const ZONE_LOOKS = Object.freeze({
+  sporewood: Object.freeze({
+    lush: 0.33, step: 5,
+    leafDark: 0x3f5a3c, leaf: 0x566e48, leafHi: 0x7f9a5a, moss2: 0x4d6a42, mossG: 0x4d5a3b, mossGHi: 0x7b8a59, mossAmt: 0.6,
+    bloom: Object.freeze([0xf0e0d0, 0xeeb0c8]), fireflies: 0xe0e49c, albedo: 1.4,
+    // (under Clear Night's violet light, ambient and shadow split-tone an olive albedo renders violet-grey: `gain` (linear, per channel)
+    // carries the leaf track's colours through it, so a lit leaf lands on its own key; `floor` the green-violet floor the kit's leaves
+    // and the moss take in their shadows, WATERS §5.2's "flora floor tint", by day; `night` its floor and the moon's translucency through
+    // the leaves at night (WATERS §3.2: at night the lushness is the silhouettes, the emitters and the moon's light through the leaves))
+    gain: Object.freeze([0.82, 1.65, 0.62]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
+    flora: Object.freeze({ moss: 420, ferns: 150, reeds: 360, pads: 150, flowers: 30, strands: 90, bushes: 40, trees: 6, crowns: 40, capTrees: 14, fireflies: 120 }),
+    tiers: Object.freeze({ high: 1, medium: 0.7, low: 0.4 }),
+    haze: Object.freeze({ tint: 0xe6c6cc, top: 1.2, amt: 0.42, from: 0.25 }),
+    mist: Object.freeze({ lit: 0xe6cdd4, litN: 0x9c86b6, shade: 0x9a7c9c, shadeN: 0x4a3c6c, low: 0.7 }),
+    dapple: Object.freeze({ k: 0.42, scale: 0.075 }), weed: Object.freeze({ color: 0x4a5a36, k: 0.32 }),
+  }),
+});
+// the camera on a water's open water (LAKE2 §1A (3)): Sporewood's lower and closer (the sail framings' distance × eye, the fov + fov°);
+// in the neck (within r m of x, z) it tucks closer still (× neck.eye), so the fronds and the gill strings pass across the top of the
+// frame; and a little steeper (elev − neck.elev°, here −5: 5° steeper), so the neck's south bank (2.5 m, the lens's side) stays out of the
+// foot of the frame (the design's "lower" put that bank's top across the lower third)
+LOOP.camera = { sporewood: { eye: 0.8, fov: 4, neck: { x: 0, z: 6.5, r: 16, eye: 0.84, elev: -5 } } };
+// Sporewood's wildlife (§3.6; art only, never in the fish pool, ?wild=0 off): the spore moths are the wick-moths in Sporewood's colours
+// (forewings cream, hindwings amber with a plum eye-spot) round the Lantern Stalks' glowcaps; the lily frogs keep the lampbills' ways
+// (pairs and threes, they sit on the lily rafts and plop in as the raft comes within `flee` m, coming up on another raft), a squat frog
+// `scale`× the model's 12 cm: moss-green back, cream throat, amber eyes. Their beats sit on the lily rafts, 6 m and more off the places,
+// the mooring and the glides (validate-data checks)
+LOOP.wildlife.sporewood = {
+  moths: { fore: 0xf0e2c8, hind: 0xe8ac4c, eye: 0x5a2c56 },
+  frogs: { count: { high: 8, medium: 8, low: 0 }, scale: 1.6, speed: 0.06, dip: [0.5, 0.8], act: [6, 14], diveP: 0.25, dive: [2.5, 4.5], surface: [2.5, 4.5],
+    flee: 10, keep: 4, fleeFar: [5, 7], cool: 8, range: 1.2, body: 0x566e48, throat: 0xf0e2c8, eye: 0xe8ac4c,
+    groups: [{ x: -54, z: 31.5, r: 1.6, n: 3, roost: { x: -55, z: 32.5 } }, { x: -40, z: 34.5, r: 1.4, n: 2, roost: { x: -40.6, z: 35.4 } },
+      { x: -48, z: 31.5, r: 1.2, n: 3, roost: { x: -48.6, z: 32.2 } }] },
+};
+// Sporewood's ambient (§3.6): drifting gill-flakes, the candle-boats' lines with no flame: pale ochre flakes of cap gill turning slowly
+// on the outflow to the Root Weir on the Reed Flats, sinking there; the raft within `keep` m pushes one aside
+LOOP.ambient.sporewood = {
+  flakes: { count: { high: 8, medium: 5, low: 0 }, order: [0, 1, 0, 1, 0, 1, 0, 1], speed: [0.14, 0.22], off: 1.2, gutter: 3, sink: 3, wait: [2, 6],
+    keep: 4, len: 0.45, color: 0xd4a85c, size: 0.4,
+    lines: [[[-20, 22], [-28, 29.5], [-44, 36.5], [-57, 37], [-64, 38.2]], [[-30, 23.5], [-46, 26.5], [-58, 33], [-64, 37]]] },
+};
+// <<< LAKE 2, lane W2
+
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
 /** L50 (cm) of a species in a lake (the Pilgrim Salmon grows each lake down). */

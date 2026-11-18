@@ -10,7 +10,8 @@
 //   --loop (M1 step 3a, PLAN T148): the loop's Mossmere at night from the step-2 save (?loop=1; --redress adds ?redress=1): per tier,
 //   the four banks up with a giant's back turning, every place lifted, and a giant's show where the build can force one; each with
 //   the frame's calls and the world's own (the frame's less the frame drawn with the world hidden), checked against DESIGN §25.8.8's
-//   lines (frame <= 200 / 150, world <= 54 / 42; high / low, medium held to the high line), and cpuMs. Written to perf-loop[-phone]
+//   lines (frame <= 200 / 150, world <= 54 / 42; high / low, medium held to the high line), and cpuMs. --sporewood (LAKE 2, lane W2) adds
+//   Sporewood at night with its kit per tier, against LAKE2 §1A's budget. Written to perf-loop[-phone]
 //   [-redress].json; with --base=<file> (the step-2 baseline, perf-base*.json) each tier's cpuMs is checked at <= +15% of it.
 //
 // Per tier and phase (the Mossmere from the spawn, calm and the Gloomtide, the v3 phase-1 game on a Still night): draw calls and
@@ -254,6 +255,34 @@ export async function loopPerf(api) {
     } catch (e) { log(`perf-loop ${tier}-show: not measured (${String(e?.message || e).split('\n')[0]})`); }
     await g(() => { const c = window.__gw; window.__pl.hold(false); try { c.ui.closeAll?.(); c.fishing.cancel?.('debug'); } catch { /* optional */ } }).catch(() => {});
     await api.frames(2);
+    // --sporewood (LAKE 2, lane W2: LAKE2 §1A's budget): Sporewood at night with its kit, from the West Pool, the East Pool and the neck,
+    // at this tier: the frame's calls and triangles (medium ≤ 230 and ≤ 320k), the world's own calls against the Mossmere's banks case
+    // (+14 high, +9 medium, +4 low at most) and cpuMs no worse than the Mossmere's with its four banks standing (+5% for the box's noise)
+    if (args.sporewood) {
+      try {
+        await g(() => { const c = window.__gw; window.__pl.hold(false); c.world.setZone?.('sporewood', { instant: true }); });
+        await api.frames(3);
+        const base = perf[`${tier}-banks`] || {};
+        for (const [name, x, z] of [['sw-west', -38, 2], ['sw-east', 28, 2], ['sw-neck', 6, 7.5]]) {
+          await g(([x, z]) => { const P = window.__pl, c = window.__gw; P.night(); c.player.teleport?.({ x, z }, 0); P.hold(true); P.pump(4); c.render.snapCamera?.(); P.pump(0.2); c.render.render(); }, [x, z]);
+          const c0 = await cpu();
+          const r = await g((N) => { const m = window.__pl.measure(N), rr = window.__gw.render.renderer; window.__gw.render.render(); return { ...m, tris: rr.info.render.triangles, flora: window.__gw.world.debugInfo?.()?.lush?.flora ?? null }; }, N);
+          r.cpuMs = Math.round((await cpu() - c0) * 1000 / (N + 2));
+          const dw = r.world - (base.world ?? r.world), lim = tier === 'low' ? 4 : tier === 'medium' ? 9 : 14;
+          r.dWorld = dw;
+          if (tier === 'medium' && r.calls > 230) failures.push(`LAKE2 ${tier}-${name}: the frame's ${r.calls} calls over 230`);
+          if (tier === 'medium' && r.tris > 320000) failures.push(`LAKE2 ${tier}-${name}: the frame's ${r.tris} triangles over 320k`);
+          if (dw > lim) failures.push(`LAKE2 ${tier}-${name}: the world's calls ${r.world}, +${dw} over the Mossmere's banks (${base.world}; at most +${lim})`);
+          if (Number.isFinite(base.cpuMs) && r.cpuMs > base.cpuMs * 1.05 + 1) failures.push(`LAKE2 ${tier}-${name}: cpuMs ${r.cpuMs} over the Mossmere's banks' ${base.cpuMs}`);
+          perf[`${tier}-${name}`] = r;
+          log(`perf-loop ${tier}-${name} ${JSON.stringify(r)}`);
+          await g(() => window.__pl.hold(false)).catch(() => {});
+          await api.frames(1);
+        }
+      } catch (e) { failures.push(`perf-loop ${tier} sporewood: ${e?.message || e}`); }
+      await g(() => { const c = window.__gw; window.__pl.hold(false); c.world.setZone?.('mossmere', { instant: true }); }).catch(() => {});
+      await api.frames(2);
+    }
   }
   if (typeof args.base === 'string') {
     try {

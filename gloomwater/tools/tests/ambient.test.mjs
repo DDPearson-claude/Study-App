@@ -186,7 +186,8 @@ section('nothing to do with the catch; drawn cheaply');
 {
   const ws = src('world-ambient.js');
   ok(!/fishing|castOdds|rollSpecies|progression|hookWeights|finishPool|bait/i.test(ws.replace(/^\/\/.*$/gm, '')), 'it reads no fishing, odds, bait or progression');
-  ok((ws.match(/new THREE\.InstancedMesh\(/g) || []).length === 1 && (ws.match(/createHalos\(/g) || []).length === 1 && /q0 !== 'low'/.test(ws) && /!ctx\.cinematic && !show;/.test(ws), 'one InstancedMesh and one Points (2 calls), hidden on low and in a cinematic or the show');
+  ok((ws.match(/new THREE\.InstancedMesh\(/g) || []).length === 2 && (ws.match(/createHalos\(/g) || []).length === 1 && (ws.match(/q0 !== 'low'/g) || []).length === 2 && (ws.match(/!ctx\.cinematic && !show;/g) || []).length === 2,
+    'one InstancedMesh and one Points (2 calls) on the Mossmere, one InstancedMesh (Sporewood\'s gill-flakes, LAKE 2) on Sporewood; each hidden on low and in a cinematic or the show');
   ok(/setupSurface\(mesh, \{ cast: false, reflect: false \}\)/.test(ws) && !/REFLECT_LAYER/.test(ws), 'no shadow, and nothing of theirs in the mirror (no glitter on the water)');
 }
 
