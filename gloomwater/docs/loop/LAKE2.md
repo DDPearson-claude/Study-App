@@ -1432,17 +1432,27 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
 - **Three lights apart** (`air.lights`, world.js `lit`): the mood gains a dusk weight from the phase (0 → 1 in the dusk's first 12%,
   easing out at its end and in the gloomtide's first 4%); each light sets the air (fog and the sky's base), the sky's low band
   (`horizon`), the key's colour, strength and height, the fill, the water's own colour, the grade's tint, exposure and saturation, the
-  stars, the glowcaps' light and the leaves' translucency, blended day (1 − d)(1 − n′), dusk d, night (1 − d)·n′. Day: a green-gold key
-  #f6eab2 at 2.8, a pale gold-green haze on the horizon, exposure 1.18, few stars. Dusk: an amber-rose key #ff9a5c held low (its height ×
-  0.35: long shadows), a rose-amber horizon, the flowers open, the fireflies wake late in it. Night: a deep blue-green air #0b2428, a pale
-  moon key at 0.6, exposure 0.8, the glowcaps at 1.8×. Every other water: `lit` is null and none of it runs.
+  stars and the nebula, the glowcaps' light and the leaves' translucency, blended day (1 − d)(1 − n′), dusk d, night (1 − d)·n′. Day: a
+  green-gold key #f6eab2 at 2.8, a pale gold-green haze on the horizon, water #224c3e, exposure 1.18, no stars (0.03) and the nebula at
+  0.25. Dusk: an amber-rose key #ffa874 at 2.6 held low (its height × 0.35: long shadows) over a blue-green fill, a green-grey air #2e3c34
+  under a rose-amber horizon #f0a070 (the leaves turn olive-bronze, the shade stays green), the grade's tint barely there (0.05) so it
+  never goes sepia, exposure 0.98, saturation 1.1, few stars (0.12), the flowers open, the fireflies wake late in it. Night: a deep
+  blue-green air #0b2428, a pale moon key at 0.6, exposure 0.8, the glowcaps at 1.8×, stars 0.65, the nebula 0.3. Every other water:
+  `lit` is null and none of it runs.
 - **Soft leaves** (`world-flora.leafMass`): the shrubs', the broadleaf trees' and the far crowns' masses are lobed spheres (a few bumps
-  push each into lobes) with smooth normals from the heart, leaf cards round their rim and crown (small pointed leaves, lighter at the
-  tip, carrying the backlit term), and the kit's toon in five steps, not three. The kit is 45k triangles on high (was 28.8k), 0.4× on low,
+  push each into lobes; the shrubs' 11 × 8 segments, the crowns' 10 × 7, so a 4 m crown's outline is round) with smooth normals from the
+  heart and a soft dapple that drifts over the mound (a per-vertex jitter had lit each triangle on its own: facets); leaf cards, most of
+  them round the waist and shoulders where they break the outline into leaves (14 a shrub's mound), lighter at the tip and carrying the
+  backlit term; the kit's toon in five steps, not three. The kit is 64.5k triangles on high (was 28.8k), 0.7× on medium, 0.4× on low,
   its draws unchanged.
-- **No gold on the water**: the lantern's glitter path is off on Sporewood as on the loop's Mossmere (world.js streak 0), a lush water's
-  mirror as calm as the Mossmere's (no key glitter, no glints: `GW_LUSH` sets calmW 1); the fallen cap-leaves rarer (4%), smaller and a
-  matte dull olive-ochre, the lily pads a step deeper; the gill-flakes 4 on high (8), 3 on medium, smaller, a matte ochre #86704a, no rim.
+- **No gold on the water**: what read as gold leaves on the water were mostly the lit cap undersides and gills mirrored near the eye,
+  and the lantern's amber laid over the whole foot of the low lens's frame. On a lush water (`GW_LUSH`) a warm mirrored light (amber,
+  gold: red over blue and at least as red as green) is dulled to a soft olive-ochre and held down to a quarter (the leaves' images are
+  untouched); the light pools are 0.55× and drain only a fifth of the water's own colour (the Mossmere drains it all, against rose), so
+  the water stays deep green-teal and the warm light gathers round the raft and under the glowcaps; the glowcaps' anchors lay no thread
+  of gold across the water (world.js streak 0 on a water with its own lights). The lantern's glitter path is off as on the loop's
+  Mossmere, the mirror as calm (no key glitter, no glints: calmW 1); the fallen cap-leaves rarer (4%), smaller and a matte dull
+  olive-ochre, the lily pads a step deeper; the gill-flakes 4 on high (8), 3 on medium, smaller, a matte ochre #86704a, no rim.
 - **The banks' moss per pixel** (`world-flora.lushMoss`): the ground's 2 m grid carries only where moss may lie (`aMoss`); the drifts are
   cut in the fragment stage from value noise on the world position with an fwidth-wide edge, mottled between `mossG` and `mossGHi` with a
   fine speckle: crisp drifts at any distance, no camouflage blotch.
@@ -1453,9 +1463,13 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   high-shouldered (`shoulder` 0.42), a large tall sail of a back fin (`dorsal: 'sail'`), low eyes, a dark plum back #2e1830 carried low on
   the flank (`counterLine` −0.38), two pairs of catfish barbels. **Nightbloom Carp**: its head a third of its length (`head` 1.55,
   `headLen` 0.48), a stronger arch (`archK` 0.72), a darker plum #2e1630, so the cream petal edges carry.
-- **The Gill Harp and Rootknot**: every cap's underside and rim warm and light (a cream-ochre, lit by its gills); the Harp's strings 24
-  (16), 6–8.6 m long, hanging to 2.4 m over the water; Rootknot (what read as "a black spider on an islet": its seven dark arched roots)
-  takes low, thin, moss-grown roots, a small cap on its stump with its own lit strings and a glowcap lamp, moss cushions and ferns.
+- **The Gill Harp and Rootknot**: every cap's underside and rim warm and light (a cream-ochre, lit by its gills); the gill strings cream
+  (they were the caps' ochre: yellow sticks), the Harp's 24 (16), 6–8.6 m long, longer than the stalks' reach over the neck, hanging to
+  2.4 m over the water; the stalks, roots and fallen logs take the moss's floor in their shade (the banks' `gwFloraFloor`), so a cream
+  stalk seen from below reads as a stalk, not a black arch; Rootknot (what read as "a black spider on an islet": its seven dark arched
+  roots) takes low, thin, moss-grown roots, a small cap on its stump with its own lit strings and a glowcap lamp, moss cushions and ferns.
+- **The Skep Lid** is tipped back (its crown up and toward the lens, 54°), so the show sees coil over coil of a straw dome; square to the
+  lens it read as a flat cream disc before the face. Its length (the size the show holds it by) is unchanged.
 - **The Veil**: its broken cap small and sunk back into the bank behind the stalk's root; the Veilwater's lift frames the strand curtain
   broadside from the West Pool, low and back (`placeAnchor('veilwater')`: the Veil's mouth, 17 m, 8° up), so the stalk spans the top of
   the frame instead of filling it at the lens.

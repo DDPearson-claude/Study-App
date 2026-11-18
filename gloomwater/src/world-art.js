@@ -495,8 +495,10 @@ vec2 gwTwitch(vec2 p, float hgt) {
     // fine layers drop out), so the high tier's water no longer reads as snow; off the loop as built)
     dome.onBeforeRender = (renderer, scene, camera) => {
       const mir = camera.layers.mask === (1 << REFLECT_LAYER);
-      domeMat.uniforms.uStars.value = starK * (mir ? (wcOn ? 0.5 : 1.8) : 1);
-      domeMat.uniforms.uStarDen.value = starDen * (mir && wcOn ? 0.4 : 1);
+      // (LAKE 2, the art pass: on a lush water the mirror's stars fewer and dimmer still: at night they lay a lavender snow over the near
+      // water under the low lens)
+      domeMat.uniforms.uStars.value = starK * (mir ? (look ? 0.3 : wcOn ? 0.5 : 1.8) : 1);
+      domeMat.uniforms.uStarDen.value = starDen * (mir && (wcOn || look) ? (look ? 0.3 : 0.4) : 1);
     };
     group.add(dome);
   }
