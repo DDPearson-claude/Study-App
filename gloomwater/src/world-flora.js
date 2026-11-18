@@ -274,7 +274,7 @@ export function floraPlan(L, look, { tier = 'high', avoid = null, glides = [], g
       const a = rng() * TAU, d = Math.sqrt(rng()) * c.r, x = c.x + Math.cos(a) * d * 1.25, z = c.z + Math.sin(a) * d * 0.85;
       if (sdfAt(O, x, z) < 0.6 || !waterOk(x, z)) continue;
       // (LAKE 2, the art pass: a fallen cap-leaf is a rare, small, dull thing on the water, never gold litter)
-      const big = rng() < 0.06, s = big ? rng.range(0.6, 0.9) : rng.range(0.35, 0.72);
+      const big = rng() < 0.04, s = big ? rng.range(0.55, 0.8) : rng.range(0.35, 0.72);
       if (pads.some((q2) => Math.hypot(q2.x - x, q2.z - z) < (q2.s + s) * 0.9)) continue;
       const it = push({ k: big ? 'capleaf' : 'pad', x, y: 0.03, z, ry: rng() * TAU, s, sy: 1, lean: 0, la: 0, v: tint() });
       pads.push(it);
@@ -430,7 +430,8 @@ function prototypes(look, K) {
   // a lily pad: a flat fan with its notch (8 triangles); a fallen cap-leaf: longer, ochre-olive, its rim curled up
   const pad = (cap) => {
     // (LAKE 2, the art pass: the cap-leaf a matte, soft dull ochre-olive, a step darker than the lily pads round it)
-    const S = soup(), n = 9, c0 = cap ? scaleArr(mixArr(dark, capC, 0.35), 0.72) : mixArr(mid, hi, 0.25), c1 = cap ? scaleArr(mixArr(ink, capC, 0.3), 0.8) : mixArr(dark, mid, 0.5);
+    // (and the lily pads a deep leaf green, a step under the mid, so the near ones never read as flat lime)
+    const S = soup(), n = 9, c0 = cap ? scaleArr(mixArr(dark, capC, 0.2), 0.62) : scaleArr(mixArr(mid, hi, 0.2), 0.82), c1 = cap ? scaleArr(mixArr(ink, capC, 0.18), 0.75) : scaleArr(mixArr(dark, mid, 0.5), 0.9);
     const ce = vtx(S, 0, cap ? 0.02 : 0.012, 0, 0, 1, 0, c0, 0, 0, 0.5);
     const rim = [];
     for (let i = 0; i < n; i++) { const a = 0.35 + (i / (n - 1)) * (TAU - 0.7); rim.push(vtx(S, Math.cos(a) * (cap ? 1.4 : 1), cap ? 0.05 + 0.04 * Math.abs(Math.sin(a)) : 0.02, Math.sin(a) * (cap ? 0.7 : 1), 0, 1, 0, c1, 0, 0, 0.5)); }
@@ -481,7 +482,7 @@ function prototypes(look, K) {
       // (a leaf: its spine out from the mound and a little up, its blade across it)
       let ox = dx, oy = dy * 0.5 + 0.35, oz = dz; const ol = Math.hypot(ox, oy, oz) || 1; ox /= ol; oy /= ol; oz /= ol;
       let wx = -dz, wz = dx; const wl = Math.hypot(wx, wz) || 1; wx /= wl; wz /= wl;
-      const L = r * (0.32 + 0.18 * hash(k + seed)), W = L * 0.42, t = clamp01((py - yLo) / span);
+      const L = r * (0.2 + 0.12 * hash(k + seed)), W = L * 0.45, t = clamp01((py - yLo) / span);
       const base = t < 0.5 ? mixArr(dark, mid, t * 2) : mixArr(mid, hi, (t - 0.5) * 2 * top), tip = mixArr(base, hi, 0.35);
       const nx = dx, ny = dy + 0.25, nz = dz, sw = sway * (0.6 + t) + 0.02;
       const v0 = vtx(S, px - ox * L * 0.15, py - oy * L * 0.15, pz - oz * L * 0.15, nx, ny, nz, scaleArr(base, 0.9 * dim), sw * 0.5, 0, 1);
@@ -491,13 +492,13 @@ function prototypes(look, K) {
       tri(S, v0, v1, v2); tri(S, v0, v2, v3);
     }
   };
-  // a shrub: three soft lobed mounds, cream blossom on a few leaves (about 180)
+  // a shrub: three soft lobed mounds, cream blossom on a few leaves (about 250)
   {
     const S = soup();
-    [[0, 0.55, 0, 0.62], [0.45, 0.42, 0.22, 0.46], [-0.38, 0.44, -0.26, 0.5]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 11 + m * 17, { cards: 6, bloomK: 0.07, seg: [6, 5] }));
+    [[0, 0.55, 0, 0.62], [0.45, 0.42, 0.22, 0.46], [-0.38, 0.44, -0.26, 0.5]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 11 + m * 17, { cards: 8, bloomK: 0.07, seg: [7, 6] }));
     P.bush = S;
   }
-  // a broadleaf bank tree, upright (the plan leans it): a trunk with two limbs and a crown of soft lobed masses (~530)
+  // a broadleaf bank tree, upright (the plan leans it): a trunk with two limbs and a crown of soft lobed masses (~1,100)
   {
     const S = soup();
     const tr = new THREE.CylinderGeometry(0.14, 0.3, 6.2, 6, 3, true); tr.translate(0, 3.0, 0);
@@ -507,7 +508,7 @@ function prototypes(look, K) {
       addGeo(S, lb, (x, y) => [bark, 0.01 * y, 0, 0]);
     }
     const masses = [[0, 6.5, 0, 1.75], [1.35, 6.0, 0.5, 1.25], [-1.25, 6.05, -0.4, 1.3], [0.35, 7.35, -0.55, 1.15], [-0.6, 5.4, 1.05, 1.05], [0.9, 5.2, -1.05, 1.0], [-1.45, 6.85, 0.6, 0.9]];
-    masses.forEach(([cx, cy, cz, r], mi) => leafMass(S, cx, cy, cz, r, 101 + mi * 13, { cards: 7, squash: 0.76, sway: 0.05, seg: [7, 5] }));
+    masses.forEach(([cx, cy, cz, r], mi) => leafMass(S, cx, cy, cz, r, 101 + mi * 13, { cards: 9, squash: 0.76, sway: 0.05, seg: [10, 8] }));
     P.tree = S;
   }
   // a far crown (the forest's edge behind the banks): two soft dark masses (~90)

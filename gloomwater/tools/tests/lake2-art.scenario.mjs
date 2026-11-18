@@ -76,7 +76,8 @@ export default async function (api) {
         await put(x, z, yaw); await settle(); await K.shoot(`${name}-day`);
       }
       // the Veilwater's lift shot (render.frameLandmark, the loop's lift), held still for the frame
-      const lift = await g(() => { const c = window.__gw, p = c.data.loopPlace?.('veilwater'); if (!p) return false; c.render.frameLandmark?.(p, { dur: 30, back: 0.1 }); return true; });
+      // (as the loop's lift frames it: loop-home's landmarkOf is the world's anchor for the place)
+      const lift = await g(() => { const c = window.__gw, p = c.world.placeAnchor?.('veilwater'); if (!p) return false; c.render.frameLandmark?.(p, { dur: 30, back: 0.1 }); return true; });
       if (lift) { await put(-66, 31, 0); await K.secs(1.5); await K.settle(300); await K.shoot('veil-lift-shot'); await g(() => window.__gw.render.frameLandmark?.(null, { back: 0.01 })); await K.secs(0.3); }
       await cam([-6, 150, 120], [-6, 0, 0], 50); await K.secs(0.5); await K.settle(400); await K.shoot('overhead-day');
       for (const [name, pos, look] of [['isles-west', [-40, 40, 40], [-46, 0, 2]], ['isles-east', [40, 30, 26], [40, 0, -2]]]) { await cam(pos, look, 50); await K.secs(0.5); await K.settle(300); await K.shoot(name); }

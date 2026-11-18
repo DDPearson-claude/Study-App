@@ -844,7 +844,18 @@ if (process.argv.includes('--loop')) {
       const day = hsv(LK.leaf).h, ff = hsv(LK.fireflies);
       ok4(day >= 82 && day <= 135 && ff.h >= 55 && ff.h <= 80 && ff.s <= 0.4, 'LAKE2 W2: the mid leaf on the day track (82–135°), the fireflies pale lime (55–80°, s ≤ 0.40)');
       const P = L4.ZONE_BY_ID.sporewood.palette;
-      ok4(['fog', 'ink', 'ambient', 'far', 'light', 'nebula', 'lamp', 'glow', 'candle', 'water'].every((k) => { const c = hsv(P[k]); return !(c.h >= 65 && c.h < 195 && c.s >= 0.12); }), 'LAKE2 W2: the air, the light and the water never green (the palette as built)');
+      // (LAKE 2, the art pass, the user's words "too purple": Sporewood's air under the loop is its own, pulled to green, ZONE_LOOKS.air;
+      // it keeps Clear Night's darkness (the air, the water and the fill dark), never neon, its amber, rose and candle as built; its three
+      // lights apart: a green-gold day, an amber-rose dusk with a low key, a deep blue-green night)
+      const AIR = LK.air || {}, LT = AIR.lights || {};
+      ok4(!!AIR.palette && Object.entries(AIR.palette).every(([k, v]) => P[k] === v) && P.glow === 0xe8ac4c && P.candle === 0xed9e3b && P.accent === 0xe090bc,
+        'LAKE2 art: under the loop Sporewood wears its own air (ZONE_LOOKS.sporewood.air.palette); its amber glow, candle and rose accent as built');
+      ok4(['fog', 'water', 'waterDeep', 'ink', 'ambient'].every((k) => hsv(P[k]).v <= 0.4) && ['fog', 'water', 'ambient', 'far', 'light', 'lamp', 'nebula'].every((k) => hsv(P[k]).s <= 0.55),
+        'LAKE2 art: the air, the water and the fill dark (Clear Night: value ≤ 0.40), nothing neon (saturation ≤ 0.55)');
+      ok4(['day', 'dusk', 'night'].every((ph) => { const L5 = LT[ph]; return !!L5 && ['fog', 'water', 'deep'].every((k) => hsv(L5[k]).v <= 0.42) && hsv(L5.amb).v <= 0.5 && hsv(L5.key).s <= 0.65 && L5.exposure > 0.6 && L5.exposure < 1.3; })
+        && hsv(LT.day.key).h >= 40 && hsv(LT.day.key).h <= 75 && hsv(LT.dusk.key).h >= 10 && hsv(LT.dusk.key).h <= 35 && LT.dusk.elev < 0.7
+        && hsv(LT.night.fog).h >= 150 && hsv(LT.night.fog).h <= 200 && LT.night.exposure < LT.dusk.exposure && LT.dusk.exposure < LT.day.exposure && LT.night.glow > LT.day.glow,
+        'LAKE2 art: three lights apart (a green-gold day key, an amber-rose dusk key held low, a deep blue-green night carried by the glowcaps), each dark and never neon');
       ok4(Object.values(LK.flora || {}).every((v) => Number.isInteger(v) && v >= 0) && Array.isArray(LK.gain) && LK.gain.length === 3 && LK.tiers?.low === 0.4 && LK.tiers?.medium === 0.7, 'LAKE2 W2: the kit\'s counts, its gain and its tiers');
       const CP = LP.camera?.sporewood;
       ok4(!!CP && CP.eye > 0.6 && CP.eye < 1 && CP.fov > 0 && CP.fov <= 6 && !LP.camera.mossmere, 'LAKE2 W2: Sporewood\'s lens lower and closer (LOOP.camera.sporewood); the Mossmere\'s as built');

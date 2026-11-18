@@ -261,11 +261,14 @@ export function buildSporewoodArt({ ctx, L, look, kit, hero, P, K, PL, halos, ad
         // (LAKE 2, the art pass: "a black spider on an islet". Its roots lower, paler and moss-grown, and over them a small cap on the stump
         // with its own lit gill strings, so the knot reads as roots under a cap with strings hanging from it)
         for (let i = 0; i < 7; i++) {
-          const a = (i / 7) * TAU + rng.range(-0.2, 0.2), r1 = rng.range(2.2, 3.6), hgt = rng.range(0.9, 1.8) * 0.6;
-          const rt = taperTube([V(ix + Math.cos(a) * 0.3, top + hgt * 0.4, iz + Math.sin(a) * 0.3), V(ix + Math.cos(a) * r1 * 0.55, top + hgt, iz + Math.sin(a) * r1 * 0.55), V(ix + Math.cos(a) * r1, -0.5, iz + Math.sin(a) * r1)], (t) => 0.28 * (1 - t * 0.6), 5, 8);
+          const a = (i / 7) * TAU + rng.range(-0.2, 0.2), r1 = rng.range(2.2, 3.6) * 0.8, hgt = rng.range(0.9, 1.8) * 0.3;
+          const rt = taperTube([V(ix + Math.cos(a) * 0.3, top + hgt * 0.4, iz + Math.sin(a) * 0.3), V(ix + Math.cos(a) * r1 * 0.55, top + hgt, iz + Math.sin(a) * r1 * 0.55), V(ix + Math.cos(a) * r1, -0.5, iz + Math.sin(a) * r1)], (t) => 0.2 * (1 - t * 0.6), 5, 8);
           kit.org.push(prep(rt, { colorFn: (px, py, pz, nx, ny) => mixArr(mixArr(org, bone, 0.3), mixArr(mg, mgh, 0.55), Math.min(1, amt * 1.3) * clamp01(ny * 1.2 + 0.2)) }));
         }
         const kc = capTree([V(ix, top - 0.4, iz), V(ix + 0.15, top + 1.2, iz + 0.05), V(ix + 0.25, top + 2.3, iz + 0.1)], 1.7, { capH: 0.5, spots: true, mossTo: 1.6, radial: 7 });
+        // (moss cushions over the roots' shoulders and ferns round the stump: a green knot, not dark legs)
+        for (let i = 0; i < 7; i++) { const a = (i / 7) * TAU + 0.2, d = rng.range(0.7, 1.5); const x = ix + Math.cos(a) * d, z = iz + Math.sin(a) * d; extra.push({ k: 'cushion', x, y: gy(x, z) + 0.2, z, ry: rng() * TAU, s: rng.range(0.7, 1.0), sy: rng.range(0.8, 1.1) }); }
+        for (let i = 0; i < 4; i++) { const a = rng() * TAU, d = rng.range(0.4, 0.9), x = ix + Math.cos(a) * d, z = iz + Math.sin(a) * d; extra.push({ k: 'fernUp', x, y: gy(x, z) + 0.05, z, ry: rng() * TAU, s: rng.range(0.8, 1.1), sy: 1 }); }
         hangUnder(kc, low ? 4 : 8, { lenMin: 1.2, lenMax: 1.9, kindGill: 0.85, rMin: 0.45, rMax: 0.95, floor: top + 0.15 });
         lamps.push({ key: 'rootknot', kind: 'cap', x: kc.x, y: kc.y - 0.1, z: kc.z, k: 1 });
       } else if (o.kind === 'tussock') {

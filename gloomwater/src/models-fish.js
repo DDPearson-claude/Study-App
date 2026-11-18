@@ -1497,6 +1497,7 @@ export function createFishFactory(ctx) {
     // the measuring ceremony's "lantern kiss" (setWarm): a warm rim on every lit part, a breath of warm light on a dark skin
     const rimMats = mats.filter((m) => m.userData?.rim).map((m) => ({ m, col: m.userData.rim.gwRimColor.value.clone(), str: m.userData.rim.gwRimStrength.value, thr: m.userData.rim.gwRimThreshold.value }));
     const warmEm = !E.hasGlow && !P.opts.jelly && !E.skin.emissiveMap;
+    const floodK = LOOP_ON && Number.isFinite(Number(M.flood)) ? Math.max(0, Number(M.flood)) : 1;
     // the show's wet skin (setWet): the glint of every lit part
     let wetK = 0;
     const wetMats = mats.filter((m) => m.userData?.surf?.gwSurf).map((m) => ({ u: m.userData.surf, g: m.userData.surf.gwSurf.value.x, e: m.userData.surf.gwSurf.value.y }));
@@ -1652,7 +1653,9 @@ export function createFishFactory(ctx) {
       },
       get silhouette() { return silK; },
       /** The light a just-revealed fish holds for a moment (0 = none): a pale-gold lift over the whole body (the landing). */
-      setRevealLight(k = 0) { U.uGwRevFlood.value = Math.max(0, Math.min(1, Number(k) || 0)); },
+      // (LAKE 2, the art pass: a loop model's `flood` scales the light it holds after the landing, so a dark-backed fish (the Mackerel, the
+      // Downcast, the Nightbloom) keeps its back's colour in the show's first seconds instead of reading as a pale cream torpedo)
+      setRevealLight(k = 0) { U.uGwRevFlood.value = Math.max(0, Math.min(1, (Number(k) || 0) * floodK)); },
       /** The landing's reveal (v3): k 0 → 1 floods the true colours along the body nose to tail behind a band of light (the part
        *  not yet reached stays night ink); on 0 turns it off. colour: the band's light (default pale gold). */
       setReveal(kk = 0, on = 1, colour = null) {

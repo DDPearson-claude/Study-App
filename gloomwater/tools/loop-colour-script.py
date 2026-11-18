@@ -69,6 +69,11 @@ AMOUNT = {1: 0.0, 2: 0.671, 3: 1.332, 4: 1.202, 5: 0.47, 6: 1.124, 7: 2.298, 8: 
 # mere"): Sporewood takes step 5's green at once. Its own step in is held to the lower bounds only (it must rise, never fall), and the
 # step out of it is reported as pending, not failed, until the waters after it are re-stepped from it as each ships.
 EXCEPT = {2: 'LAKE2 section 1A: Sporewood takes step 5 at once; the waters after it re-step from it when each ships'}
+# The second exception (LAKE2.md section 9.11, the user's words "too purple"): Sporewood's air, sky and water are its own, pulled to green
+# (a green-gold day, an amber-rose dusk, a deep blue-green night), so the gates that keep the air, the sky and the water out of green
+# (air never green, the sky band, the water band, teal, the Oklab cast) are reported for it, not failed. Its darkness and its leaf caps
+# still hold.
+AIR_EXCEPT = {2: 'LAKE2 section 9.11: Sporewood\'s air, sky and water pulled to green (the user\'s words)'}
 
 
 # ----------------------------------------------------------------------------------------------------------- colour helpers
@@ -166,12 +171,12 @@ def lint(waters, repaint):
     for w in waters:
         k = w['step']
         for p, phase in enumerate(PHASES):
-            for key in ('sky', 'fog'):
+            for key in (() if w['n'] in AIR_EXCEPT else ('sky', 'fog')):
                 h, s, v = hsv(w[key][p])
                 if 65 <= h * 360 < 195 and s >= 0.12:
                     errs.append(f"{w['name']}: {phase} {key} {w[key][p]} is in the green band (air never green)")
             h, s, v = hsv(w['water'][p])
-            if 65 <= h * 360 < 195 and s >= 0.12:
+            if w['n'] not in AIR_EXCEPT and 65 <= h * 360 < 195 and s >= 0.12:
                 errs.append(f"{w['name']}: {phase} water colour is in the green band")
             if k == 0:
                 continue
@@ -911,24 +916,28 @@ def gates(waters, M):
             if k == 0:
                 if got > 1.0:
                     fails.append(f"{w['name']} {phase}: {got:.1f}% green (the Mossmere keeps today's gate, <= 1%)")
+            elif n in AIR_EXCEPT:
+                if got < want - tol(want):           # (the second exception: the user's "at or above" the target, a floor)
+                    fails.append(f"{w['name']} {phase}: measured {got:.1f}% under the doc's floor {want:g}% (the user's at or above)")
             elif abs(got - want) > tol(want):
                 fails.append(f"{w['name']} {phase}: measured {got:.1f}% against the doc's {want:g}% (tolerance {tol(want):.1f})")
             mm = m[phase]
-            if mm['bank'] > 0 and mm['water'] > 0.6 * mm['bank'] + 0.5:
+            air = n in AIR_EXCEPT                      # (the second exception: reported in main(), not failed)
+            if not air and mm['bank'] > 0 and mm['water'] > 0.6 * mm['bank'] + 0.5:
                 fails.append(f"{w['name']} {phase}: the water band is {mm['water']:.1f}% green, over 0.6 x the bank band's {mm['bank']:.1f}%")
-            if mm['sky'] > 2.0:
+            if not air and mm['sky'] > 2.0:
                 fails.append(f"{w['name']} {phase}: the sky band is {mm['sky']:.1f}% green (<= 2%)")
             if mm['skyfrac'] < (6 if STYLE[n][1] == 'canopy' else 12):
                 fails.append(f"{w['name']} {phase}: only {mm['skyfrac']:.1f}% of the frame is sky")
             if mm['neon'] > 0.3:
                 fails.append(f"{w['name']} {phase}: {mm['neon']:.2f}% neon green pixels (<= 0.3%)")
-            if mm['teal'] > 2.0:
+            if not air and mm['teal'] > 2.0:
                 fails.append(f"{w['name']} {phase}: teal {mm['teal']:.1f}% of the frame (<= 2%)")
-            if mm['okair'] < -0.004:
+            if not air and mm['okair'] < -0.004:
                 fails.append(f"{w['name']} {phase}: mean Oklab a of the sky, water and stone {mm['okair']:+.4f} (a green cast: must be >= -0.004)")
             if k >= 6 and phase == 'day' and min(mm['fam']) < 10:
                 fails.append(f"{w['name']} day: green families {', '.join(f'{x:.0f}' for x in mm['fam'])}% (each >= 10% from step 6)")
-        if m['night']['share'] < 0.25 * m['day']['share'] - 0.2:
+        if n not in AIR_EXCEPT and m['night']['share'] < 0.25 * m['day']['share'] - 0.2:
             fails.append(f"{w['name']}: night {m['night']['share']:.1f}% is under 25% of day {m['day']['share']:.1f}%")
         if prev is not None and prev['n'] in EXCEPT:
             pass                                      # (the step out of the exception: pending until re-stepped, main() prints it)

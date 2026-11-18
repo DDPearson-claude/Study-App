@@ -39,8 +39,10 @@ ok(Math.abs(LK.lush - 0.33) < 1e-9 && LK.step === 5, 'lush 0.33, step 5 (LAKE2 �
   const mid = hsv(LK.leaf); ok(mid.h >= 82 && mid.h <= 135, `the mid leaf's hue ${mid.h.toFixed(0)} in 82–135`);
   const ff = hsv(LK.fireflies); ok(ff.h >= 55 && ff.h <= 80 && ff.s <= 0.4, `the fireflies pale lime (hue ${ff.h.toFixed(0)}, s ${ff.s.toFixed(2)})`);
   const P = D.ZONES.find((z) => z.id === 'sporewood').palette, Poff = D_OFF.ZONES.find((z) => z.id === 'sporewood').palette;
-  ok(JSON.stringify(P) === JSON.stringify(Poff), 'the palette and its air as built: the green only from materials (WATERS §3.1)');
-  for (const k of ['fog', 'ink', 'ambient', 'far', 'light', 'nebula', 'lamp', 'glow', 'candle', 'water']) { const c = hsv(P[k]); ok(!(c.h >= 65 && c.h < 195 && c.s >= 0.12), `the air's ${k} is never green`); }
+  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, pulled to green by the user's words; off the loop the ember garden's)
+  ok(JSON.stringify(P) === JSON.stringify({ ...Poff, ...LK.air.palette }) && JSON.stringify(P) !== JSON.stringify(Poff), 'under the loop the palette is the ember garden\'s with Sporewood\'s own air laid over it; off the loop as built');
+  for (const k of ['fog', 'water', 'waterDeep', 'ink', 'ambient']) { const c = hsv(P[k]); ok(c.v <= 0.4 && (c.v < 0.1 || c.s <= 0.6), `the air's ${k} keeps Clear Night's darkness (v ${c.v.toFixed(2)}, s ${c.s.toFixed(2)})`); }
+  ok(P.glow === Poff.glow && P.candle === Poff.candle && P.accent === Poff.accent, 'its amber glow, its candle and its rose accent as built');
   ok(Object.values(LK.flora).every((n) => Number.isInteger(n) && n >= 0) && LK.tiers.medium === 0.7 && LK.tiers.low === 0.4, 'the kit\'s counts on high; medium 0.7×, low 0.4×');
 }
 
@@ -140,7 +142,9 @@ section('Sporewood\'s arena under the loop: the kit and the landmarks built, in 
   const fl = A.lush?.flora, art = A.lush?.art;
   ok(!!fl && !!art, 'the kit and the landmarks are built');
   ok(fl.cells <= 12 && fl.meshes <= 14, `the kit in at most 3 × 2 cells × 2 materials, and the flowers and the fireflies (${fl.cells} cells, ${fl.meshes} meshes)`);
-  ok(fl.tris < 40000, `the kit's triangles on high (${fl.tris}; the design's about 23k for its plants, the strands and the landmarks' moss on top)`);
+  // (LAKE 2, the art pass: the shrubs', the trees' and the far crowns' soft lobed masses and their leaf cards, the user's "blocky shrubs",
+  // cost about 16k more on high; medium 0.7×, low 0.4×, and the low tier's draws unchanged: clarity-perf --loop --sporewood measures it)
+  ok(fl.tris < 48000, `the kit's triangles on high (${fl.tris}; the design's about 23k for its plants, the strands, the landmarks' moss and the soft leaf masses on top)`);
   ok(art.rim >= 8 && art.mother && art.harp.length === 2 && art.veil?.strands > 30 && art.seep && art.groves === 5 && art.capTrees >= 10 && art.landing, 'the cap-rim window, the Mother Cap, the Gill Harp\'s two caps, the Veil\'s curtain, the Seep, five Lantern groves, the cap trees, Rootfoot Landing', art);
   ok(A.capLamps.length >= 10 && A.capLamps.every((l) => l.kind === 'cap'), `the glowcaps are the spore moths' lamps (${A.capLamps.length})`);
   ok(art.veil.w < 16, `the Veil hangs across the inlet's mouth (${art.veil.w} m across)`);

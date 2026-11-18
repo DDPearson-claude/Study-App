@@ -3200,7 +3200,7 @@ export const ROSTER_ART = {
   // flank glow it had as the Mossmere's guest goes)
   // (LAKE 2, the art pass: its head a third of its length, a stronger arch and a darker plum, so the cream petal edges carry)
   nightbloom_carp:   { model: { shape: 'carp', body: 0x2e1630, belly: 0xc8b0bc, fin: 0x3a1e3c, glow: 0xffb46a, pattern: 'scales', eyes: 'normal', scale: 1.2,
-    head: 1.55, headLen: 0.48, back: 'arched', archK: 0.72, barbels: 'none', mouth: 'up', scales: 'giant', scaleEdge: 0xf2e2c4 } },
+    head: 1.55, headLen: 0.48, back: 'arched', archK: 0.72, barbels: 'none', mouth: 'up', scales: 'giant', scaleEdge: 0xf2e2c4, flood: 0.35 } },
   // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
   // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
   bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
@@ -3228,9 +3228,9 @@ export const ROSTER_ART = {
   // over a hard countershade line and a pale belly, dark plum bars down its back, a larger crescent; the Downcast deep and high-shouldered,
   // a large tall sail of a back fin, low eyes, a dark plum back low on its flank, a catfish's barbels)
   lostsea_mackerel:   { model: { shape: 'finlet', body: 0x1c2230, belly: 0xe6e2d6, fin: 0x1a1e2a, glow: null, pattern: 'none', eyes: 'normal', scale: 1.2,
-    dorsals: 2, finlets: true, tail: 'crescent', scribbles: 0x3a1438, girth: 0.82, tailK: 1.32, counterLine: 0.02, counterSoft: 0.035 } },
+    dorsals: 2, finlets: true, tail: 'crescent', scribbles: 0x3a1438, girth: 0.82, tailK: 1.32, counterLine: 0.02, counterSoft: 0.035, flood: 0.3 } },
   downcast_catfish:   { model: { shape: 'catfish', body: 0x2e1830, belly: 0xbcaaa8, fin: 0x26142a, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
-    head: 'bullet_round', whiskers: 4, deep: true, shoulder: 0.42, dorsal: 'sail', tail: 'fork_tall', eyeSet: 'low', counterLine: -0.38, counterSoft: 0.12 } },
+    head: 'bullet_round', whiskers: 4, deep: true, shoulder: 0.42, dorsal: 'sail', tail: 'fork_tall', eyeSet: 'low', counterLine: -0.38, counterSoft: 0.12, flood: 0.3 } },
   mildew_angler:      { model: {} },
   sleepspore_jelly:   { model: {} },
   harpstring_eel:     { model: { body: 0x2a1830, belly: 0x9a5472, fin: 0x3a2238, glow: 0xf2a07a, pattern: 'none', eyes: 'normal',
@@ -5906,15 +5906,15 @@ export const SPOREWOOD_ARENA = Object.freeze({
     { name: 'Mossback Isle', kind: 'moss', x: -50, z: -6, r: 6.5, h: 4, shelf: 4,
       outline: [[-58, -7], [-56, -10.5], [-51, -11.5], [-46, -10], [-42.5, -7.5], [-42, -4], [-45, -1.5], [-50, -0.5], [-54.5, -2], [-57.5, -4]] },
     { name: "The Mother's Foot", kind: 'cap', x: 59, z: 12, r: 4.2, h: 2.2, shelf: 3,
-      outline: [[55, 9.5], [58, 8], [61.5, 8.5], [63.5, 11.5], [62.5, 15], [59, 16.5], [55.5, 15.5], [54, 12.5]] },
+      outline: [[55, 9.6], [57.8, 8.2], [61, 8.2], [64, 9.4], [64.6, 11.4], [63.4, 13.6], [61.8, 15.4], [59.8, 15], [58.4, 16.6], [55.8, 15.8], [54.2, 13.4], [55.2, 11.6]] },
     { name: 'Rootknot', kind: 'roots', x: 22, z: -12, r: 2.6, h: 1.1, shelf: 2.5,
-      outline: [[19.5, -12.5], [20.5, -14.8], [23.2, -15], [25, -12.6], [24.4, -10], [22, -9.2], [20, -10.2]] },
+      outline: [[19.4, -12.4], [18.4, -14.2], [20.2, -15.4], [22.4, -15.2], [24.6, -14], [25.2, -12], [24.2, -10.4], [22.8, -11.2], [21.8, -9.6], [20.2, -10.2]] },
     { name: 'The Two Stools', kind: 'stool', x: -28, z: 14, r: 2.3, h: 0.8, shelf: 2.5,
-      outline: [[-30.4, 13.6], [-29.2, 11.7], [-26.8, 11.6], [-25.6, 13.8], [-26.6, 16.2], [-29, 16.4]] },
+      outline: [[-30.8, 13], [-29.4, 11.8], [-27.4, 11.9], [-25.8, 12.8], [-25.4, 14.4], [-26.4, 15.9], [-28.4, 16.4], [-30.4, 15.8], [-31.6, 14.4]] },
     { name: 'The Two Stools', kind: 'stool', x: -24, z: 19.5, r: 1.8, h: 0.7, shelf: 2.5,
-      outline: [[-25.8, 19.3], [-24.8, 17.8], [-22.8, 18.1], [-22.2, 20], [-23.4, 21.4], [-25.2, 21]] },
+      outline: [[-25.4, 19.2], [-24.6, 17.9], [-23, 17.7], [-22, 18.7], [-21.5, 20.3], [-22.2, 21.5], [-23.8, 21.6], [-25.1, 20.8]] },
     { name: 'The Tussock', kind: 'tussock', x: -62, z: 22, r: 1.4, h: 0.6, shelf: 2,
-      outline: [[-63.4, 21.8], [-62.6, 20.6], [-61, 20.9], [-60.6, 22.4], [-61.6, 23.4], [-63, 23.2]] },
+      outline: [[-63.3, 21.6], [-62.3, 20.7], [-60.9, 20.8], [-60.1, 21.8], [-59.9, 23], [-61, 23.7], [-62.4, 23.6], [-63.3, 22.8]] },
   ],
   bowls: [{ name: 'West Pool', x: -46, z: 4, r: 32, depth: 0.8 }, { name: 'East Pool', x: 40, z: -4, r: 26, depth: 0.85 }, { name: 'the neck', x: 0, z: 6, r: 10, depth: 0.6 }],
   deepPools: [{ name: "The Mother's Cup", x: 48, z: 6, r: 6, depth: 1 }],
@@ -5962,8 +5962,10 @@ export const ZONE_LOOKS = Object.freeze({
     gain: Object.freeze([0.92, 1.22, 0.8]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
     flora: Object.freeze({ moss: 420, ferns: 150, reeds: 360, pads: 150, flowers: 30, strands: 90, bushes: 40, trees: 6, crowns: 40, capTrees: 14, fireflies: 120 }),
     tiers: Object.freeze({ high: 1, medium: 0.7, low: 0.4 }),
-    haze: Object.freeze({ tint: 0xe6c6cc, top: 1.2, amt: 0.42, from: 0.25 }),
-    mist: Object.freeze({ lit: 0xe6cdd4, litN: 0x9c86b6, shade: 0x9a7c9c, shadeN: 0x4a3c6c, low: 0.7 }),
+    // (LAKE 2, the art pass: the haze and the places' banks a warm cream with a breath of rose, green-grey in their shade and at night,
+    // never lavender)
+    haze: Object.freeze({ tint: 0xe4dac6, top: 1.2, amt: 0.42, from: 0.25 }),
+    mist: Object.freeze({ lit: 0xe6dfcc, litN: 0x8aa496, shade: 0x96a088, shadeN: 0x2e4a46, low: 0.7 }),
     dapple: Object.freeze({ k: 0.42, scale: 0.075 }), weed: Object.freeze({ color: 0x4a5a36, k: 0.32 }),
     // >>> LAKE 2, the art pass (LAKE2 §9.11; the user's words: "too purple", "day, dusk and night look alike"): Sporewood's own air under
     // the loop, pulled to green. `palette` and `grade` are laid over ZONES' Sporewood in the loop's apply block (the flag-off game keeps
