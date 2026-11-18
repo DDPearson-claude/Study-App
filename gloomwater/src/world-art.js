@@ -58,10 +58,28 @@ const SKY = {
  *  every `step` m of the shore: the cylinder's u (round the shore) and v (up), open, for the shore's mist. */
 function shoreBand(O, off, h, step) {
   const n = Math.max(8, Math.round(O.len / step)), pos = [], uv = [], idx = [], q = { x: 0, z: 0, nx: 0, nz: 0, h: 0, shelf: 0 };
+  const P = [], S = [];
   for (let k = 0; k <= n; k++) {
     outlineShoreAt(O, (k / n) * O.len, q);
-    const x = q.x + q.nx * off, z = q.z + q.nz * off;
-    pos.push(x, -h / 2, z, x, h / 2, z); uv.push(k / n, 0, k / n, 1);
+    P.push([q.x + q.nx * off, q.z + q.nz * off]); S.push([q.x, q.z]);
+  }
+  // (where a tight bend folds the band back on itself, its two layers stood as one pale hard-edged slab against the far bank: the band
+  // thins to nothing there, through its own v at the foot (the mist's density is (1 − v)^2.2), over a few samples either side)
+  const w = new Float32Array(n + 1).fill(1);
+  for (let k = 0; k <= n; k++) {
+    const a = Math.max(0, k - 1), b = Math.min(n, k + 1);
+    const tx = P[b][0] - P[a][0], tz = P[b][1] - P[a][1], sx = S[b][0] - S[a][0], sz = S[b][1] - S[a][1], s2 = sx * sx + sz * sz;
+    const r = s2 > 1e-6 ? (tx * sx + tz * sz) / s2 : 1;   // (the band's run along the shore's: 1 straight, ≤ 0 folded back)
+    w[k] = r >= 0.6 ? 1 : r <= 0.2 ? 0 : (r - 0.2) / 0.4;
+  }
+  const fade = Float32Array.from(w);
+  for (let k = 0; k <= n; k++) for (let j = -3; j <= 3; j++) {
+    const i = k + j; if (i < 0 || i > n || w[i] >= 1) continue;
+    fade[k] = Math.min(fade[k], w[i] + (1 - w[i]) * (Math.abs(j) / 4));
+  }
+  for (let k = 0; k <= n; k++) {
+    const [x, z] = P[k];
+    pos.push(x, -h / 2, z, x, h / 2, z); uv.push(k / n, 1 - fade[k], k / n, 1);
     if (k < n) { const a = 2 * k; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
   }
   const g = new THREE.BufferGeometry();
