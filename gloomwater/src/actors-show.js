@@ -190,10 +190,10 @@ export function createShow({ ctx, raft, wick, holder, deckY = 0.24, home, setDip
   function kitFor(fv, id) {
     const shape = fv.shape, L = fv.length;
     const K = { face: 'flank', nose: 'side', tilt: 9, noseUp: 4, noseIn: 6, f0: 0.44, bend: null, round: false, wings: false };
-    // a ray shows its back: flat on the palm tipped to us, or held up by its lower wing like a painting (its disc to the lens, its
+    // a ray (and the loop's disc, LAKE 2 lane F) shows its back: flat on the palm tipped to us, or held up by its lower wing like a painting (its disc to the lens, its
     // snout to the right of the frame as every held fish's, its whip of a tail hanging off the other end: solveHeld); stood or
     // hung, it is head-up
-    if (shape === 'ray') { K.face = 'back'; K.wings = true; K.nose = id === 'pinch' || id === 'both' ? 'side' : 'up'; K.tilt = id === 'pinch' ? 58 : 12; K.f0 = 0.27; K.noseUp = id === 'both' ? 8 : 4; }
+    if (shape === 'ray' || shape === 'disc') { K.face = 'back'; K.wings = true; K.nose = id === 'pinch' || id === 'both' ? 'side' : 'up'; K.tilt = id === 'pinch' ? 58 : 12; K.f0 = 0.27; K.noseUp = id === 'both' ? 8 : 4; }
     // a crayfish is held from below by its carapace, back to us, claws up and out
     else if (shape === 'crayfish') { K.face = 'back'; K.nose = id === 'pinch' ? 'diag' : 'side'; K.tilt = id === 'pinch' ? 16 : 48; K.noseUp = 0; K.f0 = 0.5; }
     else if (shape === 'jelly') { K.face = 'back'; K.nose = 'up'; K.tilt = 0; K.round = true; K.f0 = 0.3; }

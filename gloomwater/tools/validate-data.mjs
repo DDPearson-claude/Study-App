@@ -664,6 +664,27 @@ if (process.argv.includes('--loop')) {
       'LAKE2 D1: no fish repeats between the waters; the one fish of both is the Nightbloom Carp, the Mossmere\'s guest a notebook brings (§2.2)');
     ok4(SWS.every((x) => x.phase === 1 && x.depth?.[0] === 0 && x.depth?.[1] === 1 && Array.isArray(x.weight) && x.weight.every((v) => num4(v) && v > 0)), 'LAKE2 D1: each Sporewood record the loop\'s own: inside the phase pin, any depth, a finite weight');
     ok4(SWS.every((x) => L4.ROSTER_ART[x.id]?.model && (x.rarity === 'legendary' || num4(x.size?.k))), 'LAKE2 D1: each of the fourteen has its look\'s key (ROSTER_ART; lane F fills it) and a body key');
+    // ---- LAKE 2, lane F (LAKE2.md §2.3, §9): the fourteen looks built and painted, each unlike its Mossmere relative; the three new plans drawn
+    // shapes under the loop; glow only where the brief names it; each fish on a new plan within ±30% of its cousin (pounds SPEC §6.4)
+    {
+      const fsF = await import('node:fs');
+      const RJ = JSON.parse(fsF.readFileSync(new URL('../docs/loop/roster.json', import.meta.url), 'utf8'));
+      ok4(['disc', 'bream', 'finlet'].every((sh) => L4.FISH_SHAPES.includes(sh)) && SWS.every((x) => L4.FISH_SHAPES.includes(x.model?.shape)), 'LAKE2 F: the disc, the bream and the finlet are drawn shapes under the loop, and every Sporewood fish is on one');
+      ok4(SWS.every((x) => ['body', 'belly', 'fin'].every((c) => Number.isInteger(x.model?.[c]))), 'LAKE2 F: every look is painted (its body, belly and fin colours)');
+      const lit = SWS.filter((x) => x.model.glow !== null && x.model.glow !== undefined).map((x) => x.id).sort();
+      ok4(same(lit, ['drifting_grove', 'festival_puffer', 'harpstring_eel', 'mildew_angler', 'nightbloom_carp', 'sleepspore_jelly']), `LAKE2 F: glow only where the brief names it (the Harpstring's strings, the Puffer's lantern, the Grove's gills, the Nightbloom's bloom; the Angler and the Jelly as built): ${lit.join(', ')}`);
+      const WORDS = ['girth', 'head', 'strings', 'ventral', 'dorsal', 'skin', 'carapace', 'beak', 'eyeSpots', 'scales', 'back', 'eyeSet', 'whiskers', 'meadow', 'eyeRings', 'depth', 'finlets'];
+      const PAIRS = [['harpstring_eel', 'gloam_eel'], ['harpstring_eel', 'hullkiss_lamprey'], ['threadling_eel', 'gloam_eel'], ['downcast_catfish', 'belled_matriarch'], ['cindertail_catfish', 'belled_matriarch'],
+        ['nightbloom_carp', 'weeping_carp'], ['nightbloom_carp', 'rustfin_sucker'], ['netcloud_fry', 'dusk_minnow'], ['netcloud_fry', 'likely_chub'], ['capshell_crayfish', 'gutter_crayfish'],
+        ['falsesmile_barb', 'overbold_bass'], ['falsesmile_barb', 'mossback_perch']];
+      const unlike = ([a, b]) => { const A = L4.SPECIES_BY_ID[a]?.model, B = L4.SPECIES_BY_ID[b]?.model; return !!A && !!B && (A.shape !== B.shape || WORDS.some((w) => A[w] !== undefined && A[w] !== B[w])) && A.body !== B.body; };
+      ok4(PAIRS.every(unlike), `LAKE2 F: each Sporewood fish with a Mossmere relative is drawn on another plan or the brief's own build of it, in its own colours (${PAIRS.filter((p) => !unlike(p)).map((p) => p.join(' ~ ')).join(', ') || 'all'})`);
+      for (const id of ['velvet_ray', 'falsesmile_barb', 'lostsea_mackerel', 'cindertail_catfish', 'downcast_catfish', 'nightbloom_carp']) {
+        const x = L4.SPECIES_BY_ID[id], rf = RJ.fish.find((f) => f.id === id)?.refWeight, k = x?.size?.k;
+        const w = rf && k ? k * x.size.L50 ** 3 / 1000 : NaN, r = rf ? rf.kg * (x.size.L50 / rf.cm) ** 3 : NaN;
+        ok4(rf && Math.abs(w / r - 1) <= 0.3, `LAKE2 F: ${id} (${x?.size?.body}) weighs ${w.toFixed(3)} kg at its L50, within ±30% of its cousin's ${r.toFixed(3)} kg (roster.json refWeight)`);
+      }
+    }
     ok4(L4.SPECIES_LOOP.every((x) => x.zone === 'mossmere'), 'LAKE2 D1: SPECIES_LOOP is the shipped water\'s alone');
     // the items (§5.6, §5.7, §7.1): every item a water's, no lure or tin in two waters, each with its rows, names and lines
     const LU = LP.lures, lw = Object.entries(LU);

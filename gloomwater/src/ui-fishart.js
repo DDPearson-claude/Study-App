@@ -49,6 +49,9 @@ let LOOP_ART = false;
 export function setLoopArt(on) { LOOP_ART = on === true; }
 export const loopArt = () => LOOP_ART;
 const shapeOf = (shape) => SHAPES[shape] || (LOOP_ART ? SHAPES_LOOP[shape] : null) || null;
+// (LAKE 2, lane F: a loop build's own frame, and whether an eel carries the brief's words)
+const loopBounds = (shape, m) => (shape === 'disc' ? (m.meadow === true ? BOUNDS_LOOP.grove : BOUNDS_LOOP.disc) : shape === 'crayfish' && m.carapace === 'dome' ? BOUNDS_LOOP.capshell : null);
+const eelLoop = (m) => m.girth != null || !!m.strings || m.head === 'paddle' || m.dorsal === 'none' || !!m.ventral || m.pects === false || m.tail === 'point';
 
 function profile(p, x, side) {   // y of top (side −1) or bottom (side +1) body edge at x
   const px = -0.62, sx = 1.0;
@@ -104,6 +107,11 @@ function tailPath(p) {
     t.bezierCurveTo(tb - L * 1.08, -S * 0.35, tb - L * 0.8, -S * 0.15, tb - L * 0.95, 0);
     t.bezierCurveTo(tb - L * 0.8, S * 0.15, tb - L * 1.08, S * 0.35, tb - L, S * 0.75);
     t.bezierCurveTo(tb - L * 0.8, S * 1.15, tb - L * 0.3, S * 0.7, tb + 0.04, ped);
+  } else if (p.tail === 'scythe') {   // (LAKE 2, lane F: the bream's scythe: two tall sharp lobes swept back, a deep notch)
+    t.quadraticCurveTo(tb - L * 0.2, -S * 0.32, tb - L * 1.02, -S * 1.12);
+    t.quadraticCurveTo(tb - L * 0.62, -S * 0.42, tb - L * 0.4, 0);
+    t.quadraticCurveTo(tb - L * 0.62, S * 0.42, tb - L * 1.02, S * 1.12);
+    t.quadraticCurveTo(tb - L * 0.2, S * 0.32, tb + 0.04, ped);
   } else if (p.tail === 'hetero') {   // (M1 step 3a: the sturgeon's long upper lobe)
     t.quadraticCurveTo(tb - L * 0.5, -S * 0.55, tb - L * 1.08, -S * 1.15);
     t.quadraticCurveTo(tb - L * 0.72, -S * 0.28, tb - L * 0.46, S * 0.08);
@@ -134,13 +142,14 @@ function finAlong(p, f, side, rng) {
     else if (f.type === 'long') hh = f.h * Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.15)), 0.5) * (0.55 + 0.45 * u);
     else if (f.type === 'ribbon') hh = f.h * (0.4 + 0.6 * Math.sin(Math.PI * u)) * (1 + 0.15 * Math.sin(u * 13));
     else if (f.type === 'spines') hh = f.h * (i % 2 ? 0.25 : 1) * (0.5 + 0.5 * Math.sin(Math.PI * u));
+    else if (f.type === 'shark') hh = f.h * (u <= 0.62 ? (u / 0.62) ** 1.6 : ((1 - u) / 0.38) ** 0.55);   // (LAKE 2, lane F: a shark's point)
     else hh = f.h * Math.pow(Math.sin(Math.PI * Math.pow(u, 0.75)), 0.8);
     const x = f.x0 + (f.x1 - f.x0) * u - hh * 0.55;       // raked backward
     edge.push([x, profile(p, f.x0 + (f.x1 - f.x0) * u, side) + side * hh]);
   }
   path.moveTo(base[0][0], base[0][1]);
   for (const q of base) path.lineTo(q[0], q[1]);
-  if (f.type === 'spiny' || f.type === 'spines') for (const q of edge) path.lineTo(q[0], q[1]);
+  if (f.type === 'spiny' || f.type === 'spines' || f.type === 'shark') for (const q of edge) path.lineTo(q[0], q[1]);
   else { const e = edge; for (let i = 0; i < e.length - 1; i++) path.quadraticCurveTo(e[i][0], e[i][1], (e[i][0] + e[i + 1][0]) / 2, (e[i][1] + e[i + 1][1]) / 2); path.lineTo(e[e.length - 1][0], e[e.length - 1][1]); }
   path.closePath();
   return { path, base, edge };
@@ -268,11 +277,12 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
   const dorsal = finAlong(p, p.dorsal, -1, rng);
   const anal = finAlong(p, { type: 'soft', ...p.anal }, 1, rng);
   const ghostA = p.ghost ? 0.45 : 0.85;
-  finFill(g, tail, col, U, sil, p.ghost ? 0.4 : 0.9);
+  if (p.tailCol && !sil) tailFill(g, tail, p, U); else finFill(g, tail, col, U, sil, p.ghost ? 0.4 : 0.9);
   finRays(g, tail, (u) => [-0.66, (u - 0.5) * p.ped * 1.6], (u) => [-0.68 - p.tailLen * 1.05, (u - 0.5) * p.spread * 2.3], 9, col, U, sil);
   finFill(g, dorsal.path, col, U, sil, ghostA);
   finRays(g, dorsal.path, (u) => dorsal.base[Math.round(u * (dorsal.base.length - 1))], (u) => dorsal.edge[dorsal.edge.length - 1 - Math.round(u * (dorsal.edge.length - 1))], 10, col, U, sil);
   finFill(g, anal.path, col, U, sil, ghostA);
+  if (p.before) loopBefore(g, p, col, U, sil, rng, m);   // (LAKE 2, lane F: a loop profile's own fins behind the body)
   if (p.adipose) {   // (M1 step 3a: the trout's fatty fin, a small soft lobe on the back between the dorsal and the tail)
     const x = p.adipose.x, y = profile(p, x, -1) * 0.92, ah = p.adipose.h;
     const ad = new Path2D(); ad.moveTo(x + 0.07, y); ad.quadraticCurveTo(x + 0.03, y - ah * 1.2, x - 0.05, y - ah); ad.quadraticCurveTo(x - 0.07, y - ah * 0.4, x - 0.06, y + 0.01); ad.closePath();
@@ -284,8 +294,8 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     const pv = new Path2D(); pv.moveTo(x + 0.06, y); pv.quadraticCurveTo(x - 0.02, y + h * 0.7, x - 0.1, y + h); pv.quadraticCurveTo(x - 0.04, y + h * 0.4, x - 0.06, y); pv.closePath();
     finFill(g, pv, col, U, sil, ghostA);
   }
-  bodyShade(g, body, col, bb, U, sil, p.ghost ? 0.62 : 1);
-  pattern(g, body, m.pattern, col, bb, rng, U, sil);
+  bodyShade(g, body, col, bb, U, sil, p.ghost ? 0.62 : p.glass ? 0.62 : 1);
+  pattern(g, body, p.noPattern ? 'none' : m.pattern, col, bb, rng, U, sil);
   if (!sil) {
     g.save(); g.clip(body);
     // lateral line
@@ -303,7 +313,7 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     }
     // gill arc
     g.strokeStyle = 'rgba(7,8,13,.55)'; g.lineWidth = 1.5 * U;
-    const gx = p.eye.x - 0.17;
+    const gx = p.gillX ?? p.eye.x - 0.17;
     g.beginPath(); g.moveTo(gx + 0.02, profile(p, gx, -1) * 0.8); g.quadraticCurveTo(gx - 0.06, 0, gx + 0.03, profile(p, gx, 1) * 0.75); g.stroke();
     if (p.plan) planDetails(g, p, col, U, rng, m);
     g.restore();
@@ -313,7 +323,7 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
   // jaw / mouth
   if (!sil) {
     g.strokeStyle = INK; g.lineWidth = 1.4 * U; g.beginPath();
-    if (p.jaw) { g.moveTo(1.0, 0.0); g.lineTo(0.7, 0.025); } else { g.moveTo(0.995, profile(p, 0.99, 1) * 0.3 + 0.01); g.quadraticCurveTo(0.94, 0.03, 0.9, 0.025); }
+    if (p.mouthUp) { g.moveTo(0.995, -0.05); g.quadraticCurveTo(0.95, -0.015, 0.9, -0.012); } else if (p.jaw) { g.moveTo(1.0, 0.0); g.lineTo(0.7, 0.025); } else { g.moveTo(0.995, profile(p, 0.99, 1) * 0.3 + 0.01); g.quadraticCurveTo(0.94, 0.03, 0.9, 0.025); }
     g.stroke();
     if (p.barbels && m?.barbels !== 'none') { g.strokeStyle = rgba(col.fin, 0.9); g.lineWidth = 1.1 * U; g.beginPath(); g.moveTo(0.95, 0.04); g.quadraticCurveTo(0.98, 0.12, 0.9, 0.16); g.moveTo(0.9, 0.05); g.quadraticCurveTo(0.9, 0.14, 0.82, 0.17); g.stroke(); }
   }
@@ -323,7 +333,7 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     const pc = new Path2D(); pc.moveTo(x, y - 0.02); pc.bezierCurveTo(x - L * 0.4, y - 0.05, x - L, y + 0.02, x - L * 0.95, y + L * 0.35); pc.bezierCurveTo(x - L * 0.6, y + L * 0.25, x - L * 0.2, y + 0.08, x, y + 0.03); pc.closePath();
     finFill(g, pc, col, U, sil, p.ghost ? 0.4 : 0.72);
   }
-  if (!sil && p.plan === 'catfish') {   // M1 step 4: two long whiskers swept back from the mouth's corners, four short chin barbels
+  if (!sil && p.plan === 'catfish' && p.whiskers === undefined) {   // M1 step 4: two long whiskers swept back from the mouth's corners, four short chin barbels
     g.strokeStyle = rgba(col.fin, 0.95); g.lineCap = 'round';
     g.lineWidth = 1.5 * U; g.beginPath(); g.moveTo(0.97, 0.02); g.bezierCurveTo(0.9, 0.22, 0.62, 0.3, 0.38, 0.36); g.moveTo(0.97, 0.0); g.bezierCurveTo(0.92, -0.16, 0.7, -0.26, 0.46, -0.3); g.stroke();
     g.lineWidth = 1.0 * U; g.beginPath();
@@ -334,6 +344,7 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     g.strokeStyle = rgba(col.fin, 0.95); g.lineWidth = 1.1 * U; g.lineCap = 'round';
     for (let i = 0; i < 4; i++) { const x = 0.8 + i * 0.035; g.beginPath(); g.moveTo(x, profile(p, x, 1) * 0.8); g.quadraticCurveTo(x - 0.01, 0.07, x - 0.03, 0.1 + (i % 2) * 0.012); g.stroke(); }
   }
+  if (p.after) loopAfter(g, p, col, U, sil, rng, m);   // (LAKE 2, lane F: a loop profile's own marks over the body)
   drawEye(g, p.eye.x, p.eye.y, p.eye.r, m.eyes, col, U, sil);
   if (!sil && LOOP_ART && m.eyeRim === 'amber') { g.strokeStyle = 'rgba(226,170,92,.95)'; g.lineWidth = 1.4 * U; g.beginPath(); g.arc(p.eye.x, p.eye.y, p.eye.r * 1.18, 0, 7); g.stroke(); }
   return [-0.68 - p.tailLen * 1.02, 1.02, -(p.top + p.dorsal.h * 0.95), p.bot + Math.max(p.anal.h, p.pelvic?.h || 0) * 1.05];
@@ -341,6 +352,7 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
 
 /** The loop's plan details inside the body (clipped to it): the trout's star-spots and its one scar, the sturgeon's scute rows. */
 function planDetails(g, p, col, U, rng, m) {
+  if (p.inner) { loopInner(g, p, col, U, rng, m); return; }   // (LAKE 2, lane F)
   if (p.plan === 'trout') {
     // ivory four-point stars over the back and flank, none on the belly; one pale round scar behind the gill (ROSTER §3.1)
     g.fillStyle = 'rgba(236,228,206,.82)';
@@ -585,6 +597,318 @@ function drawCrayfish(g, col, U, sil, rng, m) {
   return BOUNDS.crayfish;
 }
 
+// >>> LAKE 2, lane F (docs/loop/LAKE2.md §2.3): Sporewood's fourteen in ink, read only once setLoopArt(true) has been called and only
+// for a species whose model carries the brief's words (models-fish.js builds the same looks in 3D): the bream and the finlet (new
+// profiles), the disc (drawDisc), and the loop builds of the catfish, the carp, the minnow, the eel, the crayfish and the puffer. Every
+// built species draws as before.
+SHAPES_LOOP.bream = { top: 0.43, bot: 0.4, hx: 0.16, ped: 0.05, nose: 0.34, tail: 'scythe', tailLen: 0.36, spread: 0.52, dorsal: { x0: -0.44, x1: 0.32, h: 0.17, type: 'spiny' },
+  anal: { x0: -0.52, x1: -0.04, h: 0.15 }, pelvic: { x: 0.22, h: 0.1 }, pect: { x: 0.56, len: 0.2 }, eye: { x: 0.74, y: -0.05, r: 0.056 }, plan: 'bream', after: true, inner: true };
+SHAPES_LOOP.finlet = { top: 0.17, bot: 0.15, hx: 0.22, ped: 0.028, nose: 0.78, tail: 'crescent', tailLen: 0.3, spread: 0.36, dorsal: { x0: 0.12, x1: 0.42, h: 0.13, type: 'spiny' },
+  dorsal2: { x0: -0.2, x1: -0.06, h: 0.09 }, anal: { x0: -0.22, x1: -0.08, h: 0.08 }, pelvic: { x: 0.36, h: 0.05 }, pect: { x: 0.56, len: 0.26 }, eye: { x: 0.8, y: -0.02, r: 0.042 },
+  jaw: true, plan: 'finlet', before: true, after: true, inner: true };
+BOUNDS_LOOP.disc = [-1.14, 0.62, -0.6, 0.6]; BOUNDS_LOOP.grove = [-1.32, 0.72, -0.62, 0.62]; BOUNDS_LOOP.capshell = [-0.86, 1.3, -0.84, 0.46];
+/** A built plan's loop profile when the model carries the brief's words; null: as built. */
+function loopProfile(shape, p, m) {
+  if (shape === 'catfish' && m.head === 'bullet_round') return { top: 0.25, bot: 0.18, hx: 0.36, ped: 0.04, nose: 0.42, tail: 'fork', tailLen: 0.36, spread: 0.4,
+    dorsal: { x0: 0.16, x1: 0.42, h: 0.22, type: 'shark' }, anal: { x0: -0.52, x1: -0.2, h: 0.08 }, pelvic: { x: 0.0, h: 0.06 }, pect: { x: 0.68, len: 0.21 },
+    eye: { x: 0.87, y: 0.07, r: 0.026 }, plan: 'catfish', whiskers: 0, noPattern: true, after: true };
+  if (shape === 'catfish' && m.head === 'bullet') return { top: 0.15, bot: 0.14, hx: 0.46, ped: 0.034, nose: 0.36, tail: 'fork', tailLen: 0.32, spread: 0.3,
+    dorsal: { x0: 0.24, x1: 0.42, h: 0.18, type: 'soft' }, anal: { x0: -0.5, x1: -0.22, h: 0.08 }, pelvic: { x: 0.04, h: 0.06 }, pect: { x: 0.72, len: 0.17 },
+    adipose: m.fattyFin ? { x: -0.36, h: 0.055 } : null, eye: { x: 0.86, y: -0.05, r: 0.022 }, plan: 'catfish', whiskers: Number(m.whiskers) || 0, noPattern: true, after: true,
+    inner: true, tailCol: m.tailCol != null ? [hex(m.tailCol), hex(m.tailTip ?? m.tailCol)] : null, sideLine: m.sideLine != null ? hex(m.sideLine) : null, xMax: 1.36 };
+  if (shape === 'carp' && (m.head != null || m.back === 'arched' || m.scales === 'giant' || m.mouth === 'up')) return { top: 0.37, bot: 0.29, hx: 0.2, ped: 0.11, nose: 0.5,
+    tail: 'fork', tailLen: 0.38, spread: 0.48, dorsal: { x0: -0.08, x1: 0.28, h: 0.21, type: 'soft' }, anal: { x0: -0.42, x1: -0.24, h: 0.13 }, pelvic: { x: 0.05, h: 0.12 },
+    pect: { x: 0.44, len: 0.22 }, eye: { x: 0.8, y: 0.0, r: 0.05 }, gillX: 0.46, mouthUp: m.mouth === 'up', plan: 'nightbloom', noPattern: m.scales === 'giant', inner: true };
+  if (shape === 'minnow' && m.skin === 'glass') return { ...p, eye: { ...p.eye, r: p.eye.r * (Number(m.eye) || 1) }, plan: 'glass', glass: true, noPattern: true, inner: true, after: true };
+  return null;
+}
+function tailFill(g, tail, p, U) {   // a tail its own colour: ember at its root to amber at its tips
+  const lg = g.createLinearGradient(-0.66, 0, -0.68 - p.tailLen, 0);
+  lg.addColorStop(0, rgba(p.tailCol[0], 0.95)); lg.addColorStop(1, rgba(p.tailCol[1], 0.95));
+  g.fillStyle = lg; g.fill(tail); g.strokeStyle = INK; g.lineWidth = 1.8 * U; g.stroke(tail);
+}
+/** Behind the body: the finlet's second dorsal and its finlets. */
+function loopBefore(g, p, col, U, sil, rng, m) {
+  if (p.dorsal2) { const d2 = finAlong(p, { type: 'soft', ...p.dorsal2 }, -1, rng); finFill(g, d2.path, col, U, sil, 0.85); }
+  if (p.plan === 'finlet' && m.finlets !== false) {
+    const fl = new Path2D();
+    for (let i = 0; i < 6; i++) for (const sd of [-1, 1]) {
+      const x = -0.3 - i * 0.052, y = profile(p, x, sd) * 0.95, hh = (0.05 - i * 0.004) * sd;
+      fl.moveTo(x + 0.02, y); fl.lineTo(x - 0.018, y + hh); fl.lineTo(x - 0.016, y); fl.closePath();
+    }
+    finFill(g, fl, { ...col, fin: mix(col.fin, '#c8a060', 0.35) }, U, sil, 0.95);
+  }
+}
+/** Inside the body (clipped): the bream's scales, the finlet's scribbles, the Nightbloom's petal scales, the Cindertail's side line,
+ *  the glass fish's spine and gut. */
+function loopInner(g, p, col, U, rng, m) {
+  if (p.plan === 'finlet' && m.scribbles != null) {
+    g.strokeStyle = rgba(hex(m.scribbles), 0.72); g.lineWidth = 1.3 * U; g.lineCap = 'round';
+    for (let i = 0; i < 26; i++) {
+      const x = -0.5 + rng() * 1.2, y = profile(p, x, -1) * (0.25 + rng() * 0.55);
+      g.beginPath(); g.moveTo(x, y); for (let k = 1; k <= 4; k++) g.lineTo(x - k * 0.022, y + Math.sin(k * 1.9 + i) * 0.018); g.stroke();
+    }
+    g.fillStyle = 'rgba(7,8,13,.5)'; g.beginPath(); g.ellipse(-0.56, 0, 0.03, 0.012, 0, 0, 7); g.fill();   // (the keel on the stalk)
+  } else if (p.plan === 'nightbloom') {
+    const r = 0.075, edge = hex(m.scaleEdge, '#e8d6b6');
+    for (let row = 0, y = -p.top; y < p.bot + r; y += r * 0.9, row++) for (let x = -0.6 + (row % 2) * r * 0.8; x < p.gillX; x += r * 1.55) {
+      g.fillStyle = 'rgba(7,8,13,.16)'; g.beginPath(); g.arc(x, y, r, Math.PI * 0.5, Math.PI * 1.5); g.fill();
+      g.strokeStyle = rgba(edge, 0.85); g.lineWidth = 1.2 * U; g.beginPath(); g.arc(x, y, r, Math.PI * 0.58, Math.PI * 1.42); g.stroke();
+      if (col.glow) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 5; g.strokeStyle = rgba(col.glow, 0.35); g.lineWidth = 0.9 * U; g.stroke(); g.restore(); }
+    }
+  } else if (p.plan === 'catfish' && p.sideLine) {
+    g.strokeStyle = rgba(p.sideLine, 0.9); g.lineWidth = 2.2 * U; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(0.62, 0.01); g.quadraticCurveTo(0.0, 0.0, -0.62, 0.0); g.stroke();
+  } else if (p.plan === 'glass') {
+    g.strokeStyle = 'rgba(32,26,40,.85)'; g.lineWidth = 2.2 * U; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(0.62, -0.02); g.quadraticCurveTo(0.0, -0.03, -0.64, -0.005); g.stroke();
+    g.lineWidth = 0.9 * U;
+    for (let i = 0; i < 12; i++) { const x = 0.42 - i * 0.085, y = -0.025 + (x < 0 ? 0.01 : 0); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 0.03, profile(p, x, -1) * 0.65); g.moveTo(x, y); g.lineTo(x - 0.03, profile(p, x, 1) * 0.6); g.stroke(); }
+    g.fillStyle = 'rgba(106,98,116,.75)'; g.beginPath(); g.ellipse(0.25, 0.05, 0.16, 0.06, -0.08, 0, 7); g.fill();
+  } else if (p.plan === 'bream') {
+    g.strokeStyle = 'rgba(7,8,13,.22)'; g.lineWidth = 0.9 * U;
+    for (let y = -p.top, row = 0; y < p.bot; y += 0.055, row++) for (let x = -0.55 + (row % 2) * 0.04; x < 0.6; x += 0.08) { g.beginPath(); g.arc(x, y, 0.045, Math.PI * 0.6, Math.PI * 1.4); g.stroke(); }
+  }
+}
+/** Over the body: the bream's keel and its square teeth, the catfish's fanned whiskers, the glass fish's amber tail spot. */
+function loopAfter(g, p, col, U, sil, rng, m) {
+  if (p.plan === 'bream') {
+    const kl = new Path2D(); kl.moveTo(0.62, profile(p, 0.62, 1));
+    for (let i = 0; i <= 14; i++) { const x = 0.62 - i * 0.05, y = profile(p, x, 1); kl.lineTo(x, y + (i % 2 ? 0.028 : 0.004)); }
+    kl.lineTo(-0.08, profile(p, -0.08, 1) - 0.01); kl.closePath();
+    finFill(g, kl, col, U, sil, 0.9);
+    if (!sil && m.jaw === 'square_teeth') {   // the smile: a dark mouth a little open, three square teeth above and three below
+      const mx = 0.97, my = 0.06;
+      const mo = new Path2D(); mo.moveTo(mx + 0.03, my - 0.035); mo.quadraticCurveTo(mx - 0.08, my - 0.02, mx - 0.12, my); mo.quadraticCurveTo(mx - 0.08, my + 0.025, mx + 0.03, my + 0.04); mo.closePath();
+      g.fillStyle = '#120a0c'; g.fill(mo);
+      g.fillStyle = '#efe6d2'; g.strokeStyle = INK; g.lineWidth = 0.9 * U;
+      for (let i = 0; i < 3; i++) for (const sd of [-1, 1]) { const x = mx - 0.005 - i * 0.034, y = my + sd * (0.022 - i * 0.003) - (sd > 0 ? 0.018 : 0); g.fillRect(x - 0.014, y, 0.026, 0.018); g.strokeRect(x - 0.014, y, 0.026, 0.018); }
+      g.strokeStyle = INK; g.lineWidth = 1.5 * U; g.stroke(mo);
+    }
+  } else if (p.plan === 'catfish' && p.whiskers > 0 && !sil) {   // four pairs fanned forward, past the snout
+    g.strokeStyle = rgba(hex(m.whiskerCol, '#d8ccb8'), 0.95); g.lineCap = 'round';
+    for (let k = 0; k < Math.min(4, p.whiskers / 2); k++) {
+      const y0 = [0.02, -0.05, 0.07, 0.1][k], L = [0.36, 0.2, 0.17, 0.12][k], dy = [-0.1, -0.16, 0.08, 0.14][k];
+      g.lineWidth = (1.5 - k * 0.15) * U; g.beginPath(); g.moveTo(0.96, y0); g.bezierCurveTo(0.96 + L * 0.5, y0 + dy * 0.6, 0.96 + L * 0.85, y0 + dy, 0.96 + L, y0 + dy * 1.5 + 0.04); g.stroke();
+    }
+  } else if (p.plan === 'catfish' && !sil) {   // the Downcast's wide mouth, set above its low eyes
+    g.strokeStyle = INK; g.lineWidth = 1.5 * U; g.beginPath(); g.moveTo(0.99, -0.015); g.quadraticCurveTo(0.93, 0.012, 0.86, 0.0); g.stroke();
+  } else if (p.plan === 'glass' && !sil && m.tailSpot) {
+    g.save(); g.fillStyle = m.tailSpot === 'amber' ? '#e2a24e' : hex(m.tailSpot); g.beginPath(); g.arc(-0.56, 0, 0.032, 0, 7); g.fill(); g.restore();
+  }
+}
+
+/** The disc (a river ray from above): a near-round disc, two eye turrets, a stout tail with one sting or a long whip with one barb, a
+ *  pointed snout tip; eye-rings (cream, dark centres) or a meadow (moss tufts, ferns, tiny caps with glowing gills) on the back. */
+function drawDisc(g, col, U, sil, rng, m) {
+  const grove = m.meadow === true, R = grove ? 0.5 : 0.52, cx = grove ? 0.14 : 0.08;
+  const disc = new Path2D();
+  if (m.snout === 'point') {
+    disc.moveTo(cx + R + 0.09, 0);
+    disc.bezierCurveTo(cx + R + 0.02, -0.06, cx + R * 0.95, -R * 0.45, cx + R * 0.6, -R * 0.82);
+    disc.bezierCurveTo(cx + R * 0.2, -R * 1.04, cx - R * 0.55, -R * 1.0, cx - R * 0.86, -R * 0.55);
+    disc.bezierCurveTo(cx - R * 1.02, -R * 0.2, cx - R * 1.02, R * 0.2, cx - R * 0.86, R * 0.55);
+    disc.bezierCurveTo(cx - R * 0.55, R * 1.0, cx + R * 0.2, R * 1.04, cx + R * 0.6, R * 0.82);
+    disc.bezierCurveTo(cx + R * 0.95, R * 0.45, cx + R + 0.02, 0.06, cx + R + 0.09, 0);
+  } else disc.ellipse(cx, 0, R, R * 1.0, 0, 0, 7);
+  disc.closePath();
+  const whip = m.tail === 'whip_barb', tx0 = cx - R * 0.82, tL = whip ? 1.1 : 0.62, tw = whip ? 0.028 : 0.07;
+  const tail = new Path2D(); tail.moveTo(tx0, -tw); tail.bezierCurveTo(tx0 - tL * 0.4, -tw * 0.8, tx0 - tL * 0.8, -tw * 0.3, tx0 - tL, 0); tail.bezierCurveTo(tx0 - tL * 0.8, tw * 0.3, tx0 - tL * 0.4, tw * 0.8, tx0, tw); tail.closePath();
+  if (col.glow && !sil && !grove) halo(g, disc, col.glow, 24, sil);
+  finFill(g, tail, { ...col, fin: col.body }, U, sil, 1);
+  { const u = whip ? 0.16 : 0.42, x = tx0 - tL * u, st = new Path2D(); st.moveTo(x + 0.03, -tw * 0.5); st.lineTo(x - (whip ? 0.16 : 0.18), -tw * 0.5 - 0.035); st.lineTo(x - 0.01, -tw * 0.1); st.closePath();
+    if (!sil) { g.fillStyle = '#e6dcc4'; g.fill(st); g.strokeStyle = INK; g.lineWidth = 1.1 * U; g.stroke(st); } else { g.fillStyle = '#0b0d12'; g.fill(st); } }
+  if (sil) { g.fillStyle = '#0b0d12'; g.fill(disc); }
+  else {
+    const rg = g.createRadialGradient(cx + 0.05, 0, 0.05, cx, 0, R * 1.05);
+    rg.addColorStop(0, mix(col.body, col.belly, 0.12)); rg.addColorStop(0.7, col.body); rg.addColorStop(1, mix(col.body, '#000000', 0.35));
+    g.fillStyle = rg; g.fill(disc);
+  }
+  if (!sil) {
+    g.save(); g.clip(disc);
+    const n = Math.max(0, Math.round(Number(m.eyeRings) || 0));
+    if (n) {   // the eye-rings: cream, each with a dark centre
+      const ring = hex(m.ring, '#e8d4a8'), spots = [[0.44, 0], [0.56, -0.44], [0.56, 0.44], [0.69, 0], [0.75, -0.62], [0.75, 0.62], [0.87, -0.3], [0.87, 0.3], [0.36, -0.64], [0.36, 0.64], [0.22, -0.7], [0.22, 0.7]].slice(0, n);
+      for (const [t, q] of spots) {
+        const x = cx + R - t * 2 * R, y = q * R * Math.sqrt(Math.max(0, 1 - ((x - cx) / R) ** 2)), rr = 0.05 * (1 - Math.abs(q) * 0.25);
+        g.fillStyle = mix(col.body, '#000000', 0.5); g.beginPath(); g.arc(x, y, rr * 0.55, 0, 7); g.fill();
+        g.strokeStyle = ring; g.lineWidth = rr * 0.45; g.beginPath(); g.arc(x, y, rr * 0.78, 0, 7); g.stroke();
+      }
+    }
+    if (grove) {   // the meadow: moss tufts, curled ferns, tiny caps whose gills glow amber
+      const moss = ['#5c6834', '#4e5c2c', '#6c7440', '#76703c'], gl = col.glow || '#ffb46a';
+      for (let i = 0; i < 26; i++) {
+        const a = rng() * 7, rr = Math.sqrt(rng()) * R * 0.78, x = cx + Math.cos(a) * rr, y = Math.sin(a) * rr, s = 0.03 + rng() * 0.035;
+        g.fillStyle = moss[i % 4]; g.beginPath();
+        for (let k = 0; k < 9; k++) { const b = (k / 9) * 7, q = s * (0.75 + rng() * 0.45); g.lineTo(x + Math.cos(b) * q, y + Math.sin(b) * q * 0.8); }
+        g.closePath(); g.fill(); g.strokeStyle = 'rgba(7,8,13,.55)'; g.lineWidth = 0.9 * U; g.stroke();
+      }
+      g.strokeStyle = '#7a8a46'; g.lineWidth = 1.4 * U; g.lineCap = 'round';
+      for (let i = 0; i < 8; i++) {
+        const a = rng() * 7, rr = Math.sqrt(rng()) * R * 0.7, x = cx + Math.cos(a) * rr, y = Math.sin(a) * rr, s = 0.06 + rng() * 0.03, d = rng() < 0.5 ? 1 : -1;
+        g.beginPath(); g.moveTo(x, y + s * 0.6); g.quadraticCurveTo(x - s * 0.2 * d, y - s * 0.4, x + s * 0.35 * d, y - s * 0.55); g.quadraticCurveTo(x + s * 0.6 * d, y - s * 0.45, x + s * 0.45 * d, y - s * 0.25); g.stroke();
+        for (let k = 1; k < 5; k++) { const t = k / 5, px = x - s * 0.2 * d * t, py = y + s * 0.6 - s * t; g.beginPath(); g.moveTo(px, py); g.lineTo(px - 0.022, py - 0.012); g.moveTo(px, py); g.lineTo(px + 0.022, py - 0.012); g.stroke(); }
+      }
+      for (let i = 0; i < 9; i++) {
+        const a = rng() * 7, rr = Math.sqrt(rng()) * R * 0.72, x = cx + Math.cos(a) * rr, y = Math.sin(a) * rr, s = 0.026 + rng() * 0.02;
+        g.save(); g.shadowColor = gl; g.shadowBlur = 8; g.fillStyle = rgba(gl, 0.9); g.beginPath(); g.ellipse(x, y + s * 0.15, s * 0.9, s * 0.35, 0, 0, 7); g.fill(); g.restore();
+        g.fillStyle = ['#c8905a', '#9a6a6e', '#d8b47a'][i % 3]; g.beginPath(); g.arc(x, y, s, Math.PI, 0); g.closePath(); g.fill();
+        g.strokeStyle = INK; g.lineWidth = 1 * U; g.stroke();
+      }
+    }
+    g.restore();
+  }
+  rimLight(g, disc, U, sil); outline(g, disc, U, sil);
+  // the eye turrets and their eyes
+  const ex = cx + R * 0.5, ey = R * 0.24;
+  for (const sd of [-1, 1]) {
+    if (!sil) { g.fillStyle = mix(col.body, col.belly, 0.2); g.beginPath(); g.ellipse(ex, sd * ey, 0.045, 0.04, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = 1.2 * U; g.stroke(); }
+    drawEye(g, ex, sd * ey, grove ? 0.022 : 0.03, m.eyes, col, U, sil);
+  }
+  return grove ? BOUNDS_LOOP.grove : BOUNDS_LOOP.disc;
+}
+
+/** The eel's loop words: girth, a paddle head (blunt and squared), no back fin, a ribbon fin under the whole belly or only a skin fold
+ *  at the tail, a pointed tail, small eyes, lit strings down the flank (the Harpstring), bark blotches and a belly line (the Threadling). */
+function drawEelLoop(g, col, U, sil, rng, m) {
+  const G = Number(m.girth) || 1, paddle = m.head === 'paddle', N = 60, pts = [], top = [], bot = [];
+  const A = 0.07, k = paddle ? 2.8 : 3.6;
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, x = 1 - u * 2.05;
+    const y = A * Math.sin(k * (1 - u) * Math.PI * 0.62 + 0.4) * (0.4 + u);
+    const dy = A * Math.cos(k * (1 - u) * Math.PI * 0.62 + 0.4) * k * Math.PI * 0.62 * -1 / 2.05;
+    const nl = Math.hypot(1, dy); const nx = -dy / nl, ny = 1 / nl;
+    let h = 0.085 * Math.pow(Math.sin(Math.PI * Math.min(1, (u * 0.92 + 0.08))), 0.35) * (1 - u * 0.75) + 0.008;
+    if (paddle && u < 0.1) h = Math.max(h, 0.062 + 0.008 * (u / 0.1));   // (a blunt, squared head, no taper to a snout)
+    if (m.tail === 'point') h *= Math.min(1, (1 - u) * 6 + 0.06);
+    if (G < 1 && u < 0.06) h *= 0.35 + 0.65 * (u / 0.06);   // (a tiny pointed head)
+    h *= G;
+    pts.push([x, y]); top.push([x - nx * h, y - ny * h]); bot.push([x + nx * h, y + ny * h]);
+  }
+  const body = new Path2D(); smoothPath(body, [...top, ...bot.reverse()], true); bot.reverse();
+  const fin = new Path2D(), ft = [], fb = [];
+  const v0 = m.ventral === 'ribbon_full' ? 6 : m.ventral === 'fold' ? 52 : 30, d0 = m.dorsal === 'none' ? (m.ventral === 'fold' ? 54 : N + 1) : 18;
+  for (let i = Math.min(v0, d0); i <= N; i++) {
+    const w = (m.ventral === 'fold' ? 0.014 : 0.03 * G) + 0.012 * Math.sin(i * 0.9);
+    ft.push([top[i][0], top[i][1] - (i >= d0 ? w : 0)]); fb.push([bot[i][0], bot[i][1] + (i >= v0 ? w : 0)]);
+  }
+  if (ft.length) { smoothPath(fin, [...ft, ...fb.reverse()], true); finFill(g, fin, col, U, sil, 0.6); }
+  if (col.glow && !sil && !m.strings) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 24; g.fillStyle = rgba(col.glow, 0.2); g.fill(body); g.restore(); }
+  bodyShade(g, body, col, [-1.05, 1, -0.12 * G, 0.12 * G], U, sil);
+  if (!sil) {
+    g.save(); g.clip(body);
+    if (m.mottle) for (let i = 0; i < 60; i++) { const q = pts[4 + Math.floor(rng() * (N - 8))], r = 0.012 + rng() * 0.02; g.fillStyle = i % 3 ? 'rgba(30,24,14,.42)' : 'rgba(226,212,184,.34)'; g.beginPath(); g.ellipse(q[0] + (rng() - 0.5) * 0.04, q[1] + (rng() - 0.5) * 0.06 * G, r, r * 0.7, rng() * 3, 0, 7); g.fill(); }
+    if (m.bellyLine) { g.strokeStyle = rgba(hex(m.bellyLine === true ? '#e8dcbc' : m.bellyLine), 0.75); g.lineWidth = 1.6 * U; g.beginPath(); smoothPath(g, bot.map(([x, y]) => [x, y - 0.006]), false); g.stroke(); }
+    g.restore();
+  }
+  if (m.strings && !sil) {   // three lit strings down the flank, the whole length
+    const gl = col.glow || '#f2a07a', n = Math.round(Number(m.strings)) || 3;
+    g.save(); g.shadowColor = gl; g.shadowBlur = 7; g.strokeStyle = rgba(gl, 0.95); g.lineWidth = 1.5 * U; g.lineCap = 'round';
+    for (let s = 0; s < n; s++) {
+      const f = (s + 1) / (n + 1);
+      g.beginPath(); smoothPath(g, pts.slice(5, N - 3).map(([x, y], i) => { const j = i + 5; return [x, top[j][1] + (bot[j][1] - top[j][1]) * f]; }), false); g.stroke();
+    }
+    g.restore();
+  }
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  if (!sil) { g.strokeStyle = INK; g.lineWidth = 1.3 * U; g.beginPath(); g.moveTo(paddle ? 1.0 : 0.99, pts[0][1] + 0.02 * G); g.lineTo(0.9, pts[3][1] + 0.03 * G); g.stroke(); }
+  drawEye(g, 0.92, pts[3][1] - 0.025 * G, 0.03 * Math.min(1, G) * (Number(m.eye) || 1), m.eyes, col, U, sil);
+  return BOUNDS.eel;
+}
+
+/** The puffer's loop words: a beak of four fused teeth, short prickles, an amber-ringed eye-spot on the flank, lit like a paper lantern. */
+function drawPufferLoop(g, col, U, sil, rng, m) {
+  const cx = 0.05, rx = 0.55, ry = 0.46;
+  const body = new Path2D(); body.ellipse(cx, 0, rx, ry, 0, 0, 7);
+  const sp = new Path2D(), short = m.prickles === 'short', nS = short ? 44 : 26;
+  for (let i = 0; i < nS; i++) {
+    const a = (i / nS) * Math.PI * 2; if (Math.cos(a) > 0.85) continue;
+    const bx = cx + Math.cos(a) * rx * 0.97, by = Math.sin(a) * ry * 0.97, L = short ? 0.035 + 0.012 * ((i * 7) % 3) : 0.07 + 0.03 * ((i * 7) % 3);
+    sp.moveTo(bx - Math.sin(a) * 0.014, by + Math.cos(a) * 0.014); sp.lineTo(bx + Math.cos(a) * L, by + Math.sin(a) * L); sp.lineTo(bx + Math.sin(a) * 0.014, by - Math.cos(a) * 0.014);
+  }
+  const tail = new Path2D(); tail.moveTo(-0.46, -0.06); tail.quadraticCurveTo(-0.7, -0.22, -0.82, -0.14); tail.quadraticCurveTo(-0.74, 0, -0.82, 0.14); tail.quadraticCurveTo(-0.7, 0.22, -0.46, 0.06); tail.closePath();
+  const dors = new Path2D(); dors.moveTo(-0.2, -0.42); dors.quadraticCurveTo(-0.38, -0.62, -0.46, -0.5); dors.quadraticCurveTo(-0.36, -0.42, -0.34, -0.34); dors.closePath();
+  if (col.glow && !sil) halo(g, body, col.glow, 34, sil);
+  finFill(g, tail, col, U, sil, 0.85); finFill(g, dors, col, U, sil, 0.85);
+  g.fillStyle = sil ? '#0b0d12' : mix(col.body, '#000000', 0.3); g.fill(sp);
+  g.strokeStyle = sil ? `rgba(${BONE},.16)` : INK; g.lineWidth = 1.1 * U; g.stroke(sp);
+  bodyShade(g, body, col, [-0.5, 0.6, -ry, ry], U, sil);
+  if (!sil) {
+    g.save(); g.clip(body);
+    if (col.glow) {   // the lantern: warm light through the paper, fuller below, and its ribs
+      const lg = g.createRadialGradient(cx, ry * 0.25, 0.05, cx, 0, rx * 1.05);
+      lg.addColorStop(0, rgba(col.glow, 0.42)); lg.addColorStop(1, rgba(col.glow, 0.04)); g.fillStyle = lg; g.fillRect(-0.6, -0.6, 1.3, 1.2);
+      g.strokeStyle = 'rgba(7,8,13,.22)'; g.lineWidth = 1 * U;
+      for (let i = 1; i < 7; i++) { const x = cx - rx + (i / 7) * rx * 2; g.beginPath(); g.ellipse(cx, 0, Math.abs(x - cx), ry, 0, x > cx ? -1.57 : 1.57, x > cx ? 1.57 : 4.71); g.stroke(); }
+    }
+    if (m.eyeSpots) {   // the eye-spot: an amber ring, a dark centre
+      const ec = hex(m.eyeSpotCol, '#e0a048');
+      g.fillStyle = '#1a0e18'; g.beginPath(); g.arc(-0.2, 0.05, 0.08, 0, 7); g.fill();
+      g.strokeStyle = ec; g.lineWidth = 0.042; g.beginPath(); g.arc(-0.2, 0.05, 0.104, 0, 7); g.stroke();
+      g.strokeStyle = INK; g.lineWidth = 1 * U; g.beginPath(); g.arc(-0.2, 0.05, 0.127, 0, 7); g.stroke();
+    }
+    g.restore();
+  }
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  if (!sil && Number(m.beak) >= 4) {   // the beak: four fused teeth, two above and two below a dark seam
+    g.fillStyle = '#f2e8d0'; g.strokeStyle = INK; g.lineWidth = 1.1 * U;
+    for (const [y0, sg] of [[-0.012, -1], [0.016, 1]]) for (const k of [0, 1]) { const x = 0.58 + k * 0.035, b = new Path2D(); b.moveTo(x - 0.03, y0); b.quadraticCurveTo(x + 0.02, y0 + sg * 0.005, x + 0.035, y0 + sg * 0.03); b.lineTo(x - 0.02, y0 + sg * 0.036); b.closePath(); g.fill(b); g.stroke(b); }
+    g.strokeStyle = '#120a0c'; g.lineWidth = 1.6 * U; g.beginPath(); g.moveTo(0.54, 0.002); g.lineTo(0.64, 0.002); g.stroke();
+  } else if (!sil) { g.strokeStyle = INK; g.lineWidth = 1.6 * U; g.beginPath(); g.moveTo(0.6, 0.02); g.quadraticCurveTo(0.56, 0.07, 0.5, 0.06); g.stroke(); }
+  const pc = new Path2D(); pc.moveTo(0.22, 0.04); pc.quadraticCurveTo(0.08, 0.0, 0.04, 0.14); pc.quadraticCurveTo(0.14, 0.14, 0.22, 0.1); pc.closePath();
+  finFill(g, pc, col, U, sil, 0.75);
+  drawEye(g, 0.38, -0.14, 0.065, m.eyes, col, U, sil);
+  return BOUNDS.puffer;
+}
+
+/** The Capshell: a mushroom cap of a shell hiding the body, its gills under the rim, tiny claws, very long antennae with amber tips. */
+function drawCapshell(g, col, U, sil, rng, m) {
+  const capC = hex(m.cap, '#d6ae76'), frk = hex(m.freckle, '#5a3450'), ka = Number(m.antennae) || 1, kc = Number(m.claws) || 1;
+  g.lineCap = 'round';
+  // the antennae: from under the cap's front, over the cap and back past the tail, amber at the tips
+  for (const [lift, w] of [[0, 1.4], [0.06, 1.15]]) {
+    const P0 = [0.78, -0.02], P1 = [ka * 0.62 + 0.4, -0.3 * ka - lift], P2 = [0.4, -0.375 * ka - lift], P3 = [-0.225 * ka, -0.252 * ka - lift];
+    const at = (t) => [0, 1].map((i) => (1 - t) ** 3 * P0[i] + 3 * (1 - t) ** 2 * t * P1[i] + 3 * (1 - t) * t * t * P2[i] + t ** 3 * P3[i]);
+    g.strokeStyle = sil ? `rgba(${BONE},.18)` : rgba(mix(col.fin, capC, 0.55), 0.95); g.lineWidth = w * U;
+    g.beginPath(); g.moveTo(...P0); for (let i = 1; i <= 24; i++) g.lineTo(...at(i / 24 * 0.86)); g.stroke();
+    g.strokeStyle = sil ? `rgba(${BONE},.18)` : '#e8a04a'; g.lineWidth = (w + 0.5) * U;   // (the tips amber)
+    g.beginPath(); g.moveTo(...at(0.86)); for (let i = 1; i <= 6; i++) g.lineTo(...at(0.86 + i / 6 * 0.14)); g.stroke();
+  }
+  // legs below the rim
+  g.strokeStyle = sil ? `rgba(${BONE},.18)` : INK; g.lineWidth = 1.6 * U;
+  for (let i = 0; i < 4; i++) { const x = 0.5 - i * 0.13; g.beginPath(); g.moveTo(x, 0.1); g.lineTo(x - 0.04, 0.24); g.lineTo(x - 0.1, 0.31); g.stroke(); }
+  // the tail behind the cap, short, and its fan
+  const segs = [];
+  for (let i = 0; i < 4; i++) { const x0 = -0.04 - i * 0.11, x1 = x0 - 0.12, yo = i * i * 0.01; const s = new Path2D(); s.moveTo(x0, -0.06 + yo); s.quadraticCurveTo((x0 + x1) / 2, -0.1 + yo, x1, -0.05 + yo); s.lineTo(x1 + 0.01, 0.06 + yo); s.quadraticCurveTo((x0 + x1) / 2, 0.09 + yo, x0, 0.07 + yo); s.closePath(); segs.push(s); }
+  const fan = new Path2D(); fan.moveTo(-0.5, 0.02); fan.lineTo(-0.68, -0.02); fan.quadraticCurveTo(-0.74, 0.12, -0.66, 0.22); fan.lineTo(-0.48, 0.12); fan.closePath();
+  finFill(g, fan, col, U, sil, 0.92);
+  for (let i = segs.length - 1; i >= 0; i--) { bodyShade(g, segs[i], col, [-0.6, 0, -0.1, 0.12], U, sil); rimLight(g, segs[i], U, sil); outline(g, segs[i], U, sil, 2); }
+  // the tiny claws, just out from under the rim
+  const claw = new Path2D(); const cx0 = 0.76, cl = 0.24 * kc + 0.06;
+  claw.moveTo(cx0, 0.04); claw.quadraticCurveTo(cx0 + cl * 0.5, 0.08, cx0 + cl, 0.06); claw.lineTo(cx0 + cl + 0.03, 0.1); claw.quadraticCurveTo(cx0 + cl * 0.5, 0.15, cx0, 0.1); claw.closePath();
+  bodyShade(g, claw, { ...col, body: mix(capC, '#000000', 0.2) }, [0.7, 1.1, 0.04, 0.16], U, sil); outline(g, claw, U, sil, 1.8);
+  // the cap: a broad dome over the front two-thirds, its rim rolled, its gills under the rim
+  const cap = new Path2D(); cap.moveTo(-0.16, 0.06); cap.bezierCurveTo(-0.2, -0.36, 0.4, -0.5, 0.74, -0.24); cap.bezierCurveTo(0.9, -0.1, 0.92, 0.02, 0.86, 0.07); cap.quadraticCurveTo(0.35, 0.12, -0.16, 0.06); cap.closePath();
+  if (!sil) {
+    g.strokeStyle = 'rgba(90,58,40,.9)'; g.lineWidth = 1 * U;
+    for (let i = 0; i <= 22; i++) { const x = -0.12 + i * 0.044; g.beginPath(); g.moveTo(x, 0.075 + 0.02 * Math.sin(i)); g.lineTo(x + 0.01, 0.13); g.stroke(); }
+  }
+  bodyShade(g, cap, { ...col, body: capC, belly: mix(capC, '#ffffff', 0.25) }, [-0.2, 0.9, -0.5, 0.12], U, sil);
+  if (!sil) {
+    g.save(); g.clip(cap); g.fillStyle = rgba(frk, 0.85);
+    for (let i = 0; i < 34; i++) { const x = -0.12 + rng() * 0.95, y = -0.42 + rng() * 0.46; g.beginPath(); g.arc(x, y, 0.008 + rng() * 0.012, 0, 7); g.fill(); }
+    g.restore();
+  }
+  rimLight(g, cap, U, sil); outline(g, cap, U, sil, 2.2);
+  drawEye(g, 0.82, 0.075, 0.026, m.eyes, col, U, sil);
+  return BOUNDS_LOOP.capshell;
+}
+
+/** The Netcloud Fry comes as a cloud of five: the same drawing, smaller and farther, round the near one. [x, y (in its bounds' width
+ *  and height), scale], the farthest first. */
+const CLOUD_2D = [[-0.3, -0.62, 0.56], [0.36, -0.5, 0.6], [-0.42, 0.52, 0.62], [0.28, 0.66, 0.58]];
+// <<< LAKE 2, lane F
+
 // ------------------------------------------------------------------ public
 const cache = new Map();
 
@@ -622,12 +946,20 @@ function paint(g, W, H, species, sil, pad, dpr) {
   const shape = m.shape || 'minnow';
   const col = { body: hex(m.body, '#6e7684'), belly: hex(m.belly, '#d8dae0'), fin: hex(m.fin, '#3c4452'), glow: m.glow != null ? hex(m.glow) : null };
   col.glowEye = col.glow || '#ffd98a';
-  const rng = seedRng(species?.id || 'x');
-  const p = shapeOf(shape);
+  let rng = seedRng(species?.id || 'x');
+  let p = shapeOf(shape);
+  if (LOOP_ART && p) p = loopProfile(shape, p, m) || p;   // (LAKE 2, lane F: a built plan's loop build)
   let bounds;
   if (p) {
-    bounds = [-0.68 - p.tailLen * 1.02, 1.02, -(p.top + p.dorsal.h * 0.95), p.bot + Math.max(p.anal.h, p.pelvic?.h || 0) * 1.05];
-  } else bounds = BOUNDS[shape] || (LOOP_ART ? BOUNDS_LOOP[shape] : null) || BOUNDS.eel;
+    bounds = [-0.68 - p.tailLen * 1.02, p.xMax ?? 1.02, -(p.top + p.dorsal.h * 0.95), p.bot + Math.max(p.anal.h, p.pelvic?.h || 0) * 1.05];
+  } else bounds = (LOOP_ART ? loopBounds(shape, m) : null) || BOUNDS[shape] || (LOOP_ART ? BOUNDS_LOOP[shape] : null) || BOUNDS.eel;
+  // (LAKE 2, lane F: the Netcloud Fry comes as a cloud of five: the frame holds them all)
+  const cloud = LOOP_ART && Number(m.cloud) > 1 ? [...CLOUD_2D.slice(0, Math.round(Number(m.cloud)) - 1), [0, 0, 1]] : null;
+  if (cloud) {
+    const [a0, a1, b0, b1] = bounds, bw0 = a1 - a0, bh0 = b1 - b0;
+    bounds = cloud.reduce((B, [ox, oy, sc]) => [Math.min(B[0], ox * bw0 + a0 * sc), Math.max(B[1], ox * bw0 + a1 * sc), Math.min(B[2], oy * bh0 + b0 * sc), Math.max(B[3], oy * bh0 + b1 * sc)], [Infinity, -Infinity, Infinity, -Infinity]);
+    bounds.unit = [bw0, bh0];
+  }
   const [x0, x1, y0, y1] = bounds;
   const bw = x1 - x0, bh = y1 - y0;
   const avail = Math.min((W * (1 - pad * 2)) / bw, (H * (1 - pad * 2)) / bh);
@@ -637,16 +969,24 @@ function paint(g, W, H, species, sil, pad, dpr) {
   g.setTransform(scale, 0, 0, scale, ox, oy);
   const U = dpr / scale;      // one CSS px in unit space
   g.lineJoin = 'round';
+  const one = (Uk) => {
+    if (p) drawGeneric(g, p, col, Uk, sil, rng, m);
+    else if (shape === 'eel') (LOOP_ART && eelLoop(m) ? drawEelLoop : drawEel)(g, col, Uk, sil, rng, m);
+    else if (shape === 'angler') drawAngler(g, col, Uk, sil, rng, m);
+    else if (shape === 'puffer') (LOOP_ART && (m.beak || m.eyeSpots || m.prickles) ? drawPufferLoop : drawPuffer)(g, col, Uk, sil, rng, m);
+    else if (shape === 'ray') drawRay(g, col, Uk, sil, rng, m);
+    else if (shape === 'jelly') drawJelly(g, col, Uk, sil, rng, m);
+    else if (shape === 'crayfish') (LOOP_ART && m.carapace === 'dome' ? drawCapshell : drawCrayfish)(g, col, Uk, sil, rng, m);
+    else if (LOOP_ART && shape === 'lamprey') drawLamprey(g, col, Uk, sil, rng, m);
+    else if (LOOP_ART && shape === 'disc') drawDisc(g, col, Uk, sil, rng, m);
+    else drawGeneric(g, SHAPES.minnow, col, Uk, sil, rng, m);
+  };
   try {
-    if (p) drawGeneric(g, p, col, U, sil, rng, m);
-    else if (shape === 'eel') drawEel(g, col, U, sil, rng, m);
-    else if (shape === 'angler') drawAngler(g, col, U, sil, rng, m);
-    else if (shape === 'puffer') drawPuffer(g, col, U, sil, rng, m);
-    else if (shape === 'ray') drawRay(g, col, U, sil, rng, m);
-    else if (shape === 'jelly') drawJelly(g, col, U, sil, rng, m);
-    else if (shape === 'crayfish') drawCrayfish(g, col, U, sil, rng, m);
-    else if (LOOP_ART && shape === 'lamprey') drawLamprey(g, col, U, sil, rng, m);
-    else drawGeneric(g, SHAPES.minnow, col, U, sil, rng, m);
+    if (!cloud) one(U);
+    else for (const [ox, oy, sc] of cloud) {   // (the farthest first, each the same drawing: its own seed again)
+      rng = seedRng(species?.id || 'x');
+      g.save(); g.translate(ox * bounds.unit[0], oy * bounds.unit[1]); g.scale(sc, sc); one(U / sc); g.restore();
+    }
   } catch { /* never break a screen over an illustration */ }
   g.restore();
 }

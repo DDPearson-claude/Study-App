@@ -3195,7 +3195,11 @@ export const ROSTER_ART = {
     fattyFin: true, jaw: 'plain', spots: 'rose' } },
   rainglass_darter:  { model: { shape: 'trout', body: 0x5e6a78, belly: 0xdcdcde, fin: 0x9a92b4, glow: null, pattern: 'spots', eyes: 'normal', scale: 0.7,
     fattyFin: true, jaw: 'plain', sail: true } },
-  nightbloom_carp:   { model: { shape: 'carp', body: 0x3e3846, belly: 0xd6d0d8, fin: 0x5a4c62, glow: 0xb8b0ee, pattern: 'scales', eyes: 'normal', scale: 1.2 } },
+  // (LAKE 2, lane F: its look is its home water's, LAKE2.md §2.3: a huge barb, its head a third of its length, a high arched back, no
+  // barbels, a small upturned mouth, coin-sized plum scales edged in cream like petals that bloom faint amber at night; the lavender
+  // flank glow it had as the Mossmere's guest goes)
+  nightbloom_carp:   { model: { shape: 'carp', body: 0x4a2a4e, belly: 0xdcc6d0, fin: 0x5a3a5c, glow: 0xffb46a, pattern: 'scales', eyes: 'normal', scale: 1.2,
+    head: 1.35, back: 'arched', barbels: 'none', mouth: 'up', scales: 'giant', scaleEdge: 0xe8d6b6 } },
   // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
   // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
   bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
@@ -3204,19 +3208,31 @@ export const ROSTER_ART = {
   // words, and paints each in the Clear Night palette (plum, amber, rose, cream; glow only where the brief names it). A new fish's model
   // is this one; a kept or re-founded built fish (the Capshell, the Angler, the Jelly, the Velvet Ray, the Threadling, the Harpstring,
   // the Grove) has it merged over its built model under the loop (an empty model: as built). The Nightbloom Carp's is its key above
-  netcloud_fry:       { model: { shape: 'minnow', skin: 'glass', spine: true, eye: 1.6, tailSpot: 'amber', cloud: 5 } },
-  falsesmile_barb:    { model: { shape: 'bream', depth: 0.95, jaw: 'square_teeth', tail: 'scythe' } },
-  capshell_crayfish:  { model: { carapace: 'dome', claws: 0.4, antennae: 1.8, tail: 'fan' } },
-  threadling_eel:     { model: { girth: 0.5, pects: false, dorsal: 'none', ventral: 'fold', tail: 'point', eye: 0.5, glow: null } },
-  cindertail_catfish: { model: { shape: 'catfish', head: 'bullet', whiskers: 8, dorsal: 'tall', fattyFin: true, tail: 'fork' } },
-  velvet_ray:         { model: { shape: 'disc', eyeRings: 12, turrets: true, tail: 'sting' } },
-  lostsea_mackerel:   { model: { shape: 'finlet', dorsals: 2, finlets: true, tail: 'crescent' } },
-  downcast_catfish:   { model: { shape: 'catfish', head: 'bullet_round', whiskers: 0, deep: true, dorsal: 'shark', tail: 'fork_tall', eyeSet: 'low' } },
+  // (lane F: each look built and painted. Plum, amber, rose and cream; the Threadling's bark and the Grove's meadow the brief's own; glow
+  // only on the Harpstring's strings, the Puffer's lantern, the Grove's gills and the Nightbloom's petal edges)
+  netcloud_fry:       { model: { shape: 'minnow', body: 0xe6ded2, belly: 0xf4eee6, fin: 0xd6cabc, glow: null, pattern: 'none', eyes: 'normal', scale: 0.25,
+    skin: 'glass', spine: true, eye: 1.6, tailSpot: 'amber', cloud: 5 } },
+  falsesmile_barb:    { model: { shape: 'bream', body: 0x9a6450, belly: 0xeadcc6, fin: 0x4e2e48, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6,
+    depth: 0.95, jaw: 'square_teeth', tail: 'scythe' } },
+  capshell_crayfish:  { model: { body: 0x7a4e36, belly: 0xe8c79a, fin: 0x4a2c3e, glow: null, pattern: 'none', cap: 0xd6ae76, freckle: 0x5a3450,
+    carapace: 'dome', claws: 0.4, antennae: 1.8, tail: 'fan' } },
+  threadling_eel:     { model: { body: 0x5a5034, belly: 0xd8ccae, fin: 0x4a4030, glow: null, pattern: 'none', eyes: 'normal',
+    girth: 0.5, pects: false, dorsal: 'none', ventral: 'fold', tail: 'point', eye: 0.5, mottle: true, bellyLine: true } },
+  cindertail_catfish: { model: { shape: 'catfish', body: 0x2c2234, belly: 0x6e5e6c, fin: 0x2a2030, glow: null, pattern: 'none', eyes: 'normal', scale: 1,
+    head: 'bullet', whiskers: 8, dorsal: 'tall', fattyFin: true, tail: 'fork', tailCol: 0xc4402a, tailTip: 0xf0a050, sideLine: 0xe8dcc4 } },
+  velvet_ray:         { model: { shape: 'disc', body: 0x3e2944, belly: 0xd6b8cf, fin: 0x5a3a5e, glow: null, pattern: 'none', eyes: 'normal',
+    eyeRings: 12, ring: 0xe8d4a8, turrets: true, tail: 'sting' } },
+  lostsea_mackerel:   { model: { shape: 'finlet', body: 0x46506c, belly: 0xe8e0d0, fin: 0x2c3246, glow: null, pattern: 'none', eyes: 'normal', scale: 1.2,
+    dorsals: 2, finlets: true, tail: 'crescent', scribbles: 0x4a2a4e } },
+  downcast_catfish:   { model: { shape: 'catfish', body: 0x4a3a52, belly: 0xd4ccc0, fin: 0x3e3048, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
+    head: 'bullet_round', whiskers: 0, deep: true, dorsal: 'shark', tail: 'fork_tall', eyeSet: 'low' } },
   mildew_angler:      { model: {} },
   sleepspore_jelly:   { model: {} },
-  harpstring_eel:     { model: { girth: 1.5, head: 'paddle', dorsal: 'none', ventral: 'ribbon_full', section: 'square', strings: 3 } },
-  festival_puffer:    { model: { shape: 'puffer', beak: 4, prickles: 'short', eyeSpots: 'amber' } },
-  drifting_grove:     { model: { shape: 'disc', snout: 'point', tail: 'whip_barb', meadow: true } },
+  harpstring_eel:     { model: { body: 0x2a1830, belly: 0x9a5472, fin: 0x3a2238, glow: 0xf2a07a, pattern: 'none', eyes: 'normal',
+    girth: 1.5, head: 'paddle', dorsal: 'none', ventral: 'ribbon_full', section: 'square', strings: 3 } },
+  festival_puffer:    { model: { shape: 'puffer', body: 0x4a2a4e, belly: 0xeadcc4, fin: 0x7a4a62, glow: 0xffb46a, pattern: 'none', eyes: 'normal', scale: 0.9,
+    beak: 4, prickles: 'short', eyeSpots: 'amber' } },
+  drifting_grove:     { model: { shape: 'disc', pattern: 'none', eyes: 'normal', snout: 'point', tail: 'whip_barb', meadow: true } },
 };
 // The loop's own body keys (pounds SPEC §6.4 rule 2): a roster fish whose cousin is more than ±30% off its plan's k gets a key of its own,
 // a plain build word, never a species' name. The Milkeye Perch (a slim, pike-built perch: perch 0.013 would be +37%) and the Rustfin
@@ -3224,10 +3240,11 @@ export const ROSTER_ART = {
 // docs-only reference, checked ±30% by tools/sim/roster-check.mjs). Merged into BALANCE_V3.size.k under the loop only.
 // M1 step 3a adds the lamprey plan's key (SPEC §6.4 rule 1: a new plan's k from a real cousin, here the eel's 0.0022: an adult lamprey
 // runs about 0.8 kg at 70 cm, the roster's docs-only reference weight), merged under the loop only so v3's size table is untouched.
-// LAKE 2, lane D1: Sporewood's plans' keys from a real cousin each (SPEC §6.4 rule 1), for lane F to confirm with roster-check.mjs: the disc
-// the built ray's (0.012), the bream a carp's (a deep-bodied cousin, 0.016), the finlet a trout's (a torpedo cousin, 0.011), the catfish a
-// sucker's (a bottom fish of the same heft, 0.011; the Matriarch, a legend, keeps her authored size)
-export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011, lamprey: 0.0022, disc: 0.012, bream: 0.016, finlet: 0.011, catfish: 0.011 };
+// LAKE 2, lane D1: Sporewood's plans' keys from a real cousin each (SPEC §6.4 rule 1). Lane F confirmed them with roster-check.mjs against
+// each fish's docs-only reference weight: the disc the built ray's (0.012, +3%) and the catfish 0.011 (the Cindertail +2%, the Downcast
+// +14%; the Matriarch, a legend, keeps her authored size); the bream's and the finlet's cousins were a carp's 0.016 (−39% of a plate-bodied
+// fish's weight) and a trout's 0.011 (+28%, at the edge), so each takes its own fish's: 0.026 and 0.0086
+export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011, lamprey: 0.0022, disc: 0.012, bream: 0.026, finlet: 0.0086, catfish: 0.011 };
 /** The loop's species table for the shipped waters (M1 step 2: the Mossmere's 11 open-water fish; M1 step 3a: its open water's twelve,
  *  then its places' own fish and giants, 15), built by the converter in the apply block; empty off the loop. SPECIES under the loop holds
  *  these in place of the built records of the same ids. */
@@ -6430,6 +6447,8 @@ if (V3_ENABLED) {
   }   // <<< the Wick's sheet
   if (LOOP_ENABLED) {   // >>> LAKE 2, lane D1 (LAKE2.md §2, §5.6, §5.7, §7.1): Sporewood under the loop, as data, before its water ships.
     // Nothing here is the Mossmere's: its SPECIES_LOOP, its pool, its hook table's targets and every item it sells are as they were.
+    // (lane F: Sporewood's three new plans, models-fish.js LOOP_SHAPES, are drawn shapes under the loop)
+    for (const sh of ['disc', 'bream', 'finlet']) if (!FISH_SHAPES.includes(sh)) FISH_SHAPES.push(sh);
     // (1) Sporewood's items as built-shaped rows of the loop's own (the Spore-Lamp Fly, Spore Cake and the Glowcap Bulb are built rows):
     // each lure does a Mossmere lure's job, so it takes that lure's draw and favour (the Moth the Feather Fly's, the Minnow the Glimmer
     // Spoon's, the Jig the Bone Jig's, the free Twirl the Bent Spoon's); Amber Larvae a tin of the loop's own (sold by LOOP.tins' rule)

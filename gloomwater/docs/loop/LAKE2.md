@@ -210,6 +210,9 @@ pool, the list and the Journal's Sporewood page. Question 5 (§11).
 
 ### 2.3 The looks: every relative made completely different
 
+*Built by lane F (§9.4): each look below as written, but for the Harpstring's strings (painted into its skin, not lit tubes), the Grove's
+whip (shorter, so her disc reads the raft's width) and the plan written* tuna *(built as `finlet`).*
+
 Each look is a modeller's brief: plan and parameters for `models-fish.js` (`ROSTER_ART[id].model`, read only under the loop), the
 silhouette at a glance, colours in the Clear Night palette (plum, amber, rose, cream; glow only where named). The relative's look is
 quoted so the difference is checkable side by side.
@@ -995,6 +998,55 @@ and low) in the flag-off, v3, loop and `?redress=0` builds, and Sporewood off th
 - **Left for W2 and C**: the greenery and the landmarks (the hero caps are still the built Sporewood's, placed on the polar fallback;
   the places' dressing is world-places' generic one); the Chart's sheet 2 (the polygon is ready in `waterGeometry`; chart-draw's
   hachures and docks are still radial).
+
+### 9.4 Lane F as built (gw-l2-f): the fourteen looks
+
+Art; `LOOP.shipped` stays `'mossmere'`. **The Mossmere's fish do not move**: every new word is read only under the loop and only by a
+species whose model carries it, and `tools/tests/models-plans.test.mjs` pins the geometry of sixteen Mossmere fish (each eel, carp, minnow,
+crayfish, perch, pike, trout, the lamprey, the sturgeon, the Matriarch's catfish) at gw-lake2's 85e6fb6; off the loop a model carrying
+Sporewood's words draws as its built plan, exactly.
+
+- **Three new plans** (`models-fish.js` `LOOP_SHAPES`; `FISH_SHAPES` under the loop): **disc** (a river ray: a near-round lathe disc, eyes
+  on two turrets with a spiracle behind each; `tail` 'sting' a stout tail with one bone sting, 'whip_barb' a whip with one barb near its
+  root; `snout: 'point'`; `eyeRings` n cream rings with dark centres laid on the skin's normal; `meadow`: twenty moss tufts, seven curled
+  ferns and nine tiny caps whose gill discs are the glow mesh); **bream** (a plate on edge, its height `depth` × its standard length, a blunt
+  rounded head, a sawtooth keel, a long spiny dorsal, a scythe tail; `jaw: 'square_teeth'`: four square teeth above and four below in a dark
+  mouth held a little open); **finlet** (a rigid teardrop, two dorsals tapering to points, six finlets above and six below the stalk, the
+  stalk's keels, a long jaw line, a stiff crescent tail; `scribbles` painted over the back). The fin helpers gained `taper` (a pointed
+  fin) and a tail's `sweep` and `root` (a crescent or a scythe); without them each card is the built one.
+- **Five built plans' loop builds** (`loopVariant`, under the loop and only with the words): the **eel**'s girth, paddle head, square
+  section, no back fin, a ribbon fin under the whole belly or only a skin fold at the tail, pin eyes, a pointed tail, `strings` (the
+  Harpstring's three lines a flank, painted into its skin and its emissive map: a first build as glowing tubes bloomed like neon in the
+  show and was dropped), `mottle` and `bellyLine` (the Threadling's bark); the **carp**'s head (× at the head, the gill a third of the length
+  back), arched back, short deep stalk, no barbels, upturned mouth, coin-sized scales edged in cream with their edges lit faint amber (the
+  Nightbloom, its glow at 0.45 of a lit fish's); the **minnow**'s `skin: 'glass'` (a translucent milky body, a dark spine with its comb of
+  short spines, a silvered gut, the eye ×1.6, an amber tail spot) and `cloud` (the Netcloud Fry: four more of the same meshes and materials
+  held round it, in the picture only while it is shown, `setWet`); the **crayfish**'s `carapace: 'dome'` (a freckled cream-ochre cap with
+  a rolled rim and thirty gill ribs under it, tiny claws, antennae ×1.8 with amber tips: the Capshell); the **puffer**'s four-toothed beak,
+  short prickles, an amber-ringed eye-spot each flank and its `lantern` (the Festival Puffer: its glow rests at 0.14 and rises with the
+  puff, the show puffing it to 0.55, a paper lantern's ribs in the emissive map); and the **catfish**'s two bullet heads (`catfishBullet`;
+  the Matriarch's shovel path untouched): the Downcast's shark build (deep, high-shouldered, a tall pointed back fin, a tall forked tail,
+  no whiskers, the eyes below the mouth line) and the Cindertail's (four pairs of cream whiskers fanned forward, a tall dorsal, a fatty fin,
+  a cream side line, the tail its own ember-to-amber mesh, `fins_tint`).
+- **`ROSTER_ART`**: the fourteen painted (plum, amber, rose, cream; the Threadling's olive bark and the Grove's moss the brief's own); glow
+  only on the Harpstring, the Festival Puffer, the Grove and the Nightbloom (and the kept Angler and Jelly as built). The Nightbloom's one
+  record changes its look, so the Mossmere's notebook guest is the new barb too (its lavender flank glow gone).
+- **The show** (`actors-show.js`, `actors.js`): the disc is held as the ray is (its back to the lens, its whip hanging). The Grove's whip
+  was shortened (0.95 → 0.62 of the plan's length past the disc) so her disc reads nearly the raft's width.
+- **The ink** (`ui-fishart.js`, every 2D drawing under the loop: the catch card, the Journal and its hatch, the shelf, orders and prints):
+  the bream and the finlet profiles, `drawDisc`, the eel's, the puffer's and the Capshell's loop drawings, the catfish's two heads and the
+  Nightbloom as loop profiles, and the Fry as a cloud of five.
+- **Body keys** (`LOOP_BODY_K`, confirmed by `tools/sim/roster-check.mjs` on new docs-only refWeights in `roster.json`): the disc 0.012
+  (+3%) and the catfish 0.011 (+2%, +14%) stand; the bream **0.016 → 0.026** (a plate-bodied fish of 21 cm weighs about 0.25 kg: D1's carp
+  key was −39%) and the finlet **0.011 → 0.0086** (+28% on D1's trout key). Prices read the L50, never k: the sim's figures do not move.
+- **Budgets** (z 0, every mesh and its ink outline): the Grove 12.0k triangles, the Velvet Ray 9.4k, the rest 3.0k–6.6k (the built
+  sturgeon is 15.4k); at most 7 meshes a fish; the Fry's cloud adds four copies' draw calls in the show only.
+- **Tests and frames**: `models-plans.test.mjs` (each of the fourteen on its plan, in budget, no NaN, its drawn length within 2% of the size
+  model at three z, each unlike its relative by measure, the pins, the off-loop words ignored); validate-data `--loop`'s "LAKE2 F" block
+  (the plans drawn shapes, every look painted, glow only where named, each pair unlike, the new keys within ±30%);
+  `tools/tests/lake2-f-look.scenario.mjs` and `tools/lake2-f-sheet.mjs` (the show and the card of each fish beside its relative, forced
+  bites on the Mossmere's open water, desktop 1280 × 720 and the 390 × 844 phone; two look-and-fix rounds: the Harpstring's tubes, the
+  lantern's glare, the Fry's cloud spread, the Barb's teeth too small to read, the Grove's whip).
 
 ---
 

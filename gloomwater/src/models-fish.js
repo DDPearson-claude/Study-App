@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { INK, PALE, glowSprite } from './toon.js';
 import {
   TAU, deformToon, deformGlow, deformOutline, outlineMesh, xf, paint, mergeGeos, tube, bezierPts,
-  curve1, spike, blob, hexColor,
+  curve1, spike, blob, hexColor, lumpy,
 } from './models-kit.js';
 import { trueLengthM, MIN_LENGTH_M } from './models-size.js';
 
@@ -182,13 +182,17 @@ function bodyGeo(f, { R = 32, A = 18, ex = 2, s1 = 1 } = {}) {
 }
 
 // fin placement helpers ---------------------------------------------------------
-function finTail(f, type, { s = 0.97, len = 0.22, h = 0.3, y = 0 }) {
+function finTail(f, type, { s = 0.97, len = 0.22, h = 0.3, y = 0, sweep = 0, root = 1 }) {
   const z0 = 0.5 - s + 0.012, yc = f.yc(Math.min(1, s)) + y;
+  // (LAKE 2, lane F: a crescent or a scythe, the loop's plans only: the lobes' tips swept back past the middle (`sweep`), the fin narrow
+  // at its root (`root`, its height there as a share); with neither the card is the built one, exactly)
+  if (sweep || root !== 1) return card(type, 6, 6, (u, v) => { const e = (2 * v - 1) ** 2; return [0, yc + (v - 0.5) * h * (root + (1 - root) * u), z0 - u * len * (1 - sweep + sweep * e)]; });
   return card(type, 6, 4, (u, v) => [0, yc + (v - 0.5) * h, z0 - u * len]);
 }
-function finDorsal(f, type, { a, b, h, rake = 0.35, segV = 8, down = false }) {
+function finDorsal(f, type, { a, b, h, rake = 0.35, segV = 8, down = false, taper = 0 }) {
   return card(type, 2, segV, (u, v) => {
-    const s = b + (a - b) * v;
+    // (LAKE 2, lane F: `taper` narrows the fin toward its tip, a shark's or a sickle's point; 0 is the built fin, exactly)
+    const s = taper ? (a + b) / 2 + (v - 0.5) * (a - b) * (1 - u * taper) : b + (a - b) * v;
     const base = down ? f.bot(Math.min(1, s)) + 0.004 : f.top(Math.min(1, s)) - 0.004;
     return [0, base + (down ? -1 : 1) * u * h, 0.5 - s - u * h * rake];
   });
@@ -627,6 +631,7 @@ export const LOOP_SHAPES = {
 // small eyes, a low body tapering to an eel tail with a long belly fin and a small rounded tail, a small dorsal; her `bell`: a tarnished
 // harbour bell sunk in the skull. Read only under the loop (LOOP_SHAPES); only the Matriarch rides on it in M1.
 LOOP_SHAPES.catfish = function catfish(M) {
+  if (M.head === 'bullet' || M.head === 'bullet_round') return catfishBullet(M);   // (LAKE 2, lane F: Sporewood's two; the Matriarch's below)
   const r = standard({
     w: [[0, 0.034], [0.03, 0.062], [0.09, 0.078], [0.2, 0.074], [0.42, 0.06], [0.66, 0.042], [0.86, 0.022], [1, 0.008]],
     ht: [[0, 0.012], [0.03, 0.026], [0.09, 0.042], [0.2, 0.058], [0.42, 0.06], [0.66, 0.048], [0.86, 0.03], [1, 0.012]],
@@ -660,6 +665,418 @@ LOOP_SHAPES.catfish = function catfish(M) {
   return r;
 };
 // <<< M1 step 4 (lane 4)
+
+// >>> LAKE 2, lane F (docs/loop/LAKE2.md §2.3, ROSTER §4): Sporewood's fourteen looks, each a modeller's brief. Three new plans join
+// LOOP_SHAPES (disc, bream, finlet); five built plans take the brief's words (eel, carp, minnow, crayfish and puffer: loopVariant, below;
+// the catfish's two bullet heads: catfishBullet). All of it is read only under the loop, and only when a species' model carries the
+// words, so a built fish (every Mossmere fish, the flag-off game's Sporewood) is drawn exactly as before.
+const nf = (v, d) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : d);
+const sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const scaleK = (keys, k) => keys.map(([s, v]) => [s, v * (typeof k === 'function' ? k(s) : k)]);
+const UPV = new THREE.Vector3(0, 1, 0), ZV = new THREE.Vector3(0, 0, 1), _ln = new THREE.Vector3(), _lq = new THREE.Quaternion();
+/** A point on a profiled body's skin: station s, angle th round it (0 = the +x flank, π/2 = the back), ex its section's superellipse. */
+function skinAt(f, s, th, ex = 2) {
+  let c = Math.cos(th), sn = Math.sin(th);
+  if (ex !== 2) { c = Math.sign(c) * Math.pow(Math.abs(c), 2 / ex); sn = Math.sign(sn) * Math.pow(Math.abs(sn), 2 / ex); }
+  return [f.w(s) * c, f.yc(s) + (sn >= 0 ? f.ht(s) : f.hb(s)) * sn, 0.5 - s];
+}
+/** The top of a flat body (a disc) at station s and a share q of its half-width there (−1…1), and the surface's normal. */
+function backAt(f, s, q, ex) {
+  const yAt = (ss, qq) => { const c = Math.min(1, Math.abs(qq)) ** (ex / 2), sn = Math.sqrt(Math.max(0, 1 - c * c)); return f.yc(ss) + f.ht(ss) * sn ** (2 / ex); };
+  const x = q * f.w(s), y = yAt(s, q), d = 0.01;
+  const dydx = (yAt(s, q + d) - yAt(s, q - d)) / (2 * d * Math.max(1e-3, f.w(s))), dyds = (yAt(s + d, q) - yAt(s - d, q)) / (2 * d);
+  return { p: [x, y, 0.5 - s], n: _ln.set(-dydx, 1, dyds).normalize().toArray() };
+}
+/** Turn a geometry built about +Y (or +Z with fromZ) to a normal n and set it at p. */
+function onNormal(geo, p, n, fromZ = false, spin = 0) {
+  if (spin) geo.rotateY(spin);
+  _lq.setFromUnitVectors(fromZ ? ZV : UPV, _ln.set(n[0], n[1], n[2]).normalize());
+  return xf(geo, { p, q: _lq });
+}
+let _seed = 1;
+const lrnd = () => { _seed = (_seed * 16807) % 2147483647; return _seed / 2147483647; };
+
+// ---- disc: a river ray, a near-round disc with its eyes on two small turrets, a stout tail with one sting or a whip with one barb
+// (the Velvet Ray, the Drifting Grove). The built ray's lathe, rounder; its parameters: round, tail ('sting' | 'whip_barb'), snout
+// ('point'), turrets, eyeRings (n: cream rings, each with a dark centre, on the back), meadow (the Grove's: moss tufts, ferns and tiny
+// caps whose gills glow).
+LOOP_SHAPES.disc = function disc(M) {
+  const meadow = M.meadow === true, tip = M.snout === 'point' ? 0.035 : 0, Ld = meadow ? 0.5 : 0.56, R0 = (Ld - tip) / 2, round = nf(M.round, 1), ex = 2.6;
+  const W = [], HT = [], HB = [];
+  for (const t of [0, 0.015, 0.04, 0.08, 0.14, 0.22, 0.32, 0.42, 0.52, 0.62, 0.72, 0.8, 0.87, 0.93, 0.97, 1]) {
+    const s = t * Ld;
+    let wv;
+    if (s < tip) wv = 0.004 + (s / tip) * 0.03;   // (the Grove's pointed snout tip)
+    else { const q = (s - tip - R0) / R0; wv = Math.max(0.03 * (tip ? 1 : 0), R0 * Math.sqrt(Math.max(0, 1 - q * q)) * round); }
+    W.push([s, Math.max(0.008, wv)]);
+    const th = 0.062 * Math.sqrt(Math.max(0, 1 - ((s - Ld * 0.42) / (Ld * 0.62)) ** 2));   // (thickest a little ahead of the middle)
+    HT.push([s, Math.max(0.006, th)]); HB.push([s, Math.max(0.005, th * 0.5)]);
+  }
+  const f = prof({ w: W, ht: HT, hb: HB });
+  const body = bodyGeo(f, { R: 30, A: 30, ex, s1: Ld });
+  const bodyC = C(hexColor(M.body, 0x3e2944)), dark = bodyC.clone().multiplyScalar(0.45), bone = C(0xe6dcc4);
+  const extras = [], glows = [];
+  // the tail: a stout sting (the Velvet Ray) or a long whip with one barb near its root (the Grove)
+  const whip = M.tail === 'whip_barb', tl = whip ? 0.62 : 0.5, tailPts = [];   // (the Grove's whip short enough that her disc is nearly the raft's width)
+  for (let i = 0; i <= 16; i++) { const s = Ld - 0.04 + (i / 16) * tl; tailPts.push(new THREE.Vector3(0, 0.004 + Math.sin(i * 0.45) * 0.003, 0.5 - s)); }
+  extras.push(paint(tube(tailPts, whip ? (u) => 0.016 * (1 - u) ** 1.5 + 0.0014 : (u) => 0.03 * (1 - u * 0.86) + 0.0018, 6), bodyC.clone().multiplyScalar(0.8)));
+  { const u = whip ? 0.16 : 0.42, s = Ld - 0.04 + u * tl, r0 = whip ? 0.016 * (1 - u) ** 1.5 : 0.03 * (1 - u * 0.86);
+    extras.push(paint(spike([0, 0.004 + r0 * 0.9, 0.5 - s], [0, 0.3, -1], 0.0055, whip ? 0.07 : 0.085, 4), bone)); }
+  // the eyes on two small turrets, a spiracle behind each
+  const es = tip + R0 * 0.42, ex0 = R0 * 0.24, top = f.top(es), tur = M.turrets === false ? 0 : 0.014 * (meadow ? 0.7 : 1);
+  const eyes = { pos: [[ex0, top + tur, 0.5 - es], [-ex0, top + tur, 0.5 - es]], r: meadow ? 0.009 : 0.0125 };
+  if (tur) for (const sd of [1, -1]) {
+    extras.push(paint(blob(0.017, tur, 0.019, [sd * ex0, top + tur * 0.3, 0.5 - es], 10, 6), bodyC.clone().multiplyScalar(0.92)));
+    extras.push(paint(blob(0.009, 0.004, 0.012, [sd * ex0 * 1.05, f.top(es + 0.05) + 0.001, 0.5 - es - 0.05], 8, 4), dark));
+  }
+  // the back: a dozen cream eye-rings, each with a dark centre (the Velvet Ray), laid on the skin
+  const nRing = Math.max(0, Math.round(nf(M.eyeRings, 0)));
+  if (nRing) {
+    const rc = C(hexColor(M.ring, 0xe8d4a8)), spots = [[0.44, 0], [0.56, -0.44], [0.56, 0.44], [0.69, 0], [0.75, -0.62], [0.75, 0.62], [0.87, -0.3], [0.87, 0.3],
+      [0.36, -0.64], [0.36, 0.64], [0.22, -0.7], [0.22, 0.7], [0.62, -0.78], [0.62, 0.78]].slice(0, nRing);
+    const rings = [], cores = [];
+    for (const [t, q] of spots) {
+      const s = tip + t * (Ld - tip), { p, n } = backAt(f, s, q, ex), rr = 0.024 * (1 - Math.abs(q) * 0.25);
+      const lift = [p[0] + n[0] * 0.0025, p[1] + n[1] * 0.0025, p[2] + n[2] * 0.0025];
+      rings.push(onNormal(new THREE.TorusGeometry(rr, rr * 0.24, 4, 16), lift, n, true));
+      cores.push(onNormal(blob(rr * 0.52, 0.0028, rr * 0.52, [0, 0, 0], 8, 4), lift, n));
+    }
+    extras.push(paint(mergeGeos(rings), rc), paint(mergeGeos(cores), dark));
+  }
+  // the Grove's meadow: moss tufts, curled ferns and tiny caps whose gills glow (LAKE2 §2.3)
+  if (meadow) {
+    _seed = 271;
+    const moss = [0x5c6834, 0x4e5c2c, 0x6c7440, 0x76703c].map(C), fern = C(0x667a3a), stalk = C(0xd6c8a8), capC = [C(0xc8905a), C(0x9a6a6e), C(0xd8b47a)];
+    const tufts = [], ferns = [], stalks = [], caps = [], gills = [];
+    const spot = () => { const t = 0.14 + lrnd() * 0.76, q = (lrnd() * 2 - 1) * 0.72 * Math.sqrt(1 - ((t - 0.5) / 0.6) ** 2); return backAt(f, tip + t * (Ld - tip), q, ex); };
+    for (let k = 0; k < 20; k++) {
+      const { p, n } = spot(), r = 0.018 + lrnd() * 0.018;
+      const g = lumpy(blob(r, r * 0.5, r * 1.15, [0, 0, 0], 9, 5), r * 0.28, 90 + k * 7, k);
+      tufts.push(paint(onNormal(g, [p[0], p[1] + r * 0.12, p[2]], n, false, lrnd() * TAU), moss[k % moss.length]));
+    }
+    for (let k = 0; k < 7; k++) {
+      const { p, n } = spot(), h = 0.04 + lrnd() * 0.022, d = 0.026 + lrnd() * 0.012, yaw = lrnd() * TAU;
+      const pts = bezierPts([[0, 0, 0], [0, h * 0.85, d * 0.1], [0, h, d * 0.75], [0, h * 0.62, d]], 9);
+      const leaf = [tube(pts, (u) => 0.0032 * (1 - u * 0.7), 4)];
+      for (let i = 2; i < pts.length - 1; i++) for (const sd of [1, -1]) leaf.push(spike(pts[i].toArray(), [sd, 0.55, 0.2], 0.0034, 0.015 * (1 - i / 12), 3));
+      const g = mergeGeos(leaf); g.rotateY(yaw);
+      ferns.push(paint(onNormal(g, p, n), fern));
+    }
+    for (let k = 0; k < 9; k++) {
+      const { p, n } = spot(), hS = 0.016 + lrnd() * 0.022, rc = 0.009 + lrnd() * 0.009;
+      stalks.push(paint(onNormal(tube([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.002, hS * 0.6, 0), new THREE.Vector3(0, hS, 0)], 0.0032, 5), p, n), stalk));
+      const cap = new THREE.SphereGeometry(1, 10, 4, 0, TAU, 0, Math.PI / 2); cap.scale(rc, rc * 0.62, rc); cap.translate(0, hS, 0);
+      caps.push(paint(onNormal(cap, p, n), capC[k % capC.length]));
+      const gl = new THREE.CylinderGeometry(rc * 0.86, rc * 0.4, 0.0022, 10, 1, true); gl.translate(0, hS - 0.0012, 0);
+      gills.push(onNormal(gl, p, n));
+    }
+    extras.push(mergeGeos(tufts), mergeGeos(ferns), mergeGeos(stalks), mergeGeos(caps));
+    glows.push(mergeGeos(gills));
+  }
+  if (tip) extras.push(paint(spike([0, f.yc(0), 0.5 + 0.002], [0, -0.05, 1], 0.009, 0.022, 5), bodyC.clone().multiplyScalar(0.85)));
+  return { f, body, fins: [], extras, glows, bones: [], eyes, anim: { waveK: 2, amp: 0.03, freq: meadow ? 3.4 : 4.5, ray: meadow ? 0.09 : 0.13 }, gill: -1, s1: Ld,
+    opts: { ray: true, noPhotophores: true, noLateral: true } };
+};
+
+// ---- bream: a plate on edge, as deep as it is long (`depth`, its height a share of its standard length), a blunt rounded head, a
+// sawtooth belly keel, a long spiny dorsal, a scythe tail; `jaw: 'square_teeth'`: a mouth of square, human-looking teeth, a little open
+// (the Falsesmile Barb's smile). The perch with a depth and a jaw.
+LOOP_SHAPES.bream = function bream(M) {
+  const D = nf(M.depth, 0.95), scythe = M.tail === 'scythe';
+  const r = standard({
+    w: [[0, 0.006], [0.03, 0.026], [0.1, 0.044], [0.28, 0.056], [0.48, 0.05], [0.66, 0.034], [0.8, 0.017], [0.9, 0.011], [1, 0.01]],
+    ht: scaleK([[0, 0.012], [0.02, 0.08], [0.06, 0.2], [0.14, 0.34], [0.26, 0.44], [0.4, 0.47], [0.54, 0.42], [0.66, 0.3], [0.76, 0.16], [0.84, 0.07], [0.92, 0.042], [1, 0.04]], D),
+    hb: scaleK([[0, 0.014], [0.02, 0.07], [0.06, 0.18], [0.16, 0.33], [0.3, 0.42], [0.44, 0.43], [0.58, 0.35], [0.7, 0.22], [0.8, 0.1], [0.88, 0.05], [1, 0.035]], D),
+    yc: [[0, -0.07 * D], [0.08, -0.035 * D], [0.3, 0], [1, 0]],
+    fins: [['tail', 'fork', scythe ? { s: 0.97, len: 0.28, h: 0.66 * D, sweep: 0.6, root: 0.28 } : { s: 0.97, len: 0.24, h: 0.5 * D }],
+      ['dorsal', 'spiny', { a: 0.3, b: 0.68, h: 0.15 * D, rake: 0.45, segV: 12 }], ['ventral', 'soft', { a: 0.5, b: 0.8, h: 0.12 * D, rake: 0.45, segV: 10 }],
+      ['ventral', 'frill', { a: 0.16, b: 0.46, h: 0.028 * D, rake: 0.1, segV: 10 }],
+      ['pect', 'pect', { s: 0.2, len: 0.12, h: 0.06 }], ['pelvic', 'pect', { s: 0.34, len: 0.08, h: 0.05 }]],
+    eye: { s: 0.085, r: 0.032, up: 0.3 }, gill: 0.21, R: 36, A: 20, anim: { waveK: 3, amp: 0.055, freq: 7 },
+  }, M);
+  const f = r.f;
+  if (M.jaw === 'square_teeth') {   // the smile: four square teeth above, four below, cream, in a dark mouth held a little open
+    const y0 = f.yc(0) - 0.002, teeth = [];
+    for (const [yy, sg] of [[y0 + 0.012, 1], [y0 - 0.012, -1]]) for (const x of [-0.019, -0.0064, 0.0064, 0.019]) {
+      teeth.push(xf(new THREE.BoxGeometry(0.0115, 0.014, 0.008), { p: [x, yy, 0.5 + 0.006 - Math.abs(x) * 0.42], r: [0, x * 7, sg * 0.05] }));
+    }
+    r.extras.push(paint(blob(0.032, 0.013, 0.01, [0, y0, 0.5 - 0.001], 10, 6), 0x0c0608));
+    r.extras.push(paint(mergeGeos(teeth), 0xf0e8d4));
+    r.extras.push(paint(tube(bezierPts([[-0.03, y0 + 0.004, 0.486], [0, y0 + 0.024, 0.503], [0.03, y0 + 0.004, 0.486]], 9), 0.004, 5), C(hexColor(M.body, 0x9a6450)).multiplyScalar(0.7)));
+  }
+  r.opts.noPhotophores = true;
+  return r;
+};
+
+// ---- finlet: a rigid teardrop with a pointed head, two dorsals, a row of finlets above and below a thin keeled tail stalk and a stiff
+// crescent tail (the Lostsea Mackerel); `scribbles`: dark marks over the back. The minnow's profile with finlets and a crescent.
+LOOP_SHAPES.finlet = function finlet(M) {
+  const g = nf(M.girth, 1);
+  const r = standard({
+    w: scaleK([[0, 0.004], [0.04, 0.032], [0.13, 0.062], [0.28, 0.074], [0.46, 0.066], [0.64, 0.044], [0.78, 0.022], [0.88, 0.011], [0.95, 0.009], [1, 0.012]], g),
+    ht: scaleK([[0, 0.004], [0.04, 0.034], [0.13, 0.07], [0.28, 0.084], [0.46, 0.074], [0.64, 0.048], [0.78, 0.022], [0.88, 0.011], [0.95, 0.009], [1, 0.016]], g),
+    hb: scaleK([[0, 0.004], [0.04, 0.028], [0.15, 0.06], [0.3, 0.072], [0.48, 0.062], [0.66, 0.04], [0.8, 0.018], [0.9, 0.009], [1, 0.014]], g),
+    yc: [[0, -0.008], [0.2, 0], [1, 0]],
+    fins: [['tail', 'fork', { s: 0.965, len: 0.2, h: 0.48, sweep: 0.72, root: 0.2 }],
+      ['dorsal', 'spiny', { a: 0.2, b: 0.4, h: 0.1, rake: 0.45, taper: 0.5, segV: 10 }], ['dorsal', 'soft', { a: 0.5, b: 0.6, h: 0.08, rake: 0.7, taper: 0.7 }],
+      ['ventral', 'soft', { a: 0.52, b: 0.62, h: 0.07, rake: 0.7, taper: 0.7 }],
+      ['pect', 'pect', { s: 0.17, len: 0.15, h: 0.034, out: 0.5, down: 0.25, back: 0.9 }], ['pelvic', 'pect', { s: 0.3, len: 0.05, h: 0.03 }]],
+    eye: { s: 0.075, r: 0.021, up: 0.32 }, gill: 0.18, R: 40, anim: { waveK: 4.2, amp: 0.05, freq: 11 },
+  }, M);
+  const f = r.f, fin = C(hexColor(M.fin, 0x2c3246)).lerp(C(0xc8a060), 0.35), bits = [];
+  if (M.finlets !== false) for (let k = 0; k < 6; k++) {   // six finlets above and six below the stalk, smaller toward the tail
+    const s = 0.645 + k * 0.047, hh = 0.022 - k * 0.0016;
+    bits.push(spike([0, f.top(s) - 0.002, 0.5 - s], [0, 1, -1.15], 0.0048, hh, 3), spike([0, f.bot(s) + 0.002, 0.5 - s], [0, -1, -1.15], 0.0048, hh * 0.9, 3));
+  }
+  r.extras.push(paint(mergeGeos(bits), fin));
+  // the keels: a low ridge on each side of the thin stalk; the jaw's line, long and pointed
+  const ks = 0.9, kd = [];
+  for (const sd of [1, -1]) kd.push(blob(0.0045, 0.0042, 0.034, [sd * (f.w(ks) + 0.0025), f.yc(ks), 0.5 - ks], 6, 4));
+  r.extras.push(paint(mergeGeos(kd), C(hexColor(M.body, 0x44506c)).multiplyScalar(0.7)));
+  for (const sd of [1, -1]) r.extras.push(paint(tube(bezierPts([[sd * f.w(0.006) * 0.9, f.yc(0.02) - 0.004, 0.497], [sd * f.w(0.05), f.yc(0.05) - f.hb(0.05) * 0.3, 0.45], [sd * f.w(0.1) * 0.98, f.yc(0.1) - f.hb(0.1) * 0.25, 0.4]], 8), 0.0028, 4), 0x0a0806));
+  r.opts.noPhotophores = true;
+  if (M.scribbles !== undefined && M.scribbles !== null && M.scribbles !== false) r.opts.scribbles = cssColor(C(hexColor(M.scribbles === true ? 0x4a2a4e : M.scribbles, 0x4a2a4e)));
+  return r;
+};
+
+// ---- the catfish's bullet heads (Sporewood's two; the Belled Matriarch keeps her shovel above). 'bullet_round': a blunt rounded snout
+// on a deep, high-shouldered body, a tall pointed back fin like a shark's, a deeply forked tall tail, no whiskers, the eyes set below the
+// mouth line (`eyeSet: 'low'`; the Downcast). 'bullet': a narrow rounded head with four pairs of long whiskers fanned forward, a tall
+// back fin, a small fatty fin, a forked tail painted its own colour (`tailCol`: ember to amber; the Cindertail), a cream side line.
+function catfishBullet(M) {
+  const round = M.head === 'bullet_round', deep = M.deep === true, tallTail = M.tail === 'fork_tall';
+  const P = round ? {
+    w: [[0, 0.02], [0.03, 0.05], [0.09, 0.07], [0.22, 0.08], [0.42, 0.07], [0.66, 0.045], [0.84, 0.022], [0.93, 0.013], [1, 0.012]],
+    ht: scaleK([[0, 0.016], [0.03, 0.045], [0.1, 0.09], [0.22, 0.125], [0.36, 0.12], [0.55, 0.085], [0.75, 0.045], [0.88, 0.022], [1, 0.02]], deep ? 1 : 0.78),
+    hb: scaleK([[0, 0.016], [0.03, 0.04], [0.1, 0.07], [0.25, 0.09], [0.42, 0.085], [0.62, 0.06], [0.8, 0.03], [0.9, 0.018], [1, 0.016]], deep ? 1 : 0.8),
+    yc: [[0, -0.012], [0.15, 0], [1, 0]],
+  } : {
+    w: [[0, 0.014], [0.03, 0.042], [0.09, 0.06], [0.2, 0.066], [0.42, 0.056], [0.66, 0.038], [0.84, 0.018], [0.93, 0.011], [1, 0.01]],
+    ht: [[0, 0.012], [0.03, 0.03], [0.09, 0.05], [0.2, 0.072], [0.38, 0.07], [0.6, 0.05], [0.8, 0.026], [0.92, 0.014], [1, 0.016]],
+    hb: [[0, 0.012], [0.03, 0.03], [0.09, 0.045], [0.2, 0.06], [0.4, 0.058], [0.62, 0.042], [0.82, 0.02], [1, 0.014]],
+    yc: [[0, -0.008], [0.15, 0], [1, 0]],
+  };
+  const tailO = { s: 0.965, len: tallTail ? 0.23 : 0.21, h: tallTail ? 0.44 : 0.34, sweep: tallTail ? 0.3 : 0.18 };
+  const tint = M.tailCol !== undefined && M.tailCol !== null;
+  const fins = [
+    ...(tint ? [] : [['tail', 'fork', tailO]]),
+    M.dorsal === 'shark' ? ['dorsal', 'soft', { a: 0.22, b: 0.35, h: 0.18, rake: 0.55, taper: 0.82, segV: 8 }] : M.dorsal === 'tall' ? ['dorsal', 'soft', { a: 0.2, b: 0.31, h: 0.14, rake: 0.32, taper: 0.45 }] : ['dorsal', 'soft', { a: 0.24, b: 0.32, h: 0.07, rake: 0.3 }],
+    ['ventral', 'soft', { a: 0.62, b: 0.78, h: 0.06, rake: 0.3 }],
+    ['pect', 'pect', { s: 0.13, len: round ? 0.14 : 0.11, h: 0.05, yOff: -0.45 }], ['pelvic', 'pect', { s: 0.43, len: 0.06, h: 0.035 }],
+    ...(M.fattyFin ? [['dorsal', 'soft', { a: 0.64, b: 0.8, h: 0.03, rake: 0.15 }]] : []),
+  ];
+  const low = M.eyeSet === 'low';
+  const r = standard({ ...P, fins, eye: low ? { s: 0.055, r: 0.0105, up: -0.42, out: 0.93 } : { s: 0.06, r: 0.0095, up: 0.45, out: 0.88 }, gill: 0.17, R: 44,
+    anim: { waveK: round ? 5.5 : 6.5, amp: 0.07, freq: round ? 4.2 : 5.4 } }, M);
+  const f = r.f;
+  if (tint) {   // the tail its own colour, ember at its root to amber at its tips (a second fin mesh: the other fins keep the fin colour)
+    const a = C(hexColor(M.tailCol, 0xc4402a)), b = C(hexColor(M.tailTip, 0xf0a050)), z0 = 0.5 - tailO.s + 0.012, t = new THREE.Color();
+    r.finsTint = [paint(finTail(f, 'fork', tailO), (x, y, z) => t.copy(a).lerp(b, Math.min(1, Math.max(0, (z0 - z) / tailO.len)) ** 0.8))];
+  }
+  // the mouth: a wide dark seam across the blunt snout, above the eyes when they are set low
+  const my = f.yc(0.01) + (low ? 0.012 : -0.004);
+  r.extras.push(paint(tube(bezierPts([[-f.w(0.02) * 0.95, my, 0.49], [0, my - 0.006, 0.503], [f.w(0.02) * 0.95, my, 0.49]], 10), 0.0032, 4), 0x0a0806));
+  const n = Math.round(nf(M.whiskers, 0));
+  if (n >= 2) {   // whiskers fanned forward (pairs: the long ones from the mouth's corners, then the nose's, then the chin's)
+    const wc = C(hexColor(M.whiskerCol, 0xd8ccb8)), list = [];
+    const pairs = [{ s: 0.02, y: 0.1, len: 0.36, fwd: 0.55, out: 0.62 }, { s: 0.004, y: 0.62, len: 0.2, fwd: 0.85, out: 0.34 },
+      { s: 0.03, y: -0.78, len: 0.17, fwd: 0.66, out: 0.4 }, { s: 0.036, y: -0.96, len: 0.12, fwd: 0.72, out: 0.18 }].slice(0, Math.min(4, Math.floor(n / 2)));
+    for (const q of pairs) for (const sd of [1, -1]) {
+      const x0 = sd * f.w(q.s) * 0.82, y0 = f.yc(q.s) + (q.y >= 0 ? f.ht(q.s) : f.hb(q.s)) * q.y, z0 = 0.5 - q.s, L = q.len;
+      const pts = bezierPts([[x0, y0, z0], [x0 + sd * q.out * L * 0.35, y0 - L * 0.04, z0 + q.fwd * L * 0.55], [x0 + sd * q.out * L * 0.8, y0 - L * 0.12, z0 + q.fwd * L * 0.62], [x0 + sd * q.out * L * 1.05, y0 - L * 0.22, z0 + q.fwd * L * 0.3]], 14);
+      list.push(tube(pts, (u) => 0.0026 * (1 - u * 0.8) + 0.0006, 4));
+    }
+    r.extras.push(paint(mergeGeos(list), wc));
+  }
+  r.opts.noPhotophores = true;
+  if (M.sideLine) r.opts.sideLine = cssColor(C(hexColor(M.sideLine === true ? 0xe8dcc4 : M.sideLine, 0xe8dcc4)));
+  return r;
+}
+
+/** A model's loop parts (its loop plan, or its built plan's loop build), else null: the tests' seam (models-plans.test.mjs). */
+export const loopPlanParts = (M) => (LOOP_SHAPES[M?.shape] ? LOOP_SHAPES[M.shape]({ ...M }) : loopVariant(M?.shape, { ...M }));
+/** A built plan's loop build, when the species' model carries the brief's words for it (LAKE2 §2.3); null: the built plan. */
+function loopVariant(shape, M) {
+  if (shape === 'eel' && (M.girth !== undefined || M.strings || M.head === 'paddle' || M.dorsal === 'none' || M.ventral || M.pects === false || M.tail === 'point')) return loopEel(M);
+  if (shape === 'carp' && (M.head !== undefined || M.back === 'arched' || M.scales === 'giant' || M.mouth === 'up')) return loopCarp(M);
+  if (shape === 'minnow' && M.skin === 'glass') return loopFry(M);
+  if (shape === 'crayfish' && M.carapace === 'dome') return loopCrayfish(M);
+  if (shape === 'puffer' && (M.beak || M.eyeSpots || M.prickles)) return loopPuffer(M);
+  return null;
+}
+
+// ---- the eel's words: girth (×, its whole length), head ('paddle': flat, blunt and wider than the neck; a girth under 1 gets a tiny
+// pointed one), dorsal 'none', ventral ('ribbon_full': throat to tail tip; 'fold': a skin fold at the tail and no other fin), pects
+// false, tail 'point', eye (×), section 'square', strings (n lit lines down each flank, the whole length: the Harpstring), mottle (the
+// Threadling's bark), bellyLine
+function loopEel(M) {
+  const g = nf(M.girth, 1), paddle = M.head === 'paddle', pin = !paddle && g < 1, ex = M.section === 'square' ? 3.4 : 2;
+  const W = paddle ? [[0, 0.03], [0.015, 0.042], [0.04, 0.048], [0.07, 0.04], [0.11, 0.035], [0.5, 0.034], [0.8, 0.024], [0.95, 0.01], [1, 0.003]]
+    : pin ? [[0, 0.003], [0.025, 0.016], [0.06, 0.028], [0.12, 0.033], [0.5, 0.032], [0.8, 0.022], [0.93, 0.01], [0.985, 0.003], [1, 0.0012]]
+      : [[0, 0.006], [0.02, 0.025], [0.06, 0.034], [0.12, 0.034], [0.5, 0.032], [0.8, 0.022], [0.95, 0.008], [1, 0.003]];
+  const HT = paddle ? [[0, 0.009], [0.015, 0.014], [0.04, 0.018], [0.07, 0.025], [0.11, 0.032], [0.5, 0.034], [0.8, 0.024], [0.95, 0.01], [1, 0.003]]
+    : pin ? [[0, 0.003], [0.025, 0.016], [0.06, 0.03], [0.5, 0.033], [0.8, 0.023], [0.93, 0.01], [0.985, 0.003], [1, 0.0012]]
+      : [[0, 0.006], [0.02, 0.024], [0.06, 0.036], [0.5, 0.034], [0.8, 0.024], [0.95, 0.01], [1, 0.003]];
+  const HB = paddle ? [[0, 0.011], [0.015, 0.016], [0.04, 0.02], [0.07, 0.025], [0.11, 0.03], [0.5, 0.032], [0.8, 0.022], [0.95, 0.009], [1, 0.003]]
+    : scaleK(HT, 0.9);
+  const fins = [];
+  if (M.dorsal !== 'none') fins.push(['dorsal', 'ribbon', { a: 0.3, b: 1.0, h: 0.04, rake: 0, segV: 30 }]);
+  if (M.ventral === 'ribbon_full') fins.push(['ventral', 'ribbon', { a: 0.1, b: 0.995, h: 0.034 * g, rake: 0, segV: 46 }]);
+  else if (M.ventral === 'fold') fins.push(['ventral', 'ribbon', { a: 0.84, b: 1.0, h: 0.011, rake: 0, segV: 8 }], ['dorsal', 'ribbon', { a: 0.87, b: 1.0, h: 0.009, rake: 0, segV: 8 }]);
+  else fins.push(['ventral', 'ribbon', { a: 0.5, b: 1.0, h: 0.03, rake: 0, segV: 24 }]);
+  if (M.pects !== false) fins.push(['pect', 'pect', { s: paddle ? 0.12 : 0.08, len: 0.035 * Math.min(g, 1.2), h: 0.025 * Math.min(g, 1.2) }]);
+  const r = standard({ w: scaleK(W, g), ht: scaleK(HT, g), hb: scaleK(HB, g), fins, ex, R: 64, A: ex > 2 ? 16 : 12,
+    eye: { s: paddle ? 0.03 : pin ? 0.028 : 0.035, r: 0.012 * nf(M.eye, 1) * (g < 1 ? g : 1), up: paddle ? 0.62 : 0.45 }, gill: 0.07,
+    anim: paddle ? { waveK: 10, amp: 0.06, freq: 7 } : pin ? { waveK: 15, amp: 0.085, freq: 10 } : { waveK: 13, amp: 0.07, freq: 9 } }, M);
+  const f = r.f, n = Math.round(nf(M.strings, 0));
+  // the strings: lit lines down each flank, the whole length, painted into the skin and its glow (the body's own light, never a neon
+  // tube): their angles round the body, each flank's mirrored
+  if (n > 0) { const th = []; for (let k = 0; k < n; k++) { const a = (k - (n - 1) / 2) * 0.5; th.push(a, Math.PI - a); } r.opts.strings = th; r.opts.glowScale = 0.75; }
+  r.opts.noPhotophores = true;
+  if (M.mottle) { const rad = (f.w(0.5) + f.ht(0.5)) / 2; r.opts.mottle = { tall: Math.max(1, (128 / (TAU * rad)) / 256) }; }
+  if (M.bellyLine) r.opts.bellyLine = cssColor(C(hexColor(M.bellyLine === true ? 0xe8dcbc : M.bellyLine, 0xe8dcbc)));
+  return r;
+}
+
+// ---- the carp's words: head (× at the head, the head a third of the length past 1.3), back 'arched', barbels 'none', mouth 'up' (a small
+// upturned mouth), scales 'giant' (coin-sized scales, each outlined; `scaleEdge` their petal-cream edges, lit faint at night by the glow)
+// with a short deep tail stalk and a broad forked tail: the Nightbloom, a huge barb
+function loopCarp(M) {
+  const H = nf(M.head, 1), arch = M.back === 'arched', up = M.mouth === 'up';
+  const cw = curve1([[0, 0.01], [0.03, 0.05], [0.12, 0.09], [0.38, 0.12], [0.62, 0.095], [0.84, 0.04], [0.93, 0.024], [1, 0.018]]);
+  const ch = curve1([[0, 0.01], [0.03, 0.05], [0.14, 0.12], [0.36, 0.18], [0.6, 0.14], [0.84, 0.05], [0.93, 0.03], [1, 0.026]]);
+  const cb = curve1([[0, 0.01], [0.03, 0.045], [0.15, 0.11], [0.4, 0.15], [0.62, 0.11], [0.84, 0.04], [1, 0.022]]);
+  const hk = (s) => 1 + (H - 1) * (1 - sstep(0.16, 0.42, s)), ak = (s) => (arch ? 1 + 0.46 * Math.exp(-(((s - 0.33) / 0.18) ** 2)) : 1), sk = (s) => 1 + 0.45 * sstep(0.66, 0.92, s);
+  const S = [0, 0.03, 0.08, 0.14, 0.22, 0.3, 0.38, 0.48, 0.6, 0.72, 0.84, 0.93, 1];
+  const r = standard({
+    w: S.map((s) => [s, cw(s) * (1 + (H - 1) * 0.55 * (1 - sstep(0.16, 0.42, s))) * sk(s) * 0.94]),
+    ht: S.map((s) => [s, ch(s) * hk(s) * ak(s) * sk(s)]), hb: S.map((s) => [s, cb(s) * hk(s) * sk(s)]),
+    yc: up ? [[0, 0.026], [0.06, 0.008], [0.2, 0], [1, 0]] : [[0, -0.02], [0.2, 0], [1, 0]],
+    fins: [['tail', 'fork', { s: 0.97, len: 0.27, h: 0.5 }], ['dorsal', 'soft', { a: 0.34, b: 0.58, h: 0.16, rake: 0.3, segV: 10 }],
+      ['ventral', 'soft', { a: 0.66, b: 0.77, h: 0.08 }], ['pect', 'pect', { s: 0.34, len: 0.15, h: 0.07 }], ['pelvic', 'pect', { s: 0.5, len: 0.09, h: 0.05 }]],
+    eye: { s: 0.1, r: 0.026, up: 0.18 }, gill: H > 1.2 ? 0.33 : 0.22, R: 36, anim: { waveK: 3.2, amp: 0.06, freq: 5.2 },
+  }, M);
+  const f = r.f;
+  if (up) { const y0 = f.yc(0); r.extras.push(paint(tube(bezierPts([[-0.016, y0 + 0.004, 0.495], [0, y0 + 0.014, 0.503], [0.016, y0 + 0.004, 0.495]], 8), 0.0036, 4), 0x0a0608)); }
+  if (M.barbels !== 'none') r.extras.push(...barbels(f, M, 0.09));
+  if (M.scales === 'giant') { r.opts.giantScales = cssColor(C(hexColor(M.scaleEdge, 0xe8d6b6))); r.opts.glowScale = 0.45; }   // (the bloom: faint)
+  r.opts.noPhotophores = true;
+  return r;
+}
+
+// ---- the minnow's `skin: 'glass'`: a clear, slightly milky body through which the dark spine, its gut and the eye show; eye (×); a
+// tailSpot (an amber spot at the tail's root). The Netcloud Fry; `cloud` (5: the show holds one, four more of the same mesh beside it)
+function loopFry(M) {
+  const r = SHAPES.minnow(M);
+  const f = r.f, k = nf(M.eye, 1);
+  r.eyes.r *= k;
+  const ink = C(0x2a2232), bones = [], spine = [];
+  for (let i = 0; i <= 16; i++) { const s = 0.09 + (i / 16) * 0.86; spine.push(new THREE.Vector3(0, f.yc(s) + f.ht(s) * 0.12, 0.5 - s)); }
+  bones.push(tube(spine, (u) => 0.0058 * (1 - u * 0.55), 5));
+  for (let i = 0; i < 11; i++) {   // short spines up and down off it, a glass fish's comb
+    const s = 0.24 + i * 0.058, y = f.yc(s) + f.ht(s) * 0.12;
+    bones.push(spike([0, y, 0.5 - s], [0, 1, -0.45], 0.0016, f.ht(s) * 0.55, 3), spike([0, y, 0.5 - s], [0, -1, -0.45], 0.0016, f.hb(s) * 0.5, 3));
+  }
+  r.extras.push(paint(mergeGeos(bones), ink));
+  r.extras.push(paint(blob(0.017, 0.024, 0.07, [0, f.yc(0.3) - f.hb(0.3) * 0.25, 0.5 - 0.3], 10, 7), 0x6a6274));   // (the silvered gut)
+  if (M.tailSpot) {
+    const sp = [], s = 0.9;
+    for (const sd of [1, -1]) sp.push(blob(0.004, 0.011, 0.013, [sd * f.w(s) * 0.92, f.yc(s), 0.5 - s], 8, 6));
+    r.extras.push(paint(mergeGeos(sp), C(hexColor(M.tailSpot === 'amber' ? 0xe2a24e : M.tailSpot, 0xe2a24e))));
+  }
+  Object.assign(r.opts, { translucent: true, opacity: 0.5, glowCol: 0xf2ece2, noPhotophores: true });
+  return r;
+}
+
+// ---- the crayfish's `carapace: 'dome'`: a broad domed shell like a mushroom cap, ribbed with gills under its rim, that hides the body from
+// above; claws (× their size), antennae (× their length, amber at the tips), a short fan tail; the cap cream-ochre with plum freckles
+// (`freckle`). The Capshell
+function loopCrayfish(M) {
+  const body = C(hexColor(M.body, 0x7a4e36)), capC = C(hexColor(M.cap, 0xd6ae76)), frk = C(hexColor(M.freckle, 0x5a3450)), fin = C(hexColor(M.fin, 0x4a2c3e));
+  const kc = nf(M.claws, 1), ka = nf(M.antennae, 1), amber = C(0xe8a04a);
+  const parts = [], t = new THREE.Color();
+  // the cap: a dome over the front two-thirds, a thick rolled rim, freckled
+  const cap = new THREE.SphereGeometry(1, 22, 9, 0, TAU, 0, Math.PI / 2); cap.scale(0.175, 0.11, 0.215); cap.translate(0, -0.004, 0.25);
+  const fr = (x, z) => { const h = Math.sin(x * 157.3 + z * 91.7) * 43758.5453; return h - Math.floor(h); };
+  parts.push(paint(cap, (x, y, z) => (y > 0.012 && fr(x, z) > 0.84 ? frk : t.copy(capC).multiplyScalar(0.86 + 0.14 * Math.min(1, y / 0.1)))));
+  parts.push(paint(xf(new THREE.TorusGeometry(1, 0.06, 5, 26), { p: [0, -0.004, 0.25], r: [Math.PI / 2, 0, 0], s: [0.172, 0.215, 0.6] }), capC.clone().multiplyScalar(0.92)));
+  parts.push(paint(blob(0.07, 0.048, 0.13, [0, -0.03, 0.27], 12, 8), body));
+  let z = 0.06;
+  for (let k = 0; k < 5; k++) {   // the tail's segments behind the cap, narrowing
+    const sc = 0.82 - k * 0.09;
+    parts.push(paint(blob(0.07 * sc, 0.046 * sc, 0.045, [0, -0.02 - k * 0.005, z], 10, 7), k % 2 ? body.clone().multiplyScalar(0.78) : body));
+    z -= 0.056;
+  }
+  const zt = z + 0.03;
+  const fan = card('round', 3, 4, (u, v) => [(v - 0.5) * 0.15 * (0.5 + u * 0.6), -0.04 + u * 0.01, zt - u * 0.08]);
+  // under the rim: the gills, thin ribs running in toward the middle
+  const gills = [];
+  for (let k = 0; k < 30; k++) { const a = (k / 30) * TAU, ca = Math.cos(a), sa = Math.sin(a);
+    gills.push(tube([new THREE.Vector3(ca * 0.06, -0.012, 0.25 + sa * 0.08), new THREE.Vector3(ca * 0.165, -0.008, 0.25 + sa * 0.205)], 0.0028, 3, { capEnd: false })); }
+  const legs = [], claws = [], tips = [];
+  for (const side of [1, -1]) {
+    const arm = bezierPts([[side * 0.06, -0.03, 0.4], [side * (0.06 + 0.09 * kc), -0.03, 0.44 + 0.05 * kc], [side * (0.06 + 0.08 * kc), -0.03, 0.46 + 0.14 * kc]], 7);
+    claws.push(tube(arm, 0.014 * Math.max(0.6, kc), 5));
+    claws.push(blob(0.05 * kc, 0.032 * kc, 0.095 * kc, [side * (0.06 + 0.085 * kc), -0.03, 0.47 + 0.24 * kc], 10, 7, [0, side * -0.12, 0]));
+    for (let k = 0; k < 4; k++) {
+      const lz = 0.35 - k * 0.055;
+      legs.push(tube(bezierPts([[side * 0.06, -0.04, lz], [side * 0.17, -0.05, lz - 0.01], [side * 0.24, -0.13, lz - 0.04]], 6), (u) => 0.0075 * (1 - u * 0.6), 4));
+    }
+    // the antennae: very long, over the cap and back past the tail, amber at their tips
+    const base = [side * 0.03, 0.0, 0.45];
+    const ctrl = [[0, 0, 0], [0.09, 0.06, 0.3], [0.27, 0.05, 0.17], [0.4, -0.02, -0.15]].map(([x, y, zz]) => [base[0] + side * x * ka, base[1] + y * ka, base[2] + zz * ka]);
+    const pts = bezierPts(ctrl, 22);
+    legs.push(tube(pts.slice(0, 18), (u) => 0.0058 * (1 - u * 0.7), 4));
+    tips.push(tube(pts.slice(17), (u) => 0.0022 * (1 - u * 0.5), 4), blob(0.0075, 0.0075, 0.0075, pts[pts.length - 1].toArray(), 6, 5));
+    legs.push(blob(0.012, 0.012, 0.012, [side * 0.04, 0.0, 0.452], 6, 5));
+  }
+  const extras = [paint(mergeGeos(claws), capC.clone().multiplyScalar(0.8)), paint(mergeGeos(legs), fin), paint(mergeGeos(tips), amber), paint(mergeGeos(gills), body.clone().multiplyScalar(0.62))];
+  return { f: null, body: mergeGeos(parts), fins: [fan], extras, glows: [], bones: [], eyes: { pos: [[0.042, 0.004, 0.462], [-0.042, 0.004, 0.462]], r: 0.012 },
+    anim: { waveK: 3, amp: 0.05, freq: 7, axis: [0, 1] }, gill: -1, opts: { vertexBody: true }, extentZ: 0.7 };
+}
+
+// ---- the puffer's words: beak (4: four fused teeth, two above and two below), prickles 'short', eyeSpots 'amber' (an amber-ringed eye-
+// spot on each flank); lit through its skin like a paper lantern when it puffs (`lantern`: the show puffs it)
+function loopPuffer(M) {
+  const r = standard({
+    w: [[0, 0.04], [0.04, 0.14], [0.15, 0.28], [0.4, 0.34], [0.62, 0.28], [0.8, 0.13], [0.9, 0.06], [1, 0.04]],
+    ht: [[0, 0.04], [0.04, 0.14], [0.15, 0.29], [0.4, 0.35], [0.62, 0.28], [0.8, 0.13], [0.9, 0.06], [1, 0.04]],
+    hb: [[0, 0.04], [0.04, 0.13], [0.15, 0.27], [0.4, 0.33], [0.62, 0.26], [0.8, 0.12], [0.9, 0.055], [1, 0.04]],
+    fins: [['tail', 'round', { s: 0.98, len: 0.13, h: 0.18 }], ['dorsal', 'soft', { a: 0.72, b: 0.86, h: 0.08 }],
+      ['ventral', 'soft', { a: 0.72, b: 0.86, h: 0.07 }], ['pect', 'pect', { s: 0.25, len: 0.09, h: 0.08, out: 0.9, back: 0.3, yOff: 0 }]],
+    eye: { s: 0.2, r: 0.04, up: 0.4, out: 0.86 }, gill: 0.3, A: 20, anim: { waveK: 2.2, amp: 0.05, freq: 6 },
+  }, M);
+  const f = r.f, sp = [], short = M.prickles === 'short';
+  _seed = 11;
+  for (let k = 0; k < (short ? 110 : 64); k++) {
+    const s = 0.12 + lrnd() * 0.66, th = lrnd() * TAU, c = Math.cos(th), sn = Math.sin(th);
+    if (sn < -0.75) continue;
+    if (M.eyeSpots && Math.abs(s - 0.5) < 0.09 && Math.abs(sn) < 0.3) continue;   // (none through the eye-spots)
+    const x = f.w(s) * c, y = f.yc(s) + (sn >= 0 ? f.ht(s) : f.hb(s)) * sn;
+    sp.push(spike([x * 0.98, y * 0.98, 0.5 - s], [c, sn, -0.35], short ? 0.008 : 0.011, short ? 0.022 + lrnd() * 0.01 : 0.055 + lrnd() * 0.025, 4));
+  }
+  r.extras.push(paint(mergeGeos(sp), C(hexColor(M.fin, 0x888888)).lerp(C(PALE), 0.35)));
+  const nb = Math.round(nf(M.beak, 0)), y0 = f.yc(0) - 0.012;
+  if (nb >= 4) {   // the beak: four fused teeth, a dark seam between the upper pair and the lower
+    const teeth = [];
+    for (const [yy, sg] of [[y0 + 0.014, 1], [y0 - 0.014, -1]]) for (const sd of [1, -1]) teeth.push(blob(0.02, 0.013, 0.02, [sd * 0.0185, yy, 0.5 + 0.012], 8, 6, [sg * 0.25, 0, sd * 0.18]));
+    r.extras.push(paint(mergeGeos(teeth), 0xf2e8d0));
+    r.extras.push(paint(blob(0.04, 0.0045, 0.014, [0, y0, 0.5 + 0.012], 10, 4), 0x0c0608));
+  } else r.extras.push(paint(blob(0.035, 0.028, 0.025, [0, f.yc(0) - 0.01, 0.5 + 0.01]), 0xe8dcc0));
+  if (M.eyeSpots) {   // an amber-ringed eye-spot on each flank, a dark centre
+    const s = 0.5, ring = [], core = [];
+    for (const sd of [1, -1]) {
+      const p = [sd * f.w(s) * 1.0, f.yc(s) + f.ht(s) * 0.05, 0.5 - s], n = [sd, 0.05, 0];
+      ring.push(onNormal(new THREE.TorusGeometry(0.062, 0.016, 5, 22), p, n, true));
+      core.push(onNormal(blob(0.044, 0.006, 0.044, [0, 0, 0], 12, 5), p, n));
+    }
+    r.extras.push(paint(mergeGeos(ring), C(hexColor(M.eyeSpotCol, 0xe0a048))), paint(mergeGeos(core), 0x1a0e18));
+  }
+  r.opts.noPhotophores = true;
+  if (M.lantern !== false && M.glow !== null && M.glow !== undefined) r.opts.lantern = true;
+  return r;
+}
+// <<< LAKE 2, lane F
 
 // ------------------------------------------------------------------ skins
 function cssColor(c) { return '#' + c.getHexString(); }
@@ -705,7 +1122,7 @@ function bodyTexture(M, shape, parts) {
   } else if (pat === 'bands') {
     const n = shape === 'eel' ? 11 : 7;
     for (let k = 0; k < n; k++) { const x = W * (0.12 + k * (0.84 / n)); g.fillStyle = darkCss; g.fillRect(x, 0, W * 0.035, H); }
-  } else if (pat === 'scales') {
+  } else if (pat === 'scales' && !parts.opts.giantScales) {
     g.lineWidth = 1.1;
     for (let y = 2; y < H; y += 6) for (let x = W * 0.16 + ((y / 6) % 2) * 3; x < W * 0.96; x += 6) {
       g.strokeStyle = 'rgba(0,0,0,0.26)'; g.beginPath(); g.arc(x, y, 3.4, -Math.PI / 2, Math.PI / 2); g.stroke();
@@ -742,10 +1159,65 @@ function bodyTexture(M, shape, parts) {
       g.strokeStyle = 'rgba(236,230,214,0.7)'; g.lineWidth = 1.4; g.beginPath(); g.ellipse(W * 0.47, y, 7, 5.5, 0, 0, TAU); g.stroke();
     }
   }
+  // >>> LAKE 2, lane F (LAKE2.md §2.3): Sporewood's skins, each set only by a loop plan's builder (no built fish carries one). The
+  // canvas runs snout → tail along x and round the body along y, so a mark that must read round on a thin body is drawn tall
+  const O = parts.opts;
+  if (O.giantScales) {   // the Nightbloom: coin-sized scales, each a darker cup edged in cream like a petal (the edges lit faint amber)
+    const r = 9.5;
+    for (let y = -4, row = 0; y < H + r; y += r * 0.92, row++) {
+      for (let x = W * 0.3 + (row % 2) * r * 0.85; x < W * 0.97; x += r * 1.7) {
+        g.fillStyle = 'rgba(0,0,0,0.18)'; g.beginPath(); g.arc(x, y, r, -Math.PI / 2, Math.PI / 2); g.fill();
+        g.strokeStyle = O.giantScales; g.lineWidth = 1.7; g.beginPath(); g.arc(x, y, r, -Math.PI * 0.42, Math.PI * 0.42); g.stroke();
+        if (eg) { eg.strokeStyle = 'rgba(255,255,255,0.55)'; eg.lineWidth = 1.5; eg.beginPath(); eg.arc(x, y, r, -Math.PI * 0.42, Math.PI * 0.42); eg.stroke(); }
+      }
+    }
+  }
+  if (O.mottle) {   // the Threadling: root-mottled, olive-brown and cream blotches like bark
+    const tall = O.mottle.tall || 4;
+    for (let k = 0; k < 90; k++) {
+      const x = W * (0.04 + rnd() * 0.94), y = rnd() * H, rx = 1.6 + rnd() * 3.6, ry = rx * tall * (0.7 + rnd() * 0.6);
+      g.fillStyle = k % 3 === 0 ? 'rgba(226,212,184,0.34)' : 'rgba(30,24,14,0.42)';
+      g.beginPath(); g.ellipse(x, y, rx, ry, (rnd() - 0.5) * 0.5, 0, TAU); g.fill();
+    }
+  }
+  if (O.scribbles) {   // the Lostsea Mackerel: plum scribbles over the slate back, none below the flank's middle
+    g.strokeStyle = O.scribbles; g.lineWidth = 1.5; g.lineCap = 'round';
+    for (let k = 0; k < 26; k++) {
+      const x0 = W * (0.16 + rnd() * 0.68), a = 0.06 + rnd() * 0.19;
+      for (const yy of [yP(a), yM(a)]) {
+        g.beginPath(); g.moveTo(x0, yy);
+        for (let i = 1; i <= 5; i++) g.lineTo(x0 + i * 3.2, yy + Math.sin(i * 1.9 + k) * 4.5 * (yy > 64 ? 1 : -1));
+        g.stroke();
+      }
+    }
+  }
+  if (O.sideLine) {   // the Cindertail: one cream line from the gill to the tail
+    g.fillStyle = O.sideLine;
+    for (const y of [yP(0.01), yM(0.01)]) { g.beginPath(); g.moveTo(W * (parts.gill || 0.15), y - 1.6); g.lineTo(W * 0.98, y - 1); g.lineTo(W * 0.98, y + 1); g.lineTo(W * (parts.gill || 0.15), y + 1.6); g.closePath(); g.fill(); }
+  }
+  if (O.strings && eg) {   // the Harpstring's strings: thin lines the whole length at their angles round the body, lit
+    for (const th of O.strings) {
+      const y = H * (1 - (th + Math.PI / 2) / TAU);
+      g.fillStyle = 'rgba(255,214,190,0.55)'; g.fillRect(W * 0.07, y - 1, W * 0.88, 2);
+      eg.fillStyle = 'rgba(255,255,255,0.9)'; eg.fillRect(W * 0.07, y - 0.9, W * 0.88, 1.8);
+    }
+  }
+  if (O.bellyLine) { g.fillStyle = O.bellyLine; g.fillRect(W * 0.06, 0, W * 0.9, 3); g.fillRect(W * 0.06, H - 3, W * 0.9, 3); }
+  if (O.lantern && eg) {   // the Festival Puffer: a paper lantern's glow, fuller below than on the back, its ribs dark rings round the body
+    for (let y = 0; y < H; y++) {
+      const v = 1 - (y + 0.5) / H, up = Math.sin(-Math.PI / 2 + v * TAU), k = 0.38 + 0.62 * THREE.MathUtils.smoothstep(-up, -0.6, 0.9);
+      eg.fillStyle = `rgba(255,255,255,${k.toFixed(3)})`; eg.fillRect(W * 0.08, y, W * 0.86, 1);
+    }
+    eg.fillStyle = 'rgba(0,0,0,0.62)'; g.fillStyle = 'rgba(0,0,0,0.12)';
+    for (let x = W * 0.14; x < W * 0.92; x += 15) { eg.fillRect(x, 0, 2, H); g.fillRect(x, 0, 1.5, H); }
+  }
+  // <<< LAKE 2, lane F
   // lateral line
-  g.strokeStyle = 'rgba(255,255,255,0.22)'; g.setLineDash([3, 3]); g.lineWidth = 1.2;
-  for (const y of [yP(0.02), yM(0.02)]) { g.beginPath(); g.moveTo(W * 0.22, y); g.quadraticCurveTo(W * 0.55, y + (y > 64 ? -3 : 3), W * 0.95, y); g.stroke(); }
-  g.setLineDash([]);
+  if (!O.noLateral) {
+    g.strokeStyle = 'rgba(255,255,255,0.22)'; g.setLineDash([3, 3]); g.lineWidth = 1.2;
+    for (const y of [yP(0.02), yM(0.02)]) { g.beginPath(); g.moveTo(W * 0.22, y); g.quadraticCurveTo(W * 0.55, y + (y > 64 ? -3 : 3), W * 0.95, y); g.stroke(); }
+    g.setLineDash([]);
+  }
   // gill arcs + mouth
   if (parts.gill > 0) {
     g.strokeStyle = 'rgba(0,0,0,0.55)'; g.lineWidth = 2.4;
@@ -759,8 +1231,8 @@ function bodyTexture(M, shape, parts) {
   const ink = g.createLinearGradient(0, 0, W, 0);
   ink.addColorStop(0, 'rgba(0,0,0,0.35)'); ink.addColorStop(0.06, 'rgba(0,0,0,0)'); ink.addColorStop(0.9, 'rgba(0,0,0,0)'); ink.addColorStop(1, 'rgba(0,0,0,0.4)');
   g.fillStyle = ink; g.fillRect(0, 0, W, H);
-  // photophores
-  if (eg) {
+  // photophores (none on a loop plan that lights only what its brief names: noPhotophores)
+  if (eg && !O.noPhotophores) {
     const n = parts.opts.manySpots ? 26 : 12;
     for (let k = 0; k < n; k++) {
       const x = W * (0.22 + k * (0.7 / n));
@@ -800,6 +1272,11 @@ const FIN_LIT = new THREE.Color(0xb98352);   // a fin with the lantern through i
 // setSilhouette: the unidentified fish of the bite and the fight (v3 auto-fishing): a dark shape at its true size, nothing of
 // its species (colours, pattern, glows, eyes) showing until it is landed
 const SIL_INK = new THREE.Color(0x0c0b14), SIL_RIM = new THREE.Color(0x6e7396);
+// LAKE 2, lane F: the Festival Puffer's lantern (its glow at rest is glowBase's 0.14; + LANTERN_GLOW at a full puff; the show puffs it to
+// LANTERN_SHOW_PUFF, short of the shader's full swell so the hands still hold it), and the Netcloud Fry's cloud: where the four beside the
+// held one sit (a handful, close round it), in its own lengths [x (toward the lens), y, z (toward its snout), scale, the turn about x, y, z]
+const LANTERN_GLOW = 0.95, LANTERN_SHOW_PUFF = 0.55;
+const FRY_CLOUD = [[0.08, 0.18, 0.26, 0.9, 0.2, 0.16, 0.26], [-0.08, 0.22, -0.28, 0.85, -0.2, -0.2, -0.3], [0.1, -0.16, 0.32, 0.92, 0.1, 0.24, -0.2], [-0.1, -0.2, -0.24, 0.88, 0, -0.16, 0.3]];
 const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
 
 export function createFishFactory(ctx) {
@@ -818,11 +1295,13 @@ export function createFishFactory(ctx) {
     const shape = SH[M.shape] ? M.shape : (typeof sp === 'string' && SH[sp] ? sp : 'minnow');
     const key = (sp?.id || 'anon') + '|' + shape + '|' + [M.body, M.belly, M.fin, M.glow, M.pattern, M.eyes].join(',');
     if (cache.has(key)) return cache.get(key);
-    const parts = SH[shape](M, { loop: LOOP_ON });
+    // (LAKE 2, lane F: a built plan's loop build when the model carries the brief's words; else the plan as built)
+    const parts = (LOOP_ON && loopVariant(shape, M)) || SH[shape](M, { loop: LOOP_ON });
     const glowCol = hexColor(parts.opts.glowCol ?? M.glow, 0xffd9a0);   // (the lamprey's gill holes light lavender with no glow on its body)
     const skin = parts.opts.vertexBody ? { map: null, emissiveMap: null } : bodyTexture(M, shape, parts);
     const eyes = eyeGeos(parts.eyes, M.eyes, glowCol);
     const fins = parts.fins.length ? mergeGeos(parts.fins) : null;
+    const finsTint = parts.finsTint?.length ? mergeGeos(parts.finsTint) : null;   // (LAKE 2, lane F: a fin painted its own colour)
     const extras = parts.extras.length ? mergeGeos(parts.extras) : null;
     const glows = parts.glows.length ? mergeGeos(parts.glows) : null;
     const bones = parts.bones.length ? mergeGeos(parts.bones) : null;
@@ -830,6 +1309,7 @@ export function createFishFactory(ctx) {
     let extentZ = parts.extentZ;
     const bb = new THREE.Box3().setFromBufferAttribute(parts.body.attributes.position);
     if (fins) { fins.computeBoundingBox(); bb.union(fins.boundingBox); }
+    if (finsTint) { finsTint.computeBoundingBox(); bb.union(finsTint.boundingBox); }
     if (extras && parts.opts.ray) { extras.computeBoundingBox(); bb.union(extras.boundingBox); }
     if (!extentZ) extentZ = Math.max(0.3, bb.max.z - bb.min.z);
     // v3 true scale measures what the size model calls length (CONTRACT §13.7): snout to tail tip over body and fins (a ray
@@ -837,7 +1317,7 @@ export function createFishFactory(ctx) {
     if (extras && parts.opts.jelly) { extras.computeBoundingBox(); bb.union(extras.boundingBox); }
     const ext = { maxZ: bb.max.z, minZ: bb.min.z, halfW: Math.max(Math.abs(bb.min.x), Math.abs(bb.max.x)), maxY: bb.max.y, minY: bb.min.y };
     const extentTrue = Math.max(1e-3, bb.max.z - bb.min.z);
-    const entry = { M, shape, parts, skin, eyes, fins, extras, glows, bones, extentZ, extentTrue, ext, glowCol, hasGlow: M.glow !== null && M.glow !== undefined };
+    const entry = { M, shape, parts, skin, eyes, fins, finsTint, extras, glows, bones, extentZ, extentTrue, ext, glowCol, hasGlow: M.glow !== null && M.glow !== undefined };
     cache.set(key, entry);
     return entry;
   }
@@ -876,7 +1356,8 @@ export function createFishFactory(ctx) {
     const k = L / (trueScale ? E.extentTrue : E.extentZ);
     scaler.scale.setScalar(k);
     const translucent = !!P.opts.translucent;
-    const glowBase = E.hasGlow ? (translucent ? 0.9 : 1.6) : 0;
+    // (LAKE 2, lane F: a paper lantern's glow rests low and rises as it puffs: `lantern`, the Festival Puffer)
+    const glowBase = E.hasGlow ? (P.opts.lantern ? 0.14 : (translucent ? 0.9 : 1.6) * (P.opts.glowScale ?? 1)) : 0;
     const thick = THREE.MathUtils.clamp(0.012 / L, 0.006, 0.016) * (E.shape === 'leviathan' ? 0.6 : 1);
     const mats = [];
     const outline = deformOutline({ thickness: thick }, spec); mats.push(outline);
@@ -884,7 +1365,7 @@ export function createFishFactory(ctx) {
     const bodyMat = deformToon({
       color: P.opts.vertexBody ? 0xffffff : 0xffffff, map: E.skin.map, vertexColors: !!P.opts.vertexBody,
       emissive: E.hasGlow ? E.glowCol : 0x000000, emissiveIntensity: glowBase, rim: translucent ? 0.7 : 0.42,
-      rimColor: translucent ? E.glowCol : PALE, transparent: translucent, opacity: P.opts.jelly ? 0.6 : translucent ? 0.4 : 1,
+      rimColor: translucent ? E.glowCol : PALE, transparent: translucent, opacity: P.opts.opacity ?? (P.opts.jelly ? 0.6 : translucent ? 0.4 : 1),
       side: P.opts.jelly ? THREE.DoubleSide : THREE.FrontSide,
     }, spec);
     if (E.skin.emissiveMap) bodyMat.emissiveMap = E.skin.emissiveMap;
@@ -907,13 +1388,23 @@ export function createFishFactory(ctx) {
       scaler.add(fins);
       finMat = fm;
     }
+    // (LAKE 2, lane F: a fin painted its own colour, the Cindertail's ember tail: its own mesh, so the other fins keep theirs)
+    let tintFins = null;
+    if (E.finsTint) {
+      const tm = deformToon({ color: 0xffffff, vertexColors: true, map: getFinAtlas(), side: THREE.DoubleSide, rim: 0.25 }, spec);
+      tm.alphaTest = 0.45;
+      mats.push(tm);
+      tintFins = new THREE.Mesh(E.finsTint, tm); tintFins.name = 'fins_tint';
+      scaler.add(tintFins);
+    }
     // extras (teeth, barbels, spines, plates, lure stalk, tentacles…)
+    let extrasMesh = null;
     if (E.extras) {
       const xm = deformToon({ color: 0xffffff, vertexColors: true, rim: 0.4, transparent: !!P.opts.jelly, opacity: P.opts.jelly ? 0.7 : 1,
         emissive: P.opts.jelly ? E.glowCol : 0x000000, emissiveIntensity: P.opts.jelly ? 0.6 : 0 }, spec);
       if (P.opts.jelly) xm.depthWrite = false;
       mats.push(xm);
-      const ex = new THREE.Mesh(E.extras, xm); ex.name = 'extras';
+      const ex = new THREE.Mesh(E.extras, xm); ex.name = 'extras'; extrasMesh = ex;
       scaler.add(ex);
       if (!P.opts.jelly) ex.add(outlineMesh(E.extras, outline));
     }
@@ -942,6 +1433,24 @@ export function createFishFactory(ctx) {
     if (E.eyes.glow) {
       eyeGlowMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(E.glowCol).multiplyScalar(2.8), toneMapped: false, fog: true }); mats.push(eyeGlowMat);
       scaler.add(new THREE.Mesh(E.eyes.glow, eyeGlowMat));
+    }
+    // (LAKE 2, lane F: `cloud` n, the Netcloud Fry's: the show holds one and n − 1 more of the same meshes and materials beside it,
+    // in the picture only while it is shown (setWet), so the water, the fight, the bounds and every measure see one fish)
+    let cloud = null;
+    const nCloud = LOOP_ON ? Math.min(1 + FRY_CLOUD.length, Math.round(Number(M.cloud) || 0)) : 0;
+    if (nCloud > 1) {
+      cloud = new THREE.Group(); cloud.name = 'cloud';
+      const meshes = scaler.children.filter((o) => o.isMesh);
+      for (let i = 1; i < nCloud; i++) {
+        const [cx, cy, cz, cs, rx, ry, rz] = FRY_CLOUD[i - 1], grp = new THREE.Group();
+        grp.scale.setScalar(k * cs); grp.position.set(cx * L, cy * L, cz * L); grp.rotation.set(rx, ry, rz);
+        for (const m of meshes) {
+          const mm = new THREE.Mesh(m.geometry, m.material); mm.renderOrder = m.renderOrder;
+          for (const ch of m.children) if (ch.isMesh) { const o = new THREE.Mesh(ch.geometry, ch.material); o.renderOrder = ch.renderOrder; mm.add(o); }
+          grp.add(mm);
+        }
+        cloud.add(grp);
+      }
     }
     // halos for lures / jelly cores
     const sprites = [];
@@ -994,7 +1503,12 @@ export function createFishFactory(ctx) {
         phase2 += dt * (swimFreq * 1.5 + 7) * (0.4 + struggle + flop * 0.9);
         U.uT.value = phase; U.uT2.value = phase2;
         U.uSwim.value = swim; U.uStruggle.value = struggle; U.uFlop.value = flop;
-        if (E.shape === 'puffer') { puff = THREE.MathUtils.damp(puff, Math.min(1, struggle * 0.8 + flop * 0.5), 4, dt); U.uPuff.value = puff; }
+        if (E.shape === 'puffer') {
+          const want = Math.min(1, struggle * 0.8 + flop * 0.5);
+          // (LAKE 2, lane F: a lantern is puffed in the show, and lit through its skin as it swells)
+          puff = THREE.MathUtils.damp(puff, P.opts.lantern && wetK > 0.5 ? Math.max(want, LANTERN_SHOW_PUFF) : want, 4, dt); U.uPuff.value = puff;
+          if (P.opts.lantern) bodyMat.emissiveIntensity = (glowBase + LANTERN_GLOW * puff) * glowK * (1 - silK);
+        }
         // whole-body motion: struggle roll-thrash, flop = lying on the side & hopping
         const targetRoll = flop > 0.01 ? Math.PI / 2 * 0.92 : 0;
         roll = THREE.MathUtils.damp(roll, targetRoll, 6, dt);
@@ -1051,7 +1565,7 @@ export function createFishFactory(ctx) {
         const fr = THREE.MathUtils.clamp(Number(frac) || 0, 0, 1), zM = E.ext.maxZ - fr * E.extentTrue, f = P.f;
         out.z = zM * k;
         const sM = 0.5 - zM;
-        if (f && sM >= 0 && sM <= (E.shape === 'ray' ? 0.8 : 1)) {
+        if (f && sM >= 0 && sM <= (P.s1 ?? (E.shape === 'ray' ? 0.8 : 1))) {
           out.halfW = Math.max(0.003, f.w(sM)) * k; out.top = (f.yc(sM) + Math.max(0.003, f.ht(sM))) * k; out.bottom = (f.yc(sM) - Math.max(0.003, f.hb(sM))) * k;
         } else if (f) { out.halfW = 0.012 * k; out.top = 0.014 * k; out.bottom = -0.012 * k; }   // past the body: a tail stalk
         else {   // no profile (crayfish, jelly): the box, rounded off toward both ends
@@ -1093,6 +1607,7 @@ export function createFishFactory(ctx) {
       /** 0 → 1: just out of the water: the skin glints (the lantern and the moon key catch it). 0 gives the dry skin back. */
       setWet(kk = 1) {
         const w = THREE.MathUtils.clamp(Number(kk) || 0, 0, 1);
+        if (cloud) { if (w > 0 && cloud.parent !== pivot) pivot.add(cloud); else if (w <= 0 && cloud.parent) cloud.parent.remove(cloud); }
         if (Math.abs(w - wetK) < 1e-3) return;
         wetK = w;
         for (const r of wetMats) { r.u.gwSurf.value.x = r.g + (0.55 - r.g) * w; r.u.gwSurf.value.y = r.e + (26 - r.e) * w; }
