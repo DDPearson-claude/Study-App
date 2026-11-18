@@ -550,7 +550,11 @@ export function waterOpen(meta, D, waterId) {
  */
 export function mapCards(D, metaLoop, { meta = null } = {}) {
   const ml = isObj(metaLoop) ? metaLoop : {}, P = isObj(D?.LOOP?.places) ? D.LOOP.places : {};
-  const lakes = (Array.isArray(ml.maps?.lakes) ? ml.maps.lakes : []).filter((w) => waterShipped(D, w));
+  // (LAKE 2, lane S: Murk sells a water's place maps at that water, where the barge lies, as he sells its lures and tins; another
+  // water's maps wait there. Before the tow the Mossmere's shelf offers exactly what it did: only a later lake map bought ahead of its
+  // tow, once that water ships, would have put its place maps there)
+  const here = typeof ml.barge?.water === 'string' && isObj(D?.LOOP?.waters?.[ml.barge.water]) ? ml.barge.water : firstWater(D);
+  const lakes = (Array.isArray(ml.maps?.lakes) ? ml.maps.lakes : []).filter((w) => waterShipped(D, w) && w === here);
   const have = new Set(Array.isArray(ml.maps?.places) ? ml.maps.places : []), ids = Object.keys(P);
   const places = ids.filter((id) => isObj(P[id]) && lakes.includes(P[id].water) && !have.has(id) && P[id].secret !== true)   // (a secret place is shown, never sold)
     .sort((a, b) => num(P[a].price, Infinity) - num(P[b].price, Infinity) || ids.indexOf(a) - ids.indexOf(b)).slice(0, 2)

@@ -5855,6 +5855,26 @@ TEXT_LOOP.carry = 'Carried {r} · {l} · {c}';   // rod · line · reel (the Wic
 TEXT_LOOP.guide.newWater = "New water: new gear, lures and bait at Murk's.";   // one box, at the first cast at a new water (ui-guide.js)
 // <<< LAKE 2, lane D1
 
+// >>> LAKE 2, lane S (docs/loop/LAKE2.md §7.3; FINDS §5.2): Sporewood's five treasures, one a grade, sold to Murk at Sporewood's value
+// tier by FINDS §4.2's rule (24 · 72 · 180 · 600 · 3,000 at tier 12); the jackpot is 1% of its snags. Its barge parts, looks and lost
+// tackle are later (§10): until then a snag at Sporewood brings up a treasure (findShares: no part or look to share with). `size` the
+// prop's length in metres, `pose` the show's hold (models-finds.js draws them; ui-finds.js their ink)
+LOOP.finds.items.push(
+  { id: 'seed_jar', water: 'sporewood', kind: 'treasure', grade: 'plain', pose: 'pinch', size: 0.15 },
+  { id: 'skep_lid', water: 'sporewood', kind: 'treasure', grade: 'fine', pose: 'both', size: 0.34 },
+  { id: 'gardeners_trowel', water: 'sporewood', kind: 'treasure', grade: 'precious', pose: 'pinch', size: 0.28 },
+  { id: 'cloche_handle', water: 'sporewood', kind: 'treasure', grade: 'rare', pose: 'pinch', size: 0.1 },
+  { id: 'seedkeeper_casket', water: 'sporewood', kind: 'treasure', grade: 'jackpot', pose: 'both', size: 0.3 },
+);
+Object.assign(TEXT_LOOP.finds.items, {
+  seed_jar: { name: 'Seed Jar', line: 'Still sealed. Still waiting for spring.' },
+  skep_lid: { name: 'Bee-Skep Lid', line: 'Woven straw. The bees left long ago.' },
+  gardeners_trowel: { name: "Gardener's Trowel", line: 'Brass, worn bright on one side.' },
+  cloche_handle: { name: 'Cloche Handle', line: 'From a glass bell over seedlings.' },
+  seedkeeper_casket: { name: "The Seed-Keeper's Casket", line: 'Every seed the gardens ever kept.' },
+});
+// <<< LAKE 2, lane S
+
 // >>> LAKE 2, lane W1 (docs/loop/LAKE2.md §1A (2), §3.1, §3.5): Sporewood Pools' natural basin, the arena the loop builds it from. Under the
 // loop only (the apply block puts it in ZONES[1].arena; the flag-off game keeps its own Sporewood, twoBasins and its round Cap Reefs).
 // `outline`: the shore, a closed centripetal Catmull-Rom curve through these 49 points (world metres, x east, z toward the camera at the

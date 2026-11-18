@@ -95,6 +95,14 @@ export const ICONS = {
   // the Bent Spoon (GEAR-GATES §2.1): a dull pewter bowl, matte (no glint), creased across, its cut stem kinked, a plain hook below
   bentspoon: P('M15.2 3.4c2 .3 3 2.4 2.6 4.6s-1.9 3.8-3.8 3.5-2.9-2.4-2.5-4.6 1.7-3.8 3.7-3.5z') + P('M15.2 3.4c2 .3 3 2.4 2.6 4.6s-1.9 3.8-3.8 3.5-2.9-2.4-2.5-4.6 1.7-3.8 3.7-3.5z', FO(0.3))
     + P('M12.2 7.2c1.6-.2 3.8.4 5.4 1.6', ' stroke-opacity=".6"') + P('M13 11.4l-1.6 3.4-3.6 1.4-1.6 2.6') + P('M6.2 18.8c-.8 1.6-.2 2.6.8 2.3', ' stroke-opacity=".85"'),
+  // LAKE 2, lane S (LAKE2.md §7.1): Sporewood's own lures. The Seedpod Twirl: a winged key, its plump seed low, the wing's veins, the hook
+  // through the seed; the Ember Minnow: a carved minnow, its lip, the cinder inside; the Root Jig: a knot of root on a pebble, a moss tuft
+  seedpod: P('M8.6 16.4c-1.6-1.6-1.4-4 .4-5.2 1.8-1.2 4-.6 4.8 1.2.8 2-.4 4.2-2.4 4.6') + P('M12.8 12c1.6-3.4 4-6.4 7.2-8.2-.6 3.6-2.6 7-5.6 9.4')
+    + P('M13.6 11.6c1.4-1.8 3.2-3.8 5.2-5.4M14.2 12.6c1.6-1.2 3.2-2.8 4.4-4.4', ' stroke-opacity=".55"') + P('M9.4 16.8v2.6c0 1.6-2 1.8-2.2.4'),
+  minnow: P('M3.6 12c2.4-3.2 7-4.4 11.4-3.6 1.8.4 3.4 1.2 4.6 2.2l1.4-2.2v7.2l-1.4-2.2c-1.2 1-2.8 1.8-4.6 2.2-4.4.8-9-.4-11.4-3.6z')
+    + P('M3.6 12l-1.4-.9') + C(6.8, 11.2, 0.8, F) + P('M10.4 12.2c.6-1.4 2-1.6 2.6-.4.4 1-.4 2-1.4 1.8', ' stroke-opacity=".7"') + P('M11 15.8v2.4c0 1.4-1.8 1.6-2 .4'),
+  rootjig: C(7.6, 9.6, 3) + P('M10.4 10.8c2 .4 3.4 1.6 4.4 3.2M9.8 12.4c1.2 1.6 1.4 3.4 1 5.2M10.6 8.6c2.2-.6 4-1.6 5.4-3.2')
+    + P('M14.8 14c1.4.6 2.6 1.8 3.4 3.4M16 5.4c1.2.2 2.2-.2 3-1M18.2 17.4c.8.4 1.6.4 2.2 0M18.2 17.4c0 1 .4 1.8 1.2 2.2', ' stroke-opacity=".7"') + P('M6.4 12.4v4.4c0 1.6-2 1.8-2.2.4'),
   bundle: P('M7.4 9.5c-2 2-2.5 5-1.6 8 .7 2 2.8 3 6.2 3s5.5-1 6.2-3c.9-3 .4-6-1.6-8z') + P('M8.2 9.5c1-1.6 2.4-2 3.8-2s2.8.4 3.8 2M10 6l2 1.4L14 6'),
   scale: P('M5 9c0 6 3 10 7 12 4-2 7-6 7-12-2-3-4.5-4.5-7-4.5S7 6 5 9z') + P('M8 10c2.6-1.4 5.4-1.4 8 0M9 14c2-1 4-1 6 0', ' stroke-opacity=".55"'),
   bobber: C(12, 13, 4.5) + P('M7.5 13h9') + P('M12 8.5V4M12 4l2.2-1', '') + P('M3 20.2c2 .8 4 .8 6 0M15 20.2c2 .8 4 .8 6 0', ' stroke-opacity=".5"'),

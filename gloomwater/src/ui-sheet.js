@@ -70,7 +70,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
     lines.push(AF.gearLine(D, p.found ? { id: p.found, kind: p.slot, found: true, hold: p.values.hold } : { kind: p.slot, hold: p.values.hold }));   // (LOST-TACKLE §6.2: a found piece's lines)
     return { key: p.key, slot: p.slot, level: p.level, name: p.name, notches: p.found ? null : p.notches, notchLabel: notchLabel(p.notches), lines, fresh: !!p.fresh,
       figure: p.slot === 'rod' ? `${p.values.castMax} m` : `+${p.values.hold} Hold`,
-      next: p.next ? { id: p.next.id, text: nextLine(p.next), compare: cmpLine(p.next.compare) } : null, art: p.found ? null : { id: p.key, slot: p.slot, level: p.level }, find: p.found || null };
+      next: p.next ? { id: p.next.id, text: nextLine(p.next), compare: cmpLine(p.next.compare) } : null, art: p.found ? null : { id: p.key, slot: p.slot, level: p.level, ...(p.itemId ? { itemId: p.itemId, gearWater: p.gearWater } : {}) }, find: p.found || null };
   };
   const hk = M.tackle?.hook || {};
   const itemWords = (kind, id) => {
@@ -121,11 +121,11 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
   // ---- Raft and Home
   const raftPlate = (p) => {
     const out = { key: p.key, slot: p.slot, level: p.level, name: p.name, owned: !!p.owned, notches: p.notches, notchLabel: notchLabel(p.notches), lines: [], fresh: !!p.fresh,
-      figure: '', ticks: null, dots: null, next: null, night: false, art: { slot: p.slot, level: p.owned ? p.level : Math.max(1, p.level + 1) } };
+      figure: '', ticks: null, dots: null, next: null, night: false, art: { slot: p.slot, level: p.owned ? p.level : Math.max(1, p.level + 1), ...(p.gearWater ? { gearWater: p.gearWater } : {}) } };
     const nx = p.next ? { id: p.next.id, text: nextLine(p.next), extra: '' } : null;
     if (p.slot === 'hold') {
       out.ticks = { n: p.values.slots, extra: p.values.extra }; out.dots = p.values.good;
-      out.art = { slot: 'hold', level: p.level };
+      out.art = { slot: 'hold', level: p.level, ...(p.itemId ? { itemId: p.itemId, gearWater: p.gearWater } : {}) };
       if (nx) { nx.ticks = p.next.slots; nx.dots = p.next.good; }
     } else if (!p.owned) { /* not owned yet: faint, no line and no number */ }
     else if (p.slot === 'oars') { out.lines.push(T.shelf?.oars || '', `+${p.values.speed.toFixed(1)} m/s`); out.figure = `+${p.values.speed.toFixed(1)} m/s`; }
@@ -431,7 +431,7 @@ function artSvg(a, uid) {
   else if (a.slot === 'tin') card = { id: `tin:${a.id}`, slot: 'tin', baitId: a.id };
   else if (a.slot === 'bait') card = { id: `bait:${a.id}`, slot: 'bait', baitId: a.id };
   else if (a.slot === 'hook') card = { id: 'hook:bare', slot: 'hook' };
-  else card = { id: `${a.slot}:${a.level}`, slot: a.slot, level: a.level };
+  else card = { id: `${a.slot}:${a.level}`, slot: a.slot, level: a.level, ...(a.itemId ? { itemId: a.itemId } : {}), ...(a.gearWater ? { gearWater: a.gearWater } : {}) };   // (LAKE 2, lane S)
   try { return engrave(card, { uid }); } catch { return ''; }
 }
 

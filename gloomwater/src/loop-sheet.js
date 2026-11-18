@@ -253,7 +253,8 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     const next = nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, compare: cmp(refLand(kit), refLand(nkit)) } : null;
     const of = firstAge ? tierOf.length : Math.max(0, tiersOf(D, gw, slot).length - 1);
     return { key: `${slot}:${t}`, slot, level: t, name: rec.name || '', owned: true, found: fid || null, notches: { on: Math.min(t, of), of },
-      values, figure: slot === 'rod' ? { m: values.castMax } : { hold: values.hold }, next, fresh: t >= 1 && isFresh(`${slot}:${t}`) };
+      values, figure: slot === 'rod' ? { m: values.castMax } : { hold: values.hold }, next, fresh: t >= 1 && isFresh(`${slot}:${t}`),
+      ...(gw !== firstWaterOf(D) && t >= 1 && tier?.id ? { itemId: tier.id, gearWater: gw } : {}) };   // (LAKE 2, lane S: its own engraving)
   });
   const rating = D?.TACKLE?.reference?.[water] && metOf(meta, D.TACKLE.reference[water]) && typeof D.catchRating === 'function'
     ? D.catchRating(water, kit) : null;
@@ -281,12 +282,14 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     figure: { slots: wickSlots(hs) },
     next: creelNx ? { key: creelNx.id, id: creelNx.id, name: creelNx.name, price: creelNx.price, slots: wickSlots(int(creelNx.level)), good: goodOpen(int(creelNx.level)) } : null,
     fresh: hs > start && isFresh(`hold:${hs}`),
+    ...(gw !== firstWaterOf(D) && arr(GH.ladder).find((s) => int(s.slots) === hs)?.id ? { itemId: arr(GH.ladder).find((s) => int(s.slots) === hs).id, gearWater: gw } : {}),   // (LAKE 2, lane S)
   }];
   const ladderPlate = (tab, slot, R, cur, nameOf) => {
     const prices = arr(R?.prices), w = arr(R?.with), of = prices.filter((_, i) => ownedOrd.has(num(w[i], 1))).length;
     const nx = shelfOf(slot);
     return { key: `${slot}:${cur}`, slot, level: cur, name: cur >= 1 ? nameOf(cur) : nameOf(1), owned: cur >= 1, notches: { on: Math.min(cur, of), of },
-      values: {}, figure: null, next: nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, level: int(nx.level) } : null, fresh: cur >= 1 && isFresh(`${slot}:${cur}`) };
+      values: {}, figure: null, next: nx ? { key: nx.id, id: nx.id, name: nx.name, price: nx.price, level: int(nx.level) } : null, fresh: cur >= 1 && isFresh(`${slot}:${cur}`),
+      ...(tab === 'raft' && gw !== firstWaterOf(D) ? { gearWater: gw } : {}) };   // (LAKE 2, lane S: a later water's raft parts draw as its own)
   };
   const gearName = (slot) => (lv) => (gw !== firstWaterOf(D) ? D?.TEXT_LOOP?.gearNamesAt?.[gw]?.[slot]?.[lv - 1] : null) ?? D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1] ?? `${slot} ${lv}`;
   const homeName = (slot) => (lv) => D?.TEXT_LOOP?.homeNames?.[slot]?.[lv - 1] ?? `${slot} ${lv}`;
