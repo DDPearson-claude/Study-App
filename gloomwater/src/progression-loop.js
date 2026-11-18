@@ -529,6 +529,20 @@ export function sealsOf(meta, D, waterId = 'sporewood') {
   };
 }
 /**
+ * LAKE 2, lane C (SPEC §5.5: "the keys gate sailing, never buying"; a water opens for good when all three are held): is a water open,
+ * its sheet drawn on the Chart and its Sail live? The first water always; a later one once its lake map is owned and shipped and its
+ * gear and catch keys are held, or once the home has lain there (towed: open for good, though the key it bought stays behind). Pure.
+ */
+export function waterOpen(meta, D, waterId) {
+  const ml = isObj(meta?.loop) ? meta.loop : {};
+  if (typeof waterId !== 'string' || !isObj(D?.LOOP?.waters?.[waterId]) || !waterShipped(D, waterId)) return false;
+  if (waterId === firstWater(D)) return true;
+  if (!(Array.isArray(ml.maps?.lakes) && ml.maps.lakes.includes(waterId))) return false;
+  if (Array.isArray(ml.barge?.towed) && ml.barge.towed.includes(waterId)) return true;
+  const k = sealsOf(isObj(meta) ? { ...meta, loop: ml } : { loop: ml }, D, waterId);
+  return k.gear.held === true && k.catch.held === true;
+}
+/**
  * Murk's map cards (SPEC §5.1 rule 8, M1.md §2.4): the two cheapest place maps of the owned, shipped waters not yet owned (by price,
  * then the Chart's order), then the next lake's card; at most three, in that order. A place card: {id: 'place:<id>', placeId, kind, price,
  * fish (the fish its card names), line (TEXT_LOOP.maps), hours (that fish's hour glyphs)}; the lake card: {id: 'lake:<id>', waterId,
@@ -1019,7 +1033,8 @@ export function createLoop(S) {
   function isOpen(waterId) {
     const L = ensureLoop();
     if (!L || typeof waterId !== 'string') return false;
-    return !!LOOP().waters?.[waterId] && waterShipped(D(), waterId) && (L.maps?.lakes || []).includes(waterId);
+    // (LAKE 2, lane C: the gear and catch keys gate the Sail too, until the home has lain there: waterOpen)
+    return !!LOOP().waters?.[waterId] && waterShipped(D(), waterId) && (L.maps?.lakes || []).includes(waterId) && waterOpen(meta() || { loop: L }, D(), waterId);
   }
   function createTrip({ startZone = 'mossmere', character = null } = {}) {
     const L = ensureLoop();
@@ -1133,7 +1148,11 @@ export function createLoop(S) {
     if (it.slot === 'hold') L.holdSlots = it.level;
     else if (applyHome(D(), L, it)) { /* M1 step 5b: a home level or a look (src/home-shelf.js) */ }
     else if (it.slot === 'place') { if (!L.maps.places.includes(it.placeId)) L.maps.places.push(it.placeId); }
-    else if (it.slot === 'lake') { if (!L.maps.lakes.includes(it.waterId)) L.maps.lakes.push(it.waterId); }
+    else if (it.slot === 'lake') {
+      if (!L.maps.lakes.includes(it.waterId)) L.maps.lakes.push(it.waterId);
+      // (LAKE 2, lane C: the places a lake map opens (LOOP.places' `lake`, Sporewood's Lullaby and Gill Harp) are owned with it)
+      for (const [pid, p] of Object.entries(isObj(LOOP().places) ? LOOP().places : {})) if (isObj(p) && p.water === it.waterId && p.lake === true && !L.maps.places.includes(pid)) L.maps.places.push(pid);
+    }
     else if (it.slot === 'bait') {
       if (!isObj(L.bait)) L.bait = {};
       const bag = isObj(L.bait[it.water]) ? L.bait[it.water] : (L.bait[it.water] = {});
@@ -1173,7 +1192,9 @@ export function createLoop(S) {
       return lines[i];
     }
     if (L.said[id]) return null;
-    const text = id === 'firstChart' ? (M.firstChartBy?.[wickNow()] ?? M.firstChart) : M[id];
+    // (LAKE 2, lane C: 'at:<water>:<key>', a later water's own line, TEXT_LOOP.murk.at[water][key], each once)
+    const atK = /^at:([a-z_]+):([a-z]+)$/.exec(id);
+    const text = atK ? M.at?.[atK[1]]?.[atK[2]] : id === 'firstChart' ? (M.firstChartBy?.[wickNow()] ?? M.firstChart) : M[id];
     if (typeof text !== 'string' || !text) return null;
     L.said[id] = true;
     requestSave();

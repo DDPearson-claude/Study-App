@@ -7,7 +7,10 @@
 // in the opening, the water's sheet inking in as they arrive. Murk's wake line is the only word (TEXT_LOOP.murk.wake). The ink dip
 // is this view's overlay too. Never a ring or a disc round the raft, the Wick or the barge.
 //
-//   createTowView(K) → {open({water, opening, onTap}), paint(state), dip(alpha), close(), isTop(), prepare(), debug()}
+//   createTowView(K) → {open({water, opening, onTap}), paint(state), dip(alpha), close(), isTop(), prepare(), leave(o), debug()}
+// LAKE 2, lane C (LAKE2 §5.2, §6.3): a later water's leg (Sporewood's up the Lockwater from the Mossmere's south end) follows its own
+// piece from the water left to the new one over every sheet the road has inked (no ink-in: its purchase inked it), and leave(o) is the
+// leaving card before a water's first Sail: what stays, what the hands keep (its figures), what waits and what comes; Tow and Not yet.
 //   pure (node: tools/tests/loop-tow.test.mjs): towFrame(W, H, phone) · legPoint(piece, s, reverse) · towMarks(piece, u, reverse)
 import { chartView, prepPieces, pointOnPiece, road, lantern, deckle, ease, C, clamp } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
@@ -43,7 +46,7 @@ export function createTowView(K) {
   const { ctx, h } = K;
   const D = () => K.D?.() || ctx.data || {};
   const report = (w, e) => { try { K.report?.(`tow.${w}`, e); } catch { /* ignore */ } };
-  const S = { art: null, status: 'idle', entry: null, cv: null, line: null, onTap: null, water: null, opening: false, dipEl: null, mask: null, sheet: null, paints: 0, last: null };
+  const S = { art: null, status: 'idle', entry: null, cv: null, line: null, onTap: null, water: null, opening: false, dipEl: null, mask: null, sheet: null, paints: 0, last: null, upTo: 1 };
 
   // ---- the bake and its paper, decoded once in idle time (the drawn Chart decodes its own; this is the tow's copy)
   // a data: URI decodes through an <img> only, never fetch(): a page host's Content-Security-Policy may block fetch() of data:
@@ -54,19 +57,24 @@ export function createTowView(K) {
     if (typeof createImageBitmap === 'function') { try { return await createImageBitmap(img); } catch { /* the <img> itself draws */ } }
     return img;
   };
-  async function prepare() {
-    if (S.status !== 'idle') return S.status;
+  // (LAKE 2, lane C: the sheets up to `upTo` (a later water's leg crosses its own sheet and the ones before it), each decoded once)
+  async function prepare(upTo = 1) {
+    S.upTo = Math.max(S.upTo, upTo);
+    if (S.status === 'loading' || (S.status === 'ready' && S.art.sheets.length >= (CHART_ART?.sheets || []).filter((q) => q.n <= S.upTo).length)) return S.status;
     S.status = 'loading';
     try {
-      const A = CHART_ART, first = A?.sheets?.[0];
-      if (!first) throw new Error('no chart art');
-      const [image, paper] = await Promise.all([decode(first.uri), A.paper ? decode(A.paper.uri) : null]);
-      S.art = { box: first.box, image, paper };
+      const A = CHART_ART, want = (A?.sheets || []).filter((q) => q.n <= S.upTo);
+      if (!want.length) throw new Error('no chart art');
+      const have = S.art?.sheets || [];
+      const sheets = await Promise.all(want.map(async (q) => have.find((o) => o.n === q.n) || { n: q.n, box: q.box, image: await decode(q.uri) }));
+      const paper = S.art?.paper || (A.paper ? await decode(A.paper.uri) : null);
+      S.art = { box: sheets[0].box, image: sheets[0].image, sheets, paper };
       if (A.live?.pieces && !A.live.pieces[0]?.pts) prepPieces(A.live.pieces);
       S.status = 'ready';
     } catch (e) { S.status = 'failed'; report('decode', e); }
     return S.status;
   }
+  const sheetOfWater = (w) => (CHART_ART?.live?.waters || []).find((q) => q.water === w)?.n || 1;
   // the sheet decoded ahead in an idle moment only while the opening's tow is still to play (a returning player never sees it again:
   // no decode, no memory on their boots); open() prepares it lazily in every case
   const due = () => { try { const d = D(); return typeof d.towOpeningDue === 'function' && d.towOpeningDue(ctx.state?.meta?.loop) === true; } catch { return false; } };
@@ -87,13 +95,24 @@ export function createTowView(K) {
 .gw-tow-say { position: absolute; left: 0; right: 0; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
 .gw-tow-say .gw-murk-line { max-width: min(76ch, 92vw); }
 .gw-tow-dip { position: fixed; inset: 0; background: rgb(${INK_RGB}); opacity: 0; pointer-events: none; z-index: 60; }
-.gw-tow .gw-loop-pauseglyph { z-index: 3; }`;
+.gw-tow .gw-loop-pauseglyph { z-index: 3; }
+.gw-p-leave { width: min(520px, 92vw); text-align: center; }
+.gw-p-leave .gw-ph h2 { font-size: var(--t-h2); }
+.gw-p-leave .gw-leave-art { display: block; width: min(300px, 70vw); height: 64px; margin: 2px auto 8px; }
+.gw-p-leave .gw-leave-line { margin: 6px auto; max-width: 40ch; font-size: 17px; line-height: 1.35; text-wrap: balance; }
+.gw-p-leave .gw-leave-keeps { margin-top: 12px; }
+.gw-p-leave .gw-leave-carry { display: flex; justify-content: center; gap: 18px; margin: 4px 0 12px; font-size: 19px; }
+.gw-p-leave .gw-leave-fig { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.gw-p-leave .gw-leave-fig i { display: inline-flex; width: 24px; height: 24px; }
+.gw-p-leave .gw-leave-fig i svg { width: 100%; height: 100%; }
+.gw-p-leave .gw-leave-foot { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.gw-p-leave .gw-leave-foot .gw-btn { min-width: 132px; min-height: 48px; }`;
     document.head.appendChild(st);
   }
 
   function open({ water = 'mossmere', opening = false, onTap = null } = {}) {
     styles();
-    if (S.status === 'idle') prepare();
+    prepare(opening ? 1 : sheetOfWater(water));
     S.water = water; S.opening = opening; S.onTap = onTap; S.line = null; S.last = null;
     const entry = K.openModal('tow', (en, body) => {
       const wrap = h('div', 'gw-tow');
@@ -151,10 +170,13 @@ export function createTowView(K) {
     const pc = legD ? piece(legD.piece) : null;
     if (pc && !pc.pts) prepPieces([pc]);
     const u = clamp(num(st.u, 0), 0, 1), ink = clamp(num(st.ink, 1), 0, 1), kin = clamp(num(st.kindle, 1), 0, 1), t = num(st.t, 0) * 1000;
-    const eu = ease(u);
-    // the view: closed in on the Landing, opening out down the leg to the water
-    const k0 = Math.min(F.w / (F.phone ? 52 : 74), F.h / 50), k = lerp(k0 * 1.3, k0 * 0.62, eu);   // (a phone's tall sheet: closer, the leg runs down it)   // (closed in on the Landing, out to the water)
-    const cx = lerp(LANDING.view[0], LANDING.end[0], eu), cy = lerp(LANDING.view[1], LANDING.end[1], eu);
+    const eu = ease(u), opening = st.opening ?? S.opening;
+    // the view: closed in on the Landing, opening out down the leg to the water (a later water's: from the water left, along its own
+    // leg, opening out over the new water's sheet: LAKE 2, lane C)
+    const k0 = Math.min(F.w / (F.phone ? 52 : 74), F.h / 50);   // (a phone's tall sheet: closer, the leg runs down it)
+    const ends = !opening && pc ? [legPoint(pc, 0, legD.reverse === true), legPoint(pc, pc.len, legD.reverse === true)] : null;
+    const k = ends ? lerp(k0 * 1.15, k0 * 0.8, eu) : lerp(k0 * 1.3, k0 * 0.62, eu);
+    const cx = ends ? lerp(ends[0].x, ends[1].x, eu) : lerp(LANDING.view[0], LANDING.end[0], eu), cy = ends ? lerp(ends[0].y, ends[1].y, eu) : lerp(LANDING.view[1], LANDING.end[1], eu);
     const V = chartView({ x: cx, y: cy, k, vw: W, vh: H, dpr, ox: F.x + F.w / 2, oy: F.y + F.h / 2 });
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
@@ -177,9 +199,11 @@ export function createTowView(K) {
       if (sub) road(g, V, [sub], { own: [0], alpha: 1 });
       V.screenSpace(g);
     }
-    // the water's lantern, lit as its sheet inks in
+    // the water's lantern, lit as its sheet inks in (a later leg: the water left's lamp lit too)
     const wat = (CHART_ART?.live?.waters || []).find((w) => w.water === (st.water || S.water));
     const u0 = clamp(k * 0.55, 5.2, 9);
+    const left = legD?.from ? (CHART_ART?.live?.waters || []).find((w) => w.water === legD.from) : null;
+    if (left && !opening) lantern(g, V.sx(left.at[0]), V.sy(left.at[1]), u0, true, false);
     if (wat && ink > 0.02) { g.save(); g.globalAlpha = ink; lantern(g, V.sx(wat.at[0]), V.sy(wat.at[1]), u0, ink > 0.6, false); g.restore(); }
     // the arch over the cove (the opening's Landing)
     if (st.opening || S.opening) archMark(g, V.sx(LANDING.arch[0]), V.sy(LANDING.arch[1]), clamp(k / 6.5, 0.8, 2.2));
@@ -210,7 +234,6 @@ export function createTowView(K) {
     return sub;
   }
   function drawSheet(g, V, W, H, dpr, pc, legD, M, ink) {
-    const box = S.art.box, img = S.art.image;
     const w = Math.round(W * dpr), hh = Math.round(H * dpr);
     const mk = (c) => { if (!c || c.width !== w || c.height !== hh) { c = document.createElement('canvas'); c.width = w; c.height = hh; } return c; };
     S.mask = mk(S.mask); S.sheet = mk(S.sheet);
@@ -224,7 +247,7 @@ export function createTowView(K) {
     s.setTransform(1, 0, 0, 1, 0, 0); s.clearRect(0, 0, w, hh); s.globalCompositeOperation = 'source-over';
     s.setTransform(dpr, 0, 0, dpr, 0, 0);
     s.imageSmoothingEnabled = true; s.imageSmoothingQuality = 'high';
-    s.drawImage(img, V.sx(box[0]), V.sy(box[1]), box[2] * V.k, box[3] * V.k);
+    for (const q of S.art.sheets || [{ box: S.art.box, image: S.art.image }]) s.drawImage(q.image, V.sx(q.box[0]), V.sy(q.box[1]), q.box[2] * V.k, q.box[3] * V.k);
     s.setTransform(1, 0, 0, 1, 0, 0); s.globalCompositeOperation = 'destination-in'; s.drawImage(S.mask, 0, 0); s.globalCompositeOperation = 'source-over';
     g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(S.sheet, 0, 0); g.restore();
   }
@@ -297,8 +320,62 @@ export function createTowView(K) {
     g.restore();
   }
 
+  // ---- the leaving card (LAKE 2, lane C; LAKE2 §5.2): before a water's first Sail, over the Chart. Its title, the raft towing the barge
+  // in ink, four short lines (what stays, what the hands keep with its figures, what waits, what comes), Tow and Not yet. Nothing is
+  // written until Tow (the tow writes the carry and the reset as its leg begins); Not yet, Escape or Back leave the Chart as it was.
+  function leave({ water = null, terms = null, onTow = null } = {}) {
+    const parts = K.screens?.parts || {}, { panel, btn } = parts;
+    const TL = D()?.TEXT_LOOP || {}, W = TL.leave || {};
+    if (!panel || !btn || !terms || typeof water !== 'string') return false;
+    styles();
+    const name = D()?.ZONE_BY_ID?.[water]?.name || water;
+    const go = () => { K.sfx?.('ui_click'); K.closeModal('leave', { instant: true }); try { onTow?.(); } catch (e) { report('leave tow', e); } };
+    const stay = () => { K.sfx?.('ui_click'); K.closeModal('leave'); };
+    K.openModal('leave', (entry, body) => {
+      const { panel: pn, content, foot } = panel(entry, body, { title: String(W.title || 'To {water}').replace('{water}', name), cls: 'gw-p-leave', close: false });
+      pn.dataset.loop = 'leave';
+      pn.dataset.water = water;
+      const art = h('canvas', 'gw-leave-art'); art.setAttribute('aria-hidden', 'true');
+      content.appendChild(art);
+      const line = (text, cls = '') => { const p = h('p', `gw-leave-line${cls}`); p.textContent = text; content.appendChild(p); return p; };
+      line(W.stays || '');
+      line(W.keeps || '', ' gw-leave-keeps');
+      // the figures the hands keep, each by its tackle's glyph: never a percentage, never a word more
+      const c = terms.carry || {}, row = h('p', 'gw-leave-carry');
+      row.innerHTML = ['rod', 'line', 'reel'].map((k) => `<span class="gw-leave-fig"><i aria-hidden="true">${icon(k)}</i><b>+${Math.max(0, Math.round(Number(c[k]) || 0))}</b></span>`).join('');
+      row.setAttribute('aria-label', terms.line || '');
+      content.appendChild(row);
+      line(W.wait || '');
+      line(W.come || '');
+      foot.classList.add('gw-leave-foot');
+      foot.appendChild(btn(K.esc(String(W.notYet || 'Not yet')), { cls: 'gw-leave-stay', action: 'stay', sound: false, onClick: stay }));
+      foot.appendChild(btn(K.esc(String(W.tow || 'Tow')), { cls: 'gw-btn--primary gw-leave-tow', action: 'tow', autofocus: true, sound: false, onClick: go }));
+      requestAnimationFrame(() => drawLeaveArt(art));
+    }, { cls: 'gw-m-center gw-m-leave', onEscape: stay });
+    return K.has?.('leave') !== false;
+  }
+  /** The card's drawing: the raft's mark towing the barge's on a line, Murk's alongside, on a strip of water, in the Chart's ink. */
+  function drawLeaveArt(cv) {
+    if (!cv?.isConnected) return;
+    const r = cv.getBoundingClientRect(), w = Math.max(40, Math.round(r.width)), hh = Math.max(30, Math.round(r.height));
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(hh * dpr);
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, hh);
+    const z = Math.min(1.6, hh / 40), y = hh * 0.62;
+    g.save(); g.strokeStyle = `rgba(${C.water},.55)`; g.lineWidth = 1; g.lineCap = 'round';
+    for (const [x0, x1, dy] of [[0.08, 0.42, 6], [0.5, 0.92, 7], [0.2, 0.7, 12]]) { g.beginPath(); g.moveTo(w * x0, y + dy * z); g.quadraticCurveTo(w * (x0 + x1) / 2, y + (dy - 2) * z, w * x1, y + dy * z); g.stroke(); }
+    g.restore();
+    const bx = w * 0.47, rx = bx + 46 * z;
+    // (the line pale on the card's dark, as the tow's own line reads on the water; Murk's barge alongside, astern of the Hearth)
+    g.save(); g.strokeStyle = 'rgba(226,218,236,.75)'; g.lineWidth = Math.max(1, 0.9 * z);
+    g.beginPath(); g.moveTo(bx + 21 * z, y); g.quadraticCurveTo((bx + rx) / 2, y + 3 * z, rx - 8 * z, y); g.stroke(); g.restore();
+    murkMark(g, bx - 32 * z, y + 1 * z, 0, z * 0.8);
+    bargeMark(g, bx, y, 0, z, 0, true);
+    raftMark(g, rx, y, 0, z, 1, 0, true);
+  }
+
   return {
-    open, close, paint, dip, isTop, isOpen, prepare,
+    open, close, paint, dip, isTop, isOpen, prepare, leave,
     debug: () => ({ status: S.status, open: !!S.entry, paints: S.paints, last: S.last, line: S.line, dip: S.dipEl ? Number(S.dipEl.style.opacity || 0) : 0 }),
   };
 }

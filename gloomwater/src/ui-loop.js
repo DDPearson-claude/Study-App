@@ -22,7 +22,7 @@ import { drawFindArt, findsRowView, FIND_GLYPHS, whereOf } from './ui-finds.js';
 import { fmtClams } from './core.js';
 import { createLoopTutorial, murkLineFor } from './loop-tutorial.js';
 import { createChartView } from './ui-chart.js';
-import { mapCards, sealsOf } from './progression-loop.js';
+import { mapCards, sealsOf, waterOpen } from './progression-loop.js';   // (waterOpen: LAKE 2, lane C)
 import { targetCorners, wickCorners, raftCorners, rectOf, layoutTargets, UNDER_WORD, stickHint } from './home-targets.js';
 import { orderPhraseOk, orderSayOk } from './loop-gear.js';   // M1 step 4 (lane 4): Murk's orders' phrases on the allow-list
 import { createGearView, CHALK_TICK } from './ui-gear.js';   // M1 step 4 (lane 4): the lure slot, the tins, the orders' board, the ticks
@@ -227,7 +227,8 @@ const shipsWater = (D, id) => {
 export function chartModel(meta, D, opts = {}) {
   const ml = isObj(meta?.loop) ? meta.loop : {};
   const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {};
-  const lakes = arr(ml.maps?.lakes).filter((id) => typeof id === 'string' && isObj(W[id]) && shipsWater(D, id));
+  // (LAKE 2, lane C: a water bought but not yet open, its gear or catch key not held, stays the sealed sheet: waterOpen)
+  const lakes = arr(ml.maps?.lakes).filter((id) => typeof id === 'string' && isObj(W[id]) && shipsWater(D, id) && waterOpen(isObj(meta) ? meta : { loop: ml }, D, id));
   if (!lakes.length && isObj(W.mossmere)) lakes.push('mossmere');
   lakes.sort((a, b) => num(W[a].order, 99) - num(W[b].order, 99));
   const zone = (id) => D?.ZONE_BY_ID?.[id] || arr(D?.ZONES).find((z) => z?.id === id) || null;
@@ -259,7 +260,7 @@ export function chartNext(meta, D) {
   if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
   // the frontier is the last water the Chart draws (owned and in LOOP.waters): an old save's unshipped lake is the next sheet, its
   // map seal pressed, never a water past it
-  const drawn = owned.filter((id) => isObj(W[id]) && shipsWater(D, id));
+  const drawn = owned.filter((id) => isObj(W[id]) && shipsWater(D, id) && waterOpen(isObj(meta) ? meta : { loop: ml }, D, id));
   const at = Math.max(-1, ...drawn.map((id) => zones.findIndex((z) => z.id === id)));
   const nz = zones[at + 1];
   if (!nz || at < 0) return null;
@@ -450,13 +451,17 @@ export function liftTitle(p, D) {
  */
 /** LOST-TACKLE §5.2: the lens's hold on the chart table as home opens after the Veil Angler's Notebook's tally (s). */
 const BROOK_HOLD = 1.2;
-export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false, brook = false } = {}) {
+export function saleLineId({ rows = [], said = {}, listDone = false, empty = false, away = false, brook = false, water = null, at = null } = {}) {
   const S = isObj(said) ? said : {};
   // (LOST-TACKLE §5.2: the notebook home shows the brook: its line, and the hold on the chart table, before any other first; `brook`
   // the brook revealed, so a list done the same evening, or a save that brought the notebook home before the brook was built, waits)
   if ((brook === true || arr(rows).some((r) => r.find === 'veil_notebook')) && !S.brook) return 'brook';
   if (listDone && !S.listComplete) return 'listComplete';
-  const gearAway = away === true && !S.firstAway ? 'firstAway' : null;   // GEAR-GATES §4.3: the first trip a fish got away over the gear's cap
+  // (LAKE 2, lane C, LAKE2 §6.4: a later water's own lines, `at` its TEXT_LOOP.murk.at: the first evening home there, then its first cap
+  // loss there (GEAR-GATES' firstAway, per water), each once, by the sayOnce id 'at:<water>:<key>')
+  const atId = (k) => (typeof water === 'string' && isObj(at) && typeof at[k] === 'string' && at[k] && !S[`at:${water}:${k}`] ? `at:${water}:${k}` : null);
+  if (atId('home')) return atId('home');
+  const gearAway = away === true ? (isObj(at) ? atId('away') : !S.firstAway ? 'firstAway' : null) : null;   // GEAR-GATES §4.3: the first trip a fish got away over the gear's cap
   if (empty) return gearAway;
   const R = arr(rows);
   if (R.some((r) => r.legend) && !S.legendFirst) return 'legendFirst';
@@ -1222,12 +1227,13 @@ export function createLoopView(K) {
   /** Murk's line at home (saleLineId's order) and the catch seal's press with it: {line, press: 'catch' | null}. */
   function homeLine({ rows = [], empty = true, zone = null } = {}) {
     const said = L('state')?.said || {};
-    const w = typeof zone === 'string' && zone ? zone : run()?.zone || 'mossmere';
+    const w = typeof zone === 'string' && zone ? zone : run()?.zone || L('barge')?.water || 'mossmere';   // (LAKE 2, lane C: no trip, the barge's water)
     const lc = L('listCount', w);
     const listDone = !!lc && num(Number(lc.need), 0) > 0 && num(Number(lc.have), 0) >= num(Number(lc.need), 0);
     const away = L('lastTrip')?.away === true;
     const brook = arr(L('state')?.places?.revealed).includes('veilback_brook');
-    const id = saleLineId({ rows, said, listDone, empty, away, brook });
+    const at = num(D()?.LOOP?.waters?.[w]?.order, 1) > 1 && isObj(TL().murk?.at?.[w]) ? TL().murk.at[w] : null;   // (LAKE 2, lane C)
+    const id = saleLineId({ rows, said, listDone, empty, away, brook, water: w, at });
     const line = id ? L('sayOnce', id) : null;
     return { line: line || null, id: line ? id : null, press: line && id === 'listComplete' ? 'catch' : null, count: lc ? `${Math.floor(num(Number(lc.have), 0))}/${Math.floor(num(Number(lc.need), 0))}` : null };
   }
@@ -1341,6 +1347,20 @@ export function createLoopView(K) {
   }
   /** The next water's sealed card (SPEC §5.5 (f), M1.md §3.4): its wax, the three seals (the gear seal opens Rod T1's card, the catch
    *  seal the catalogue's list), "Coming soon" where the price would be; no name, no line, no button. */
+  /** LAKE 2, lane C: a shipped lake map's lines (its own, then the leaving note) and its price button on the sealed card. */
+  function lakeBuy(entry, card, c) {
+    const { btn } = parts();
+    const soon = card.querySelector('.gw-shelf-soon');
+    soon.className = 'gw-shelf-line gw-shelf-lake';
+    soon.textContent = TL().maps?.[c.waterId] || '';
+    const note = h('span', 'gw-shelf-line gw-shelf-leaves');
+    note.textContent = TL().mapLeaves || '';
+    card.appendChild(note);
+    if (!btn) return;
+    const b = btn(c.bought ? esc(c.buyWord) : clamTag(c.price), { cls: `gw-btn--sm gw-shelf-buy${c.dear ? ' gw-dear' : ''}`, hooks: !c.bought && !c.dear, disabled: c.bought || c.dear, onClick: () => buy(entry, c.id) });
+    b.dataset.buy = c.id;
+    card.appendChild(b);
+  }
   function sealedCard(entry, c) {
     const card = h('div', 'gw-shelf-card gw-shelf-card--sealed');
     card.dataset.item = c.id;
@@ -1348,6 +1368,8 @@ export function createLoopView(K) {
     card.innerHTML = `<span class="gw-sealed-art">${sealedSheet()}</span><span class="gw-seal-row"></span><span class="gw-shelf-soon"></span>`;
     card.querySelector('.gw-shelf-soon').textContent = TL().comingSoon || 'Coming soon';
     card.querySelector('.gw-seal-row').appendChild(sealRow(c.seals, { from: 'shelf' }));
+    // LAKE 2, lane C (LAKE2 §6.1): a shipped lake map: its line and "Moving on leaves bought gear behind." where "Coming soon" stood, its price
+    if (c.sealed === false && c.price != null) lakeBuy(entry, card, c);
     return card;
   }
   /** The next water's three seals as buttons (the shelf's sealed card, the catalogue's head): map (no tap), gear (the shelf at its
@@ -1382,6 +1404,8 @@ export function createLoopView(K) {
       K.hud?.dirtyStats?.();
       // the first place map (SPEC §8.6, T144): "It's in the mist. Go and look." in the shelf's head, once a save
       if (String(id).startsWith('place:')) { const line = L('sayOnce', 'firstMap'); if (line) entry.state.line = line; }
+      // (LAKE 2, lane C, LAKE2 §6.4: a later water's lake map bought: Murk's line at that water, "New water, new tackle. …")
+      if (String(id).startsWith('lake:')) { const line = TL().murk?.at?.[String(id).slice(5)]?.map; if (line) entry.state.line = line; }
       // M1 step 5b (M1.md §2.5, SPEC §8.6): the shelf's last permanent card bought: Murk's empty-shelf line, once
       try { const all = arr(L('shelf')?.tabs).flatMap((t) => arr(t.items)); if (shelfBare(all)) { const line = L('sayOnce', 'shelfBare'); if (line) entry.state.line = line; } } catch (e) { report('shelfBare', e); }
       // the Order Board (the user, 17 Nov 2026): Murk says what he wants, and the book turns to its cover, his slate in view

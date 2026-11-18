@@ -5906,6 +5906,14 @@ export const SPOREWOOD_ARENA = Object.freeze({
 LOOP.tutorial.outPath.sporewood = [[36.59, 32.5], [42.4, 30.8], [42, 20]];
 // <<< LAKE 2, lane W1
 
+// >>> LAKE 2, lane C (docs/loop/LAKE2.md §6.2, §6.3; SPEC §6.5): the road in. Sporewood's leg of the Lamp Road (the Chart's live piece
+// 'lockwaterA', sailed against the Lockwater's flow, up from the Mossmere's south end through a short reach of rapids, then one kingdom
+// lock: 4 s + 2 × 0.5 s), and its glide in to Rootfoot Landing: the Slow Hearth lies bow out into the East Pool, so it comes in `astern`,
+// the raft towing it in by its stern on the line from the pool, Murk's barge alongside, and the raft ends at the stern's tie-up
+LOOP.tow.legs.sporewood = { from: 'mossmere', piece: 'lockwaterA', reverse: true, crossings: [{ kind: 'fall', at: 0.24 }, { kind: 'locks', at: 0.51 }] };
+LOOP.tow.glideIn.sporewood = { d: 14, line: 3, astern: true };
+// <<< LAKE 2, lane C
+
 // >>> LAKE 2, lane W2 (docs/loop/LAKE2.md §1A, §3.3–§3.6; WATERS §3, §5, §6): Sporewood's look, its landmarks' and its life's figures.
 // Read only under the loop (world-flora.lushLook, world-art, actors-wildlife, world-ambient, render): the flag-off game and the Mossmere
 // (lush 0, no look) never reach any of it, so their programs and geometry stay as they are (outline-shore.test.mjs part 1).

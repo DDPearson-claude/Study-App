@@ -213,7 +213,9 @@ export function createLoopHome(deps) {
     if (L?.tutorial?.()?.done !== true) { try { L?.beginTutorial?.(); } catch (e) { report('loop.beginTutorial', e); } }
     if (from === 'new' || from === 'title') {
       const ml = ctx.state.meta?.loop;
-      showLake(from === 'new' ? LAKE : (ml?.lastTrip?.zone ?? ml?.maps?.lakes?.[0] ?? LAKE));
+      // (LAKE 2, lane C: home is where the barge lies: after a tow, before any evening there, the new water's mooring)
+      const at = typeof ml?.barge?.water === 'string' && (ml?.maps?.lakes || []).includes(ml.barge.water) ? ml.barge.water : null;
+      showLake(from === 'new' ? LAKE : (at ?? ml?.lastTrip?.zone ?? ml?.maps?.lakes?.[0] ?? LAKE));
     }
     setFlow('home');
     const dock = dockAt();
@@ -346,6 +348,39 @@ export function createLoopHome(deps) {
     return true;
   }
 
+  /**
+   * LAKE 2, lane C (LAKE2 §5.2, §6.3; SPEC §6.5): the Sail for a water the barge does not lie at. A water not yet towed to: the leaving
+   * card first (loop.leaveTerms; nothing written; "Not yet" leaves the Chart as it was), then its tow (loop-tow.playTow: the carry and
+   * the reset written as the leg begins, then the leg, the dip and the glide in), then the evening begins at its mooring (this Sail
+   * again: the glide out from the stern). A water towed to before: the way back by the lamps (loop-tow.wayBack: one ink dip, the
+   * barge there as the glide out begins). → the Sail's own answer (false while the card waits), or null for the built Sail.
+   */
+  function sailAway(water, plan, L) {
+    const at = safe(() => L?.barge?.(), null), T = typeof deps.tow === 'function' ? safe(() => deps.tow(), null) : null;
+    if (!at || typeof at.water !== 'string' || at.water === water || !T) return null;
+    const go = { ...plan, water, leave: undefined };
+    const then = () => { S.sailing = false; sail(go); };
+    if (!(at.towed || []).includes(water)) {
+      const card = ctx.ui?.loop?.tow;
+      if (plan?.leave !== true && typeof card?.leave === 'function') {
+        const terms = safe(() => L.leaveTerms?.(water), null);
+        if (terms && safe(() => card.leave({ water, terms, onTow: () => sail({ ...go, leave: true }) }), false) === true) return false;
+      }
+      if (L?.tutorial?.()?.done !== true) { try { L?.tutorialDone?.(); } catch (e) { report('loop.tutorialDone', e); } }
+      closeScreens();
+      S.sailing = true;
+      if (safe(() => T.playTow(water, { onDone: then }), false) === true) return true;
+      S.sailing = false;   // (no tow in this build: towed at once, the world put there, and the Sail goes on: no way to fail)
+      safe(() => L?.towBarge?.(water)); save(); showLake(water); teleportHome();
+      return sail(go);
+    }
+    closeScreens();
+    S.sailing = true;
+    if (safe(() => T.wayBack?.(water, { onDone: then }), false) === true) return true;
+    S.sailing = false;
+    safe(() => L?.towBarge?.(water)); save(); showLake(water); teleportHome();
+    return sail(go);
+  }
   /** The Chart's Sail (PLAN §2.2 item 4, CHOICE 38): the tutorial's done saved first, the screens closed, the 3 s glide out, the trip. */
   function sail(plan = {}) {
     if (S.sailing) return false;
@@ -353,6 +388,7 @@ export function createLoopHome(deps) {
     const water = (plan && typeof plan.water === 'string' && plan.water) || LAKE;
     const L = loopApi();
     if (L?.isOpen?.(water) === false) return false;   // (v8: only an open water; in 1a only the Mossmere, always open)
+    if (ctx.flow === 'home') { const away = sailAway(water, plan, L); if (away !== null) return away; }
     if (L?.tutorial?.()?.done !== true) { try { L?.tutorialDone?.(); } catch (e) { report('loop.tutorialDone', e); } }
     closeScreens();   // (a blocking Chart would freeze the glide, R17)
     if (ctx.flow !== 'home') { showLake(water); resetBeats(); ctx.state.run = null; ctx.paused = false; setFlow('home'); teleportHome(); }
@@ -422,6 +458,8 @@ export function createLoopHome(deps) {
     enterHome, startTrip, endTripHome, beginIntro, sail, canGoHome, goHome, skipHomeGlide, loopApi, moorMurk,
     /** M1 step 5b (LANE 5B-TOW): a home glide for the tow's glide in (a tap or a skip key ends it at its end, as every home glide). */
     glideHome: (path, o) => homeGlide(path, o),
+    /** LAKE 2, lane C: the world put on a water (main's showLake), for the tow's dip into a new water and the way back's. */
+    showWater: (id) => showLake(id),
     /** A home glide is running: its kind ('home' | 'sailOut') or null. */
     gliding: () => (S.glide ? S.glide.kind : null),
     get sailing() { return S.sailing; },

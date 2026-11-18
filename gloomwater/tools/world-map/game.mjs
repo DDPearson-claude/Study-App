@@ -29,7 +29,7 @@ const ART = path.join(root, 'src/chart-art.js');
 
 // M1.md §3.2 (re-set by the spike): the game's resolution and each part's budget, raw bytes
 export const GAME = {
-  scale: { 1: 5.5 },             // px a Chart unit: reach I at 5.5 (the kingdom inset); later reaches at 2.6
+  scale: { 1: 5.5, 2: 5.5, 3: 5.5, 4: 5.5 },   // px a Chart unit: reach I (sheets 1-4) at 5.5 (the kingdom inset); later reaches at 2.6
   quality: 0.9,                  // WebP; the knobs, in order, if a crop is over its line: 0.85, a narrower feather, 5 px a unit
   maskUnit: 0.5,                 // the reveal mask's grid, in Chart units
   budget: { reachI: 100_000, later: 100_000, paper: 6_000, live: 15_000, code: 60_000, inHtml: 200_000 },   // the spike's lines (M1.md §3.2)
@@ -42,9 +42,11 @@ const kb = (n) => `${(n / 1000).toFixed(1)} KB`;
 const b64 = (u) => u.slice(u.indexOf(',') + 1);
 const bytesOf = (u) => Buffer.from(b64(u), 'base64').length;
 
-/** The sheets a build ships: `--sheets=1,2` or, by default, the waters LOOP.shipped names (the Mossmere until step 2 sets it). */
+/** The sheets a build bakes: `--sheets=1,2` or, by default, the waters LOOP.shipped names (the Mossmere until step 2 sets it) and,
+ *  LAKE 2 lane C (LAKE2.md §6.2), the next water LOOP.waters already holds, baked ahead of its gate: the game draws a sheet only once
+ *  its water is owned and ships (chart-draw's owned sheets), so the ahead sheet waits unseen and the gate needs no second bake. */
 export async function shippedSheets(arg) {
-  if (arg) return String(arg).split(',').map((s) => Number(s.trim())).filter((n) => n >= 1 && n <= 16);
+  if (arg) return String(arg).split(',').map((s) => Number(s.trim())).filter((n) => n >= 1 && n <= 16).sort((a, b) => a - b);
   globalThis.GW_V3 = true; globalThis.GW_LOOP = true;
   const D = await import(path.join(root, 'src/data.js'));
   const W = D.LOOP?.waters || {};
@@ -52,7 +54,10 @@ export async function shippedSheets(arg) {
   const shipped = D.LOOP?.shipped;
   const ids = Array.isArray(shipped) ? shipped : typeof shipped === 'string' ? Object.keys(W).filter((id) => order(id) && order(id) <= order(shipped)) : Object.keys(W);
   const ns = ids.map(order).filter(Boolean).sort((a, b) => a - b);
-  return ns.length ? ns : [1];
+  if (!ns.length) ns.push(1);
+  const ahead = Math.max(...ns) + 1;
+  if (ahead <= 16 && Object.keys(W).some((id) => order(id) === ahead)) ns.push(ahead);
+  return ns;
 }
 
 /** The minified bytes of a source (esbuild, as the game's build minifies). */
@@ -199,23 +204,31 @@ function edgeLines(alpha, sheets, box) {
 /** Where, inside the shipped sheets' boxes, an unshipped sheet's ground lies (and no shipped sheet's): the game draws nothing there
  *  but paper. Written for the Chart's pixel test only (tools/tests/fixtures/chart-veil.json); the game never reads it. */
 function veilGrid(alpha, sheets, boxes) {
-  const all = Array.from({ length: 16 }, (_, i) => i + 1), later = all.filter((n) => !sheets.includes(n)), out = [];
+  // LAKE 2 lane C: one grid for each count of sheets owned (the road only goes forward, so the owned sheets are always the first n):
+  // inside the owned sheets' window (their boxes' union, as the Chart draws it), the cells of every sheet not yet owned
+  const all = Array.from({ length: 16 }, (_, i) => i + 1), out = [];
   for (const n of sheets) {
-    const box = boxes[n], unit = 1, w = box[2], h = box[3], rows = [];
+    const owned = sheets.filter((m) => m <= n), later = all.filter((m) => !owned.includes(m));
+    const box = unionBox(owned.map((m) => boxes[m])), unit = 1, w = box[2], h = box[3], rows = [];
     let cells = 0;
     for (let j = 0; j < h; j++) {
       let row = '';
       for (let i = 0; i < w; i++) {
         const x = box[0] + i + 0.5, y = box[1] + j + 0.5;
-        let own = 0; for (const m of sheets) own = Math.max(own, alpha(m - 1, x, y));
+        let own = 0; for (const m of owned) own = Math.max(own, alpha(m - 1, x, y));
         let other = 0; if (own < 0.05) for (const m of later) { other = Math.max(other, alpha(m - 1, x, y)); if (other > 0.5) break; }
         const v = own < 0.05 && other > 0.5 ? 1 : 0; cells += v; row += v;
       }
       rows.push(row.replace(/(0+|1+)/g, (r) => `${r[0]}${r.length},`).replace(/,$/, ''));
     }
-    out.push({ sheet: n, box, unit, w, h, cells, rows });
+    out.push({ sheet: n, owned, box, unit, w, h, cells, rows });
   }
   return out;
+}
+/** The window over some sheets' boxes (their union), [x, y, w, h] in Chart units: the Chart's first window once two are owned. */
+export function unionBox(bs) {
+  const x0 = Math.min(...bs.map((b) => b[0])), y0 = Math.min(...bs.map((b) => b[1]));
+  return [x0, y0, Math.max(...bs.map((b) => b[0] + b[2])) - x0, Math.max(...bs.map((b) => b[1] + b[3])) - y0];
 }
 
 async function fullExport({ chromium, T, K, alpha, boxes, sheets, log }) {
@@ -237,12 +250,17 @@ async function fullExport({ chromium, T, K, alpha, boxes, sheets, log }) {
   const pieces = pieceIdx.map((i) => { const pc = data.pieces[i]; return { id: pc.id, k: pc.k, flow: pc.flow, wide: pc.wide, leg: pc.leg, p: pc.p }; });
   const inBoxes = (at) => sheets.some((n) => { const b = boxes[n]; return at[0] >= b[0] && at[0] <= b[0] + b[2] && at[1] >= b[1] && at[1] <= b[1] + b[3]; });
   const labels = data.labels.filter((l) => l.sheet >= 1 && l.sheet <= last && inBoxes(l.at)).map((l) => ({ t: l.t, kind: l.kind, at: l.at, a: l.a, z: l.z, sheet: l.sheet }));
+  // (LAKE 2 lane C: what the Chart shows with the first n sheets owned, for each n baked: their edge, drawn over their window as the
+  // first sheet's always was, and the wisp where the owned road runs on; the first sheet's keep their M1 names, `edges` and `wisp`)
+  const atN = (n) => { const owned = sheets.filter((m) => m <= n); return { edges: edgeLines(alpha, owned, viewBox(Object.fromEntries(owned.map((m) => [m, boxes[m]])))), wisp: n < 16 ? data.wisps[n - 1] : null }; };
+  const first = atN(sheets[0]);
   const live = {
     pieces,
     waters: data.waters.filter((w) => w.n <= last).map((w) => ({ n: w.n, water: ids[w.n] || null, at: w.at, vg: w.vg })),
     home: { at: data.home.at, vg: data.home.vg },
-    wisp: last < 16 ? data.wisps[last - 1] : null,
-    edges: edgeLines(alpha, sheets, view),
+    wisp: first.wisp,
+    edges: first.edges,
+    ...(sheets.length > 1 ? { more: Object.fromEntries(sheets.slice(1).map((n) => [n, atN(n)])) } : {}),
     labels,
     stones: STONES,
   };

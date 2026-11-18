@@ -290,6 +290,7 @@ const CSS = `
 .gw-book[data-layout=desktop]:not(.gw-short):not(.gw-low) .gw-plate:not(.gw-plate--map):not(.gw-plate--sealed) .gw-plate-art { box-sizing: border-box; padding: 8px 4px 6px; }
 .gw-book.gw-tall .gw-plate-low { flex-direction: row; align-items: flex-end; }
 .gw-book.gw-tall .gw-plate-line { text-align: left; -webkit-line-clamp: 2; }
+.gw-book .gw-plate-line.gw-plate-lakeline { display: block; -webkit-line-clamp: none; overflow: visible; }
 .gw-book.gw-tall .gw-plate-hours { justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .gw-mb-ring path, .gw-mb-stamp.gw-press, .gw-book-order { animation: none; } }
 `;
@@ -349,7 +350,8 @@ export function createMurkBook(deps) {
     const hit = h('button', 'gw-plate-hit');
     hit.type = 'button';
     hit.setAttribute('aria-label', c.slot === 'place' ? `${c.fishName || ''} ${c.priceText || ''}`.trim() : `${c.name} ${c.bought ? (TL().yours || '') : c.priceText || ''}`.trim());
-    if (c.slot !== 'lake') hit.addEventListener('click', (e) => { e.stopPropagation(); if (performance.now() - lastSwipe > 350) mark(entry, c); });
+    const shippedLake = c.slot === 'lake' && c.sealed === false && c.price != null;   // (LAKE 2, lane C: a shipped lake map is sold)
+    if (c.slot !== 'lake' || shippedLake) hit.addEventListener('click', (e) => { e.stopPropagation(); if (performance.now() - lastSwipe > 350) mark(entry, c); });
     else hit.tabIndex = -1;
     el.appendChild(hit);
     // the kicker: a hold step's count as this Wick has it (data.wickSlots: Tallow's "Hold 5", as the goal line names it), a map's
@@ -376,13 +378,16 @@ export function createMurkBook(deps) {
     if (c.slot === 'place' && arr(c.hours).length) (B.layout === 'desktop' ? art : el).appendChild(h('span', 'gw-plate-hours', arr(c.hours).map((g) => `<i aria-hidden="true">${icon(g)}</i>`).join('')));
     if (c.slot === 'lake') {
       try { const row = deps.sealRow(c.seals, { from: 'shelf' }); row.classList.add('gw-seal-row'); el.appendChild(row); } catch (e) { report('cat.seals', e); }
-      const soon = h('span', 'gw-plate-soon'); soon.textContent = TL().comingSoon || 'Coming soon'; el.appendChild(soon);
-      return el;
+      if (!shippedLake) { const soon = h('span', 'gw-plate-soon'); soon.textContent = TL().comingSoon || 'Coming soon'; el.appendChild(soon); return el; }
     }
+    // (LAKE 2, lane C: a shipped lake map's line is its own and "Moving on leaves bought gear behind.")
+    const lineText = shippedLake ? [TL().maps?.[c.waterId], TL().mapLeaves].filter(Boolean).join(' ') : c.line;
     // the one line under the drawing (a desktop: its own row, the full width; a phone: beside the drawing), then the price
-    if (c.line && B.layout === 'desktop') { const ln = h('span', 'gw-plate-line'); ln.textContent = c.line; el.appendChild(ln); }
+    // (a shipped lake map's lines are never clamped: its page holds it alone, and the leaving note must be read whole)
+    const lineCls = shippedLake ? 'gw-plate-line gw-plate-lakeline' : 'gw-plate-line';
+    if (lineText && B.layout === 'desktop') { const ln = h('span', lineCls); ln.textContent = lineText; el.appendChild(ln); }
     const low = h('div', 'gw-plate-low');
-    if (c.line && B.layout !== 'desktop') { const ln = h('span', 'gw-plate-line'); ln.textContent = c.line; low.appendChild(ln); }
+    if (lineText && B.layout !== 'desktop') { const ln = h('span', lineCls); ln.textContent = lineText; low.appendChild(ln); }
     const price = h('span', 'gw-plate-price', c.price == null ? '' : clamTag(c.price));
     if (S.marked === c.id && !c.bought) price.insertAdjacentHTML('beforeend', RING);
     low.appendChild(price);

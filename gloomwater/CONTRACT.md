@@ -2464,3 +2464,39 @@ there and a third of it is kept for good; found things travel; each water's lure
   their own data, `actors-wildlife` `frogs` in its state) and `LOOP.ambient.sporewood.flakes` (`createBoats(D, rng, n, C)`, no flame).
 - **Tests and tools**: `tools/tests/lake2-w2.test.mjs`; `tools/tests/lake2-w2.scenario.mjs` (`--hue --tier=medium`: the hue-report's
   nine frames); `clarity-perf.scenario.mjs --loop --sporewood`; `tools/loop-colour-script.py` (Sporewood's frame and the exception).
+
+### 14.27 The road in: the Chart for two waters, the leaving card, the tow to a new water and the way back (LAKE 2, lane C; `docs/loop/LAKE2.md` §5.2, §6, §9.7)
+
+`LOOP.shipped` stays `'mossmere'` until the gate: the Mossmere's game, its Chart included, is as built until the tow.
+
+- **chart-art.js** (generated): the shipped waters' sheets and the next one baked ahead (`tools/world-map/game.mjs` `shippedSheets`);
+  `live.more[n]` = `{edges, wisp}` with the first n sheets owned. `tools/tests/fixtures/chart-veil.json`: one grid per count owned.
+- **chart-draw.js**: `chartReach(model, art)` → `{n, sheets, box, edges, wisp, pieces, waters}` (pure; one water: the first sheet's own);
+  `layoutChart` lays the window over the owned sheets, the picked water's card, a `sheet` target per other owned water
+  (`[data-sheet]`), `out.reach`, and on an outline water (`geo.outline`) fits the card to its shape (`lake.ox/oz`), keeps every word off
+  the pen (paper spots beyond the coast; an unfittable name waits unlettered until chosen) and the book's whole target clear;
+  `drawOutlineLake` (internal) draws an outline water's sheet; `PLACE_DRAW` gains `rafts`, `harp`, `veil`, `cup`. A shipped next water's
+  sealed sheet carries `sealed.price`.
+- **ui-chart.js**: `waterGeometry` adds, for an outline water, `banks` ({nx, nz, h} per shore sample), `len`, `reeds` (arc lengths),
+  `inflow`, `outflow`, `mooring`; `placeSites` and `chartPlaces` read a later water's places through `D.loopPlace`;
+  `SHIPPED_VIGNETTES[2]`; `prepare` decodes the first sheet and the owned waters' sheets, `sheetsFor(model)` the rest when first drawn;
+  `openSealed` for a shipped next water opens Murk's Maps at its lake card.
+- **progression-loop.js**: `waterOpen(meta, D, water)` (pure: the map owned and shipped and the gear and catch keys held, or towed);
+  `loop.isOpen` reads it; `buy('lake:<w>')` also owns the places that map opens (`LOOP.places[id].lake`); `sayOnce('at:<water>:<key>')`
+  says `TEXT_LOOP.murk.at[water][key]` once.
+- **ui-loop.js**: `chartModel` and `chartNext` draw a later water only once `waterOpen`; `saleLineId({…, water, at})` orders a later
+  water's own lines (home, then its first cap loss); the shelf's sealed card for a shipped lake map shows its line, `mapLeaves` and its
+  buy button (`lakeBuy`); buying it says `TEXT_LOOP.murk.at[w].map`.
+- **ui-catalogue-murk.js**: a shipped lake map's plate is sold (marked and bought as any plate), its line and `mapLeaves` never clamped.
+- **ui-tow.js**: `leave({water, terms, onTow})` (the leaving card, `[data-loop=leave]`, buttons `[data-action=stay]`/`[data-action=tow]`;
+  → whether it opened); a later water's leg drawn over every inked sheet from the water left; `prepare(upTo)` decodes the sheets a leg
+  crosses.
+- **loop-tow.js**: `towLeadPose(M, u, {…, astern})`; `wayBack(water, {onDone})` (phases `backDip`, `backHold`, `backClear`; one ink dip,
+  `towBarge` and `show(water)` at full ink, `onDone` as it clears); deps `show(waterId)` (default `home().showWater`); a later water's
+  tow puts the world on it under the dip.
+- **loop-home.js**: `sail(plan)` from home for a water the barge does not lie at goes through `sailAway`: the leaving card first
+  (`plan.leave === true` skips it, the card's Tow), then `playTow`; a water towed to before: `wayBack`. `showWater(id)` exposed; home
+  after an evening opens at the water the barge lies at.
+- **data.js** (block "LAKE 2, lane C"): `LOOP.tow.legs.sporewood`, `LOOP.tow.glideIn.sporewood` (`astern: true`).
+- **Tests**: `tools/tests/lake2-c.test.mjs`, `loop-tow.test.mjs` (Lake 2 sections), `ui-chart.test.mjs` (byte lines per sheet),
+  `validate-data --loop` (the ahead sheet; each later leg from the water before it; each glide in); `tools/tests/lake2-c.scenario.mjs`.

@@ -19,8 +19,10 @@ import { registerTowSfx } from './audio-tow.js';
 
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-/** The director's phases, in order (the opening's first four only in the opening). */
+/** The director's phases, in order (the opening's first four only in the opening). LAKE 2, lane C: the way back by the lamps is its own
+ *  three, one ink dip (SPEC §6.5): 'backDip' into the ink, 'backHold' at full ink until the water's first frame, 'backClear'. */
 export const TOW_PHASES = Object.freeze(['dipIn', 'dipOut', 'arrive', 'wake', 'leg', 'dip', 'dipHold', 'dipClear', 'glide', 'done']);
+export const BACK_PHASES = Object.freeze(['backDip', 'backHold', 'backClear']);
 
 /**
  * The raft's way along the leg at time t (0..1): `base` s of travel shared by distance, and a hold of (legS − base) / n s at each
@@ -51,12 +53,15 @@ export function legProgress(t, legS, crossings = [], base = 4, w = 0.02) {
  * ease is the barge's), Murk's barge alongside. u 0..1 (the way travelled) → {hull, murk, raft, bow} ({x, z, yaw} each; bow {x, z}).
  * At u 1 the raft lies ahead of the bow; the tie-up at the stern (M.raft) follows at the mooring. Pure.
  */
-export function towLeadPose(M, u, { d = 14, line = 3, length = 12 } = {}) {
+export function towLeadPose(M, u, { d = 14, line = 3, length = 12, astern = false } = {}) {
   if (!M?.hull) return null;
-  const k = clamp01(num(u, 0)), yaw = M.hull.yaw, fx = -Math.sin(yaw), fz = -Math.cos(yaw), back = (1 - k) * num(d, 14), half = num(length, 12) / 2;
+  // (LAKE 2, lane C: `astern`, a mooring that lies bow out to the water (Sporewood's Rootfoot Landing): the barge comes in stern first
+  // from the water, the raft towing it by its stern on the line, so `bow` is then the stern, where the line is made fast)
+  const s = astern ? -1 : 1;
+  const k = clamp01(num(u, 0)), yaw = M.hull.yaw, fx = -Math.sin(yaw) * s, fz = -Math.cos(yaw) * s, back = (1 - k) * num(d, 14), half = num(length, 12) / 2;
   const hull = { x: M.hull.x - fx * back, z: M.hull.z - fz * back, yaw };
   const ahead = half + num(line, 3) + 1.1;   // (the raft's stern, where the line is made fast, 1.1 m behind its centre)
-  return { hull, raft: { x: hull.x + fx * ahead, z: hull.z + fz * ahead, yaw }, bow: { x: hull.x + fx * half, z: hull.z + fz * half },
+  return { hull, raft: { x: hull.x + fx * ahead, z: hull.z + fz * ahead, yaw: astern ? yaw + Math.PI : yaw }, bow: { x: hull.x + fx * half, z: hull.z + fz * half },
     murk: M.murk ? { x: M.murk.x - fx * back, z: M.murk.z - fz * back, yaw: M.murk.yaw } : null };
 }
 
@@ -74,10 +79,12 @@ export function towPhases(D, water, { opening = false, reduced = false, wick = n
 }
 
 /**
- * deps: {ctx, data, report(where, err), home: () => loopHome (its glideHome, moorMurk), save(), reduced() → bool}
+ * deps: {ctx, data, report(where, err), home: () => loopHome (its glideHome, moorMurk, showWater), save(), reduced() → bool,
+ *        show(waterId) (LAKE 2, lane C: the world put on a water under the ink; else loop-home's showWater)}
  */
 export function createLoopTow(deps) {
   const { ctx, data: D, report = () => {}, home = () => null, save = () => {} } = deps;
+  const show = typeof deps.show === 'function' ? deps.show : (id) => home()?.showWater?.(id);
   const T = () => D?.LOOP?.tow || {};
   const safe = (fn, d = null) => { try { const v = fn(); return v === undefined ? d : v; } catch (e) { report('tow', e); return d; } };
   const loop = () => { const p = ctx.progression; if (!p || p.isStub) return null; const l = p.loop; return l && typeof l === 'object' && !l.isStub ? l : null; };
@@ -175,6 +182,8 @@ export function createLoopTow(deps) {
   /** The dip's full ink: the Chart closes, the water is set up (the raft, the barge, Murk at the glide in's start; the camera on it). */
   function setupWater() {
     safe(() => view()?.close?.());
+    // (LAKE 2, lane C: a later water's tow leaves the water it set out from: the world goes to the new one under the full ink)
+    if (!S.opening && safe(() => ctx.world?.getZone?.()?.id, null) !== S.water) safe(() => show(S.water));
     const M = safe(() => ctx.world?.getMooring?.(), null);
     S.M = M && M.hull ? M : null;
     if (!S.M) return;
@@ -208,7 +217,7 @@ export function createLoopTow(deps) {
     } catch (e) { report('tow line', e); S.mesh = null; }
   }
   // the raft leads (towLeadPose): the line runs from the raft's stern back to the barge's bow
-  const leadPose = (M, u, d) => towLeadPose(M, u, { d, line: num(T().glideIn?.[S.water]?.line, 3), length: num(D?.LOOP?.barge?.length, 12) });
+  const leadPose = (M, u, d) => towLeadPose(M, u, { d, line: num(T().glideIn?.[S.water]?.line, 3), length: num(D?.LOOP?.barge?.length, 12), astern: T().glideIn?.[S.water]?.astern === true });
   function placeLine(p) {
     const m = S.mesh, rp = ctx.player?.position, to = p?.bow;
     if (!m || !to || !rp) return;
@@ -283,6 +292,32 @@ export function createLoopTow(deps) {
     finish();
   }
 
+  /**
+   * LAKE 2, lane C (SPEC §6.5, LAKE2 §6.3): the way back by the lamps, to a water the home has lain at before. One ink dip (LOOP.tow.dip,
+   * held at full until the water's first frame is drawn): at full ink the barge goes there (loop.towBarge: only the barge moves; the
+   * save), the world is put on it, the barge and Murk at their mooring and the raft at its stern; `onDone` as the ink clears (the glide
+   * out begins under it). No Chart, no leg, no words. → whether it began.
+   */
+  function wayBack(water, { onDone = null } = {}) {
+    if (S.phase || typeof water !== 'string') return false;
+    S.water = water; S.opening = false; S.onDone = onDone; S.arrive = null; S.from = 'back'; S.begun = false; S.M = null;
+    S.reduced = reduced() === true; S.P = { dip: num(T().dip, 0.6) }; S.dipA = 0;
+    go('backDip');
+    return true;
+  }
+  function backAt() {
+    const L = loop();
+    safe(() => L?.towBarge?.(S.water));
+    safe(() => save());
+    S.begun = true;
+    safe(() => show(S.water));
+    const M = safe(() => ctx.world?.getMooring?.(), null);
+    S.M = M && M.hull ? M : null;
+    if (S.M) placeBoats(D.towGlidePose(S.M, 1, { d: 0, ease: false }));
+    if (S.M?.raft) { try { ctx.player?.teleport?.({ x: S.M.raft.x, z: S.M.raft.z }, S.M.raft.yaw); } catch (e) { report('player.teleport', e); } }
+    try { ctx.render?.snapCamera?.(); } catch (e) { report('render.snapCamera', e); }
+  }
+
   // ---- sound: the oars and the tow line through the leg and the glide in; each crossing its own (the locks, the fall)
   function sounds(dt) {
     const s = S.sound;
@@ -304,7 +339,7 @@ export function createLoopTow(deps) {
     const V = view();
     // never stranded (SPEC §6.5: no way to fail): the flow left home (Settings' Forget everything, the title) → the tow is dropped;
     // the opening's tutorial marked done under it (a debug build's shortcut) or its Chart closed by something else → cut to the mooring
-    if (ctx.flow !== 'home') { cancel(); return; }
+    if (ctx.flow !== 'home' && S.phase !== 'backClear') { cancel(); return; }
     if (S.opening && safe(() => loop()?.tutorial?.()?.done === true, false)) { cut(); return; }
     if (['arrive', 'wake', 'leg'].includes(S.phase) && V && typeof V.isOpen === 'function' && !V.isOpen()) { cut(); return; }
     const onChart = ['arrive', 'wake', 'leg'].includes(S.phase);
@@ -369,6 +404,26 @@ export function createLoopTow(deps) {
         sounds(d);
         break;
       }
+      // LAKE 2, lane C: the way back's one dip
+      case 'backDip': {
+        const half = Math.max(0.01, P.dip / 2);
+        S.dipA = clamp01(S.t / half); safe(() => V?.dip?.(S.dipA));
+        if (S.t >= half) { safe(() => V?.dip?.(1)); backAt(); go('backHold'); }
+        break;
+      }
+      case 'backHold':
+        if (S.frames >= 2) {
+          go('backClear');
+          const cb = S.onDone; S.onDone = null;
+          if (cb) { try { cb(); } catch (e) { report('tow back onDone', e); } }   // (the glide out begins as the ink clears)
+        }
+        break;
+      case 'backClear': {
+        const half = Math.max(0.01, P.dip / 2);
+        S.dipA = 1 - clamp01(S.t / half); safe(() => V?.dip?.(S.dipA));
+        if (S.t >= half) { S.dipA = 0; safe(() => V?.dip?.(0)); mark('done'); S.phase = null; }
+        break;
+      }
       default: break;
     }
   }
@@ -384,7 +439,7 @@ export function createLoopTow(deps) {
   const state = () => ({ phase: S.phase, t: Math.round(S.t * 1000) / 1000, water: S.water, opening: S.opening, u: Math.round(S.u * 1000) / 1000, ink: Math.round(S.ink * 1000) / 1000,
     kindle: S.kindle, line: S.lineOn ? S.line : null, dip: Math.round(S.dipA * 1000) / 1000, reduced: S.reduced, begun: S.begun, parts: S.P ? { ...S.P } : null, marks: S.marks.slice() });
   return {
-    opening, playTow, update, tap, state, camPull,
+    opening, playTow, wayBack, update, tap, state, camPull,
     active: () => !!S.phase,
     /** The tow's phase now, or null. */
     get phase() { return S.phase; },
