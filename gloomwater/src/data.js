@@ -5988,8 +5988,8 @@ export const ZONE_LOOKS = Object.freeze({
           tint: 0x46622c, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.2, glow: 0.7, elev: 1, leaf: 1.2 }),
         // (dusk: the sky and the key amber-rose, the fill and the shadows blue-green, so the lit leaves turn olive-bronze and the shade
         // stays green, WATERS §3.2's dusk)
-        dusk: Object.freeze({ fog: 0x523c34, horizon: 0xf0a070, key: 0xffae7c, keyI: 2.3, amb: 0x40584a, ambI: 0.72, water: 0x24302a, deep: 0x0b100e,
-          tint: 0x6a4630, tintAmt: 0.1, exposure: 1.02, sat: 1.04, stars: 0.55, glow: 1.1, elev: 0.35, leaf: 1.4 }),
+        dusk: Object.freeze({ fog: 0x4a3e34, horizon: 0xeaa47a, key: 0xffcc9c, keyI: 2.4, amb: 0x3e5a4a, ambI: 0.74, water: 0x203a30, deep: 0x0a120e,
+          tint: 0x5a4a30, tintAmt: 0.08, exposure: 1.02, sat: 1.04, stars: 0.55, glow: 1.1, elev: 0.35, leaf: 1.4 }),
         night: Object.freeze({ fog: 0x0b2428, horizon: 0x183c40, key: 0x88b8c8, keyI: 0.6, amb: 0x16343a, ambI: 0.36, water: 0x0a2024, deep: 0x02090a,
           tint: 0x0e3a48, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.9, glow: 1.8, elev: 1, leaf: 0.85 }),
       }),
