@@ -291,8 +291,10 @@ if (process.argv.includes('--loop')) {
     for (const w of [...new Set(its.map((i) => i.water))]) {
       const set = its.filter((i) => i.water === w);
       ok4(JSON.stringify(set.filter((i) => i.kind === 'treasure').map((i) => i.grade).sort()) === JSON.stringify(['fine', 'jackpot', 'plain', 'precious', 'rare']), `LOOP.finds ${w}: five treasures, one per grade`);
-      ok4(JSON.stringify(set.filter((i) => i.kind === 'part').map((i) => i.effect).sort()) === JSON.stringify(['bait', 'bite', 'order']), `LOOP.finds ${w}: three parts, one of each effect`);
-      ok4(set.filter((i) => i.kind === 'look').length === 3 && new Set(set.filter((i) => i.kind === 'look').map((i) => i.wearer)).size === 3, `LOOP.finds ${w}: three looks, one per wearer`);
+      // (LAKE 2, lane S: a later water may ship its treasures alone this edition, its parts and looks later: LAKE2 §7.3, §10)
+      const tOnly = !set.some((i) => i.kind === 'part' || i.kind === 'look') && w !== 'mossmere';
+      ok4(tOnly || JSON.stringify(set.filter((i) => i.kind === 'part').map((i) => i.effect).sort()) === JSON.stringify(['bait', 'bite', 'order']), `LOOP.finds ${w}: three parts, one of each effect${tOnly ? ' (treasures only this edition)' : ''}`);
+      ok4(tOnly || (set.filter((i) => i.kind === 'look').length === 3 && new Set(set.filter((i) => i.kind === 'look').map((i) => i.wearer)).size === 3), `LOOP.finds ${w}: three looks, one per wearer${tOnly ? ' (treasures only this edition)' : ''}`);
       ok4(set.filter((i) => i.kind === 'part' || i.kind === 'look').every((i) => SLOTS.includes(i.slot)), `LOOP.finds ${w}: every part's and look's slot is known`);
       ok4(set.every((i) => ['treasure', 'part', 'look', 'tackle'].includes(i.kind)), `LOOP.finds ${w}: every find's kind is known (treasure, part, look, tackle)`);
       ok4(set.every((i) => ['pinch', 'both', 'alongside'].includes(i.pose) && Number(i.size) > 0), `LOOP.finds ${w}: every find has a built pose and a size`);
@@ -351,6 +353,17 @@ if (process.argv.includes('--loop')) {
     ok4(FD.grades.plain.share - FD.kind.cap * FD.grades.plain.share / pf >= 0.01 - 1e-12 && FD.grades.fine.share - FD.kind.cap * FD.grades.fine.share / pf >= 0.01 - 1e-12, 'LOOP.finds: at kind.cap the plain and fine each keep ≥ 1%');
     ok4(FD.snag.perBite > 0 && FD.snag.perBite < 0.2 && FD.snag.firstEvening === 0 && FD.snag.legendCast === 0, 'LOOP.finds.snag: perBite in (0, 0.2), none on evening 1 or a legend\'s cast');
     ok4(JSON.stringify(its.filter((i) => i.water === 'mossmere' && i.kind === 'treasure').map((i) => Math.round(LP.waters.mossmere.tier * FD.grades[i.grade].x * LP.priceFactor))) === JSON.stringify([14, 42, 105, 350, 1750]), 'LOOP.finds: the Mossmere\'s treasures sell for 14 · 42 · 105 · 350 · 1,750');
+    // ---- LAKE 2, lane S (LAKE2.md §7.3, FINDS §5.2): Sporewood's five treasures, one a grade, sold at its tier; their words; nothing else of
+    // Sporewood's yet (its parts, looks and lost tackle are later); its finds drawn only at its water
+    if (LP.waters?.sporewood) {
+      const sw = its.filter((i) => i.water === 'sporewood');
+      ok4(JSON.stringify(sw.map((i) => i.id)) === JSON.stringify(['seed_jar', 'skep_lid', 'gardeners_trowel', 'cloche_handle', 'seedkeeper_casket']) && sw.every((i) => i.kind === 'treasure'),
+        'LAKE2 S: Sporewood\'s finds are its five treasures (the Seed Jar, the Bee-Skep Lid, the Gardener\'s Trowel, the Cloche Handle, the Seed-Keeper\'s Casket)');
+      ok4(JSON.stringify(sw.map((i) => Math.round(LP.waters.sporewood.tier * FD.grades[i.grade].x * LP.priceFactor))) === JSON.stringify([24, 72, 180, 600, 3000]), 'LAKE2 S: Sporewood\'s treasures sell for 24 · 72 · 180 · 600 · 3,000 (tier 12)');
+      const shSw = L4.findShares({ loop: { maps: { lakes: ['sporewood'] }, finds: { got: {}, worn: {}, share: {}, tackleMiss: {} } } }, L4, 'sporewood');
+      ok4(Object.keys(shSw).length === 5 && Math.abs(shSw.seedkeeper_casket - 0.01) < 1e-12 && Math.abs(Object.values(shSw).reduce((a, b) => a + b, 0) - 1) < 1e-9, 'LAKE2 S: a snag at Sporewood: one of its five, the Casket exactly 1%');
+      ok4(sw.every((i) => /^[A-Z][A-Za-z' -]+$/.test(TL.finds?.items?.[i.id]?.name || '') && !/\d/.test(TL.finds.items[i.id].line) && TL.finds.items[i.id].line.length <= 40), 'LAKE2 S: each a name and a line, no digits, ≤ 40 characters');
+    }
     const FW = TL.finds?.items || {};
     for (const i of its) {
       const w = FW[i.id];

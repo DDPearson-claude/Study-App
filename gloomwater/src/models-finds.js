@@ -174,14 +174,15 @@ export function findPropParts(id) {
       g.push(P(new THREE.CylinderGeometry(0.0022, 0.0022, 0.03, 3), CORD2, { p: [0.004, -0.04, 0.056], r: [0, 0, 0.3] }));
       break;
     }
-    case 'skep_lid': {   // a woven straw dome off a bee-skep, its face to the lens: coil on coil, bound in darker straw, a knob at its crown
-      g.push(P(new THREE.SphereGeometry(0.17, 14, 6, 0, Math.PI * 2, 0, Math.PI / 2), STRAW, { r: [0, 0, -Math.PI / 2], s: [1, 0.42, 1] }));
-      for (let i = 0; i < 5; i++) {
-        const a = (i + 0.5) / 5 * (Math.PI / 2), r = 0.17 * Math.cos(a), x = 0.17 * 0.42 * Math.sin(a);
-        g.push(P(new THREE.TorusGeometry(r, 0.0075, 3, 16), i % 2 ? STRAW_DK : STRAW, { r: [0, Math.PI / 2, 0], p: [x, 0, 0] }));
+    case 'skep_lid': {   // a woven straw dome off a bee-skep, its face to the lens: coil on coil (stepped bands), bound in darker straw, a knob at its crown
+      const h = 0.072, R = 0.17, n = 5, rAt = (x) => R * Math.sqrt(Math.max(0, 1 - (x / h) ** 2));
+      for (let i = 0; i < n; i++) {
+        const xa = (h * 0.92 * i) / n, xb = (h * 0.92 * (i + 1)) / n;
+        g.push(P(new THREE.CylinderGeometry(rAt(xb) + 0.004, rAt(xa) + 0.004, xb - xa, 12, 1, true), i % 2 ? STRAW_DK : STRAW, { r: [0, 0, -Math.PI / 2], p: [(xa + xb) / 2, 0, 0] }));
       }
-      g.push(P(new THREE.TorusGeometry(0.168, 0.012, 4, 18), STRAW_DK, { r: [0, Math.PI / 2, 0] }));
-      g.push(P(new THREE.SphereGeometry(0.022, 8, 5), STRAW_DK, { p: [0.075, 0, 0], s: [0.8, 1, 1] }));
+      g.push(P(new THREE.CylinderGeometry(0.0005, rAt(h * 0.92) + 0.004, h * 0.08, 12), STRAW, { r: [0, 0, -Math.PI / 2], p: [h * 0.96, 0, 0] }));
+      g.push(P(new THREE.TorusGeometry(0.168, 0.012, 3, 14), STRAW_DK, { r: [0, Math.PI / 2, 0] }));
+      g.push(P(new THREE.SphereGeometry(0.022, 6, 3), STRAW_DK, { p: [h + 0.008, 0, 0], s: [0.8, 1, 1] }));
       break;
     }
     case 'gardeners_trowel': {   // a garden trowel: a brass scoop worn bright on one side, its shank, a turned wooden handle with a ferrule
