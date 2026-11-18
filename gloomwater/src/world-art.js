@@ -12,7 +12,7 @@ import { sdfAt, sdfGrad, groundAt as outlineGround, shoreAt as outlineShoreAt } 
 import { ambientOn, debrisPieces, debrisGeos, createSlits, stepSlits } from './world-ambient.js';   // the loop's ambient (LOOP.ambient)
 import { inkToon, outlineMat, makeSeeCut, cutBlocked, ringMaterial, domeMaterial, createParticles, createHalos, createShafts, mistMaterial, vortexMaterial, columnMaterial, createSpiral, createShoreRings, createMistSheets } from './world-fx.js';
 import { paintRing } from './world-paint.js';
-import { lushLook, lushColor, lushFloor, floraPlan, buildFlora } from './world-flora.js';   // LAKE 2, lane W2: the vegetation kit (a water with a look: Sporewood under the loop)
+import { lushLook, lushColor, lushFloor, lushMoss, floraPlan, buildFlora } from './world-flora.js';   // LAKE 2, lane W2: the vegetation kit (a water with a look: Sporewood under the loop)
 import { buildSporewoodArt } from './world-sporewood.js';                // LAKE 2, lane W2: Sporewood's living landmarks
 import { WATERCRAFT } from './watercraft.js';
 
@@ -97,6 +97,8 @@ export function buildArena(ctx, L, opts = {}) {
   // >>> LAKE 2, lane W2: a water built on an outline shore with a look (ZONE_LOOKS, lush > 0: Sporewood under the loop) is dressed by the
   // vegetation kit and its living landmarks; everything below that reads `look` is skipped for any other water (the Mossmere: no look)
   const look = L.outline && opts.face !== false ? lushLook(ctx?.data, zone.id || theme) : null;
+  // (LAKE 2, the art pass: a look's own kit tones (its banks' earth and moss, its stalks and roots) in place of the theme's violet ones)
+  if (look?.air?.kit) for (const [k, v] of Object.entries(look.air.kit)) K[k] = scaleArr(lin(v), ALBEDO[k] || 1);
   const bankFloorU = { gwFloraFloor: { value: 0 } };   // (the banks' moss floor, by the mood)
   // <<< LAKE 2, lane W2
   const keyDir = keyLightDir(theme);
@@ -139,6 +141,9 @@ export function buildArena(ctx, L, opts = {}) {
   // stalks carry a grain running up them (toon.js surface shading; the detail is compiled out on low)
   const rockMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'stone', wet: 0.6, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
   const orgMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'wood', detailAmount: 0.7, grain: [0, 1, 0], wet: 0.5, gloss: 0.1, shine: 56, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
+  // (LAKE 2, the art pass: on a lush water the stalks, roots and fallen logs take the moss's floor in their shade, as the banks do, so a
+  // cream stalk seen from below reads as a stalk, never as a black arch over the water)
+  if (look) lushFloor(orgMat, bankFloorU, 'org');
   const glowMat = M(new THREE.MeshBasicMaterial({ vertexColors: true, fog: true, toneMapped: false }));
   // ink lines: a little lighter than before and evened on screen (toon.evenOutline), so near rocks are not ringed heavy
   const olRock = M(evenOutline(outlineMat(0.09, INK)));
@@ -408,6 +413,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     const O = L.outline, c = low ? 3 : 2, Rt = R + 20, n = Math.ceil((2 * Rt) / c) + 1, x0 = -((n - 1) * c) / 2;
     const br = makeRng(((L.artSeed | 0) ^ 0xba4c5) >>> 0), ox = br() * 40, oz = br() * 40;
     const nv = n * n, pos = new Float32Array(nv * 3), col = new Float32Array(nv * 3), sv = new Float32Array(nv), g = { x: 0, z: 0 };
+    const mossA = look ? new Float32Array(nv) : null;   // (LAKE 2, the art pass: where the green moss may lie; its drifts are cut per pixel)
     const wetC = scaleArr(mixArr(K.rock, K.wood, 0.4), 0.55), earthC = mixArr(K.wood, K.rockHi, 0.35), rootC = mixArr(K.wood, K.rock, 0.5);
     const LMG = look ? [lushColor(look, look.mossG, 1.45), lushColor(look, look.mossGHi, 1.2), Number(look.mossAmt) || 0.6] : null;
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
@@ -426,12 +432,13 @@ vec2 gwTwitch(vec2 p, float hgt) {
       else {
         // (the face of a bank earth and root; the tops and the land behind them moss, in drifts)
         const top = Math.min(1, Math.max(0, -s - 2) / 4);
-        cc = mixArr(mixArr(earthC, rootC, n2), mixArr(K.moss, K.mossHi, n1 * 0.8), Math.min(1, top * (0.55 + 0.6 * n1)));
+        if (look) { const f = vnoise3(x * 0.3 + ox, y * 0.3, z * 0.3 + oz); cc = mixArr(mixArr(earthC, rootC, n2), mixArr(K.moss, K.mossHi, f * 0.6), Math.min(1, top * 0.85)); }
+        else cc = mixArr(mixArr(earthC, rootC, n2), mixArr(K.moss, K.mossHi, n1 * 0.8), Math.min(1, top * (0.55 + 0.6 * n1)));
       }
       cc = scaleArr(cc, 0.5 + 0.22 * n1);   // (earth under the vault: dark, as the Mossmere's banks; lane W2's moss and ferns light it)
       // (LAKE 2, lane W2: the green moss over the built violet: every bank top and the land behind it in drifts, the faces earth and root)
       // (in drifts that cover about `mossAmt` of the tops, whole where they lie, the earth showing between them: a carpet, not a tint)
-      if (LMG) { const top = Math.min(1, Math.max(0, -s - 0.6) / 2.5), drift = Math.min(1, Math.max(0, (n1 * 1.05 + n2 * 0.15 - (1.02 - LMG[2])) * 2.6)); cc = mixArr(cc, mixArr(LMG[0], LMG[1], n2 * 0.8), 0.94 * top * drift); }
+      if (LMG) mossA[v] = Math.min(1, Math.max(0, -s - 0.6) / 2.5);   // (the drifts themselves: lushMoss, per pixel)
       col[v * 3] = cc[0]; col[v * 3 + 1] = cc[1]; col[v * 3 + 2] = cc[2];
     }
     const idx = [];
@@ -447,12 +454,17 @@ vec2 gwTwitch(vec2 p, float hgt) {
     const geo = G(new THREE.BufferGeometry());
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    if (mossA) geo.setAttribute('aMoss', new THREE.BufferAttribute(mossA, 1));
     geo.setIndex(idx);
     geo.computeVertexNormals();
     // (smooth normals: the ground rolls; a flat-shaded grid zig-zags in the toon's steps. A low rim: seen at a grazing angle, a wide
     // ground takes the rim all over and reads as snow)
     const bankMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: look ? 0.05 : 0.14, rimColor: rimC, rimPower: 0.8, steps: 3, detail: 'stone', detailAmount: 0.3, wet: 0.5, gloss: 0.06, shine: 48, floor: 1 }, { fogScale: 0.8, fogMax: 0.95 }));
     if (look) { lushFloor(bankMat, bankFloorU, 'banks'); bankFloorU.gwFloraFloor.value = Number(look.floor) || 0.2; }   // (LAKE 2, lane W2: the moss's floor)
+    if (look && LMG) {   // (LAKE 2, the art pass: the moss's drifts cut per pixel, crisp at any distance; its threshold from mossAmt)
+      const v3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+      lushMoss(bankMat, { gwMossG: { value: v3(LMG[0]) }, gwMossGHi: { value: v3(LMG[1]) }, gwMossT: { value: 0.66 - 0.36 * LMG[2] } }, 'banks');
+    }
     const mesh = new THREE.Mesh(geo, bankMat);
     mesh.name = 'banks';
     setupSurface(mesh);
@@ -483,8 +495,10 @@ vec2 gwTwitch(vec2 p, float hgt) {
     // fine layers drop out), so the high tier's water no longer reads as snow; off the loop as built)
     dome.onBeforeRender = (renderer, scene, camera) => {
       const mir = camera.layers.mask === (1 << REFLECT_LAYER);
-      domeMat.uniforms.uStars.value = starK * (mir ? (wcOn ? 0.5 : 1.8) : 1);
-      domeMat.uniforms.uStarDen.value = starDen * (mir && wcOn ? 0.4 : 1);
+      // (LAKE 2, the art pass: on a lush water the mirror's stars fewer and dimmer still: at night they lay a lavender snow over the near
+      // water under the low lens)
+      domeMat.uniforms.uStars.value = starK * (mir ? (look ? 0.3 : wcOn ? 0.5 : 1.8) : 1);
+      domeMat.uniforms.uStarDen.value = starDen * (mir && (wcOn || look) ? (look ? 0.3 : 0.4) : 1);
     };
     group.add(dome);
   }
@@ -1138,7 +1152,9 @@ vec2 gwTwitch(vec2 p, float hgt) {
     return mesh;
   };
   addStatic(kit.rock, rockMat, olRock, 'rocks');
-  addStatic(kit.org, orgMat, olOrg, 'organics');
+  // (LAKE 2, the art pass: on a lush water the organics take no ink hull, as its vegetation kit and landmarks take none: the tubes' hull
+  // drew over the cream cap stalks and the Veil's log as black arches, "a black spider on an islet")
+  addStatic(kit.org, orgMat, look ? null : olOrg, 'organics');
   // (WC-3: on the Mossmere under the loop the 'fine' static has its own material, the twitch's)
   const fineMat = wcOn ? M(twitchMat({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'wood', detailAmount: 0.7, grain: [0, 1, 0], wet: 0.5, gloss: 0.1, shine: 56, floor: 1 }, { fogScale: 0.9, fogMax: 1 }, 'reeds')) : orgMat;
   addStatic(kit.fine, fineMat, null, 'fine', false);   // reeds and coral twigs: too fine to cast
@@ -1547,6 +1563,7 @@ vec2 gwTwitch(vec2 p, float hgt) {
     farLum.copy(base.far).lerp(base.light, 0.12).multiplyScalar(1.12);
     farLum.lerp(tmpA.copy(base.far).multiplyScalar(0.28).lerp(base.cold, 0.25), n * 0.92);   // the far ruins keep the lake's hue at night
     farLum.lerp(tmpA.copy(farLum).lerp(base.dawnMist, 0.35).lerp(base.warm, 0.22).multiplyScalar(1.22), w * 0.65);
+    if (env.horizon) farLum.lerp(env.horizon, 0.7);   // (LAKE 2, the art pass: a water with its own lights: its sky's low band by the hour)
     inkNear.copy(base.ink).lerp(env.fog, 0.14);   // (Clear Night: the nearest ring's ink keeps a breath of the air, never black)
     const nR = rings.length;
     for (let i = 0; i < nR; i++) {

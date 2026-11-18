@@ -811,13 +811,13 @@ LOOP_SHAPES.bream = function bream(M) {
 // ---- finlet: a rigid teardrop with a pointed head, two dorsals, a row of finlets above and below a thin keeled tail stalk and a stiff
 // crescent tail (the Lostsea Mackerel); `scribbles`: dark marks over the back. The minnow's profile with finlets and a crescent.
 LOOP_SHAPES.finlet = function finlet(M) {
-  const g = nf(M.girth, 1);
+  const g = nf(M.girth, 1), tk = nf(M.tailK, 1);
   const r = standard({
     w: scaleK([[0, 0.004], [0.04, 0.032], [0.13, 0.062], [0.28, 0.074], [0.46, 0.066], [0.64, 0.044], [0.78, 0.022], [0.88, 0.011], [0.95, 0.009], [1, 0.012]], g),
     ht: scaleK([[0, 0.004], [0.04, 0.034], [0.13, 0.07], [0.28, 0.084], [0.46, 0.074], [0.64, 0.048], [0.78, 0.022], [0.88, 0.011], [0.95, 0.009], [1, 0.016]], g),
     hb: scaleK([[0, 0.004], [0.04, 0.028], [0.15, 0.06], [0.3, 0.072], [0.48, 0.062], [0.66, 0.04], [0.8, 0.018], [0.9, 0.009], [1, 0.014]], g),
     yc: [[0, -0.008], [0.2, 0], [1, 0]],
-    fins: [['tail', 'fork', { s: 0.965, len: 0.2, h: 0.48, sweep: 0.72, root: 0.2 }],
+    fins: [['tail', 'fork', { s: 0.965, len: 0.2 * tk, h: 0.48 * tk, sweep: 0.72, root: 0.2 }],
       ['dorsal', 'spiny', { a: 0.2, b: 0.4, h: 0.1, rake: 0.45, taper: 0.5, segV: 10 }], ['dorsal', 'soft', { a: 0.5, b: 0.6, h: 0.08, rake: 0.7, taper: 0.7 }],
       ['ventral', 'soft', { a: 0.52, b: 0.62, h: 0.07, rake: 0.7, taper: 0.7 }],
       ['pect', 'pect', { s: 0.17, len: 0.15, h: 0.034, out: 0.5, down: 0.25, back: 0.9 }], ['pelvic', 'pect', { s: 0.3, len: 0.05, h: 0.03 }]],
@@ -836,6 +836,7 @@ LOOP_SHAPES.finlet = function finlet(M) {
   for (const sd of [1, -1]) r.extras.push(paint(tube(bezierPts([[sd * f.w(0.006) * 0.9, f.yc(0.02) - 0.004, 0.497], [sd * f.w(0.05), f.yc(0.05) - f.hb(0.05) * 0.3, 0.45], [sd * f.w(0.1) * 0.98, f.yc(0.1) - f.hb(0.1) * 0.25, 0.4]], 8), 0.0028, 4), 0x0a0806));
   r.opts.noPhotophores = true;
   if (M.scribbles !== undefined && M.scribbles !== null && M.scribbles !== false) r.opts.scribbles = cssColor(C(hexColor(M.scribbles === true ? 0x4a2a4e : M.scribbles, 0x4a2a4e)));
+  if (Number.isFinite(Number(M.counterLine))) { r.opts.counterLine = Number(M.counterLine); r.opts.counterSoft = nf(M.counterSoft, 0.05); }
   return r;
 };
 
@@ -845,9 +846,11 @@ LOOP_SHAPES.finlet = function finlet(M) {
 // back fin, a small fatty fin, a forked tail painted its own colour (`tailCol`: ember to amber; the Cindertail), a cream side line.
 function catfishBullet(M) {
   const round = M.head === 'bullet_round', deep = M.deep === true, tallTail = M.tail === 'fork_tall';
+  // (LAKE 2, the art pass: `shoulder` raises a hump behind the head, the Downcast's high shoulders over a deep body)
+  const sh = nf(M.shoulder, 0), hump = (s) => 1 + sh * Math.exp(-(((s - 0.24) / 0.13) ** 2));
   const P = round ? {
     w: [[0, 0.02], [0.03, 0.05], [0.09, 0.07], [0.22, 0.08], [0.42, 0.07], [0.66, 0.045], [0.84, 0.022], [0.93, 0.013], [1, 0.012]],
-    ht: scaleK([[0, 0.016], [0.03, 0.045], [0.1, 0.09], [0.22, 0.125], [0.36, 0.12], [0.55, 0.085], [0.75, 0.045], [0.88, 0.022], [1, 0.02]], deep ? 1 : 0.78),
+    ht: scaleK([[0, 0.016], [0.03, 0.045], [0.1, 0.09], [0.16, 0.11], [0.22, 0.125], [0.3, 0.124], [0.36, 0.12], [0.55, 0.085], [0.75, 0.045], [0.88, 0.022], [1, 0.02]], (s) => (deep ? 1 : 0.78) * hump(s)),
     hb: scaleK([[0, 0.016], [0.03, 0.04], [0.1, 0.07], [0.25, 0.09], [0.42, 0.085], [0.62, 0.06], [0.8, 0.03], [0.9, 0.018], [1, 0.016]], deep ? 1 : 0.8),
     yc: [[0, -0.012], [0.15, 0], [1, 0]],
   } : {
@@ -860,6 +863,7 @@ function catfishBullet(M) {
   const tint = M.tailCol !== undefined && M.tailCol !== null;
   const fins = [
     ...(tint ? [] : [['tail', 'fork', tailO]]),
+    M.dorsal === 'sail' ? ['dorsal', 'soft', { a: 0.2, b: 0.4, h: 0.27, rake: 0.5, taper: 0.7, segV: 10 }] :
     M.dorsal === 'shark' ? ['dorsal', 'soft', { a: 0.22, b: 0.35, h: 0.18, rake: 0.55, taper: 0.82, segV: 8 }] : M.dorsal === 'tall' ? ['dorsal', 'soft', { a: 0.2, b: 0.31, h: 0.14, rake: 0.32, taper: 0.45 }] : ['dorsal', 'soft', { a: 0.24, b: 0.32, h: 0.07, rake: 0.3 }],
     ['ventral', 'soft', { a: 0.62, b: 0.78, h: 0.06, rake: 0.3 }],
     ['pect', 'pect', { s: 0.13, len: round ? 0.14 : 0.11, h: 0.05, yOff: -0.45 }], ['pelvic', 'pect', { s: 0.43, len: 0.06, h: 0.035 }],
@@ -890,6 +894,7 @@ function catfishBullet(M) {
   }
   r.opts.noPhotophores = true;
   if (M.sideLine) r.opts.sideLine = cssColor(C(hexColor(M.sideLine === true ? 0xe8dcc4 : M.sideLine, 0xe8dcc4)));
+  if (Number.isFinite(Number(M.counterLine))) { r.opts.counterLine = Number(M.counterLine); r.opts.counterSoft = nf(M.counterSoft, 0.05); }
   return r;
 }
 
@@ -942,19 +947,20 @@ function loopEel(M) {
 // upturned mouth), scales 'giant' (coin-sized scales, each outlined; `scaleEdge` their petal-cream edges, lit faint at night by the glow)
 // with a short deep tail stalk and a broad forked tail: the Nightbloom, a huge barb
 function loopCarp(M) {
-  const H = nf(M.head, 1), arch = M.back === 'arched', up = M.mouth === 'up';
+  // (LAKE 2, the art pass: `headLen` where the head ends (its share of the length: the Nightbloom's a third) and `archK` the arch's height)
+  const H = nf(M.head, 1), arch = M.back === 'arched', up = M.mouth === 'up', hl = nf(M.headLen, 0.42), ar = nf(M.archK, 0.46);
   const cw = curve1([[0, 0.01], [0.03, 0.05], [0.12, 0.09], [0.38, 0.12], [0.62, 0.095], [0.84, 0.04], [0.93, 0.024], [1, 0.018]]);
   const ch = curve1([[0, 0.01], [0.03, 0.05], [0.14, 0.12], [0.36, 0.18], [0.6, 0.14], [0.84, 0.05], [0.93, 0.03], [1, 0.026]]);
   const cb = curve1([[0, 0.01], [0.03, 0.045], [0.15, 0.11], [0.4, 0.15], [0.62, 0.11], [0.84, 0.04], [1, 0.022]]);
-  const hk = (s) => 1 + (H - 1) * (1 - sstep(0.16, 0.42, s)), ak = (s) => (arch ? 1 + 0.46 * Math.exp(-(((s - 0.33) / 0.18) ** 2)) : 1), sk = (s) => 1 + 0.45 * sstep(0.66, 0.92, s);
+  const hk = (s) => 1 + (H - 1) * (1 - sstep(hl * 0.38, hl, s)), ak = (s) => (arch ? 1 + ar * Math.exp(-(((s - 0.33) / 0.18) ** 2)) : 1), sk = (s) => 1 + 0.45 * sstep(0.66, 0.92, s);
   const S = [0, 0.03, 0.08, 0.14, 0.22, 0.3, 0.38, 0.48, 0.6, 0.72, 0.84, 0.93, 1];
   const r = standard({
-    w: S.map((s) => [s, cw(s) * (1 + (H - 1) * 0.55 * (1 - sstep(0.16, 0.42, s))) * sk(s) * 0.94]),
+    w: S.map((s) => [s, cw(s) * (1 + (H - 1) * 0.55 * (1 - sstep(hl * 0.38, hl, s))) * sk(s) * 0.94]),
     ht: S.map((s) => [s, ch(s) * hk(s) * ak(s) * sk(s)]), hb: S.map((s) => [s, cb(s) * hk(s) * sk(s)]),
     yc: up ? [[0, 0.026], [0.06, 0.008], [0.2, 0], [1, 0]] : [[0, -0.02], [0.2, 0], [1, 0]],
     fins: [['tail', 'fork', { s: 0.97, len: 0.27, h: 0.5 }], ['dorsal', 'soft', { a: 0.34, b: 0.58, h: 0.16, rake: 0.3, segV: 10 }],
       ['ventral', 'soft', { a: 0.66, b: 0.77, h: 0.08 }], ['pect', 'pect', { s: 0.34, len: 0.15, h: 0.07 }], ['pelvic', 'pect', { s: 0.5, len: 0.09, h: 0.05 }]],
-    eye: { s: 0.1, r: 0.026, up: 0.18 }, gill: H > 1.2 ? 0.33 : 0.22, R: 36, anim: { waveK: 3.2, amp: 0.06, freq: 5.2 },
+    eye: { s: 0.1, r: 0.026, up: 0.18 }, gill: H > 1.2 ? Math.max(0.33, hl * 0.72) : 0.22, R: 36, anim: { waveK: 3.2, amp: 0.06, freq: 5.2 },
   }, M);
   const f = r.f;
   if (up) { const y0 = f.yc(0); r.extras.push(paint(tube(bezierPts([[-0.016, y0 + 0.004, 0.495], [0, y0 + 0.014, 0.503], [0.016, y0 + 0.004, 0.495]], 8), 0.0036, 4), 0x0a0608)); }
@@ -1103,7 +1109,10 @@ function bodyTexture(M, shape, parts) {
   for (let y = 0; y < H; y++) {
     const v = 1 - (y + 0.5) / H, th = -Math.PI / 2 + v * TAU, up = Math.sin(th);
     // (the loop's lamprey keeps its ink over the whole flank: only the belly's last band pales)
-    const t = shape === 'lamprey' ? THREE.MathUtils.smoothstep(up, -0.85, -0.35) : THREE.MathUtils.smoothstep(up, -0.5, 0.45);
+    // (LAKE 2, the art pass: a loop plan's `counterLine` (its height round the body, −1 belly … 1 back) draws the countershade as a hard
+    // line, `counterSoft` its half-width: the Lostsea Mackerel's near-black back over a pale belly, the Downcast's plum low on its flank)
+    const cl = Number.isFinite(parts.opts?.counterLine) ? parts.opts.counterLine : null, cs = Number.isFinite(parts.opts?.counterSoft) ? parts.opts.counterSoft : 0.05;
+    const t = cl !== null ? THREE.MathUtils.smoothstep(up, cl - cs, cl + cs) : shape === 'lamprey' ? THREE.MathUtils.smoothstep(up, -0.85, -0.35) : THREE.MathUtils.smoothstep(up, -0.5, 0.45);
     tmp.copy(belly).lerp(body, t).multiplyScalar(1 - 0.32 * Math.max(0, up) ** 2);
     g.fillStyle = cssColor(tmp); g.fillRect(0, y, W, 1);
   }
@@ -1192,13 +1201,16 @@ function bodyTexture(M, shape, parts) {
       g.beginPath(); g.ellipse(x, y, rx, ry, (rnd() - 0.5) * 0.5, 0, TAU); g.fill();
     }
   }
-  if (O.scribbles) {   // the Lostsea Mackerel: plum scribbles over the slate back, none below the flank's middle
-    g.strokeStyle = O.scribbles; g.lineWidth = 1.5; g.lineCap = 'round';
-    for (let k = 0; k < 26; k++) {
-      const x0 = W * (0.16 + rnd() * 0.68), a = 0.06 + rnd() * 0.19;
-      for (const yy of [yP(a), yM(a)]) {
-        g.beginPath(); g.moveTo(x0, yy);
-        for (let i = 1; i <= 5; i++) g.lineTo(x0 + i * 3.2, yy + Math.sin(i * 1.9 + k) * 4.5 * (yy > 64 ? 1 : -1));
+  if (O.scribbles) {   // the Lostsea Mackerel: dark plum scribbles, wavy bars running down its back to the hard line, none below it
+    // (LAKE 2, the art pass: tall wavy bars from the dorsal ridge to the countershade line, thick enough to read in the show's light)
+    g.strokeStyle = O.scribbles; g.lineWidth = 2.4; g.lineCap = 'round'; g.lineJoin = 'round';
+    const aLow = Number.isFinite(O.counterLine) ? Math.max(-0.2, Math.asin(Math.max(-1, Math.min(1, O.counterLine))) / TAU) + 0.02 : 0.04;
+    for (let k = 0; k < 22; k++) {
+      const x0 = W * (0.2 + k * 0.032 + rnd() * 0.01);
+      for (const side of [1, -1]) {
+        const y0 = side > 0 ? yP(0.25) : yM(0.25), y1 = side > 0 ? yP(aLow) : yM(aLow);
+        g.beginPath(); g.moveTo(x0, y0);
+        for (let i = 1; i <= 7; i++) { const u = i / 7; g.lineTo(x0 + Math.sin(u * 5.2 + k * 1.3) * 3.4 + u * 2, y0 + (y1 - y0) * u); }
         g.stroke();
       }
     }
@@ -1485,6 +1497,7 @@ export function createFishFactory(ctx) {
     // the measuring ceremony's "lantern kiss" (setWarm): a warm rim on every lit part, a breath of warm light on a dark skin
     const rimMats = mats.filter((m) => m.userData?.rim).map((m) => ({ m, col: m.userData.rim.gwRimColor.value.clone(), str: m.userData.rim.gwRimStrength.value, thr: m.userData.rim.gwRimThreshold.value }));
     const warmEm = !E.hasGlow && !P.opts.jelly && !E.skin.emissiveMap;
+    const floodK = LOOP_ON && Number.isFinite(Number(M.flood)) ? Math.max(0, Number(M.flood)) : 1;
     // the show's wet skin (setWet): the glint of every lit part
     let wetK = 0;
     const wetMats = mats.filter((m) => m.userData?.surf?.gwSurf).map((m) => ({ u: m.userData.surf, g: m.userData.surf.gwSurf.value.x, e: m.userData.surf.gwSurf.value.y }));
@@ -1640,7 +1653,9 @@ export function createFishFactory(ctx) {
       },
       get silhouette() { return silK; },
       /** The light a just-revealed fish holds for a moment (0 = none): a pale-gold lift over the whole body (the landing). */
-      setRevealLight(k = 0) { U.uGwRevFlood.value = Math.max(0, Math.min(1, Number(k) || 0)); },
+      // (LAKE 2, the art pass: a loop model's `flood` scales the light it holds after the landing, so a dark-backed fish (the Mackerel, the
+      // Downcast, the Nightbloom) keeps its back's colour in the show's first seconds instead of reading as a pale cream torpedo)
+      setRevealLight(k = 0) { U.uGwRevFlood.value = Math.max(0, Math.min(1, (Number(k) || 0) * floodK)); },
       /** The landing's reveal (v3): k 0 → 1 floods the true colours along the body nose to tail behind a band of light (the part
        *  not yet reached stays night ink); on 0 turns it off. colour: the band's light (default pale gold). */
       setReveal(kk = 0, on = 1, colour = null) {

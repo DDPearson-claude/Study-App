@@ -323,16 +323,17 @@ WATERCRAFT.sporewood.laneFallback = { x: -38, z: 12 };
 // roll for the Downcast at dusk, the bow wave the swirl's and the strike's answer, in the giants' places too) and its silhouettes (§6's
 // rules, its own bodies). The game draws every water under the loop that has tells by these rules: no pulse ring, no gold, no built sign
 // baked by `node tools/tests/watercraft.test.mjs --bake=sporewood` (SPOREWOOD_ARENA's outline layout, its mooring's hulls, 100 seeded
-// evenings; the factors fitted on its plain bait, Spore Cake, so the Threadling's is fitted too)
+// evenings; the factors fitted on its plain bait, Spore Cake, so the Threadling's is fitted too; re-baked by LAKE 2's art pass after its
+// isles took irregular outlines)
 WATERCRAFT.sporewood.shares = {
-  day: { margin: 0.2207, reeds: 0.0418, pads: 0.0188, stones: 0.0662, dropoff: 0.1419, lane: 0.0155, open: 0.2339, deep: 0.2283, inflow: 0.0164, outflow: 0.0167 },
-  dusk: { margin: 0.2207, reeds: 0.0418, pads: 0.0188, stones: 0.0662, dropoff: 0.1419, lane: 0.0155, open: 0.2339, deep: 0.2283, inflow: 0.0164, outflow: 0.0167 },
-  night: { margin: 0.2207, reeds: 0.0418, pads: 0.0188, stones: 0.0662, dropoff: 0.1419, lane: 0, open: 0.2352, deep: 0.2424, inflow: 0.0164, outflow: 0.0167 },
+  day: { margin: 0.226, reeds: 0.0412, pads: 0.0188, stones: 0.0655, dropoff: 0.1446, lane: 0.0155, open: 0.2269, deep: 0.2283, inflow: 0.0164, outflow: 0.0167 },
+  dusk: { margin: 0.226, reeds: 0.0412, pads: 0.0188, stones: 0.0655, dropoff: 0.1446, lane: 0.0155, open: 0.2269, deep: 0.2283, inflow: 0.0164, outflow: 0.0167 },
+  night: { margin: 0.226, reeds: 0.0412, pads: 0.0188, stones: 0.0655, dropoff: 0.1446, lane: 0, open: 0.2282, deep: 0.2425, inflow: 0.0164, outflow: 0.0167 },
 };
 WATERCRAFT.sporewood.factors = {
-  day: { capshell_crayfish: 1.5046, cindertail_catfish: 0.6009, downcast_catfish: 0.3716, falsesmile_barb: 1.1285, lostsea_mackerel: 0.4942, netcloud_fry: 0.9591, threadling_eel: 1.2231, velvet_ray: 0.6617 },
-  dusk: { capshell_crayfish: 1.5046, cindertail_catfish: 0.6009, downcast_catfish: 0.3716, falsesmile_barb: 1.1285, lostsea_mackerel: 0.4942, netcloud_fry: 0.9591, threadling_eel: 1.2231, velvet_ray: 0.6617 },
-  night: { capshell_crayfish: 1.5218, cindertail_catfish: 0.5863, mildew_angler: 0.7449, netcloud_fry: 0.95, threadling_eel: 1.2184, velvet_ray: 0.6395 },
+  day: { capshell_crayfish: 1.4943, cindertail_catfish: 0.5991, downcast_catfish: 0.3707, falsesmile_barb: 1.1269, lostsea_mackerel: 0.4961, netcloud_fry: 0.9598, threadling_eel: 1.2127, velvet_ray: 0.6616 },
+  dusk: { capshell_crayfish: 1.4943, cindertail_catfish: 0.5991, downcast_catfish: 0.3707, falsesmile_barb: 1.1269, lostsea_mackerel: 0.4961, netcloud_fry: 0.9598, threadling_eel: 1.2127, velvet_ray: 0.6616 },
+  night: { capshell_crayfish: 1.5114, cindertail_catfish: 0.5845, mildew_angler: 0.7411, netcloud_fry: 0.9514, threadling_eel: 1.208, velvet_ray: 0.6397 },
 };
 // <<< baked
 {

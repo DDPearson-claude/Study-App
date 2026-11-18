@@ -754,6 +754,9 @@ void main() {
 #ifdef GW_WC
   calmW = uWc;
 #endif
+#ifdef GW_LUSH
+  calmW = 1.0;   // (LAKE 2, the art pass: a lush water as calm as the loop's Mossmere: no glitter, the mirror in soft strokes)
+#endif
   vec2 gFine = fineGrad(xz, uTime) * (0.085 * fineK * (1.0 - 0.45 * calmW));
 #ifdef GW_V3
   gFine *= 1.0 - 0.9 * min(sFlat, 1.0);
@@ -789,6 +792,17 @@ void main() {
   rcol = min(rcol, vec3(1.1));          // a glow's mirror image is a glow, not a hot sheet on the water
   // (the loop: a pale lit face mirrored near the eye is held down, so it never lies on the water as a bright patch)
   rcol /= 1.0 + calmW * 0.9 * max(dot(rcol, vec3(0.2126, 0.7152, 0.0722)) - 0.3, 0.0);
+#ifdef GW_LUSH
+  {
+    // (LAKE 2, the art pass, "gold on the water": the lit gills and cap undersides mirrored near the eye lay gold discs on the water that
+    // read as litter. A warm mirrored light (amber, gold: red over blue and at least as red as green) is dulled to a soft olive-ochre and
+    // held down; the green leaves' images (green over red) are untouched)
+    float rl = dot(rcol, vec3(0.2126, 0.7152, 0.0722));
+    float warmR = clamp((rcol.r - rcol.b) / max(rcol.r, 1e-3) * 1.4 - 0.4, 0.0, 1.0) * smoothstep(-0.04, 0.04, rcol.r - rcol.g);
+    rcol = mix(rcol, vec3(rl) * vec3(0.86, 0.98, 0.74), warmR * 0.7);
+    rcol *= 1.0 - 0.75 * warmR * smoothstep(0.05, 0.3, rl);
+  }
+#endif
   float reflK = F * (1.0 - 0.8 * clamp(foam, 0.0, 1.0));
 #ifdef GW_V3
   // where a fish turned, rose or struck the water is stirred and stops mirroring: a sign is a dark break in the mirror
@@ -922,11 +936,23 @@ void main() {
 #endif
   }
 
+#ifdef GW_LUSH
+  // (LAKE 2, the art pass: on a lush water the low lens puts the whole foot of the frame inside the lantern's reach, and its even amber
+  // floor laid one tan sheet over the green water: the pools are softer, so the water keeps its own deep green-teal and the warm light
+  // gathers round the raft and under the glowcaps)
+  pool *= 0.55;
+#endif
   // ---- warm light owns the water it touches: inside a light pool the lake's cold cast drains
   // to grey before the pool is added, so the lantern reads amber on slate/indigo water
   // (amber + blue would otherwise mix to rose)
   float poolK = clamp(dot(pool, vec3(0.2126, 0.7152, 0.0722)) * 20.0, 0.0, 0.92);
+#ifdef GW_LUSH
+  // (LAKE 2, the art pass: a lush water's own green-teal is no cold cast: amber over it turns olive-gold, never rose, so the pool keeps
+  // the water's colour and only a little of it drains; drained in full, the lantern's reach read as one tan-gold sheet on the water)
+  col = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))) * vec3(0.92, 1.08, 0.9), poolK * 0.2);
+#else
   col = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))) * vec3(1.1, 1.0, 0.72), poolK);
+#endif
 
   // ---- starlight: the vault's stars (and its nebula) mirrored in the lake. The lookup mirrors the
   // view in a nearly flat surface (a mirror keeps the stars round and lets them glide with the
@@ -975,6 +1001,9 @@ void main() {
     float gl = (1.0 - smoothstep(0.0, 0.06, gd)) * tw * near * 1.6;
 #ifdef GW_WC
     gl *= (1.0 - wcSlick) * (1.0 - uWc);   // (the loop's Mossmere: no glints on still water at all)
+#endif
+#ifdef GW_LUSH
+    gl = 0.0;   // (LAKE 2, the art pass: nor on a lush water)
 #endif
     float pl = dot(pool, vec3(0.333));
     vec3 gcol = mix(uStarCol, uGlow, 0.35) * 0.55;   // star-like glints (never a Cinder's amber)

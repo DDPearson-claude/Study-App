@@ -1165,6 +1165,13 @@ export function buildPlaces(ctx, L, arena, { places = [], pal = {}, quality = 'h
     // the mouth both read), high and close, so the bell on the floor reads as a bell and not as a board at a grazing angle; the fix pass)
     // (Veilback Brook: the lift's shot looks down the cut from its mouth, the lens inside the Veil, low, so its banks frame it; LOST-TACKLE §5)
     if (id === 'veilback_brook' && L?.notch) { const N = L.notch, al = N.end - 6.5; return { x: al * N.ca, y: 0.6, z: al * N.sa + 0.5, r: 6, side: [-N.ca, -N.sa], elev: 14, dist: 10.5 }; }
+    // (LAKE 2, the art pass: the Veilwater's shot frames the Veil's strand curtain broadside from the West Pool, low and back, so its
+    // fallen stalk spans the frame's top instead of filling it at the lens)
+    const veil = arena?.lush?.art?.veil, vOut = ctx?.data?.LOOP?.places?.veilwater?.out;
+    if (id === 'veilwater' && veil && Array.isArray(vOut) && vOut.length >= 3) {
+      const q = vOut[vOut.length - 3], sx = q[0] - veil.x, sz = q[1] - veil.z + 0.35 * Math.hypot(q[0] - veil.x, q[1] - veil.z), sl = Math.hypot(sx, sz) || 1;
+      return { x: veil.x, y: 1.8, z: veil.z, r: 6, side: [sx / sl, sz / sl], elev: 8, dist: 17 };
+    }
     if (id === 'bell_pool' && p.area?.kind === 'disc') { const B = bellSpot(p.area); const sx = B.dir[0] + B.dir[1], sz = B.dir[1] - B.dir[0], sl = Math.hypot(sx, sz) || 1; return { x: B.x + B.dir[0] * 0.5, y: 0, z: B.z + B.dir[1] * 0.5, r: p.area.r, side: [sx / sl, sz / sl], elev: 46, dist: 8.8 }; }
     // (a path's broadside: the lift's shot films a long place across it, never down its length behind its first pier; the stage)
     const a = p.area, q = a?.kind === 'path' && Array.isArray(a.pts) && a.pts.length >= 2 ? [a.pts[a.pts.length - 1][0] - a.pts[0][0], a.pts[a.pts.length - 1][1] - a.pts[0][1]] : null;

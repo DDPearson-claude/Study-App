@@ -183,6 +183,9 @@ export function findPropParts(id) {
       g.push(P(new THREE.CylinderGeometry(0.0005, rAt(h * 0.92) + 0.004, h * 0.08, 12), STRAW, { r: [0, 0, -Math.PI / 2], p: [h * 0.96, 0, 0] }));
       g.push(P(new THREE.TorusGeometry(0.168, 0.012, 3, 14), STRAW_DK, { r: [0, Math.PI / 2, 0] }));
       g.push(P(new THREE.SphereGeometry(0.022, 6, 3), STRAW_DK, { p: [h + 0.008, 0, 0], s: [0.8, 1, 1] }));
+      // (LAKE 2, the art pass: held square to the lens the dome read as a flat cream disc before the face; tipped back, its crown up
+      // and toward the lens, the lens sees it from below its crown, coil over coil, as a straw dome)
+      for (const q of g) q.rotateZ(0.95);
       break;
     }
     case 'gardeners_trowel': {   // a garden trowel: a brass scoop worn bright on one side, its shank, a turned wooden handle with a ferrule

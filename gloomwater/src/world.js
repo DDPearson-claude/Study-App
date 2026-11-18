@@ -74,6 +74,18 @@ export function create(ctx) {
     dir.color.copy(zc.light).lerp(KEY.lav, 0.25).lerp(WARM, w * 0.55).lerp(COLD, n * 0.3);
     dir.intensity = 2.1 * (1 - 0.55 * n) * (1 + 0.15 * w);
     if (arena?.keyDir) KEY.toLight.copy(arena.keyDir);
+    // >>> LAKE 2, the art pass: a water with its own lights takes its key, its fill and the key's height from them (the dusk's low
+    // light lays long shadows); the dawn's warmth still lifts them as it lifts the built mood
+    if (lit) {
+      litWeights();
+      hemi.color.copy(litCol('amb', litC.amb)).lerp(WARM, w * 0.1);
+      hemi.intensity = litNum('ambI') * (1 + 0.05 * w);
+      dir.color.copy(litCol('key', litC.key)).lerp(WARM, w * 0.3);
+      dir.intensity = litNum('keyI') * (1 + 0.15 * w);
+      const e = litNum('elev');
+      if (Math.abs(e - 1) > 1e-3) { KEY.toLight.y *= e; KEY.toLight.normalize(); }
+    }
+    // <<< LAKE 2, the art pass
     const L = KEY.toLight;
     const tb = ctx.render && !ctx.render.isStub ? ctx.render.clarity : null;
     const size = tb?.shadow | 0, half = tb?.shadowBox || 40;
@@ -129,7 +141,7 @@ export function create(ctx) {
   let gateState = 'sealed';
   let fogPush = 0, gradeTimer = 0, paletteTimer = 0, pickTimer = 0;
   const lastGrade = {};
-  const mood = { night: 0.18, warm: 0.1 };
+  const mood = { night: 0.18, warm: 0.1, dusk: 0 };
   const env = { night: 0, warm: 0, fog: new THREE.Color(), fogDensity: 0.0055, glowK: 1, shaftK: 1, partK: 1, starK: 1, starDen: 1, nebK: 1 };
   const col = { fog: new THREE.Color(), nightFog: new THREE.Color(), dawnFog: new THREE.Color(), dawnMist: new THREE.Color(), a: new THREE.Color(), b: new THREE.Color() };
   // night floors (linear luminance): the darkest lakes (the Pallid Deep, Sporewood) are lifted to at
@@ -141,6 +153,35 @@ export function create(ctx) {
   const COLD = new THREE.Color(0x0b0d2e), WARM = new THREE.Color(0xf2cfa4), NIGHT_TINT = new THREE.Color(0x1e2466), DAWN_TINT = new THREE.Color(0xb898c0);
   const DAWN_MIST = new THREE.Color(0x9a92c8), GRADE_WARM = new THREE.Color(0xf4cc96), GRADE_WARM_DAWN = new THREE.Color(0xf0c8a8);
   const zc = {}; // zone colours (THREE.Color)
+  // >>> LAKE 2, the art pass (LAKE2 §9.11): a water whose look carries its own three lights (ZONE_LOOKS[zone].air.lights: Sporewood under
+  // the loop) is lit by them, blended by the hour: day (1 − dusk)(1 − night), dusk, night (1 − dusk)·night. Every other water (the
+  // Mossmere, the flag-off game) keeps the built mood exactly: `lit` is null for it and none of this runs.
+  let lit = null;
+  const LIT_COLS = ['fog', 'horizon', 'key', 'amb', 'water', 'deep', 'tint'];
+  const LIT_NUMS = ['keyI', 'ambI', 'tintAmt', 'exposure', 'sat', 'stars', 'neb', 'glow', 'elev', 'leaf'];
+  function litOf(z) {
+    const Ls = lushLook(ctx.data, z?.id)?.air?.lights;
+    if (!Ls || !Ls.day || !Ls.dusk || !Ls.night) return null;
+    const out = { w: [1, 0, 0] };
+    for (const ph of ['day', 'dusk', 'night']) {
+      const P = Ls[ph], o = {};
+      for (const k of LIT_COLS) o[k] = new THREE.Color(P[k] ?? 0x000000);
+      for (const k of LIT_NUMS) o[k] = Number.isFinite(P[k]) ? P[k] : 1;
+      out[ph] = o;
+    }
+    return out;
+  }
+  function litWeights() {
+    const d = clamp(mood.dusk), n = smoothstep(0.2, 0.7, clamp(mood.night));
+    lit.w[0] = (1 - d) * (1 - n); lit.w[1] = d; lit.w[2] = (1 - d) * n;
+  }
+  const litCol = (k, out) => {
+    const a = lit.day[k], b = lit.dusk[k], c = lit.night[k], w = lit.w;
+    return out.setRGB(a.r * w[0] + b.r * w[1] + c.r * w[2], a.g * w[0] + b.g * w[1] + c.g * w[2], a.b * w[0] + b.b * w[1] + c.b * w[2]);
+  };
+  const litNum = (k) => lit.day[k] * lit.w[0] + lit.dusk[k] * lit.w[1] + lit.night[k] * lit.w[2];
+  const litC = { fog: new THREE.Color(), horizon: new THREE.Color(), key: new THREE.Color(), amb: new THREE.Color(), tint: new THREE.Color() };
+  // <<< LAKE 2, the art pass
 
   // ------------------------------------------------------------------ helpers
   const zones = () => { const Z = ctx.data?.ZONES; return Array.isArray(Z) && Z.length ? Z : [FALLBACK_ZONE]; };
@@ -230,6 +271,7 @@ export function create(ctx) {
     zc.stars = Number.isFinite(p.stars) ? p.stars : 1;
     zc.nebula = new THREE.Color(p.nebula ?? 0xd296ae);
     zc.candle = new THREE.Color(p.candle ?? p.lamp ?? p.glow);
+    lit = litOf(z);   // (LAKE 2, the art pass: a water with its own three lights)
     watchLamps = watchLampsFor(z, layout, { radius: lampRadius() });
     giantSpots = giantSpotsFor(z);
     v3Info.lamps = watchLamps.map(() => ({ k: 0, watch: 0 }));
@@ -334,7 +376,7 @@ export function create(ctx) {
   // <<< INTRO LANE A
 
   function moodTargets(out) {
-    let n = 0, w = 0;
+    let n = 0, w = 0, d = 0;
     const run = ctx.state?.run;
     if (introMood) { n = INTRO_MOOD.night; w = INTRO_MOOD.warm; }   // INTRO LANE A
     // the loop's Jetty (slice-1a PLAN §2.2 item 16, CHOICE 7): the built dawn look at its midpoint, "the sky pales to dawn"
@@ -344,21 +386,21 @@ export function create(ctx) {
       const pi = phaseInfo();
       const k = clamp(Number(pi?.k) || 0);
       switch (pi?.phase) {
-        case 'dusk': n = 0.12 + 0.6 * smoothstep(0, 1, k); break;
-        case 'gloomtide': n = 0.72 + 0.28 * smoothstep(0, 0.15, k) - 0.12 * smoothstep(0.88, 1, k); break;
+        case 'dusk': n = 0.12 + 0.6 * smoothstep(0, 1, k); d = smoothstep(0, 0.12, k) * (1 - 0.6 * smoothstep(0.7, 1, k)); break;
+        case 'gloomtide': n = 0.72 + 0.28 * smoothstep(0, 0.15, k) - 0.12 * smoothstep(0.88, 1, k); d = 0.4 * (1 - smoothstep(0, 0.04, k)); break;
         case 'dawn': n = 0.88 * (1 - smoothstep(0, 0.9, k)); w = smoothstep(0, 0.35, k) * (0.6 + 0.35 * Math.sin(Math.PI * k)); break;
-        default: n = 0.12 * smoothstep(0.82, 1, k); w = (pi?.day > 1 ? 0.6 : 0.35) * (1 - smoothstep(0, 0.08, k));
+        default: n = 0.12 * smoothstep(0.82, 1, k); w = (pi?.day > 1 ? 0.6 : 0.35) * (1 - smoothstep(0, 0.08, k)); d = 0.5 * smoothstep(0.8, 1, k);
       }
       if (ctx.flow === 'dead') n = Math.max(n, 0.5);
     }
-    out.night = n; out.warm = w;
+    out.night = n; out.warm = w; out.dusk = d;   // (dusk: read only by a water with its own lights, LAKE 2's art pass)
     return out;
   }
-  const _mt = { night: 0, warm: 0 };
+  const _mt = { night: 0, warm: 0, dusk: 0 };
   function computeMood(dt, snap = false) {
     moodTargets(_mt);
-    if (snap) { mood.night = _mt.night; mood.warm = _mt.warm; }
-    else { mood.night = damp(mood.night, _mt.night, 1.3, dt); mood.warm = damp(mood.warm, _mt.warm, 1.1, dt); }
+    if (snap) { mood.night = _mt.night; mood.warm = _mt.warm; mood.dusk = _mt.dusk; }
+    else { mood.night = damp(mood.night, _mt.night, 1.3, dt); mood.warm = damp(mood.warm, _mt.warm, 1.1, dt); mood.dusk = damp(mood.dusk, _mt.dusk, 1.1, dt); }
   }
 
   function applyAtmosphere(dt, force = false) {
@@ -372,6 +414,7 @@ export function create(ctx) {
     col.dawnMist.copy(DAWN_MIST).lerp(zc.far, 0.5);
     col.dawnFog.copy(zc.fog).lerp(col.dawnMist, 0.22).lerp(WARM, 0.06).multiplyScalar(1.1);
     col.fog.copy(zc.fog).lerp(col.nightFog, n).lerp(col.dawnFog, w * 0.55);
+    if (lit) { litWeights(); col.fog.copy(litCol('fog', litC.fog)).lerp(col.dawnFog, w * 0.4); }   // (LAKE 2, the art pass: its own air by the hour)
     fogPush = Math.max(0, fogPush - dt * 1.4);
     const density = zc.fogDensity * (1 + FOG_NIGHT * n + FOG_DAWN * w) * (1 + fogPush);
     env.night = n; env.warm = w; env.fog.copy(col.fog); env.fogDensity = density;
@@ -383,11 +426,17 @@ export function create(ctx) {
     env.glowK = (1 - 0.42 * n) * (isTitle ? 1.1 : 1);
     env.shaftK = (1 - 0.9 * n) * (1 + 0.35 * w) * (isTitle ? 1.2 : 1);
     env.partK = 1 - 0.55 * n;   // drifting motes thin out at night: the eyes and the stars own the dark
+    // (LAKE 2, the art pass: on a water with its own lights the glowcaps carry the night, the sky's low band and the leaves' light are its
+    // own; env.horizon null keeps every other water's sky as built)
+    env.dusk = lit ? clamp(mood.dusk) : 0;
+    env.horizon = lit ? litCol('horizon', litC.horizon) : null;
+    env.leafK = lit ? litNum('leaf') : 1;
+    if (lit) env.glowK = litNum('glow') * (isTitle ? 1.1 : 1);
     // starlight: brighter and denser as the night deepens, fading out into the dawn
     const stars = Number.isFinite(zc.stars) ? zc.stars : 1;
-    env.starK = stars * (0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
+    env.starK = stars * (lit ? litNum('stars') : 0.8 + 0.6 * n) * (1 - 0.7 * w) * (isTitle ? 1.1 : 1);
     env.starDen = (0.65 + 0.35 * stars) * (1 + 0.28 * n) * (1 - 0.3 * w) * STAR_DENSITY;
-    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w) * NEBULA_K;
+    env.nebK = (0.6 + 0.25 * n) * (1 - 0.55 * w) * NEBULA_K * (lit ? litNum('neb') : 1);   // (LAKE 2, the art pass: its violet nebula an accent in the cap-rim window, by the hour)
     const s = scene();
     if (s) {
       if (!s.fog) s.fog = new THREE.FogExp2(col.fog.getHex(), density);
@@ -411,6 +460,7 @@ export function create(ctx) {
     // dawn warms the highlights (warm split-tone) more than the shadows: shadows that go orange read
     // as mud on slate water, cool shadows under warm light read as a pearl dawn
     col.a.set(g.tint ?? 0x40347e).lerp(NIGHT_TINT, n * 0.35).lerp(DAWN_TINT, w * 0.2);
+    if (lit) { litWeights(); col.a.copy(litCol('tint', litC.tint)).lerp(DAWN_TINT, w * 0.12); }   // (LAKE 2, the art pass: its own tint by the hour)
     // Clear Night (DESIGN §19.1 "The lens"): the night no longer adds bloom (only emitters bloom, at any hour), darkens the
     // exposure and the saturation a little less, and barely deepens the vignette or the grain
     const grade = {
@@ -430,6 +480,11 @@ export function create(ctx) {
       warmAmount: (g.warmAmount ?? 0.07) + 0.16 * w,
       warm: col.b.copy(GRADE_WARM).lerp(GRADE_WARM_DAWN, w).getHex(),
     };
+    if (lit) {   // (LAKE 2, the art pass: its exposure, tint amount and saturation by the hour)
+      grade.exposure = litNum('exposure') * (1 + 0.1 * w);
+      grade.tintAmount = litNum('tintAmt');
+      grade.saturation = litNum('sat') * (1 + 0.08 * w);
+    }
     let changed = force;
     for (const k in grade) if (!changed && Math.abs((lastGrade[k] ?? -99) - grade[k]) > (k === 'tint' || k === 'warm' ? 0 : 0.004)) changed = true;
     if (!changed) return;
@@ -444,6 +499,7 @@ export function create(ctx) {
     // enough that an ink-black gloomling still reads as a silhouette on it
     liftLum(col.a.copy(zc.waterDeep).multiplyScalar(1 - 0.42 * n), NIGHT_DEEP_MIN * n);
     liftLum(col.b.copy(zc.water).lerp(COLD, 0.12 * n).multiplyScalar(1 - 0.34 * n), NIGHT_WATER_MIN * n).lerp(col.dawnMist, mood.warm * 0.06);
+    if (lit) { litWeights(); litCol('deep', col.a); litCol('water', col.b).lerp(col.dawnMist, mood.warm * 0.06); }   // (LAKE 2, the art pass: its own water by the hour)
     try {
       ctx.water?.setPalette?.({ deep: col.a.getHex(), shallow: col.b.getHex(), foam: zc.foam.getHex(), glow: zc.glow.getHex(), fogColor: env.fog.getHex() });
     } catch (e) { /* optional */ }
@@ -514,6 +570,7 @@ export function create(ctx) {
       // (the integration's fix: on the Mossmere under the loop the lantern lays its warm pool and no glitter path, whose gold flecks
       // strung toward the lens through every haul; its true image stays in the mirror: "no glitter on the water")
       if (ctx.data?.LOOP_ENABLED === true && zone?.id === 'mossmere') s.streak = 0;
+      if (lit) s.streak = 0;   // (LAKE 2, the art pass: nor on Sporewood, whose sparks read as gold litter on the water)
       waterLights.push(s);
     }
     // >>> INTRO LANE A: stage hooks (the great lantern's light on the water)
@@ -549,7 +606,8 @@ export function create(ctx) {
         const s = wl[i++];
         s.position.set(a.anchor.x, a.anchor.y, a.anchor.z); s.color.copy(a.anchor.color);
         s.intensity = a.anchor.intensity * a.k * env.glowK; s.distance = a.anchor.distance;
-        s.streak = 0.7;   // a candle's column on the water stays a gold thread, never a white pillar
+        s.streak = lit ? 0 : 0.7;   // a candle's column on the water stays a gold thread, never a white pillar (LAKE 2, the art pass: on
+        // Sporewood none: its glowcaps lay their pools and no thread of gold strung across the water)
         waterLights.push(s);
       }
     }

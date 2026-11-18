@@ -233,9 +233,9 @@ and it has a jaw. No two read as one another.
 
 | | the Belled Matriarch | Downcast Catfish | Cindertail Catfish |
 |---|---|---|---|
-| silhouette | vast flat shovel head, a door-wide mouth, two bell-rope whiskers, an eel-taper tail, bronze, a bell in the skull | **shark-like**: a deep, high-shouldered body, **a tall pointed back fin like a shark's**, **a deeply forked tall tail**, a blunt rounded snout, **no whiskers** (two stubs at most) | **bullet head** with **four pairs of long whiskers** fanned forward; a tall back fin and a small fatty fin; **a deeply forked tail that is ember-red** |
-| `catfish` parameters | `head: 'shovel', whiskers: 2 long, tail: 'eel'` | `head: 'bullet_round', whiskers: 0, body: 'deep', dorsal: 'shark', tail: 'fork_tall', eye: 'low'` (the eyes set **below** the mouth line: "it has only ever looked where it will sink") | `head: 'bullet', whiskers: 4 pairs long, dorsal: 'tall', fattyFin: true, tail: 'fork'` |
-| colour | tarnished bronze, lavender eyes | pale pewter-cream flanks, a plum back, no glow | ink-plum body, a cream line from gill to tail, **the tail ember-red to amber**, a faint warm glow at its tip only at night |
+| silhouette | vast flat shovel head, a door-wide mouth, two bell-rope whiskers, an eel-taper tail, bronze, a bell in the skull | **shark-like**: a deep, high-shouldered body, **a tall pointed back fin like a shark's**, **a deeply forked tall tail**, a blunt rounded snout, **a catfish's barbels** (two pairs; the art pass, §9.11) | **bullet head** with **four pairs of long whiskers** fanned forward; a tall back fin and a small fatty fin; **a deeply forked tail that is ember-red** |
+| `catfish` parameters | `head: 'shovel', whiskers: 2 long, tail: 'eel'` | `head: 'bullet_round', whiskers: 4, body: 'deep', shoulder: 0.42, dorsal: 'sail', tail: 'fork_tall', eye: 'low'` (the eyes set **below** the mouth line: "it has only ever looked where it will sink") | `head: 'bullet', whiskers: 4 pairs long, dorsal: 'tall', fattyFin: true, tail: 'fork'` |
+| colour | tarnished bronze, lavender eyes | a dark plum back carried low on the flank (`counterLine` −0.38), a pale pewter belly, no glow | ink-plum body, a cream line from gill to tail, **the tail ember-red to amber**, a faint warm glow at its tip only at night |
 | size at a glance | 260 cm and more | 75–105 cm, deep | 55–74 cm, slim |
 
 **Carp: the Nightbloom, against the Weeping Carp, the Rustfin Sucker and the Candlefin Koi.**
@@ -243,8 +243,8 @@ and it has a jaw. No two read as one another.
 | | the Mossmere's | Nightbloom Carp |
 |---|---|---|
 | silhouette | Weeping Carp: a standard carp with barbels, grey; Rustfin: a slim sucker with a down-turned mouth; Candlefin: a koi with long fins | **a giant barb**: **a huge head (a third of its length)**, **a high arched back**, **no barbels**, a small upturned mouth, a short deep tail stalk and a broad forked tail |
-| `carp` parameters | — | `head: 1.35, back: 'arched', barbels: 'none', mouth: 'up', scales: 'giant'` (coin-sized scales, each outlined) |
-| colour | — | plum scales **edged in cream like petals**; at night the edges glow faint amber, "a bloom" (replaces the guest's lavender flank glow) |
+| `carp` parameters | — | `head: 1.55, headLen: 0.48, back: 'arched', archK: 0.72, barbels: 'none', mouth: 'up', scales: 'giant'` (coin-sized scales, each outlined; the art pass, §9.11) |
+| colour | — | dark plum scales **edged in cream like petals**; at night the edges glow faint amber, "a bloom" (replaces the guest's lavender flank glow) |
 
 **Minnows: the Netcloud Fry, against the Dusk Minnow and the Likely Chub.** The Fry is **a glass fish**: a clear, slightly milky body
 through which **the dark spine and the eye show**, a single amber spot at the tail root, eyes a third of the head, 6.5–8.5 cm (a
@@ -262,7 +262,8 @@ cream belly, plum fins. New plan `bream` (`depth: 0.95, jaw: 'square_teeth', tai
 like it.
 
 **The rest** (no relative in the Mossmere): **Lostsea Mackerel** on the new `tuna` plan: a rigid teardrop, two back fins, **finlets**
-above and below a thin keeled tail stalk, **a stiff crescent tail**; slate-blue back with plum scribbles, cream belly; a sea fish
+above and below a thin keeled tail stalk, **a stiff crescent tail**, larger since the art pass (§9.11: slim, `girth` 0.82, `tailK` 1.32);
+a near-black slate back over a hard countershade line, dark plum bars down it, a cream belly; a sea fish
 in a forest pool. **Velvet Ray** on the new `disc` plan: a near-round velvet disc as wide as a lily pad, **a dozen cream eye-rings**
 on a plum back, eyes on two small turrets, a stout short tail with one sting. **The Drifting Grove**: the same disc nearly as wide as
 the raft, a pointed snout tip, a whip tail with one barb, and **a meadow on her back** (an extras mesh of moss tufts, ferns and tiny
@@ -1462,6 +1463,102 @@ part-1 tests unchanged and green).
 - **Left**: Glasswater has no gear key in `LOOP.access.gear` yet, so its sealed sheet's gear seal is a plain hollow rod seal (its
   water's data comes with it); the M1 docs' "Sporewood's card still reads Coming soon" (M1 §2.5) is the pre-gate state; the review's
   other findings (§11's lures, the art passes above) stand.
+
+### 9.11 The art pass (gw-l2-art, after the review of §9.10)
+
+**The greener palette** is commit 04e12c8 on gw-l2-art: Sporewood's air, light, water and leaves as first pulled to green (a green-gold
+day, green fog and grade, lime-bright leaves, about 30% green by day). The user's word on it (18 Nov 2026): "possibly too much green,
+we're making our way down the mountain so we want more green than the moss mere but not lots and lots of green yet", and "keep what
+you've got but do a colour palette change". The palette below is the muted one that followed; everything else is as 04e12c8 built it.
+To restore the greener palette, take `ZONE_LOOKS.sporewood`'s colour values and the WATERS row from 04e12c8.
+
+The user's words on the current frames: too purple, the three lights alike, blocky shrubs, gold on the water, three fish that read as
+one, a dark Gill Harp, a camouflage bank, a Veil that fills the lens, round isles. Fixed as follows, Sporewood only under the loop; the
+Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same) and so is the flag-off game (ZONES as fingerprinted).
+
+- **Its own air, Clear Night-led and never green** (`ZONE_LOOKS.sporewood.air`; the loop's apply block lays `air.palette` and
+  `air.grade` over ZONES' Sporewood): fog #26343f, water #203444, ink #060c12, ambient #3a4a5a, far #8e9cae, light #ece2cc, lamp
+  #e6dcbc, the nebula a plum-rose #a47a86 held low (the one accent in the cap-rim window's sky), the grade's tint a cool slate #3a4250.
+  The amber glow, the candle and the rose accent as built; purple gone. `air.kit` gives the banks, stalks and roots slate and muted moss
+  in place of world-art's violet ones (rock #1e2226, moss #2e3c30 / #4e5a44, stalks cream #c6b898, caps #6e4a24 / #c49448). The green
+  is the leaves' and the moss's own, muted: moss, sage, olive and bottle green, never lime (leafDark #2c3e30, leaf #4a5c40, leafHi
+  #727e56, moss #46503c / #66704f, albedo 1.25, `gain` [0.98, 1.1, 0.92]; it was [0.82, 1.65, 0.62] to carry the leaves through a
+  violet light). WATERS §3.1's "air never green" holds for it again (validate-data checks its air, light, sky, water and grade); WATERS
+  §1's row and the colour script (`AIR_EXCEPT`: its share a floor, its sky, water and cast reported) carry it.
+- **Three lights apart** (`air.lights`, world.js `lit`): the mood gains a dusk weight from the phase (0 → 1 in the dusk's first 12%,
+  easing out at its end and in the gloomtide's first 4%); each light sets the air (fog and the sky's base), the sky's low band
+  (`horizon`), the key's colour, strength and height, the fill, the water's own colour, the grade's tint, exposure and saturation, the
+  stars and the nebula, the glowcaps' light and the leaves' translucency, blended day (1 − d)(1 − n′), dusk d, night (1 − d)·n′. Day: a
+  cream-gold key #f4e6c4 at 2.8 under a blue-grey air #3e5462 with a warm cream haze on the horizon #d4c8aa, a slate fill, a dark teal
+  water #1e3a48, exposure 1.18, no stars (0.03); the soft green-gold is the light through the leaves under the caps. Dusk: an
+  amber-rose key #ffb88a at 2.6 held low (its height × 0.35: long shadows) over a slate fill #3a4a52, a blue-slate air #2e3442 under a
+  rose-amber horizon #f0a070 (the leaves turn olive-bronze), a rose grade tint barely there (0.05), exposure 0.98, few stars (0.12), the
+  flowers open, the fireflies wake late in it. Night: a deep blue-teal air #0c2630, a silver moon key #a4b4c0 at 0.6, a dark teal water
+  #0a1e2a, exposure 0.8, the glowcaps' amber at 1.8×, stars 0.65. Every other water: `lit` is null and none of it runs.
+- **Soft leaves** (`world-flora.leafMass`): the shrubs', the broadleaf trees' and the far crowns' masses are lobed spheres (a few bumps
+  push each into lobes; the shrubs' 11 × 8 segments, the crowns' 10 × 7, so a 4 m crown's outline is round) with smooth normals from the
+  heart and a soft dapple that drifts over the mound (a per-vertex jitter had lit each triangle on its own: facets); leaf cards, most of
+  them round the waist and shoulders where they break the outline into leaves (14 a shrub's mound), lighter at the tip and carrying the
+  backlit term; the kit's toon in five steps, not three. The kit is 64.5k triangles on high (was 28.8k), 0.7× on medium, 0.4× on low,
+  its draws unchanged.
+- **No gold on the water**: what read as gold leaves on the water were mostly the lit cap undersides and gills mirrored near the eye,
+  and the lantern's amber laid over the whole foot of the low lens's frame. On a lush water (`GW_LUSH`) a warm mirrored light (amber,
+  gold: red over blue and at least as red as green) is dulled to a soft olive-ochre and held down to a quarter (the leaves' images are
+  untouched); the light pools are 0.55× and drain only a fifth of the water's own colour (the Mossmere drains it all, against rose), so
+  the water keeps its own dark teal and the warm light gathers round the raft and under the glowcaps; the glowcaps' anchors lay no thread
+  of gold across the water (world.js streak 0 on a water with its own lights). The lantern's glitter path is off as on the loop's
+  Mossmere, the mirror as calm (no key glitter, no glints: calmW 1); the fallen cap-leaves rarer (4%), smaller and a matte dull
+  olive-ochre, the lily pads a step deeper; the gill-flakes 4 on high (8), 3 on medium, smaller, a matte ochre #86704a, no rim.
+- **The banks' moss per pixel** (`world-flora.lushMoss`): the ground's 2 m grid carries only where moss may lie (`aMoss`); the drifts are
+  cut in the fragment stage from value noise on the world position with an fwidth-wide edge, mottled between `mossG` and `mossGHi` with a
+  fine speckle: crisp drifts at any distance, no camouflage blotch.
+- **The fish** (the show's light had made all three a pale tan torpedo: the light a landed fish holds after the landing, `setRevealLight`,
+  is a cream flood that drowns a dark skin; a loop model's `flood` now scales it, 0.3 on the Mackerel and the Downcast, 0.35 on the
+  Nightbloom). **Lostsea Mackerel**: slim (`girth` 0.82), a near-black slate back #1c2230 over a hard countershade line (`counterLine`
+  0.02, half-width 0.035), dark plum bars down its back to the line, a larger crescent (`tailK` 1.32). **Downcast Catfish**: deep and
+  high-shouldered (`shoulder` 0.42), a large tall sail of a back fin (`dorsal: 'sail'`), low eyes, a dark plum back #2e1830 carried low on
+  the flank (`counterLine` −0.38), two pairs of catfish barbels. **Nightbloom Carp**: its head a third of its length (`head` 1.55,
+  `headLen` 0.48), a stronger arch (`archK` 0.72), a darker plum #2e1630, so the cream petal edges carry.
+- **The Gill Harp and Rootknot**: every cap's underside and rim warm and light (a cream-ochre, lit by its gills); the gill strings cream
+  (they were the caps' ochre: yellow sticks), the Harp's 24 (16), 6–8.6 m long, longer than the stalks' reach over the neck, hanging to
+  2.4 m over the water; the stalks, roots and fallen logs take the moss's floor in their shade (the banks' `gwFloraFloor`) and, on a
+  lush water, no ink hull (the tubes' hull drew over them: the Harp's stalks, the Veil's log and the cap trees read as black arches; the
+  kit and the landmarks never had one, and it is one draw fewer), so a cream stalk seen from below reads as a stalk; Rootknot (what read as "a black spider on an islet": its seven dark arched
+  roots) takes low, thin, moss-grown roots, a small cap on its stump with its own lit strings and a glowcap lamp, moss cushions and ferns.
+- **The Skep Lid** is tipped back (its crown up and toward the lens, 54°), so the show sees coil over coil of a straw dome; square to the
+  lens it read as a flat cream disc before the face. Its length (the size the show holds it by) is unchanged.
+- **The Veil**: its broken cap small and sunk back into the bank behind the stalk's root; the Veilwater's lift frames the strand curtain
+  broadside from the West Pool, low and back (`placeAnchor('veilwater')`: the Veil's mouth, 17 m, 8° up), so the stalk spans the top of
+  the frame instead of filling it at the lens.
+- **The isles**: the Mother's Foot and Rootknot take a broad lobe and a notch each, the Two Stools and the Tussock longer egg shapes (the
+  outline's 1 m distance field keeps every island point within 0.18 m); Mossback as built. `WATERCRAFT.sporewood` shares and factors
+  re-baked (`watercraft.test.mjs --bake=sporewood`: margin 22.1 → 22.6%, open 23.4 → 22.7%, the rest within 0.3 points); the Chart's
+  sheet is drawn live from the outline (nothing to re-bake); world hashes are pinned for the Mossmere only (unchanged). The sim's §8.4
+  figures move with the shares by a hair (not re-run here; the gate's `clams.mjs --shipped=sporewood` re-measures them).
+- **The haze and the places' banks**: a warm cream (#e4dac6), slate-grey in shade and blue-grey at night, never lavender.
+
+- **Not done** (named): the Netcloud Fry's cloud centred in a cupped hand (the show holds a fry in a pinch; a cupped hand is a new pose
+  in actors-show, left for a show pass); the near water inside the lantern's reach still reads warm under the low lens, most on a tall
+  phone frame (the lantern's pool is the play's light; it is softer, and the water is dark teal beyond it); the dusk's and the night's
+  green shares sit well under W2's 10.5 and 6.5: the amber-rose key turns the muted leaves bronze (the report's yellow and orange) and the
+  moon's silver keeps them grey-green, as the user's palette asks; by eye both stay greener than the Mossmere's, which has none.
+- **Measured** (`lake2-art.scenario.mjs --hue --tier=medium`, 960 × 540, W2's three poses: the spawn, the day water, the old water;
+  `hue-report.mjs`, chromatic weight per band). Green share, the mean of the three poses, **the muted palette**: **day 11.1%** (12.2 ·
+  16.8 · 4.4; W2's target 12), dusk 0.2% (0.1 · 0.2 · 0.2), night 1.8% (1.4 · 3.2 · 0.9; teal 2.5–10.9% more). **Violet and magenta
+  0.0–0.3%** in every frame. The greener palette (04e12c8) measured 30.1 · 7.8 · 9.4; the build before the pass (9c5bf45) 4.9 · 4.1 · 2.3
+  with violet and magenta at day 8.4 + 10.2, dusk 13.2 + 9.4, night 17.7 + 8.5. The three lights apart: day cream-gold over muted greens
+  (chroma 0.13–0.21), dusk amber-rose (orange 84–94%), night dark blue-teal (chroma 0.11–0.21) with the glowcaps' amber. The Mossmere's
+  frames (1280 × 800, its play lens and the moat, three lights) measure as before within the water's animation: pooled blue 45.6 / 45.5,
+  violet 33.9 / 33.8, green 0.0 / 0.0 (after / before); its geometry hashes (outline-shore part 1) unchanged. **The cost**
+  (`clarity-perf --loop --sporewood`, at night, the West Pool, the East Pool and the neck; the palette change is colour values only, so
+  the draws and triangles are 04e12c8's): on the phone (390 × 844, `--mobile`) **low 96–98 calls**, 94–100k triangles, the world's own
+  25–27 calls (the Mossmere's banks frame 32), cpuMs 1.8–2.5k against that frame's 4.4k; medium 177–178 calls, 239–256k triangles (≤ 230
+  and ≤ 320k), cpuMs 2.6–2.7k against 5.2k; high 179–186 calls, 391–417k triangles, cpuMs 2.5–3.4k against 5.5k. DESKPERF The kit is
+  64.5k triangles on high, 46.0k on medium, 26.8k on low, in 14 meshes on high and 7 on low (draws as W2's). A giant's show at night was
+  not measured (the forced bite timed out at 240 s, as on the shared box before); it is a Mossmere case.
+- **Frames**: the look sheet (Sporewood's three lights beside the Mossmere's, before and after), the set pieces before and after, the
+  fish sheet (each changed fish beside its relative in Sporewood's show light, its card ink) and the phone frames: the lane's scratch
+  folder `l2-art/` (look-sheet.jpg, set-pieces.jpg, fish-sheet.jpg, phone/).
 
 ## 10. Left for later (named, not built)
 

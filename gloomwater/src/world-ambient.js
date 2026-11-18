@@ -410,7 +410,8 @@ function attachFlakes(ctx, FC, scene) {
   const rng = faceRng(0xf1a4e5);
   const B = createBoats(ctx.data, rng, max, FC);
   const geo = flakeGeo(FC);
-  const m = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0.25, rimColor: 0xe8d8c8, steps: 3, side: THREE.DoubleSide });
+  // (LAKE 2, the art pass: matte, no rim light: a flake never catches the light as a fleck)
+  const m = toonMaterial({ color: 0xffffff, vertexColors: true, rim: 0, rimColor: 0xe8d8c8, steps: 3, side: THREE.DoubleSide, gloss: 0 });
   const mesh = new THREE.InstancedMesh(geo, m, max);
   mesh.name = 'gillFlakes'; mesh.frustumCulled = false; mesh.visible = false;
   setupSurface(mesh, { cast: false, reflect: false });
