@@ -1366,7 +1366,8 @@ export function createLoopView(K) {
     card.dataset.item = c.id;
     card.dataset.sealed = c.waterId || '';
     card.innerHTML = `<span class="gw-sealed-art">${sealedSheet()}</span><span class="gw-seal-row"></span><span class="gw-shelf-soon"></span>`;
-    card.querySelector('.gw-shelf-soon').textContent = TL().comingSoon || 'Coming soon';
+    // (the Lake 2 gate: a shipped water whose map is owned but whose keys are not held says nothing there, as the Chart's sheet: its seals)
+    card.querySelector('.gw-shelf-soon').textContent = c.seals?.map?.shipped === true ? '' : TL().comingSoon || 'Coming soon';
     card.querySelector('.gw-seal-row').appendChild(sealRow(c.seals, { from: 'shelf' }));
     // LAKE 2, lane C (LAKE2 §6.1): a shipped lake map: its line and "Moving on leaves bought gear behind." where "Coming soon" stood, its price
     if (c.sealed === false && c.price != null) lakeBuy(entry, card, c);

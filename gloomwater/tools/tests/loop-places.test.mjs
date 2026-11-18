@@ -251,7 +251,11 @@ section('T108: the shelf, walked through every buying order of the maps (≤ 3 m
   const LT = fakeLoop({ D, state: { clams: 1400, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 }, maps: { lakes: ['mossmere'], places: FOUR.slice() } } });
   ok(LT.buy('lake:sporewood').ok === true && LT.s.clams === 0 && LT.s.maps.lakes.includes('sporewood') && ['lullaby', 'gill_harp'].every((p) => LT.s.maps.places.includes(p)), 'Sporewood\'s map bought: the lake owned, with the Lullaby and the Gill Harp');
   LT.s.session = [];
-  eq(no4(LT.shelf().tabs.find((t) => t.id === 'maps')?.items || []).map((i) => [i.id, i.sealed, i.price]), [['lake:glasswater', true, null]], '… the Maps tab is Glasswater\'s sealed card, no price');
+  const mapsTab = () => no4(LT.shelf().tabs.find((t) => t.id === 'maps')?.items || []);
+  eq(mapsTab().map((i) => [i.id, i.sealed, i.price, i.seals?.map?.held]), [['lake:sporewood', true, null, true]], '… its list not landed: Sporewood\'s card sealed again, the map seal pressed, no price');
+  ok(LT.buy('lake:sporewood').ok === false && LT.s.clams === 0, '… never bought twice');
+  for (const id of D.LOOP.species.mossmere) LT.s.journal[id] = { caught: 1 };
+  eq(mapsTab().map((i) => [i.id, i.sealed, i.price]), [['lake:glasswater', true, null]], '… the list landed (Sporewood open): the Maps tab is Glasswater\'s sealed card, no price');
   ok(LT.buy('lake:glasswater').ok === false, '… and Glasswater\'s sealed card is refused');
   // the shelf's ids for 3b's priced blots: a place card names its place and its fish
   const fresh = PL.shelfItems(D, PL.freshLoop(D)).filter((i) => i.slot === 'place');

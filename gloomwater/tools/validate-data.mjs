@@ -774,8 +774,11 @@ if (process.argv.includes('--loop')) {
     ok4(cards0.every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood') && lake0.length === 1 && lake0[0].sealed === false && lake0[0].price === Math.round(W2.lake * PLM.costFactor(L4)),
       'LAKE2 gate: the map cards are the Mossmere\'s place maps and Sporewood\'s lake map, priced (its base × Murk\'s factor)');
     const owned = { ...fresh, maps: { ...fresh.maps, lakes: ['mossmere', 'sporewood'] } }, cards1 = PLM.mapCards(L4, owned).filter((c) => c.waterId);
-    ok4(cards1.length === 1 && cards1[0].waterId === 'glasswater' && cards1[0].sealed === true && cards1[0].price === null && !PLM.mapCards(L4, owned).some((c) => c.placeId && PLC[c.placeId].water === 'sporewood'),
-      'LAKE2 gate: Sporewood\'s map owned at the Mossmere: the lake card is Glasswater\'s, sealed, no price; Sporewood\'s place maps wait at Sporewood');
+    ok4(cards1.length === 1 && cards1[0].waterId === 'sporewood' && cards1[0].sealed === true && cards1[0].price === null && cards1[0].seals.map.held === true && !PLM.mapCards(L4, owned).some((c) => c.placeId && PLC[c.placeId].water === 'sporewood'),
+      'LAKE2 gate: Sporewood\'s map owned, its keys not held: its card sealed again, the map seal pressed, no price (never bought twice); its place maps wait at Sporewood');
+    const keyed = { journal: Object.fromEntries(PLM.listFor(L4, 'mossmere').map((id) => [id, { caught: 1 }])), loop: { ...owned, tackle: { rod: 1, line: 0, reel: 0 } } };
+    const cards2 = PLM.mapCards(L4, keyed.loop, { meta: keyed }).filter((c) => c.waterId);
+    ok4(cards2.length === 1 && cards2[0].waterId === 'glasswater' && cards2[0].sealed === true && cards2[0].price === null, 'LAKE2 gate: its keys held too (Sporewood open): the lake card is Glasswater\'s, sealed, no price');
     const LPre = { ...L4, LOOP: { ...LP, shipped: 'mossmere' } };
     ok4(PLM.mapCards(LPre, fresh).every((c) => c.placeId ? PLC[c.placeId].water === 'mossmere' : c.waterId === 'sporewood' && c.sealed === true && c.price === null), 'LAKE2 D1 (the pre-gate fixture, LOOP.shipped the Mossmere): the map cards are the Mossmere\'s and Sporewood\'s sealed card');
   }

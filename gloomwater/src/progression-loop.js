@@ -481,13 +481,16 @@ export function listCount(meta, D, waterId) {
 /** The waters in the Chart's order (ZONES by index), as ids. */
 const chartWaters = (D) => (Array.isArray(D?.ZONES) ? D.ZONES : []).filter((z) => isObj(z) && typeof z.id === 'string').slice()
   .sort((a, b) => num(a.index, 0) - num(b.index, 0)).map((z) => z.id);
-/** The frontier water (the last owned water the Chart draws: owned and in LOOP.waters, as 3b's chartNext reads it) and the water after
- *  it ({frontier, next}; either null). A fresh save's frontier is the Mossmere and its next water Sporewood. */
-function frontierOf(metaLoop, D) {
+/** The frontier water (the last owned water the Chart draws: owned, shipped and open, as chartNext reads it) and the water after it
+ *  ({frontier, next}; either null). A fresh save's frontier is the Mossmere and its next water Sporewood. (The Lake 2 gate: a lake map
+ *  bought before its keys are held leaves the frontier where it was, so the shelf's sealed card, the catalogue's head and the Chart
+ *  show the same next water, its map seal pressed; `meta` gives the catch key's journal.) */
+function frontierOf(metaLoop, D, meta = null) {
   const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : {}, zones = chartWaters(D);
   const owned = (Array.isArray(metaLoop?.maps?.lakes) ? metaLoop.maps.lakes : []).filter((id) => typeof id === 'string');
   if (!owned.length && isObj(W.mossmere)) owned.push('mossmere');
-  const at = Math.max(-1, ...owned.filter((id) => isObj(W[id]) && shippedAsChart(D, id)).map((id) => zones.indexOf(id)));   // (LAKE 2, lane D1: drawn once it ships)
+  const m = isObj(meta) ? { ...meta, loop: metaLoop } : { loop: metaLoop };
+  const at = Math.max(-1, ...owned.filter((id) => isObj(W[id]) && shippedAsChart(D, id) && waterOpen(m, D, id)).map((id) => zones.indexOf(id)));   // (LAKE 2, lane D1: drawn once it ships; the gate: and opens)
   return { frontier: at >= 0 ? zones[at] : null, next: at >= 0 ? zones[at + 1] ?? null : null };
 }
 /** Is a water inside what ships, as 3b's chartNext computes it (LOOP.shipped a string: its order ≥ the water's > 0; an array: listed;
@@ -566,10 +569,12 @@ export function mapCards(D, metaLoop, { meta = null } = {}) {
       return { id: `place:${id}`, placeId: id, kind: P[id].kind, price: costed(D, num(P[id].price, 0)), fish: P[id].card ?? null,
         line: D?.TEXT_LOOP?.maps?.[id] ?? '', hours: sp ? hourGlyphs(D, sp) : [] };
     });
-  const { next } = frontierOf(ml, D);
+  const { next } = frontierOf(ml, D, meta);
   if (!next) return places;
   const seals = sealsOf(isObj(meta) ? { ...meta, loop: ml } : { loop: ml }, D, next);
-  return [...places, { id: `lake:${next}`, waterId: next, sealed: !seals.map.shipped, price: seals.map.shipped ? seals.map.price : null, seals }];
+  // (the Lake 2 gate: its map bought but its keys not yet held, the card is sealed again with its map seal pressed: never bought twice)
+  const open = seals.map.shipped && !seals.map.held;
+  return [...places, { id: `lake:${next}`, waterId: next, sealed: !open, price: open ? seals.map.price : null, seals }];
 }
 /** The owned places whose mist has not lifted yet (maps.places not in `lifted`, LOOP.places only), in price order (the Chart's on a tie). */
 export function liftDue(D, metaLoop) {
@@ -607,7 +612,7 @@ export function catalogueFor(meta, D, waterId) {
   }
   const rest = fish.filter((s) => !used.has(s.id)).map((s) => take(s, null));
   if (rest.length) groups.unshift({ placeId: null, kind: 'open', owned: true, name: null, entries: rest });
-  const { frontier, next } = frontierOf(ml, D), lc = listCount(meta, D, waterId);
+  const { frontier, next } = frontierOf(ml, D, meta), lc = listCount(meta, D, waterId);
   const name = (D?.ZONES || []).find((z) => z?.id === waterId)?.name ?? null;
   return { head: { waterId, name, have: lc.have, need: lc.need, seals: frontier === waterId && next ? sealsOf(meta, D, next) : null }, list, groups,
     guests: guestEntries(meta, D, waterId).map((g) => ({ ...entry(g.sp, null), guest: true, note: g.note })),
@@ -1600,7 +1605,7 @@ export function createLoop(S) {
   const pick = () => { const p = ensureLoop()?.chartPick; return isObj(p) ? { water: p.water ?? null, place: p.place ?? null } : null; };
   const mapCardsNow = () => { const L = ensureLoop(); return L ? mapCards(D(), L, { meta: meta() }) : []; };
   /** sealsOf for a water (default: the next water after the frontier, Sporewood in M1). */
-  const seals = (waterId) => { const L = ensureLoop(); return L ? sealsOf(meta(), D(), waterId ?? frontierOf(L, D()).next ?? 'sporewood') : null; };
+  const seals = (waterId) => { const L = ensureLoop(); return L ? sealsOf(meta(), D(), waterId ?? frontierOf(L, D(), meta()).next ?? 'sporewood') : null; };
   const catalogue = (waterId = 'mossmere') => (ensureLoop() ? catalogueFor(meta(), D(), waterId) : null);
 
   // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): the prints and the gallery

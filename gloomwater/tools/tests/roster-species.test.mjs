@@ -132,11 +132,12 @@ section('LOOP.shipped: Sporewood (the Lake 2 gate, 18 Nov 2026); no water past i
     const items = PL.shelfItems(DM, { ...PL.freshLoop(DM), clams: 1e9, maps: { lakes, places: [] } });
     ok(!items.some((i) => (i.tab === 'maps' && i.slot === 'lake' && (!i.sealed || i.price != null)) || (/sporewood/.test(i.id) && !i.sealed)), `the fixture: no Sporewood map offered past LOOP.shipped: its lake card sealed, with no price (lakes ${lakes.join(', ')})`);
   }
-  // shipped: the Mossmere's shelf offers Sporewood's lake map, priced; once it is owned the next card is Glasswater's, sealed, no price
-  const lakeCard = (lakes) => PL.shelfItems(D, { ...PL.freshLoop(D), clams: 1e9, maps: { lakes, places: [] } }).filter((i) => i.tab === 'maps' && i.slot === 'lake');
-  const c1 = lakeCard(['mossmere']), c2 = lakeCard(['mossmere', 'sporewood']);
+  // shipped: the Mossmere's shelf offers Sporewood's lake map, priced; once Sporewood is open (towed there) the next card is
+  // Glasswater's, sealed, no price
+  const lakeCard = (lakes, towed = ['mossmere']) => PL.shelfItems(D, { ...PL.freshLoop(D), clams: 1e9, maps: { lakes, places: [] }, barge: { water: 'mossmere', towed } }).filter((i) => i.tab === 'maps' && i.slot === 'lake');
+  const c1 = lakeCard(['mossmere']), c2 = lakeCard(['mossmere', 'sporewood'], ['mossmere', 'sporewood']);
   ok(c1.length === 1 && c1[0].id === 'lake:sporewood' && !c1[0].sealed && c1[0].price === D.LOOP.waters.sporewood.lake * (D.LOOP.cost?.factor ?? 1), `the Mossmere's shelf offers Sporewood's lake map, priced (${JSON.stringify(c1.map((i) => [i.id, i.sealed, i.price]))})`);
-  ok(c2.length === 1 && c2[0].id === 'lake:glasswater' && c2[0].sealed === true && c2[0].price == null, `with Sporewood's map owned the lake card is Glasswater's, sealed, no price (${JSON.stringify(c2.map((i) => [i.id, i.sealed, i.price]))})`);
+  ok(c2.length === 1 && c2[0].id === 'lake:glasswater' && c2[0].sealed === true && c2[0].price == null, `with Sporewood open the lake card is Glasswater's, sealed, no price (${JSON.stringify(c2.map((i) => [i.id, i.sealed, i.price]))})`);
   const src = fs.readFileSync(new URL('../../src/progression-loop.js', import.meta.url), 'utf8');
   ok(src.includes("!(it.tab === 'maps' && it.water && !waterShipped(D, it.water))") && src.includes('waterShipped(D(), waterId) && (L.maps?.lakes'), 'the shelf drops a map past LOOP.shipped; no trip opens a water past it');
 }

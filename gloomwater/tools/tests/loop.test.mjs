@@ -249,10 +249,15 @@ section('progression-loop: freshLoop, migrateLoop (T51, T67), the tally (T21 boo
   ok(kit(top).length === 4 && kit(top).every((i) => i.bought), 'CHOICE 26: Hold 6 and T2 keep a permanent Yours. card');
   eq(top.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed, i.price]), [['lake:sporewood', false, 1400]], 'every place map owned: the Maps tab is Sporewood\'s lake map alone, priced (the Lake 2 gate)');
   eq(PL.goalOf(no4(top).filter((i) => i.tab !== 'home')), { id: 'lake:sporewood', name: 'Sporewood Pools', price: 1400, slot: 'lake', level: null }, 'the Mossmere\'s empty shelf: the goal line is the Sporewood map (the ball is a consumable)');
-  // its map bought: the Maps tab is Glasswater's sealed card (past LOOP.shipped: no price), and the Mossmere's shelf has no goal left
-  const topSw = PL.shelfItems(D, { ...all4, maps: { ...all4.maps, lakes: ['mossmere', 'sporewood'] }, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
-  eq(topSw.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed, i.price]), [['lake:glasswater', true, null]], 'Sporewood\'s map owned: the Maps tab is Glasswater\'s sealed card alone, no price');
-  eq(PL.goalOf(no4(topSw).filter((i) => i.tab !== 'home')), null, '… and no goal line (the ball is a consumable, the sealed card has no price)');
+  // its map bought: before the list is landed its card is sealed again (the map seal pressed); once Sporewood is open the Maps tab is
+  // Glasswater's sealed card (past LOOP.shipped: no price); either way the Mossmere's shelf has no goal left
+  const swLoop = { ...all4, maps: { ...all4.maps, lakes: ['mossmere', 'sporewood'] }, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } };
+  const topSw0 = PL.shelfItems(D, swLoop);
+  eq(topSw0.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed, i.price, i.seals?.map?.held]), [['lake:sporewood', true, null, true]], 'Sporewood\'s map owned, the list not landed: its card sealed again, the map seal pressed');
+  const swMeta = { journal: Object.fromEntries(PL.listFor(D, 'mossmere').map((id) => [id, { caught: 1 }])), loop: swLoop };
+  const topSw = PL.shelfItems(D, swLoop, [], { meta: swMeta });
+  eq(topSw.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed, i.price]), [['lake:glasswater', true, null]], 'Sporewood open (its map and keys held): the Maps tab is Glasswater\'s sealed card alone, no price');
+  eq([PL.goalOf(no4(topSw0).filter((i) => i.tab !== 'home')), PL.goalOf(no4(topSw).filter((i) => i.tab !== 'home'))], [null, null], '… and no goal line (the ball is a consumable, a sealed card has no price)');
   // the fixture (LOOP.shipped the Mossmere): the empty shelf as it was before the gate, Sporewood's sealed card and no goal line
   const topM = PL.shelfItems(DM, { ...all4, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 } });
   eq(topM.filter((i) => i.tab === 'maps').map((i) => [i.id, i.sealed]), [['lake:sporewood', true]], 'the fixture: every place map owned, the Maps tab is the sealed card alone');
