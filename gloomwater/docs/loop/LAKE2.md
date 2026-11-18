@@ -453,7 +453,7 @@ the Tongue, the places and their banks, the shore, the spawn and the glides) on 
 | each place in earshot (full within 12 m, gone past 30 m) | the Lullaby: a soft music-box drip; the Gill Harp: **one hummed note**, felt more than heard; the Veilwater: the Veil's whisper; the Mother's Cup: a slow breath, rise and fall |
 | the giant's back | the Harpstring's hum swells; the Puffer: a paper rustle |
 
-The score is `audio-music.js`'s built `sporewood` theme. `tools/audio-render.mjs --set=sporewood` renders the bed for the gate.
+The score is `audio-music.js`'s built `sporewood` theme. `tools/audio-render.mjs --set=sporewood` renders the bed for the gate. *As built (lane A): §9.9.*
 
 ---
 
@@ -1230,6 +1230,64 @@ scratch diff against gw-lake2).
   and the Mother's Cup's maps before the tow (harmless: owned maps wait for their water; lane S or the gate may keep them to their water).
 
 ---
+
+### 9.9 Lane A as built (gw-l2-a): the sound bed
+
+Sound only; `LOOP.shipped` stays `'mossmere'`. **The Mossmere does not move**: its bed, its places' voices and its home sound are as
+built (`audio-mossmere.test.mjs` passes unchanged); the one rule changed (`mossOn` at home) is true for every save until a tow. Nothing
+of it runs off the loop, and Sporewood's voices join the sound table only the first time Sporewood sounds.
+
+- **The rules and voices** (`src/audio-sporewood.js`, pure, the pattern of `audio-mossmere.js`): §3.7's table as built.
+  - **The bed by light**: late day is the air under the caps (a pink band at 640 Hz, lower and narrower than the Mossmere's open-water
+    air at 1,900 Hz and its reeds) and the leaves stirring overhead, with drips from the caps (a hollow plunk, 1.0 to 2.8 s apart), soft
+    spore pops and a few dry frog clicks. At dusk the drips thin (3.8 to 8 s apart) and a warm drone on B♭2 comes in, two sines
+    beating slowly. The lily frogs begin: a call every 6 to 10 s at the dusk's start, building with the dusk's progress to one every 0.9
+    to 2.1 s. At night the chorus is full and low (every 0.45 to 1.15 s, two or three calls a frog, pitch ×0.88), a pulse of night
+    insects (a 3.5 kHz band pulsing at 7.2 Hz) plays, and the drone deepens (B♭1 under the B♭2 pair). Each frog keeps its own pitch,
+    throat and pulse through its calls: a low saw through a formant with a 15 to 23 Hz throat-pulse ("grunk"). The Stillnight bed's far
+    frogs are silent here, as on the Mossmere; its crickets and drip stay.
+  - **The Seep** (its foot measured on the outline at (80.2, −27.6), the voice on the water at (79.2, −27.6)) is its fall as a loop (a
+    pink band at 1,250 Hz, churning) and the drops at its foot. It is full within 8 m and gone past 40 m, which is about a seventh of
+    the open water (the East Pool's north-east). It is never heard at Rootfoot Landing, 71 m off.
+  - **The places** (full within 12 m, gone past 30 m; heard through a standing bank low-passed at 1,100 Hz at ×0.45, as the Mossmere's):
+    - The Lullaby's music-box drip: two to four notes of a slow falling figure on the B♭ minor pentatonic over B♭5 (the score's key).
+      Each note is a tine's tone with its quick high partials; a real drip sometimes follows.
+    - The Gill Harp's one hummed note: F1 (felt) and its octave F2 (heard on a phone's speaker), each swaying slowly, fullest at night.
+    - The Veil's whisper: the draught through the moss curtain, a high band fluttering at 3.5 to 5.5 Hz, high-passed, with strands ticking.
+    - The Mother's Cup's breath: a slow rise and fall through the well, a hollow note under it and bubbles out of the deep. It carries
+      further than the others (full within 14 m, gone past 40 m), so at home it is heard through its bank.
+  - **The giants' backs** (`world:giantBack`, at night): at the Gill Harp, `harp_swell` (F1, F2, C3 and F3 swelling, their brightness
+    opening and closing), and the hum loop ×2.6 for 5.5 s. At the Veilwater, `puffer_rustle` (the paper lantern filling and settling).
+    Another place gets the built roll.
+  - **The lily frogs**: a frog's dive (`wild:frogDive`, emitted by `actors-wildlife.js` for the frogs only) plays `frog_plop` within
+    24 m. The stems tell's reed rustle plays at Sporewood too. The lift and the seal sound as at every water.
+- **Home at Sporewood** (`audio.js`'s `homeWater()`: the world's water, else where the barge lies) plays Sporewood's bed under home's
+  own: the stove, the hulls, the far bell and Murk's hand bell. The hub mood plays in Sporewood's key (`zoneId()`: audio-music.js's
+  built `sporewood` theme). The Mossmere's bed plays at home only while home is on the Mossmere.
+- **The phone's cost**: at most six bed loops at a light (two by day, four at dusk, five at night), plus the hum's two near the Gill Harp
+  and the fall's one near the Seep. A layer silent at the light for 6 s, the hum and the fall out of earshot for 3 s, are let go. The
+  one-shots share one options object (no allocation per sound).
+- **A fix on the way**: audio.js builds its voice tags when the module loads, so a voice added later has none and shares one
+  count with every other late voice. Sporewood's voices get their own tags when they are added. The Mossmere's late voices (WC-3's,
+  home's, the tow's) keep the shared count as built, since giving them tags would change the Mossmere's mix (left for the polish pass).
+- **Measured** (`tools/audio-render.mjs --set=sporewood`; peak / rms dBFS, every peak under −1.0):
+  - The beds against the Mossmere's at the same light: day −35.3 against −34.5; dusk −34.4 at its start and −34.3 at its end against
+    −35.9; night −30.5 against −29.9. All are within 1.6 dB (the gate is 4 dB).
+  - The places clear (banked): the Lullaby −17.5 / −33.3 (−24.2 / −41.8); the Gill Harp −26.4 / −32.2 (−33.4 / −39.2); the Veil
+    −15.6 / −37.8 (−36.0 / −57.6); the Mother's Cup −15.1 / −28.8 (−22.0 / −35.7).
+  - The Seep at 4 m −18.6 / −35.5, at 28 m −28.6 / −45.5.
+  - The backs: the swell −6.8 / −16.7 and the rustle −10.4 / −31.7, against the Mossmere's roll at −3.7 / −17.1.
+- **Tests**: `tools/tests/audio-sporewood.test.mjs` (87 checks: the rules, the bed by light and the chorus building over the dusk, the
+  Seep, each place clear and banked, the hum, the backs, the plops, home at Sporewood and its key, and none of it on the Mossmere or off
+  the loop). `tools/tests/lake2-a.scenario.mjs` passes at 1280 × 720 and on the phone (390 × 844), all 23 checks each. It runs the real
+  game from the Mossmere's end through the tow to the evening at Sporewood: its bed, not the Mossmere's, and the score in its key; the
+  Seep; the Lullaby; a frog plopping off its raft; the night's chorus, pulse and drone; the Gill Harp's hum and, forced, the
+  Harpstring's back; home at Rootfoot Landing.
+- **Left for the gate**: the world turns no giant's back at Sporewood yet: `LOOP.giantBack.places` is the Mossmere's two, and the back's
+  look (the Harpstring's lit strings, the Puffer's globe) is art. The sound answers `world:giantBack` at `gill_harp` and `veilwater`
+  once it comes (the debug hook `debug.world.giantBack('gill_harp')` plays it now). Adding the two ids to the list would not move the
+  Mossmere (the back only picks among the current water's places). Also the user's listen: a short render of the three lights and each
+  place is in `tools/out/l2a/render` after `--set=sporewood`.
 
 ## 10. Left for later (named, not built)
 
