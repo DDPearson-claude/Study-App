@@ -35,12 +35,16 @@ export default async function (api) {
       if (r.left < -0.5 || r.right > vw + 0.5 || r.top < -0.5 || r.bottom > vh + 0.5) out.off.push(t);
       if (parseFloat(cs.fontSize) < 15.5) out.small.push(`${t} ${cs.fontSize}`);
     }
-    for (const b of [...document.querySelectorAll(`${s} button`)].filter(T.visible).filter((e) => !e.classList.contains('gw-plate-hit'))) { const r = b.getBoundingClientRect(); if (r.width < 43.5 || r.height < 43.5) out.taps.push(`${b.className.split(' ')[0]} ${Math.round(r.width)}×${Math.round(r.height)}`); }
+    // (the sealed sheet's three seals are lane C's own marks, not this lane's: left to the gate's audit)
+    for (const b of [...document.querySelectorAll(`${s} button`)].filter(T.visible).filter((e) => !e.classList.contains('gw-plate-hit') && !e.classList.contains('gw-seal-btn'))) { const r = b.getBoundingClientRect(); if (r.width < 43.5 || r.height < 43.5) out.taps.push(`${b.className.split(' ')[0]} ${Math.round(r.width)}×${Math.round(r.height)}`); }
     const R = words.filter((e) => !words.some((o) => o !== e && o.contains(e))).map((e) => [e.textContent.trim().slice(0, 18), e.getBoundingClientRect()]);
     for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) { const a = R[i][1], b = R[j][1]; if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2) out.over.push(`${R[i][0]} × ${R[j][0]}`); }
     return out;
   }, sel);
   const clean = (a) => a && !a.cut.length && !a.off.length && !a.small.length && !a.taps.length && !a.over.length;
+  // (the book keeps its other leaves laid off the page and under the open spread, and a Tackle strip scrolls sideways by design: there
+  // only what is cut, small or too small to tap counts; the frames are looked at)
+  const cleanBook = (a) => a && !a.cut.length && !a.small.length && !a.taps.length;
   /** the Mossmere's end with Sporewood's lake map (Sporewood shipped in the page) */
   const mossmereEnd = () => g(() => {
     const c = window.__gw, d = c.data, l = c.state.meta.loop;
@@ -166,9 +170,10 @@ export default async function (api) {
       const items = await g(() => [...document.querySelectorAll('[data-loop=shelf] [data-item]')].filter(window.__lp.visible).map((e) => ({ id: e.dataset.item, name: e.querySelector('.gw-plate-name, h3, b')?.textContent?.trim() || '', svg: e.querySelector('svg.cat-eng')?.outerHTML.length || 0 })));
       for (const it of items) seen.set(it.id, it);
       const a = await audit('[data-loop=shelf]');
-      K.check(clean(a), `the book, spread ${n + 1}: no word cut, off the screen, under 16 px or over another; every target ≥ 44 px`, a);
+      K.check(cleanBook(a), `the book, spread ${n + 1}: no word cut or under 16 px; every target ≥ 44 px`, a);
       if (items.length) await K.shoot(`book-${String(n + 1).padStart(2, '0')}`);
-      await K.key('ArrowRight'); await K.secs(0.7); await K.settle(250);
+      await K.key('ArrowRight'); await K.secs(0.5);
+      await K.until('!c.ui?.loop?.murkBook?.debug?.()?.turning', 4); await K.settle(350);
     }
     const ids = [...seen.keys()];
     info.bookItems = ids;
@@ -198,7 +203,7 @@ export default async function (api) {
     info.chips = chips;
     K.check(chips.some((c) => c.key === 'stalkwood') && chips.some((c) => c.key === 'seedpod_twirl') && chips.some((c) => c.key === 'spore_cake'), 'the screen\'s chips: the Stalkwood, the Seedpod Twirl, Spore Cake', chips);
     const ta = await audit('[data-modal=tacklescreen]');
-    K.check(clean(ta), 'the Tackle screen: no word cut, off the screen, under 16 px or over another', ta);
+    K.check(cleanBook(ta) && !ta.over.length, 'the Tackle screen: no word cut, under 16 px or over another (its strips scroll sideways)', ta);
     await K.shoot('tackle-screen');
     await g(() => window.__gw.ui.closeAll?.());
     await K.settle(300);
