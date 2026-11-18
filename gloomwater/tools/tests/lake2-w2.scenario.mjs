@@ -4,6 +4,7 @@
 // neck under the Gill Harp, the West Pool by Mossback Isle, the Veil, the Mother Cap over its Cup, the Seep, the Reed Flats, Rootfoot
 // Landing from the home camera's pose; day, dusk and night; then back to the Mossmere, as built.
 //   --hue    the hue-report's frames instead (UI hidden): the three poses (the spawn, the day water, the old water) × day, dusk, night
+//   --sheet  the user's look sheet's six frames instead: Sporewood and the Mossmere, day, dusk and night (UI hidden)
 //   --tier=medium   the render tier (and the arena's) before the world goes to Sporewood (WATERS §7: the gating tier is medium)
 //
 //   node build.mjs --dev --out=tools/out/w2/dev.html
@@ -52,7 +53,19 @@ export default async function (api) {
     K.check(t0.zone === 'sporewood' && t0.errs.length === 0 && !!t0.lush?.flora, `Sporewood built with its kit in ${t0.ms} ms, no error`, { ms: t0.ms, flora: t0.lush?.flora, art: t0.lush?.art, errs: t0.errs });
     K.note('the arena\'s build (ms by part)', t0.buildMs);
 
-    if (args.hue) {
+    if (args.sheet) {
+      // the user's look sheet: Sporewood and the Mossmere side by side at day, dusk and night (the UI hidden), from the same kind of pose
+      await hideUi(true);
+      for (const [zone, x, z] of [['sporewood', 28, 2], ['mossmere', 0, 30]]) {
+        if (zone === 'mossmere') await g(() => window.__gw.bus.emit('zone:change', { zone: 'mossmere', prev: 'sporewood' }));
+        for (const [ph, label] of [['calm', 'day'], ['dusk', 'dusk'], ['gloomtide', 'night']]) {
+          await phase(ph); await settle(ph === 'calm' ? 1.5 : 4);
+          await put(x, z, 0); await settle(2); await K.shoot(`sheet-${zone}-${label}`);
+        }
+      }
+      await hideUi(false);
+      await g(() => window.__gw.bus.emit('zone:change', { zone: 'sporewood', prev: 'mossmere' }));
+    } else if (args.hue) {
       // the hue-report's frames: three poses (the spawn, the day water, the old water) × day, dusk, night, the UI hidden
       await hideUi(true);
       const poses = [['spawn', 44, 17], ['day-water', -51.5, -30], ['old-water', 3, 8]];
