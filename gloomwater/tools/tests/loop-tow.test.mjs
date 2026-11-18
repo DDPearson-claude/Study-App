@@ -540,5 +540,60 @@ section('it plays once: a second Sail, the sail home and a Continue never replay
   }
 }
 
+section('LAKE 2, lane C: Sporewood\'s leg (LAKE2 §6.3): up the Lockwater from the Mossmere\'s lamp to its own, its glide in astern');
+{
+  const leg = D.LOOP.tow.legs.sporewood, gi = D.LOOP.tow.glideIn.sporewood, P = D.towPlan('sporewood');
+  ok(!!leg && leg.from === 'mossmere' && leg.reverse === true, 'Sporewood\'s leg: from the Mossmere, against the Lockwater\'s flow', leg);
+  ok(P && P.legS === 5 && P.total <= 10, 'its tow: a 5 s leg (4 s of travel, a fall and a lock), the whole ≤ 10 s', P);
+  const pc = CHART_ART.live.pieces.find((q) => q.id === leg.piece), W = (id) => CHART_ART.live.waters.find((w) => w.water === id);
+  if (pc && !pc.pts) prepPieces([pc]);
+  const a = pc ? legPoint(pc, 0, true) : null, b = pc ? legPoint(pc, pc.len, true) : null;
+  ok(!!a && Math.hypot(a.x - W('mossmere').at[0], a.y - W('mossmere').at[1]) < 4 && Math.hypot(b.x - W('sporewood').at[0], b.y - W('sporewood').at[1]) < 4, 'its piece runs from the Mossmere\'s lamp to Sporewood\'s', { a, b });
+  ok(gi && gi.astern === true && gi.d > 0 && gi.line > 0, 'its glide in: astern (Rootfoot Landing\'s Hearth lies bow out)', gi);
+  const { towLeadPose } = await import('../../src/loop-tow.js');
+  const fore = towLeadPose(MOOR, 0.5, { d: 14, line: 3 }), aft = towLeadPose(MOOR, 0.5, { d: 14, line: 3, astern: true });
+  const fx = -Math.sin(MOOR.hull.yaw), fz = -Math.cos(MOOR.hull.yaw);
+  const ahead = (p) => (p.raft.x - p.hull.x) * fx + (p.raft.z - p.hull.z) * fz;
+  ok(ahead(fore) > 0 && ahead(aft) < 0, 'astern: the raft leads off the stern, not the bow', { fore: ahead(fore), aft: ahead(aft) });
+  near(Math.abs(aft.raft.yaw - aft.hull.yaw), Math.PI, 'astern: the raft faces the way it rows, away from the stern', 1e-9);
+  ok(Math.hypot(aft.bow.x - aft.hull.x, aft.bow.z - aft.hull.z) > 5.9 && (aft.bow.x - aft.hull.x) * fx + (aft.bow.z - aft.hull.z) * fz < 0, 'astern: the line made fast at the stern');
+  eq(D.towPlan('glasswater'), null, 'no leg for a water with none yet');
+}
+
+section('LAKE 2, lane C: a later water\'s first tow puts the world there under the ink; the way back is one dip (SPEC §6.5)');
+{
+  const E = towEnv({ flow: 'home' });
+  E.loop.s.tutorial = { done: true, step: null };
+  E.loop.s.barge = { water: 'mossmere', towed: ['mossmere'] };
+  let zone = 'mossmere';
+  const shown = [];
+  E.ctx.world.getZone = () => ({ id: zone });
+  E.H.showWater = (id) => { shown.push(id); zone = id; };
+  let done = 0;
+  ok(E.T.playTow('sporewood', { onDone: () => done++ }) === true && E.T.phase === 'leg', 'playTow(sporewood): straight into the leg');
+  ok(E.loop.s.barge.water === 'sporewood' && E.loop.s.barge.towed.includes('sporewood') && E.saves.length > 0, 'written as the leg begins: the barge towed there, the save');
+  ok(zone === 'mossmere' && shown.length === 0, 'the world stays on the water left through the leg');
+  await E.until(() => E.T.phase === 'dipHold' || E.T.phase === 'glide', 10);
+  eq(shown, ['sporewood'], 'at the dip\'s full ink the world is put on Sporewood, once');
+  await E.until(() => done > 0, 15);
+  eq(done, 1, 'onDone once, after the glide in');
+  // the way back: no Chart, no leg, no words; one dip, the barge moved at its full ink, onDone as it clears
+  const n0 = E.ev.length, s0 = E.saves.length;
+  let back = 0;
+  ok(E.T.wayBack('mossmere', { onDone: () => back++ }) === true && E.T.phase === 'backDip', 'wayBack(mossmere): the ink dip');
+  ok(E.T.wayBack('mossmere') === false && E.T.playTow('sporewood') === false, 'one at a time');
+  ok(E.loop.s.barge.water === 'sporewood', 'nothing moves before the full ink');
+  await E.until(() => E.T.phase === 'backHold', 2);
+  ok(E.loop.s.barge.water === 'mossmere' && zone === 'mossmere' && E.saves.length > s0, 'at the full ink: the barge at the Mossmere, the world there, the save');
+  eq([E.player.position.x, E.player.position.z], [MOOR.raft.x, MOOR.raft.z], 'the raft at the stern\'s tie-up');
+  await E.until(() => E.T.phase === null, 3);
+  eq(back, 1, 'onDone once, as the ink clears');
+  const phases = E.ev.slice(n0).filter((x) => x.e === 'loop:tow').map((x) => x.p.phase);
+  eq(phases.join(), 'backDip,backHold,backClear', 'the way back: dip, hold, clear (no leg, no glide in)');
+  ok(!E.calls.slice(-12).includes('view.open'), 'no Chart opened on the way back');
+  ok(E.view.dips.at(-1) === 0 && Math.max(...E.view.dips) === 1, 'the dip goes to full ink and clears', E.view.dips.slice(-4));
+  ok(E.T.wayBack(7) === false && E.T.phase === null, 'no water, no dip');
+}
+
 console.log(`\nloop-tow: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

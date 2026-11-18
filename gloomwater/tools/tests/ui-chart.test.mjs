@@ -222,8 +222,14 @@ section('the byte budget (M1.md §3.2, the spike\'s lines)');
   const out = Object.values(r.metafile.outputs)[0].inputs;
   const of = (f) => Object.entries(out).filter(([k]) => k.endsWith(f)).reduce((a, [, v]) => a + v.bytesInOutput, 0);
   const code = of('src/chart-draw.js') + of('src/ui-chart.js'), artBytes = of('src/chart-art.js');
-  ok(code > 0 && code <= 62_000, `chart-draw.js + ui-chart.js as the game bundles them: ${code} bytes ≤ 62 KB`);   // (re-set 16 Nov at the MVP merge: the other lanes' code lengthens the minifier's names in these two files too; M1.md §3.2)
-  ok(artBytes > 0 && artBytes + code <= 200_000, `M1's Chart in the built file: ${artBytes} (chart-art.js) + ${code} = ${artBytes + code} bytes ≤ 200 KB`);
+  // (re-set 16 Nov at the MVP merge: the other lanes' code lengthens the minifier's names in these two files too; M1.md §3.2. Re-set 18 Nov
+  // by LAKE 2 lane C: M1's 62 KB and the second water's own drawing, 16 KB (the outline lake: its coast, hachures, reeds, in and out,
+  // isles, jetty and moorings; Sporewood's four place vignettes and its sheet's; the window over the owned sheets), measured 76.2 KB)
+  const later = CHART_ART.sheets.length - 1;
+  ok(code > 0 && code <= 62_000 + 16_000 * Math.min(1, later), `chart-draw.js + ui-chart.js as the game bundles them: ${code} bytes ≤ ${62 + 16 * Math.min(1, later)} KB`);
+  // (M1's Chart ≤ 200 KB in the file; each later sheet baked adds its own line, M1.md §3.2's `later` 100 KB: its crop and its live data)
+  CHART_ART.sheets.slice(1).forEach((q) => ok(raw(q.uri) <= 100_000, `sheet ${q.n}: ${raw(q.uri)} bytes ≤ 100 KB raw`));
+  ok(artBytes > 0 && artBytes + code <= 200_000 + 100_000 * later, `the Chart in the built file: ${artBytes} (chart-art.js) + ${code} = ${artBytes + code} bytes ≤ ${200 + 100 * later} KB (M1's 200 KB${later ? `, ${later} later sheet${later > 1 ? 's' : ''} at 100 KB` : ''})`);
 }
 
 section('the chart\'s faces before the first paint; the generated art');

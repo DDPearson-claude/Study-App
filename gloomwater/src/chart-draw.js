@@ -912,6 +912,7 @@ export function layoutChart(model, art, view) {
     // (the words keep clear of the water's name and of the book as drawn; a place's mark keeps clear of the book's whole target)
     const base = [fixed[fixed.length - 1], ...(card.book ? [around(card.book.x, card.book.y, card.book.s + 4, card.book.s * 0.8 + 4)] : [])];
     for (const A of items) base.push(around(A.at[0], A.at[1], A.size, A.size));
+    if (geo?.outline === true && card.book) base.push(around(card.book.x, card.book.y, TARGET, TARGET));   // (LAKE2 lane C: the book's whole target)
     // (a cut drawn into the hill, the brook behind the Veil once owned (chart-gild.brookCard): its banks and reeds keep every word off)
     const NC = geo?.notch;
     if (NC && Number.isFinite(NC.r0) && (sheet.places || []).some((p) => p.id === NC.place && p.owned === true)) {
@@ -947,7 +948,9 @@ export function layoutChart(model, art, view) {
         if (Math.abs(cxx - sp[0]) > bw * 0.4) return;
         const q = around(cxx, sp[1], bw, bh);
         if (!free(q)) return;
-        const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0) + (shoreKeep && sideOf(q) === 'cross' ? 60 : 0);
+        const cross = shoreKeep && sideOf(q) === 'cross';
+        if (cross && geo?.outline === true) return;   // (LAKE2 §6.2: on an outline water a word never crosses the pen while paper is free)
+        const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0) + (cross ? 60 : 0);
         if (c < cost) { cost = c; best = [cxx, sp[1]]; }
       });
       return best ? { at: best, cost } : null;
@@ -962,6 +965,14 @@ export function layoutChart(model, art, view) {
           [right, y + r + bh / 2 - 6], [left, y + r + bh / 2 - 6], [right, y - r - bh / 2 + 6], [left, y - r - bh / 2 + 6]);
       }
       return S;
+    };
+    const paperSpots = (x, y, bw, bh) => {
+      const bb = geo.bbox, yT = lake.cy + (bb.z0 - lake.oz) * lake.s, yB = lake.cy + (bb.z1 - lake.oz) * lake.s;
+      const xL = lake.cx + (bb.x0 - lake.ox) * lake.s, xR = lake.cx + (bb.x1 - lake.ox) * lake.s, S = [];
+      // (above the water up to the card's head, below it down to its foot, every 4 px: the band of paper a narrow card leaves)
+      for (let d = 2; yT - 2 - d - bh >= card.y + head - 6 || yB + 2 + d + bh <= card.y + card.h - 8; d += 4) for (const f of [0, 0.35, -0.35, 0.7, -0.7, 1.05, -1.05]) S.push([x + f * bw, yT - 2 - d - bh / 2], [x + f * bw, yB + 2 + d + bh / 2]);
+      for (const d of [2, 12]) for (const j of [0, 1, -1]) S.push([xL - 2 - d - bw / 2, y + j * (bh + 4)], [xR + 2 + d + bw / 2, y + j * (bh + 4)]);
+      return S.sort((a, b) => Math.hypot(a[0] - x, a[1] - y) - Math.hypot(b[0] - x, b[1] - y));
     };
     const bestLine = (A) => { const s = { kind: 'best', speciesId: A.p.best.speciesId, weight: A.p.best.weight, font: font(`400 ${LS.sub}px ${fig}`), px: LS.sub }; s.w = Math.round(Math.round(LS.sub * 0.82) * 1.83) + 6 + measure(typeof view.fmtWeight === 'function' ? view.fmtWeight(s.weight) : '', s.font); return s; };
     const letterPass = (order, final) => { // → {done (the places in the order lettered), ok (no chosen best line short of room)}
@@ -995,7 +1006,10 @@ export function layoutChart(model, art, view) {
         const sd = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
         const spotsFor = (bw, bh) => [...(sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : []), ...ring(x, y, r, bw, bh),
           // (a place behind the shore: farther in on the water, toward the lake's middle, where the ring finds no room off the pen)
-          ...(shoreKeep ? [30, 60, 90].flatMap((d) => [0, 1, -1, 2, -2].map((j) => [x + Math.sign(lake.cx - x) * (r + 4 + d + bw / 2), y + j * (bh + 4) + Math.sign(j) * r])) : [])];
+          ...(shoreKeep ? [30, 60, 90].flatMap((d) => [0, 1, -1, 2, -2].map((j) => [x + Math.sign(lake.cx - x) * (r + 4 + d + bw / 2), y + j * (bh + 4) + Math.sign(j) * r])) : []),
+          // (LAKE2 §6.2, lane C: an outline water's crowded pool letters out on the paper beyond its coast, above or below the water, or
+          // past its ends, nearest first, a leader back to its mark: never across the pen, never on another place)
+          ...(geo?.outline && geo.bbox ? paperSpots(x, y, bw, bh) : [])];
         const size = (ls) => { const lh = Math.max(...ls.map((l) => l.px)) + 3; return [Math.max(...ls.map((l) => l.w)) + 6, ls.length * lh + 2, lh]; };
         // the words stand nearest their place: a farther spot costs more than stacking the name or keeping no room for the best fish
         let use = null, best = null, bw = 0, bh = 0, lh = 0, cost = Infinity;
@@ -1003,6 +1017,9 @@ export function layoutChart(model, art, view) {
           const [w0, h0, l0] = size(s), nb = nearest(spotsFor(w0, h0), w0, h0), c = nb ? nb.cost + s.cost : Infinity;
           if (c < cost) { cost = c; use = s; best = nb.at; [bw, bh, lh] = [w0, h0, l0]; }
         });
+        // (LAKE2 §6.2: on an outline water a name with no room anywhere off the pen waits unlettered, its mark alone, until it is the
+        // chosen place, lettered first; never across the shore or over another word)
+        if (!best && geo?.outline === true) { if (model?.pick?.place === A.id) ok = false; done.push(A); continue; }
         if (!best) { use = sets[sets.length - 1]; [bw, bh, lh] = size(use); best = spotsFor(bw, bh)[0]; }
         const q = around(best[0], best[1], bw, bh);
         placed.push(q);

@@ -6,7 +6,7 @@
 // yet" (the Chart as it was), Sail again and Tow: the leg up the Lockwater, the dip, the glide in to Rootfoot Landing (astern), the
 // evening at Sporewood (the carry written, the tackle reset); home at Sporewood; the way back to the Mossmere (one dip) and back again
 // (no card, no tow); then a second save towed and reloaded mid-leg (it lands at Rootfoot with the carry written once).
-//   --part=chart   only the shelf's card and the Chart's frames (no tow): the look rounds at each size
+//   --part=chart   only the shelf's card, the Chart's frames and the leaving card (no tow): the look rounds at each size
 //
 //   node build.mjs --dev --out=tools/out/l2c/dev.html
 //   node tools/playtest.mjs --html=tools/out/l2c/dev.html --shots=tools/out/l2c/desk --script=tools/tests/lake2-c.scenario.mjs --width=1280 --height=720
@@ -35,7 +35,8 @@ export default async function (api) {
   });
   const chartTargets = () => g(() => [...document.querySelectorAll('[data-modal=chart] [data-water], [data-modal=chart] [data-sheet], [data-modal=chart] [data-sealed], [data-modal=chart] [data-place]')]
     .map((b) => ({ water: b.dataset.water || null, sheet: b.dataset.sheet || null, sealed: b.dataset.sealed || null, place: b.dataset.place || null, r: (({ x, y, width, height }) => [Math.round(x), Math.round(y), Math.round(width), Math.round(height)])(b.getBoundingClientRect()) })));
-  const words = () => g(() => { const t = window.__gw.ui?.loop?.chartView?.()?.lastLayout?.texts; return Array.isArray(t) ? t.slice() : null; });
+  const overlaps = (sel) => g((s) => { const R = [...document.querySelectorAll(s)].map((b) => b.getBoundingClientRect()).filter((r) => r.width > 0);
+    const out = []; for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) { const a = R[i], b = R[j]; if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1) out.push([i, j]); } return out; }, sel);
   const overflow = (sel) => g((s) => {   // (no word cut or spilling its box: every text element inside its own box and inside the viewport)
     const out = [];
     for (const el of document.querySelectorAll(`${s} p, ${s} h2, ${s} b, ${s} button span, ${s} .gw-shelf-line, ${s} .gw-plate-line`)) {
@@ -80,8 +81,25 @@ export default async function (api) {
     const t2 = await chartTargets();
     K.check(t2.some((t) => t.water === 'sporewood') && t2.some((t) => t.sheet === 'mossmere'), 'Sporewood\'s card laid beside the window; the Mossmere\'s mark the way back to its card', t2);
     await K.shoot('chart-sporewood-card');
+    // Sporewood's four places on its own sheet (the two the lake map opens owned, the others mist or priced), each name wholly on the
+    // water or the paper (never across the shore's pen), inside the card, meeting no other word or target; no two targets overlap
+    const lay = await g(() => { const L = window.__gw.debug.loop.chart('layout'), c = L?.cards?.find((k) => k.waterId === 'sporewood');
+      const meet = (a, b) => a[0] < b[0] + b[2] && a[0] + a[2] > b[0] && a[1] < b[1] + b[3] && a[1] + a[3] > b[1];
+      const P = (L?.places || []).filter((p) => p.box);
+      return c ? { ids: (L?.places || []).map((p) => p.id), named: P.map((A) => ({ id: A.id, side: A.side, inCard: A.box[0] >= c.x && A.box[0] + A.box[2] <= c.x + c.w && A.box[1] >= c.y && A.box[1] + A.box[3] <= c.y + c.h,
+        hits: [...P.filter((q) => q !== A).map((q) => q.box), ...(L?.targets || []).filter((q) => !q.backdrop && q.place !== A.id && q.kind !== 'water').map((q) => q.rect)].filter((o) => meet(A.box, o)).length })) } : null; });
+    info.sporewoodCard = lay;
+    K.check(!!lay && ['lullaby', 'gill_harp', 'veilwater', 'mothers_cup'].every((id) => lay.ids.includes(id)), 'Sporewood\'s sheet: its four places drawn', lay?.ids);
+    K.check(!!lay && lay.named.every((n) => n.side !== 'cross' && n.inCard && n.hits === 0), 'Sporewood\'s sheet: every name off the shore\'s pen, on the card, meeting no other word or target', lay?.named);
+    const ov = await overlaps('[data-modal=chart] [data-place], [data-modal=chart] [data-sheet], [data-modal=chart] [data-action=catalogue], [data-modal=chart] [data-action=sail]');
+    K.check(ov.length === 0, 'the Chart\'s targets do not overlap', ov);
+    await K.scan('the Chart with two sheets');
+    if (await g(() => !!document.querySelector('[data-modal=chart] [data-place=lullaby]'))) {
+      await K.tap('[data-modal=chart] [data-place=lullaby]');
+      await K.secs(0.8); await K.settle(500);
+      await K.shoot('chart-sporewood-lullaby');
+    }
     await K.noErrors('the Chart');
-    if (chartOnly) throw new Abort('the chart part only');
 
     K.step('l2c: Sail for Sporewood: the leaving card, Not yet');
     await K.tap('[data-modal=chart] [data-action=sail]');
@@ -95,6 +113,7 @@ export default async function (api) {
     await K.secs(0.6); await K.settle(300);
     const b1 = await barge();
     K.check(JSON.stringify(b0) === JSON.stringify(b1) && (await g(() => !!document.querySelector('[data-modal=chart]') && !document.querySelector('[data-loop=leave]'))), 'Not yet: the Chart as it was, nothing written', { b0, b1 });
+    if (chartOnly) throw new Abort('the chart part only');
 
     K.step('l2c: Sail again, Tow: the leg up the Lockwater');
     await K.tap('[data-modal=chart] [data-action=sail]');

@@ -128,7 +128,8 @@ export function chartPlaces(D, places) {
   const nameOf = (id) => {
     const LP = D?.LOOP?.places;
     const lp = Array.isArray(LP) ? LP.find((p) => p?.id === id) : isObj(LP) ? LP[id] : null;
-    return lp?.name || arr(D?.MOSSMERE_V3?.places).find((p) => p?.id === id)?.name || D?.PLACE_BY_ID?.[id]?.name || null;
+    // (LAKE 2, lane C: a later water's place names itself through loopPlace, beside its geometry: SPOREWOOD_LOOP.places)
+    return lp?.name || arr(D?.MOSSMERE_V3?.places).find((p) => p?.id === id)?.name || D?.PLACE_BY_ID?.[id]?.name || (typeof D?.loopPlace === 'function' ? D.loopPlace(id)?.name : null) || null;
   };
   return arr(places).filter(isObj).map((p) => ({ ...p, name: p.owned === true ? p.name || nameOf(p.id) || p.id : null }));
 }
