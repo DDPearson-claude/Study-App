@@ -55,6 +55,39 @@ export function lushFloor(mat, U, name) {
   return mat;
 }
 /**
+ * (LAKE 2, the art pass: "the banks' ground reads as a low-res camouflage blotch") The banks' green moss laid in the fragment stage, so its
+ * drifts have clean, crisp edges at any distance and never follow the ground's 2 m grid: a vertex attribute `aMoss` (0..1, where moss
+ * can lie: the tops and the land behind them) and a few octaves of value noise on the world position, cut with a narrow smooth edge
+ * (fwidth-wide), the moss itself mottled between `mossG` and `mossGHi` with a fine speckle. U: {gwMossG, gwMossGHi, gwMossT} (linear rgb,
+ * linear rgb, the drift threshold).
+ */
+export function lushMoss(mat, U, name) {
+  const base = mat.onBeforeCompile;
+  mat.onBeforeCompile = (sh, r) => {
+    base?.call(mat, sh, r);
+    Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aMoss; varying float vGwMoss; varying vec3 vGwMossP;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGwMoss = aMoss; vGwMossP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+uniform vec3 gwMossG; uniform vec3 gwMossGHi; uniform float gwMossT; varying float vGwMoss; varying vec3 vGwMossP;
+float gwMh(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float gwMn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(gwMh(i), gwMh(i + vec2(1.0, 0.0)), f.x), mix(gwMh(i + vec2(0.0, 1.0)), gwMh(i + vec2(1.0, 1.0)), f.x), f.y); }`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+{
+  vec2 q = vGwMossP.xz;
+  float n = gwMn(q * 0.3) * 0.55 + gwMn(q * 0.85 + 3.1) * 0.3 + gwMn(q * 2.3 + 7.7) * 0.15;
+  float e = fwidth(n) * 1.5 + 0.012;
+  float drift = smoothstep(gwMossT - e, gwMossT + e, n) * clamp(vGwMoss, 0.0, 1.0);
+  vec3 moss = mix(gwMossG, gwMossGHi, smoothstep(0.35, 0.85, gwMn(q * 1.3 + 11.0)));
+  moss *= 0.82 + 0.3 * gwMn(q * 7.0 + 5.0);
+  diffuseColor.rgb = mix(diffuseColor.rgb, moss, drift * 0.95);
+}`);
+  };
+  const key = mat.customProgramCacheKey?.() || 'gwInkToonFog';
+  mat.customProgramCacheKey = () => `${key}:lushMoss:${name}`;
+  return mat;
+}
+/**
  * The water's baked masks on a lush water (water.js bakes them into its depth texture's spare channels, B and A, which only the Mossmere's
  * face uses): `dapple` 1 where the moon falls on the water, lower in the canopy's shade near the banks with "moon coins" through its
  * gaps (a static, low-frequency pattern: no animation, no glitter); `weed` the shallows' film (depth under about 0.3, near a bank,
@@ -240,7 +273,8 @@ export function floraPlan(L, look, { tier = 'high', avoid = null, glides = [], g
       for (const cc of centres) { if (r < cc.w) { c = cc; break; } r -= cc.w; }
       const a = rng() * TAU, d = Math.sqrt(rng()) * c.r, x = c.x + Math.cos(a) * d * 1.25, z = c.z + Math.sin(a) * d * 0.85;
       if (sdfAt(O, x, z) < 0.6 || !waterOk(x, z)) continue;
-      const big = rng() < 0.14, s = big ? rng.range(1.0, 1.5) : rng.range(0.35, 0.72);
+      // (LAKE 2, the art pass: a fallen cap-leaf is a rare, small, dull thing on the water, never gold litter)
+      const big = rng() < 0.06, s = big ? rng.range(0.6, 0.9) : rng.range(0.35, 0.72);
       if (pads.some((q2) => Math.hypot(q2.x - x, q2.z - z) < (q2.s + s) * 0.9)) continue;
       const it = push({ k: big ? 'capleaf' : 'pad', x, y: 0.03, z, ry: rng() * TAU, s, sy: 1, lean: 0, la: 0, v: tint() });
       pads.push(it);
@@ -395,7 +429,8 @@ function prototypes(look, K) {
   P.reed = blades(reedC, false); P.sedge = blades(sedgeC, true);
   // a lily pad: a flat fan with its notch (8 triangles); a fallen cap-leaf: longer, ochre-olive, its rim curled up
   const pad = (cap) => {
-    const S = soup(), n = 9, c0 = cap ? mixArr(mid, capC, 0.22) : mixArr(mid, hi, 0.25), c1 = cap ? mixArr(dark, capHi, 0.12) : mixArr(dark, mid, 0.5);
+    // (LAKE 2, the art pass: the cap-leaf a matte, soft dull ochre-olive, a step darker than the lily pads round it)
+    const S = soup(), n = 9, c0 = cap ? scaleArr(mixArr(dark, capC, 0.35), 0.72) : mixArr(mid, hi, 0.25), c1 = cap ? scaleArr(mixArr(ink, capC, 0.3), 0.8) : mixArr(dark, mid, 0.5);
     const ce = vtx(S, 0, cap ? 0.02 : 0.012, 0, 0, 1, 0, c0, 0, 0, 0.5);
     const rim = [];
     for (let i = 0; i < n; i++) { const a = 0.35 + (i / (n - 1)) * (TAU - 0.7); rim.push(vtx(S, Math.cos(a) * (cap ? 1.4 : 1), cap ? 0.05 + 0.04 * Math.abs(Math.sin(a)) : 0.02, Math.sin(a) * (cap ? 0.7 : 1), 0, 1, 0, c1, 0, 0, 0.5)); }
@@ -416,37 +451,72 @@ function prototypes(look, K) {
   };
   P.strand = strand([dark, m2, mixArr(hi, mgh, 0.5)]);
   P.gill = strand([scaleArr(capC, 0.8), mixArr(capC, capHi, 0.6), scaleArr(capHi, 1.15)]);
-  // a shrub: three faceted mounds, cream blossom on a few of its faces (60)
+  // >>> LAKE 2, the art pass (the user's "blocky shrubs and crowns"): every leafy mass is soft: a lobed mound (a low sphere pushed out into
+  // lobes by a few bumps) with smooth normals from its heart, so the toon lights it as one rounded thing, never as facets; leaf cards
+  // round its rim and crown break its silhouette into leaves, and they and the mound's lit side carry the light through the leaves
+  // (the backlit term). Colours: ink at the foot, the dark key under it, the mid round its sides, the hi on its crown, a leafy dapple.
+  const leafMass = (S, cx, cy, cz, r, seed, { squash = 0.82, cards = 10, top = 1, sway = 0.04, bloomK = 0, dim = 1, seg = [8, 6] } = {}) => {
+    const g = new THREE.SphereGeometry(r, seg[0], seg[1]);
+    const P0 = g.attributes.position, bumps = [];
+    for (let k = 0; k < 5; k++) { const u = hash(seed + k * 7.1) * 2 - 1, a = hash(seed + k * 3.3) * TAU, q = Math.sqrt(1 - u * u); bumps.push([q * Math.cos(a), u * 0.6 + 0.25, q * Math.sin(a), 0.1 + 0.16 * hash(seed + k)]); }
+    const lobe = (x, y, z) => { const l = Math.hypot(x, y, z) || 1; let k = 0; for (const [bx, by, bz, ba] of bumps) k += ba * Math.pow(Math.max(0, (x * bx + y * by + z * bz) / l), 3); return 1 + k; };
+    for (let i = 0; i < P0.count; i++) { const x = P0.getX(i), y = P0.getY(i), z = P0.getZ(i), f = lobe(x, y, z); P0.setXYZ(i, x * f, y * f * squash, z * f); }
+    g.translate(cx, cy, cz);
+    // (smooth normals from the mass's heart, a little above its centre: the crown faces the sky, the foot the ground)
+    const N0 = g.attributes.normal;
+    for (let i = 0; i < P0.count; i++) { const x = P0.getX(i) - cx, y = P0.getY(i) - cy + r * 0.25, z = P0.getZ(i) - cz, l = Math.hypot(x, y, z) || 1; N0.setXYZ(i, x / l, y / l, z / l); }
+    const yLo = cy - r * squash, span = 2 * r * squash;
+    addGeo(S, g, (x, y, z, i) => {
+      const t = clamp01((y - yLo) / span), j = hash(i * 1.37 + seed);
+      let c = t < 0.3 ? mixArr(ink, dark, t / 0.3) : t < 0.7 ? mixArr(dark, mid, (t - 0.3) / 0.4) : mixArr(mid, hi, ((t - 0.7) / 0.3) * top);
+      c = scaleArr(c, (0.9 + 0.2 * j) * dim);
+      if (bloomK > 0 && t > 0.45 && j > 1 - bloomK) c = bloom[j > 1 - bloomK * 0.4 ? 1 : 0];
+      return [c, sway * t, 0, 0.6 + 0.4 * t];
+    });
+    // the leaf cards: small pointed leaves on the mound's surface, tilted out, a little lighter toward their tips
+    for (let k = 0; k < cards; k++) {
+      const u = hash(seed * 3.1 + k * 1.91) * 1.5 - 0.45, a = hash(seed * 5.7 + k * 2.37) * TAU, q = Math.sqrt(Math.max(0, 1 - u * u));
+      const dx = q * Math.cos(a), dy = u, dz = q * Math.sin(a), f = lobe(dx, dy, dz);
+      const px = cx + dx * r * f * 0.97, py = cy + dy * r * f * squash * 0.97, pz = cz + dz * r * f * 0.97;
+      // (a leaf: its spine out from the mound and a little up, its blade across it)
+      let ox = dx, oy = dy * 0.5 + 0.35, oz = dz; const ol = Math.hypot(ox, oy, oz) || 1; ox /= ol; oy /= ol; oz /= ol;
+      let wx = -dz, wz = dx; const wl = Math.hypot(wx, wz) || 1; wx /= wl; wz /= wl;
+      const L = r * (0.32 + 0.18 * hash(k + seed)), W = L * 0.42, t = clamp01((py - yLo) / span);
+      const base = t < 0.5 ? mixArr(dark, mid, t * 2) : mixArr(mid, hi, (t - 0.5) * 2 * top), tip = mixArr(base, hi, 0.35);
+      const nx = dx, ny = dy + 0.25, nz = dz, sw = sway * (0.6 + t) + 0.02;
+      const v0 = vtx(S, px - ox * L * 0.15, py - oy * L * 0.15, pz - oz * L * 0.15, nx, ny, nz, scaleArr(base, 0.9 * dim), sw * 0.5, 0, 1);
+      const v1 = vtx(S, px + ox * L * 0.45 + wx * W, py + oy * L * 0.45, pz + oz * L * 0.45 + wz * W, nx, ny, nz, scaleArr(base, dim), sw, 0, 1);
+      const v2 = vtx(S, px + ox * L, py + oy * L, pz + oz * L, nx, ny, nz, scaleArr(tip, dim), sw * 1.3, 0, 1);
+      const v3 = vtx(S, px + ox * L * 0.45 - wx * W, py + oy * L * 0.45, pz + oz * L * 0.45 - wz * W, nx, ny, nz, scaleArr(base, dim), sw, 0, 1);
+      tri(S, v0, v1, v2); tri(S, v0, v2, v3);
+    }
+  };
+  // a shrub: three soft lobed mounds, cream blossom on a few leaves (about 180)
   {
     const S = soup();
-    for (const [cx, cy, cz, r] of [[0, 0.55, 0, 0.62], [0.45, 0.4, 0.2, 0.46], [-0.36, 0.42, -0.26, 0.5]]) {
-      const g = new THREE.IcosahedronGeometry(r, 0); g.scale(1, 0.85, 1); g.translate(cx, cy, cz);
-      let face = 0;
-      addGeo(S, g, (x, y, z, i) => { if (i % 3 === 0) face = hash(i + cx * 31 + cz * 17); const t = clamp01(y / 1.1); const c = face > 0.88 ? bloom[face > 0.94 ? 1 : 0] : t < 0.5 ? mixArr(ink, dark, t / 0.5) : mixArr(dark, face > 0.6 ? hi : mid, (t - 0.5) * 1.6); return [c, 0.03 * t, 0, 1]; });
-    }
+    [[0, 0.55, 0, 0.62], [0.45, 0.42, 0.22, 0.46], [-0.38, 0.44, -0.26, 0.5]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 11 + m * 17, { cards: 6, bloomK: 0.07, seg: [6, 5] }));
     P.bush = S;
   }
-  // a broadleaf bank tree, upright (the plan leans it): a trunk and a crown of six faceted masses (~180)
+  // a broadleaf bank tree, upright (the plan leans it): a trunk with two limbs and a crown of soft lobed masses (~530)
   {
     const S = soup();
-    const tr = new THREE.CylinderGeometry(0.14, 0.3, 6.2, 5, 3, true); tr.translate(0, 3.0, 0);
+    const tr = new THREE.CylinderGeometry(0.14, 0.3, 6.2, 6, 3, true); tr.translate(0, 3.0, 0);
     addGeo(S, tr, (x, y) => [mixArr(barkMoss, bark, clamp01((y - 0.4) / 2)), 0.004 * y, 0, 0]);
-    const masses = [[0, 6.4, 0, 1.8, 1], [1.4, 5.9, 0.5, 1.25], [-1.25, 6.0, -0.4, 1.35], [0.4, 7.3, -0.6, 1.2], [-0.6, 5.3, 1.1, 1.1], [0.9, 5.1, -1.1, 1.05], [-1.5, 6.8, 0.6, 0.9], [1.7, 6.9, -0.3, 0.85]];
-    masses.forEach(([cx, cy, cz, r, fine], mi) => {
-      const g = new THREE.IcosahedronGeometry(r, fine ? 1 : 0); g.scale(1, 0.74, 1); g.translate(cx, cy, cz);
-      addGeo(S, g, (x, y, z, i) => { const t = clamp01((y - 4.6) / 3.4), j = hash(i + mi * 31); return [t < 0.55 ? mixArr(ink, dark, t / 0.55) : mixArr(dark, j > 0.7 ? hi : mid, (t - 0.55) * 1.8), 0.05 * t, 0, 1]; });
-    });
+    for (const [ax, az] of [[0.9, 0.3], [-0.8, -0.4]]) {
+      const lb = new THREE.CylinderGeometry(0.05, 0.11, 2.0, 5, 1, true); lb.rotateZ(-Math.atan2(ax, 1.4)); lb.rotateY(Math.atan2(az, ax) * 0.5); lb.translate(ax * 0.55, 5.0, az * 0.55);
+      addGeo(S, lb, (x, y) => [bark, 0.01 * y, 0, 0]);
+    }
+    const masses = [[0, 6.5, 0, 1.75], [1.35, 6.0, 0.5, 1.25], [-1.25, 6.05, -0.4, 1.3], [0.35, 7.35, -0.55, 1.15], [-0.6, 5.4, 1.05, 1.05], [0.9, 5.2, -1.05, 1.0], [-1.45, 6.85, 0.6, 0.9]];
+    masses.forEach(([cx, cy, cz, r], mi) => leafMass(S, cx, cy, cz, r, 101 + mi * 13, { cards: 7, squash: 0.76, sway: 0.05, seg: [7, 5] }));
     P.tree = S;
   }
-  // a far crown (the forest's edge behind the banks): two dark masses (40)
+  // a far crown (the forest's edge behind the banks): two soft dark masses (~90)
   {
     const S = soup();
-    for (const [cx, cy, cz, r] of [[0, 0.9, 0, 1], [0.6, 0.55, 0.35, 0.72]]) {
-      const g = new THREE.IcosahedronGeometry(r, 0); g.scale(1, 0.85, 1); g.translate(cx, cy, cz);
-      addGeo(S, g, (x, y) => [mixArr(ink, mixArr(dark, mid, 0.5), clamp01(y / 1.8)), 0.02 * clamp01(y / 1.8), 0, 1]);
-    }
+    [[0, 0.9, 0, 1], [0.62, 0.58, 0.36, 0.72]].forEach(([cx, cy, cz, r], m) => leafMass(S, cx, cy, cz, r, 201 + m * 31, { cards: 4, squash: 0.85, sway: 0.02, top: 0.5, dim: 0.85, seg: [6, 4] }));
     P.crown = S;
   }
+  // <<< LAKE 2, the art pass
   return P;
 }
 /** Which material a kind is drawn with: 'hi' (mirrored, casting) or 'lo'. */
@@ -484,7 +554,8 @@ outgoingLight += diffuseColor.rgb * gwFloraFloor;
 
 /** The kit's ink-toon material with the sway, the raft's parting and the leaves' translucency (one program per kind of use). */
 function floraMaterial(look, U, rimC, name) {
-  const mat = inkToon({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, rim: 0.2, rimColor: rimC, rimPower: 0.6, steps: 3, gloss: 0.02, shine: 24, floor: 1 }, { fogScale: 0.9, fogMax: 1 });
+  // (LAKE 2, the art pass: five tone steps, so a leafy mound turns softly rather than in three hard bands)
+  const mat = inkToon({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, rim: 0.2, rimColor: rimC, rimPower: 0.6, steps: 5, gloss: 0.02, shine: 24, floor: 1 }, { fogScale: 0.9, fogMax: 1 });
   const base = mat.onBeforeCompile;
   mat.onBeforeCompile = (sh, r) => {
     base?.call(mat, sh, r);
@@ -677,11 +748,12 @@ export function buildFlora(L, look, { tier = 'high', low = false, K = {}, rimC =
   }
   /** env {night 0..1, warm 0..1}: the flowers open and glow from dusk, the fireflies wake (WATERS §3.2: from dusk k ≥ 0.5). */
   function applyMood(env) {
-    const n = clamp01(num(env?.night, 0));
-    U.gwTransK.value = 1 + (num(look.night?.trans, 1) - 1) * n;
+    const n = clamp01(num(env?.night, 0)), d = clamp01(num(env?.dusk, 0));   // (dusk: a water with its own lights, LAKE 2's art pass)
+    U.gwTransK.value = (1 + (num(look.night?.trans, 1) - 1) * n) * num(env?.leafK, 1);
     U.gwFloraFloor.value = num(look.floor, 0.2) + (num(look.night?.floor, num(look.floor, 0.2)) - num(look.floor, 0.2)) * n;
-    if (flowers) { flowers.material.uniforms.uOpen.value = clamp01((n - 0.15) / 0.45); flowers.material.uniforms.uLit.value = 0.72 + 0.5 * n; }
-    if (fire) fire.material.uniforms.uK.value = clamp01((n - 0.32) / 0.38) * 0.95;
+    // (the flowers open at dusk and glow faintly at night; the fireflies wake late in the dusk)
+    if (flowers) { flowers.material.uniforms.uOpen.value = Math.max(clamp01((n - 0.15) / 0.45), d); flowers.material.uniforms.uLit.value = 0.72 + 0.5 * n + 0.2 * d; }
+    if (fire) fire.material.uniforms.uK.value = Math.max(clamp01((n - 0.32) / 0.38), clamp01(d * 1.4 - 0.4)) * 0.95;
   }
   return {
     group, meshes, update, applyMood, uniforms: U,

@@ -73,7 +73,10 @@ export function buildSporewoodArt({ ctx, L, look, kit, hero, P, K, PL, halos, ad
     const ch = capR * capH;
     const cap = latheGeo([[0.01, 0], [capR * 0.5, -ch * 0.02], [capR * 0.92, -ch * 0.06], [capR, ch * 0.08], [capR * 0.86, ch * 0.5], [capR * 0.48, ch * 0.9], [0, ch]], capR > 6 ? 26 : 16);
     wobble(cap, capR * 0.035, 1.1, top.x);
-    list.org.push(prep(cap, { matrix: mat(top.x, top.y, top.z, tiltX, rng() * TAU, tiltZ), colorFn: (px, py) => mixArr(capC, capHi, clamp01((py - top.y) / ch) * 0.8) }));
+    // (LAKE 2, the art pass: the cap's underside and rim warm and light, a cream-ochre lit from its gills, so a cap never reads as a black
+    // canopy; its crown the ochre of the built caps)
+    const under = mixArr(capHi, bone, 0.35);
+    list.org.push(prep(cap, { matrix: mat(top.x, top.y, top.z, tiltX, rng() * TAU, tiltZ), colorFn: (px, py, pz, nx, ny) => (ny < -0.2 ? mixArr(under, capHi, clamp01((py - top.y) / ch) * 0.5) : mixArr(capC, capHi, clamp01((py - top.y) / ch) * 0.8)) }));
     const gl = latheGeo([[capR * 0.16, -ch * 0.05], [capR * 0.6, -ch * 0.085], [capR * 0.95, -ch * 0.03]], capR > 6 ? 26 : 16);
     list.glow.push(prep(gl, { matrix: mat(top.x, top.y - 0.03, top.z, tiltX, 0, tiltZ), color: scaleArr(gill, 1.5) }));
     if (spots) for (let i = 0, n = 2 + ((rng() * 4) | 0); i < n; i++) {
@@ -151,7 +154,8 @@ export function buildSporewoodArt({ ctx, L, look, kit, hero, P, K, PL, halos, ad
       const pts = [V(ln.x, by, ln.z), V(ln.x - ox * 0.05, by + 3.2, ln.z - sgn * 0.6), V((ln.x + cx) / 2, by + 6.8, (ln.z + cz) / 2 + sgn * 0.6), V(cx, 10.4 + (sgn > 0 ? 0.8 : 0), cz)];
       const c = capTree(pts, sgn > 0 ? 4.6 : 5.4, { capH: 0.4, anchor: 2, mossTo: 3.5, tiltX: -sgn * 0.12, stalk: 0.085 });
       for (let k = 0; k <= 6; k++) { const t = k / 6; cuts.push({ x: ln.x + (cx - ln.x) * t, z: ln.z + (cz - ln.z) * t, r: 0.9 }); }   // (its stalk: the lens's cut)
-      hangUnder(c, low ? 9 : 16, { lenMin: 4.5, lenMax: 7.4, kindGill: 0.72, rMin: 0.25, rMax: 0.95, floor: 2.9 });
+      // (LAKE 2, the art pass: more strings, and longer, so the Harp reads as caps with strings hanging from them, never a dark canopy)
+      hangUnder(c, low ? 12 : 24, { lenMin: 6, lenMax: 8.6, kindGill: 0.8, rMin: 0.2, rMax: 0.96, floor: 2.4 });
       caps.push({ x: ln.x, z: ln.z, r: 1.2 });
       harp.push({ x: c.x, y: c.y, z: c.z });
     }
@@ -170,8 +174,11 @@ export function buildSporewoodArt({ ctx, L, look, kit, hero, P, K, PL, halos, ad
       const lp = [0, 0.25, 0.5, 0.75, 1].map((t) => { const p = logAt(t); return V(p.x, p.y, p.z); });
       kit.org.push(prep(taperTube(lp, (t) => 0.55 - 0.15 * t, 8, 16), { colorFn: (px, py, pz, nx, ny) => mixArr(mixArr(org, bone, 0.15), mixArr(mg, mgh, 0.4), amt * clamp01(ny * 1.4)) }));
       // the broken cap at its root end, half-sunk in the bank
-      const capG = latheGeo([[0.01, 0], [2.4, -0.1], [2.8, 0.3], [2.2, 1.2], [0.9, 1.7], [0, 1.8]], 14);
-      kit.org.push(prep(capG, { matrix: mat(bx, byy - 0.8, bz, 0.9, rng() * TAU, 0.4), colorFn: (px, py) => mixArr(capC, capHi, clamp01((py - byy + 0.8) / 2) * 0.6) }));
+      // (LAKE 2, the art pass: "a fallen cap fills a quarter of the frame at the lens": the broken cap is small and sunk well back into the
+      // bank, behind the stalk's root, so the shot frames the strand curtain under its stalk)
+      const capG = latheGeo([[0.01, 0], [1.3, -0.06], [1.5, 0.18], [1.2, 0.65], [0.5, 0.92], [0, 0.98]], 12);
+      const kx = bx + (bx - m.x) / Math.max(0.5, m.b.d) * 1.6, kz = bz + (bz - m.z) / Math.max(0.5, m.b.d) * 1.6;
+      kit.org.push(prep(capG, { matrix: mat(kx, gy(kx, kz) - 0.55, kz, 0.9, rng() * TAU, 0.4), colorFn: (px, py) => mixArr(capC, capHi, clamp01((py - byy + 0.8) / 2) * 0.6) }));
       // the curtain, two staggered rows over the water between the banks (it parts round the raft: flora's strands)
       const L2 = Math.hypot(bx - ax, bz - az), step = low ? 0.55 : 0.34;
       let n = 0;
@@ -251,12 +258,16 @@ export function buildSporewoodArt({ ctx, L, look, kit, hero, P, K, PL, halos, ad
         caps.push({ x: ix, z: iz, r: 0.45 }); made++;
         lamps.push({ key: `stool${made}`, kind: 'cap', x: c.x, y: c.y - 0.1, z: c.z, k: 1 });
       } else if (o.kind === 'roots') {
+        // (LAKE 2, the art pass: "a black spider on an islet". Its roots lower, paler and moss-grown, and over them a small cap on the stump
+        // with its own lit gill strings, so the knot reads as roots under a cap with strings hanging from it)
         for (let i = 0; i < 7; i++) {
-          const a = (i / 7) * TAU + rng.range(-0.2, 0.2), r1 = rng.range(2.2, 3.6), hgt = rng.range(0.9, 1.8);
+          const a = (i / 7) * TAU + rng.range(-0.2, 0.2), r1 = rng.range(2.2, 3.6), hgt = rng.range(0.9, 1.8) * 0.6;
           const rt = taperTube([V(ix + Math.cos(a) * 0.3, top + hgt * 0.4, iz + Math.sin(a) * 0.3), V(ix + Math.cos(a) * r1 * 0.55, top + hgt, iz + Math.sin(a) * r1 * 0.55), V(ix + Math.cos(a) * r1, -0.5, iz + Math.sin(a) * r1)], (t) => 0.28 * (1 - t * 0.6), 5, 8);
-          kit.org.push(prep(rt, { colorFn: (px, py, pz, nx, ny) => mixArr(mixArr(K.wood, org, 0.4), mixArr(mg, mgh, 0.4), amt * clamp01(ny)) }));
+          kit.org.push(prep(rt, { colorFn: (px, py, pz, nx, ny) => mixArr(mixArr(org, bone, 0.3), mixArr(mg, mgh, 0.55), Math.min(1, amt * 1.3) * clamp01(ny * 1.2 + 0.2)) }));
         }
-        kit.org.push(prep(taperTube([V(ix, top - 0.4, iz), V(ix + 0.1, top + 1.1, iz)], (t) => 0.55 - 0.1 * t, 7, 3), { colorFn: stalkCol(top - 0.4, 1.2) }));
+        const kc = capTree([V(ix, top - 0.4, iz), V(ix + 0.15, top + 1.2, iz + 0.05), V(ix + 0.25, top + 2.3, iz + 0.1)], 1.7, { capH: 0.5, spots: true, mossTo: 1.6, radial: 7 });
+        hangUnder(kc, low ? 4 : 8, { lenMin: 1.2, lenMax: 1.9, kindGill: 0.85, rMin: 0.45, rMax: 0.95, floor: top + 0.15 });
+        lamps.push({ key: 'rootknot', kind: 'cap', x: kc.x, y: kc.y - 0.1, z: kc.z, k: 1 });
       } else if (o.kind === 'tussock') {
         for (let i = 0; i < 7; i++) { const a = rng() * TAU, d = rng.range(0, 1.1); extra.push({ k: 'sedge', x: ix + Math.cos(a) * d, y: top - 0.05, z: iz + Math.sin(a) * d, ry: rng() * TAU, s: rng.range(1, 1.4), sy: rng.range(0.9, 1.3) }); }
       }

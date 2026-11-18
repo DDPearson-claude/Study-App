@@ -754,6 +754,9 @@ void main() {
 #ifdef GW_WC
   calmW = uWc;
 #endif
+#ifdef GW_LUSH
+  calmW = 1.0;   // (LAKE 2, the art pass: a lush water as calm as the loop's Mossmere: no glitter, the mirror in soft strokes)
+#endif
   vec2 gFine = fineGrad(xz, uTime) * (0.085 * fineK * (1.0 - 0.45 * calmW));
 #ifdef GW_V3
   gFine *= 1.0 - 0.9 * min(sFlat, 1.0);
@@ -975,6 +978,9 @@ void main() {
     float gl = (1.0 - smoothstep(0.0, 0.06, gd)) * tw * near * 1.6;
 #ifdef GW_WC
     gl *= (1.0 - wcSlick) * (1.0 - uWc);   // (the loop's Mossmere: no glints on still water at all)
+#endif
+#ifdef GW_LUSH
+    gl = 0.0;   // (LAKE 2, the art pass: nor on a lush water)
 #endif
     float pl = dot(pool, vec3(0.333));
     vec3 gcol = mix(uStarCol, uGlow, 0.35) * 0.55;   // star-like glints (never a Cinder's amber)

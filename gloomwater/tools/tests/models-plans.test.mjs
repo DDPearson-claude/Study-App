@@ -173,7 +173,8 @@ if (MODE === 'loop') {
     ok(deep(d) > deep(m) * 1.25, `the Downcast is deep and high-shouldered (${deep(d).toFixed(3)} against the Matriarch's ${deep(m).toFixed(3)})`);
     const dp = data.SPECIES_BY_ID.downcast_catfish.model;
     const dx = LOOP_SHAPES.catfish({ ...dp }), cx = LOOP_SHAPES.catfish({ ...data.SPECIES_BY_ID.cindertail_catfish.model });
-    ok(dx.extras.length === 1 && dx.eyes.pos[0][1] < dx.f.yc(0.055), 'the Downcast: no whiskers at all (its mouth the one extra), its eyes set below the middle');
+    // (LAKE 2, the art pass: the Downcast takes a catfish's barbels after all, the user's words: its mouth and one set of barbels)
+    ok(dx.extras.length === 2 && dx.eyes.pos[0][1] < dx.f.yc(0.055), 'the Downcast: its mouth and its barbels (two extras), its eyes set below the middle');
     ok(cx.extras.length === 2 && !!meshes(c).fins_tint, 'the Cindertail: its whiskers fanned forward (one extra of eight) and its tail painted its own colour');
     const tc = meshes(c).fins_tint?.geometry.attributes.color;
     ok(tc && tc.getX(0) > 0.5 && tc.getZ(0) < 0.4, 'the Cindertail\'s tail is ember to amber');

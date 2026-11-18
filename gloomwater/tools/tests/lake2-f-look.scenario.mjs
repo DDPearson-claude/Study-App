@@ -8,6 +8,8 @@
 //   nice -n 10 node tools/playtest.mjs --html=tools/out/lake2-f/dev.html --shots=tools/out/lake2-f/look --script=tools/tests/lake2-f-look.scenario.mjs --mobile
 //   node tools/lake2-f-sheet.mjs --in=tools/out/lake2-f/look --out=tools/out/lake2-f/fish.jpg
 // Options: --only=<species>[,…]  --frames=show,card (default both)
+//          --world=sporewood   every fish shown in Sporewood's own light (the world put on Sporewood, the raft in its East Pool; the run
+//                              stays the Mossmere's): LAKE 2's art pass checks each changed fish beside its relative there
 // Frames: <tag>-f-NN-<species>-<show|card>.png, and <shots>/fish-notes.json {name: {species, pair, frame, light, z, shape, cloud}}.
 // Prints `LAKE2_F_LOOK {size, failures, notes, shot}`.
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -62,6 +64,11 @@ export default async function (api) {
     await K.toJetty();
     await K.sail(null);
     await K.places.unlift();
+    if (args.world === 'sporewood') {   // (the art pass: the show in Sporewood's light)
+      await g(() => { const c = window.__gw; c.bus.emit('zone:change', { zone: 'sporewood', prev: 'mossmere' }); c.player.teleport({ x: 28, z: 2 }, 0); c.render.snapCamera?.(); });
+      await K.secs(1.5, FAST);
+      K.check(await g(() => window.__gw.world.getZone()?.id === 'sporewood'), 'the world on Sporewood');
+    }
     // (every forced bite a fish: the snag roll, and its finds' guarantee, held off for the sheet)
     K.need(await g(() => { const L = window.__gw.progression?.loop; if (!L) return false; try { L.snagRoll = () => null; return L.snagRoll() === null; } catch { return false; } }), 'the snag roll held off');
     await K.secs(1);
@@ -85,7 +92,7 @@ export default async function (api) {
         await K.secs(1.5);
         const cloud = await g(() => { let k = 0; window.__gw.render?.scene?.traverse?.((o) => { if (o.name === 'cloud' && o.parent) k++; }); return k; }).catch(() => null);
         if (sp === 'netcloud_fry') K.check(cloud === 1, 'the Netcloud Fry comes as a cloud in the show', cloud);
-        if (want.includes('show')) await frame(`${sp}-show`, { species: sp, pair: pi, frame: 'show', light, z, tag: tag || null, ...info, cloud });
+        if (want.includes('show')) await frame(`${sp}-show`, { species: sp, pair: pi, frame: 'show', light, z, tag: tag || null, world: args.world || 'mossmere', ...info, cloud });
         const card = await K.until("c.debug.ui().openModal === 'catch'", 25, FAST);
         if (card.ok) {
           await K.settle(300); await K.secs(1.4);

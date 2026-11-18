@@ -3198,8 +3198,9 @@ export const ROSTER_ART = {
   // (LAKE 2, lane F: its look is its home water's, LAKE2.md §2.3: a huge barb, its head a third of its length, a high arched back, no
   // barbels, a small upturned mouth, coin-sized plum scales edged in cream like petals that bloom faint amber at night; the lavender
   // flank glow it had as the Mossmere's guest goes)
-  nightbloom_carp:   { model: { shape: 'carp', body: 0x4a2a4e, belly: 0xdcc6d0, fin: 0x5a3a5c, glow: 0xffb46a, pattern: 'scales', eyes: 'normal', scale: 1.2,
-    head: 1.35, back: 'arched', barbels: 'none', mouth: 'up', scales: 'giant', scaleEdge: 0xe8d6b6 } },
+  // (LAKE 2, the art pass: its head a third of its length, a stronger arch and a darker plum, so the cream petal edges carry)
+  nightbloom_carp:   { model: { shape: 'carp', body: 0x2e1630, belly: 0xc8b0bc, fin: 0x3a1e3c, glow: 0xffb46a, pattern: 'scales', eyes: 'normal', scale: 1.2,
+    head: 1.55, headLen: 0.48, back: 'arched', archK: 0.72, barbels: 'none', mouth: 'up', scales: 'giant', scaleEdge: 0xf2e2c4 } },
   // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
   // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
   bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
@@ -3223,10 +3224,13 @@ export const ROSTER_ART = {
     head: 'bullet', whiskers: 8, dorsal: 'tall', fattyFin: true, tail: 'fork', tailCol: 0xc4402a, tailTip: 0xf0a050, sideLine: 0xe8dcc4 } },
   velvet_ray:         { model: { shape: 'disc', body: 0x3e2944, belly: 0xd6b8cf, fin: 0x5a3a5e, glow: null, pattern: 'none', eyes: 'normal',
     eyeRings: 12, ring: 0xe8d4a8, turrets: true, tail: 'sting' } },
-  lostsea_mackerel:   { model: { shape: 'finlet', body: 0x46506c, belly: 0xe8e0d0, fin: 0x2c3246, glow: null, pattern: 'none', eyes: 'normal', scale: 1.2,
-    dorsals: 2, finlets: true, tail: 'crescent', scribbles: 0x4a2a4e } },
-  downcast_catfish:   { model: { shape: 'catfish', body: 0x4a3a52, belly: 0xd4ccc0, fin: 0x3e3048, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
-    head: 'bullet_round', whiskers: 0, deep: true, dorsal: 'shark', tail: 'fork_tall', eyeSet: 'low' } },
+  // (LAKE 2, the art pass: the colour-only change was not enough under the show's warm light. The Mackerel slim, a near-black slate back
+  // over a hard countershade line and a pale belly, dark plum bars down its back, a larger crescent; the Downcast deep and high-shouldered,
+  // a large tall sail of a back fin, low eyes, a dark plum back low on its flank, a catfish's barbels)
+  lostsea_mackerel:   { model: { shape: 'finlet', body: 0x1c2230, belly: 0xe6e2d6, fin: 0x1a1e2a, glow: null, pattern: 'none', eyes: 'normal', scale: 1.2,
+    dorsals: 2, finlets: true, tail: 'crescent', scribbles: 0x3a1438, girth: 0.82, tailK: 1.32, counterLine: 0.02, counterSoft: 0.035 } },
+  downcast_catfish:   { model: { shape: 'catfish', body: 0x2e1830, belly: 0xbcaaa8, fin: 0x26142a, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
+    head: 'bullet_round', whiskers: 4, deep: true, shoulder: 0.42, dorsal: 'sail', tail: 'fork_tall', eyeSet: 'low', counterLine: -0.38, counterSoft: 0.12 } },
   mildew_angler:      { model: {} },
   sleepspore_jelly:   { model: {} },
   harpstring_eel:     { model: { body: 0x2a1830, belly: 0x9a5472, fin: 0x3a2238, glow: 0xf2a07a, pattern: 'none', eyes: 'normal',
@@ -5954,12 +5958,39 @@ export const ZONE_LOOKS = Object.freeze({
     // carries the leaf track's colours through it, so a lit leaf lands on its own key; `floor` the green-violet floor the kit's leaves
     // and the moss take in their shadows, WATERS §5.2's "flora floor tint", by day; `night` its floor and the moon's translucency through
     // the leaves at night (WATERS §3.2: at night the lushness is the silhouettes, the emitters and the moon's light through the leaves))
-    gain: Object.freeze([0.82, 1.65, 0.62]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
+    // (LAKE 2, the art pass: the light is green-gold now, not violet, so the gain that carried the leaves through it is gentler)
+    gain: Object.freeze([0.92, 1.22, 0.8]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
     flora: Object.freeze({ moss: 420, ferns: 150, reeds: 360, pads: 150, flowers: 30, strands: 90, bushes: 40, trees: 6, crowns: 40, capTrees: 14, fireflies: 120 }),
     tiers: Object.freeze({ high: 1, medium: 0.7, low: 0.4 }),
     haze: Object.freeze({ tint: 0xe6c6cc, top: 1.2, amt: 0.42, from: 0.25 }),
     mist: Object.freeze({ lit: 0xe6cdd4, litN: 0x9c86b6, shade: 0x9a7c9c, shadeN: 0x4a3c6c, low: 0.7 }),
     dapple: Object.freeze({ k: 0.42, scale: 0.075 }), weed: Object.freeze({ color: 0x4a5a36, k: 0.32 }),
+    // >>> LAKE 2, the art pass (LAKE2 §9.11; the user's words: "too purple", "day, dusk and night look alike"): Sporewood's own air under
+    // the loop, pulled to green. `palette` and `grade` are laid over ZONES' Sporewood in the loop's apply block (the flag-off game keeps
+    // the ember garden's); `kit` the banks', the stalks' and the roots' tones in place of world-art's violet ones; `lights` the three
+    // lights (world.js blends them by the hour: the day's green-gold dapple and soft haze, the dusk's amber-rose low light with long
+    // shadows and the flowers opening, the night's deep blue-green carried by the glowcaps and the fireflies). Violet only as an
+    // accent: the cap-rim window's nebula, a few flowers. Clear Night's darkness and its amber, rose and cream stay.
+    air: Object.freeze({
+      palette: Object.freeze({ fog: 0x2c4434, water: 0x1a3830, waterDeep: 0x07120f, foam: 0xdfe2cc, ambient: 0x3e5c44, ink: 0x06100c, far: 0x9ca878,
+        light: 0xece6b8, lamp: 0xe6dcbc, nebula: 0xb88ccc }),
+      grade: Object.freeze({ tint: 0x2e5838, tintAmount: 0.14, saturation: 1, exposure: 1.06, bloomThreshold: 0.88 }),
+      kit: Object.freeze({ rock: 0x1c2218, rockHi: 0x38422c, moss: 0x2c4a2e, mossHi: 0x5c7a46, wood: 0x2e2218, stone: 0x50584a, iron: 0x0e120e, bone: 0xd6caae, organic: 0xc6b898,
+        cap: 0x6e4a24, capHi: 0xc49448 }),
+      // (each light: fog the air and the sky's base, horizon the sky's low band, key and keyI the moon's or the sun's colour and strength,
+      // amb and ambI the fill, water and deep the water's own colour, tint and tintAmt the grade's, exposure, sat, stars (× the palette's),
+      // glow (the glowcaps' and the gills' light), elev (the key's elevation × this: the dusk's low light, long shadows), leaf (the
+      // leaves' light through them))
+      lights: Object.freeze({
+        day: Object.freeze({ fog: 0x3c5a40, horizon: 0xc4c08a, key: 0xf6eab2, keyI: 2.8, amb: 0x587a52, ambI: 0.95, water: 0x22443a, deep: 0x0a1a12,
+          tint: 0x46622c, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.2, glow: 0.7, elev: 1, leaf: 1.2 }),
+        dusk: Object.freeze({ fog: 0x5a3e36, horizon: 0xf0a070, key: 0xff9a5c, keyI: 2.5, amb: 0x6a4a48, ambI: 0.7, water: 0x2a2c26, deep: 0x0e0e0c,
+          tint: 0x7a3c2c, tintAmt: 0.2, exposure: 1.02, sat: 1.05, stars: 0.55, glow: 1.1, elev: 0.35, leaf: 1.4 }),
+        night: Object.freeze({ fog: 0x0b2428, horizon: 0x183c40, key: 0x88b8c8, keyI: 0.6, amb: 0x16343a, ambI: 0.36, water: 0x0a2024, deep: 0x02090a,
+          tint: 0x0e3a48, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.9, glow: 1.8, elev: 1, leaf: 0.85 }),
+      }),
+    }),
+    // <<< LAKE 2, the art pass
   }),
 });
 // the camera on a water's open water (LAKE2 §1A (3)): Sporewood's lower and closer (the sail framings' distance × eye, the fov + fov°);
@@ -5982,8 +6013,9 @@ LOOP.wildlife.sporewood = {
 // Sporewood's ambient (§3.6): drifting gill-flakes, the candle-boats' lines with no flame: pale ochre flakes of cap gill turning slowly
 // on the outflow to the Root Weir on the Reed Flats, sinking there; the raft within `keep` m pushes one aside
 LOOP.ambient.sporewood = {
-  flakes: { count: { high: 8, medium: 5, low: 0 }, order: [0, 1, 0, 1, 0, 1, 0, 1], speed: [0.14, 0.22], off: 1.2, gutter: 3, sink: 3, wait: [2, 6],
-    keep: 4, len: 0.45, color: 0xd4a85c, size: 0.4,
+  // (LAKE 2, the art pass: fewer, smaller and a dull matte ochre, so no flake reads as gold on the water)
+  flakes: { count: { high: 4, medium: 3, low: 0 }, order: [0, 1, 0, 1], speed: [0.14, 0.22], off: 1.2, gutter: 3, sink: 3, wait: [2, 6],
+    keep: 4, len: 0.3, color: 0x86704a, size: 0.28,
     lines: [[[-20, 22], [-28, 29.5], [-44, 36.5], [-57, 37], [-64, 38.2]], [[-30, 23.5], [-46, 26.5], [-58, 33], [-64, 37]]] },
 };
 // <<< LAKE 2, lane W2
@@ -6626,6 +6658,12 @@ if (V3_ENABLED) {
   // LAKE 2, lane W1 (LAKE2 §3.1): under the loop Sporewood is its natural basin (SPOREWOOD_ARENA, the outline shore), a fresh arena: no
   // stopgap giant water, no raft watch-lamps (its places hold its giants); its name, palette, grade and words as built
   if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena = v3clone(SPOREWOOD_ARENA); }
+  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, ZONE_LOOKS.sporewood.air, pulled to green; the flag-off game keeps
+  // the ember garden's palette and grade)
+  if (LOOP_ENABLED) {
+    const sw = ZONES.find((z) => z.id === 'sporewood'), A = ZONE_LOOKS.sporewood?.air;
+    if (sw && A) { sw.palette = { ...sw.palette, ...A.palette }; sw.grade = { ...sw.grade, ...A.grade }; }
+  }
   // (LAKE 2, the integration's fix: its four places in the arena, as the Mossmere's above, so a cast in one is that place: its pool, its
   // giant, its mist while not owned or not lifted. The world builds their banks from LOOP.places; fishing reads the arena's records)
   if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena.places = loopPlaceIds('sporewood').map(loopPlaceRecord).filter(Boolean); }
