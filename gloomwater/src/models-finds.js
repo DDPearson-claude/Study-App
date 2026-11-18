@@ -1,4 +1,5 @@
-// models-finds.js — M1 step 5c (lane 5C): the Mossmere's eleven finds, and its six lost-tackle pieces (LOST-TACKLE.md §3, §4), as
+// models-finds.js — M1 step 5c (lane 5C): the Mossmere's eleven finds, its six lost-tackle pieces (LOST-TACKLE.md §3, §4) and (LAKE 2,
+// lane S) Sporewood's five treasures (LAKE2.md §7.3), as
 // props (docs/loop/FINDS.md §5.1, §7). Each find is one merged
 // mesh in the toon material (vertex colours, ≤ 400 triangles; the bollard ≤ 800), in the Starlit palette with metal as warm accents
 // (rust, brass, a little gold), never neon. Laid along local +z (its "nose") with its face to local ±x (the show holds a catch flank
@@ -16,7 +17,10 @@ const TIN = 0xa8a6b4, BRASS = 0xb8893a, BRASS_DK = 0x5c5a3c, GOLD = 0xd9b24a, RU
   GLASS = 0xd8dcea, AMBER = 0xd8963c, STONE = 0x8e8a98, STONE_DK = 0x6a6676, MOSS = 0x4f6e46, LILY = 0xece4f4, CORD = 0x8a3a3c, CORD2 = 0xc89a5a,
   LEAD = 0x2c2832, ROPE = 0x8c7552,
   // lost tackle: the pole's dark old wood, pages, a folded map, the thread, the string, the Lily Gardener's lavender-grey cloth
-  WOOD_DK = 0x3a2c24, PAPER = 0xd4cab4, MAP = 0xc8b48c, THREAD = 0xd8d2c6, STRING = 0x9a8462, CLOTH = 0x56506e;
+  WOOD_DK = 0x3a2c24, PAPER = 0xd4cab4, MAP = 0xc8b48c, THREAD = 0xd8d2c6, STRING = 0x9a8462, CLOTH = 0x56506e,
+  // LAKE 2, lane S (Sporewood's treasures, LAKE2.md §7.3): the gardens' things in the Pools' own colours: cream stoneware, plum wax,
+  // straw, garden brass, bell glass, a seed-keeper's dark wood; amber and moss as accents, never neon
+  CREAM = 0xd6cab0, PLUM = 0x5e3450, STRAW = 0xb89a5c, STRAW_DK = 0x7e6638, WOOD = 0x6a4a32, SEED = 0x8a5a36;
 // (the toon light gives back about half: dark metals and leather are lifted ×1.8, pale stone, glass, tin and lilies only ×1.2, so they
 // read as stone and glass under the lantern, never as white)
 const lit = (hex, k = null) => { const c = new THREE.Color(hex), L = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b; return c.multiplyScalar(k ?? (L > 0.4 ? 1.2 : 1.8)); };
@@ -157,6 +161,54 @@ export function findPropParts(id) {
       g.push(P(new THREE.BoxGeometry(0.026, 0.12, 0.172), PAPER, { p: [0, 0.003, 0] }));
       for (const a of [-0.7, 0, 0.7]) g.push(P(new THREE.SphereGeometry(0.012, 6, 4), LILY, { s: [0.2, 1.7, 0.7], r: [a, 0, 0], p: [0.021, 0.012 + Math.cos(a) * 0.016, Math.sin(a) * 0.016] }));
       g.push(P(new THREE.BoxGeometry(0.003, 0.05, 0.004), MOSS, { p: [0.021, -0.03, 0] }));
+      break;
+    }
+    // ---- Sporewood's treasures (LAKE 2, lane S; LAKE2.md §7.3): one a grade, each ≤ 400 triangles
+    case 'seed_jar': {   // a squat cream stoneware jar laid along the hand, its amber glaze band, its neck sealed with plum wax and tied with twine
+      g.push(P(new THREE.CylinderGeometry(0.042, 0.046, 0.085, 12), CREAM, { r: RZ, p: [0, 0, -0.02] }));
+      g.push(P(new THREE.SphereGeometry(0.046, 12, 4, 0, Math.PI * 2, 0, Math.PI / 2), CREAM, { r: RZ, p: [0, 0, 0.022], s: [1, 0.5, 1] }));
+      g.push(P(new THREE.CylinderGeometry(0.0475, 0.0475, 0.016, 12), AMBER, { r: RZ, p: [0, 0, -0.03] }));
+      g.push(P(new THREE.CylinderGeometry(0.024, 0.026, 0.026, 10), CREAM, { r: RZ, p: [0, 0, 0.05] }));
+      g.push(P(new THREE.CylinderGeometry(0.029, 0.027, 0.016, 10), PLUM, { r: RZ, p: [0, 0, 0.068] }));
+      g.push(P(new THREE.TorusGeometry(0.026, 0.0035, 3, 12), CORD2, { p: [0, 0, 0.056] }));
+      g.push(P(new THREE.CylinderGeometry(0.0022, 0.0022, 0.03, 3), CORD2, { p: [0.004, -0.04, 0.056], r: [0, 0, 0.3] }));
+      break;
+    }
+    case 'skep_lid': {   // a woven straw dome off a bee-skep, its face to the lens: coil on coil (stepped bands), bound in darker straw, a knob at its crown
+      const h = 0.072, R = 0.17, n = 5, rAt = (x) => R * Math.sqrt(Math.max(0, 1 - (x / h) ** 2));
+      for (let i = 0; i < n; i++) {
+        const xa = (h * 0.92 * i) / n, xb = (h * 0.92 * (i + 1)) / n;
+        g.push(P(new THREE.CylinderGeometry(rAt(xb) + 0.004, rAt(xa) + 0.004, xb - xa, 12), i % 2 ? STRAW_DK : STRAW, { r: [0, 0, -Math.PI / 2], p: [(xa + xb) / 2, 0, 0] }));   // (closed: its underside reads as the lid's flat weave as the show turns it)
+      }
+      g.push(P(new THREE.CylinderGeometry(0.0005, rAt(h * 0.92) + 0.004, h * 0.08, 12), STRAW, { r: [0, 0, -Math.PI / 2], p: [h * 0.96, 0, 0] }));
+      g.push(P(new THREE.TorusGeometry(0.168, 0.012, 3, 14), STRAW_DK, { r: [0, Math.PI / 2, 0] }));
+      g.push(P(new THREE.SphereGeometry(0.022, 6, 3), STRAW_DK, { p: [h + 0.008, 0, 0], s: [0.8, 1, 1] }));
+      break;
+    }
+    case 'gardeners_trowel': {   // a garden trowel: a brass scoop worn bright on one side, its shank, a turned wooden handle with a ferrule
+      g.push(P(new THREE.SphereGeometry(0.05, 10, 6), BRASS, { s: [0.24, 1, 1.75], p: [0, 0.004, 0.075] }));   // the blade, its face to the lens
+      g.push(P(new THREE.SphereGeometry(0.046, 8, 5), GOLD, { s: [0.14, 0.82, 1.55], p: [0.006, 0.012, 0.08] }));   // the bright side, worn
+      g.push(P(new THREE.CylinderGeometry(0.006, 0.008, 0.06, 6), BRASS_DK, { r: RZ, p: [0, 0.006, -0.02] }));
+      g.push(P(new THREE.CylinderGeometry(0.016, 0.016, 0.014, 8), BRASS, { r: RZ, p: [0, 0.008, -0.052] }));
+      g.push(P(new THREE.CylinderGeometry(0.015, 0.019, 0.1, 8), WOOD, { r: RZ, p: [0, 0.008, -0.11] }));
+      g.push(P(new THREE.SphereGeometry(0.019, 8, 4), WOOD, { p: [0, 0.008, -0.16], s: [1, 1, 0.6] }));
+      break;
+    }
+    case 'cloche_handle': {   // the glass knob off a garden bell-glass, a ragged collar of the bell still on it (pale glass, never a glint)
+      g.push(P(new THREE.SphereGeometry(0.026, 10, 6), GLASS, { p: [0, 0, 0.026] }));
+      g.push(P(new THREE.CylinderGeometry(0.012, 0.016, 0.022, 8), GLASS, { r: RZ, p: [0, 0, 0] }));
+      for (let i = 0; i < 5; i++) { const a = 0.4 + i * 1.18; g.push(P(new THREE.BoxGeometry(0.004, 0.028 + (i % 2) * 0.012, 0.03), GLASS, { r: [0.9, a, 0], p: [Math.sin(a) * 0.022, Math.cos(a) * 0.022, -0.026] })); }   // shards of the bell
+      g.push(P(new THREE.TorusGeometry(0.018, 0.003, 3, 10), MOSS, { p: [0, 0, -0.008] }));   // a thread of moss where it lay
+      break;
+    }
+    case 'seedkeeper_casket': {   // a seed-keeper's dark casket bound in brass, its lid a little open on its seeds, a brass lock-plate
+      g.push(P(new THREE.BoxGeometry(0.13, 0.1, 0.28), WOOD_DK, { p: [0, -0.02, 0] }));
+      g.push(P(new THREE.CylinderGeometry(0.066, 0.066, 0.28, 10, 1, false, Math.PI / 2, Math.PI), WOOD_DK, { r: [Math.PI / 2, 0, 0], p: [0, 0.03, 0], s: [1, 1, 0.55] }));   // the lid's low dome along it
+      for (const z of [-0.12, 0, 0.12]) g.push(P(new THREE.BoxGeometry(0.136, 0.104, 0.014), BRASS, { p: [0, -0.02, z] }));
+      g.push(P(new THREE.BoxGeometry(0.008, 0.04, 0.036), BRASS, { p: [0.068, 0.005, 0] }));
+      g.push(P(new THREE.SphereGeometry(0.006, 6, 3), GOLD, { p: [0.073, 0.005, 0] }));
+      for (const [x, z] of [[0.03, -0.07], [-0.02, -0.02], [0.035, 0.04], [-0.03, 0.08], [0.0, 0.1]]) g.push(P(new THREE.SphereGeometry(0.009, 5, 3), x > 0 ? AMBER : SEED, { s: [0.7, 0.6, 1.2], p: [x, 0.036, z] }));
+      g.push(P(new THREE.BoxGeometry(0.06, 0.004, 0.2), MOSS, { p: [0, -0.07, 0] }));   // the moss it lay on
       break;
     }
     default: g.push(P(new THREE.BoxGeometry(0.06, 0.06, 0.12), STONE));

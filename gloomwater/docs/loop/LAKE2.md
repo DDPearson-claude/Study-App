@@ -694,6 +694,8 @@ handle** (rare), **the Seed-Keeper's Casket** (the jackpot). Five small models (
 | Cloche Handle | "From a glass bell over seedlings." |
 | The Seed-Keeper's Casket | "Every seed the gardens ever kept." |
 
+*As built (lane S, §9.8): the five ship as above, selling at tier 12 for 24 · 72 · 180 · 600 · 3,000.*
+
 **Later**: Sporewood's three barge parts (the Potted Amber Glowcap, a garden lantern, a trellis), its three looks, its well pieces,
 and a Sporewood lost-tackle set (a found rod, line, reel and a notebook). Until then a snag at Sporewood draws a treasure or nothing
 (the finds share's soft guarantee keyed by water).
@@ -1230,6 +1232,76 @@ scratch diff against gw-lake2).
   and the Mother's Cup's maps before the tow (harmless: owned maps wait for their water; lane S or the gate may keep them to their water).
 
 ---
+
+### 9.8 Lane S as built (gw-l2-s): the shop, orders and finds
+
+§7, §5.6–§5.7 and §6.5; `LOOP.shipped` stays `'mossmere'`, and nothing of it reaches the Mossmere before the tow: its shelf, book,
+plates, glyphs, finds, orders, guide boxes, rack and raft are as built (the Mossmere's plate keys and raft triangles are pinned in
+`lake2-s.test.mjs`; `homeVariants`' signature is its nine terms until a later water's rod is bought). (Lane A's own section, the sound,
+is §9.9 on its branch: both sit before §10 at the merge.)
+
+- **The finds** (`data.js` block "LAKE 2, lane S"; FINDS §5.2): Sporewood's five treasures, one a grade: the **Seed Jar** (plain, pinch,
+  0.15 m), the **Bee-Skep Lid** (fine, both, 0.34 m), the **Gardener's Trowel** (precious, pinch, 0.28 m), the **Cloche Handle** (rare,
+  pinch, 0.1 m), **the Seed-Keeper's Casket** (the jackpot, both, 0.3 m), with §7.3's names and lines. They sell at Sporewood's value
+  tier 12 by FINDS §4.2's rule: **24 · 72 · 180 · 600 · 3,000**. With no part, look or lost tackle there yet, `findShares` gives a snag
+  at Sporewood **54% · 29% · 12% · 4% · 1%**: every snag there is one of its treasures, the soft guarantee has nothing to climb, and
+  `snagRoll` never brings a Mossmere find up at Sporewood (nor one of Sporewood's at the Mossmere), as the water key already ruled.
+  **Measured**: over 100,000 seeded snags 53.84% · 29.24% · 11.94% · 3.98% · **0.99%** (the Casket inside the test's 1% ± 0.07); through the
+  real ledger at Sporewood about 1 bite in 20 snags and all of them its own. The catalogue's finds row on Sporewood's page lists the five
+  (names once had, "· · ·" before; the Casket gold). The pacing sims count no treasure at either water, so §8.4's figures stand; a
+  treasure snag at Sporewood averages 109 clams (the Mossmere's 64), so its first evenings can only earn more than measured.
+- **Their art**: five props in `models-finds.js` (one merged toon mesh each, ≤ 400 triangles, closed shapes so the show's turn never
+  shows a hollow): a cream stoneware jar with an amber glaze band, plum wax and a twine tie; a straw skep lid in stepped coils; a brass
+  trowel worn bright on one side, its turned handle; a bell-glass knob with a moss thread and a ragged collar of shards; a dark casket in
+  brass bands, its low lid along it, amber seeds at its lip. Five ink outlines in `ui-finds.js` (the card, the hold, the tally, the
+  catalogue's hatch). Looked at in the show and on the card at 1280 × 720 and 390 × 844 (two rounds: the lid and the trowel's blade first
+  showed their hollow sides, the casket's lid lay across it).
+- **The engravings** (`murk-engrave.js`): Sporewood's own make for every item its shelf, the Tackle screen and the Wick's sheet show:
+  the thirteen (the **Seedpod Twirl** a winged seed with the hook through its seed; the **Spore Moth** a cream moth with plum eye-spots
+  and spore dust; the **Ember Minnow** a carved resin minnow with its cinder; the **Root Jig** a knot of black root on a pebble with a
+  moss tuft; the **Spore-Lamp Fly** a glowcap bud on the hook, its pulse in stipple and rays; **Spore Cake** and **Amber Larvae** in a
+  turned burl pot with a bark band and a gilled cap lid, never a tin; the **Stalkwood** pale and ringed with a bark grip; the
+  **Amberheart** dark root-wood with its amber window; **Rootthread** on a notched bark winder; **Mothsilk** a cocoon skein on a twig;
+  the **Capwheel** a lobed, gilled shelf-cap; the **Burlwheel** a burl's eyes bound in copper wire), and the **Glowcap Bulb**, the four
+  creels (bark slabs, woven roots, a moss-lined round basket, a gardener's lidded hamper) and the six raft-part levels (pressed-cap oar
+  blades, a twisted root keel with a lashed stone at II, a lantern with a glowcap growing in it). Keys: `rod:stalkwood`, `hold:bark_creel`,
+  `oars:1:sporewood`, `lure:root_jig`, `tin:spore_cake`, `bait:glowcap_bulb` (`plateKey` reads a card's `itemId` and `gearWater`; the
+  shelf's cards now carry them through `shelfCards`, the sheet's plates through `loop-sheet`, as lane G's Tackle screen already did).
+  Twenty-four plates, none of them the Mossmere's and none alike; the Mossmere's keys and plates as built. One look round on a plate
+  sheet beside the Mossmere's (the moth spread as a pair, the larvae fat segmented grubs, not the worms' loops, the Stalkwood's rings and
+  the Burlwheel's binding made to read), then the book in the browser.
+- **The glyphs** (`ui-icons.js`: `seedpod`, `minnow`, `rootjig`; `ui-gear.js` `GEAR_GLYPH`, `loop-gear.js`' shelf `ART`): each of
+  Sporewood's eight hooks its own glyph (the built `moth`, `fly`, `cake`, `larva`, `cap` for the rest), none a Mossmere hook's.
+- **The meshes**: the game draws no lure on the line (GEAR-GATES §7, as built: a cast shows the float), so a lure's look is its engraving
+  and glyph. The rack's rod (`actors-home.js`) is a later water's make once one is bought there (`homeVariants`' `rodAt`: the Stalkwood
+  pale with stalk rings, the Amberheart dark with its amber window); the raft's parts bought at Sporewood (`actors-raft-gear.js`
+  `raftGearParts({water})`): pale ringed looms with round pressed-cap blades, the root keel and its tendrils, a mossy stone for Root Keel
+  II; still one merged mesh. The lantern keeps the built glass's growth.
+- **The shelf by water** (`progression-loop`): Murk sells a water's **place maps** (`mapCards`) and its **legend's bait** at that water,
+  where the barge lies, as D2 made him sell its lures and tins: at Sporewood the Veilwater's and the Mother's Cup's maps and the Glowcap
+  Bulb; the Mossmere's maps and the Heartmoss Ball wait at the Mossmere for the way back (lane C's note: with Sporewood's map owned the
+  Mossmere's shelf no longer offers Sporewood's place maps). Before the tow the Mossmere's shelf is as built.
+- **Orders** (§7.2; D2 built them per water): checked here over 6,000 seeded rolls at Sporewood: every order a Sporewood fish of its
+  list or an owned place's own (never a giant, the legend or an epic; each of the list's nine named 609–699 times), two in three common or
+  uncommon (66.8%), counts, classes and
+  weights as built; the board at Sporewood two of its own, never two of a fish; the Mossmere's open orders wait and a Sporewood fish
+  never fills one; Murk says Sporewood's.
+- **The guide** (`ui-guide.js`, §6.5): the new water's one box, "New water: new gear, lures and bait at Murk's." (D1's words), its own
+  machine beside the ten (`WATER_BOX`, seen once a water under `newWater:<water>`), calm on a trip at a later water before the first
+  cast there; never at the Mossmere, and off with the guide. The ten and their order as built.
+- **Tests**: `tools/tests/lake2-s.test.mjs` (433 checks: the five finds, the 1% rule over 100,000 snags, the snag through the real
+  ledger, the catalogue row, the props and ink, the twenty-four plates, the catalogue's pages with Sporewood's shelf just towed and bought
+  out at seven sizes, the glyphs, the shelf by water, the orders, the guide, the rack and the raft's parts); validate-data `--loop`'s
+  "LAKE2 S" lines (a later water may ship its treasures alone: its parts and looks are checked when they come);
+  `tools/tests/lake2-s.scenario.mjs` (the tow, the guide box, five snags landed through the show and the card, the tally, Murk's book
+  walked spread by spread, a buy, the Tackle screen, the board; `--part=shop` for the shop alone).
+- **Run** (18 November 2026, a dev build, `LOOP.shipped` set in the page): the whole scenario at 1280 × 720 and 390 × 844, the shop part
+  at 960 × 540, 358 × 664, 690 × 760 and the Legion Go's 1280 × 800 by touch: no word cut or under 16 px, no target under 44 px, no page
+  or console error; the book's frames, the cards, the shows and the guide box looked at at each.
+- **Left for the gate and later**: `LOOP.shipped = 'sporewood'`. Sporewood's place-map plates still draw its water from the polar
+  fallback (`ui-catalogue-murk.placeGeo`: R and the isles), not the outline lane C draws on the Chart. The sealed next water's three seal
+  buttons in the book are narrower than 44 px on a phone (lane C's card; the book's audit leaves them to the gate). Sporewood's barge
+  parts, looks and lost tackle are §10's.
 
 ## 10. Left for later (named, not built)
 

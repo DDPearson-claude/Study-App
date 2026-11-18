@@ -13,7 +13,8 @@
 // GW_GUIDE boolean; the URL wins) turns it off or on for a page load whatever the save says: the scenario runner presets it off.
 //
 // Pure exports (node: tools/tests/ui-guide.test.mjs): GUIDE_ORDER · GUIDE_WAIT · GUIDE_TARGETS · guideSwitch · landedAny · ownsKit ·
-// guideRecord · guideWords · guideCond · createGuide · guidePlace · GUIDE_CSS
+// guideRecord · guideWords · guideCond · createGuide · guidePlace · GUIDE_CSS · (LAKE 2, lane S) WATER_BOX · WATER_WAIT · waterBoxKey ·
+// newWaterOf (the new water's one box, tools/tests/lake2-s.test.mjs)
 const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
 const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 
@@ -21,6 +22,21 @@ const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
 export const GUIDE_ORDER = Object.freeze(['welcome', 'chart', 'cast', 'bite', 'fight', 'card', 'tackle', 'home', 'murk', 'away']);
 /** Seconds each box's moment must hold, calm, before it shows (the card's count-up and stamp come first; a lost fish's line ends). */
 export const GUIDE_WAIT = Object.freeze({ welcome: 0.4, chart: 0.8, cast: 0.6, bite: 0.5, fight: 0.5, card: 1.3, tackle: 0.8, home: 0.6, murk: 0.7, away: 1.5 });
+/** LAKE 2, lane S (LAKE2.md §6.5): the one box for a new water, at the first cast there (TEXT_LOOP.guide.newWater). It is not one of
+ *  the Mossmere's ten (GUIDE_ORDER): it is seen once for each later water, under `newWater:<water>` in meta.guide.seen, and comes only
+ *  on a trip at a water after the first (the snapshot's `newWater`, the trip's water), so the Mossmere's boxes are as they were. */
+export const WATER_BOX = 'newWater';
+export const WATER_WAIT = 0.6;
+/** The seen key of the new water's box at a water. Pure. */
+export const waterBoxKey = (water) => `${WATER_BOX}:${water}`;
+/** The water a trip's box is for: the trip's water when it is a later water than the first on the road (LOOP.waters' order), else
+ *  null. Pure. */
+export function newWaterOf(D, zone) {
+  const W = isObj(D?.LOOP?.waters) ? D.LOOP.waters : null;
+  if (!W || typeof zone !== 'string' || !isObj(W[zone])) return null;
+  const first = Object.keys(W).filter((id) => isObj(W[id])).sort((a, b) => num(W[a].order, 99) - num(W[b].order, 99))[0];
+  return zone !== first ? zone : null;
+}
 /** What a box points at (a selector), when it points at anything. */
 export const GUIDE_TARGETS = Object.freeze({ chart: '[data-modal=chart] [data-action=sail]', card: '[data-modal=catch] .gw-catch-actions',
   tackle: '[data-loop=tin]', home: '[data-loop=home]', murk: '[data-modal=jetty] [data-tile=murk]' });
@@ -63,7 +79,8 @@ export function guideRecord(meta) {
  *  for an unknown id. Pure. */
 export function guideWords(D, id, { touch = false } = {}) {
   const G = isObj(D?.TEXT_LOOP?.guide) ? D.TEXT_LOOP.guide : {};
-  const text = touch && typeof G.touch?.[id] === 'string' ? G.touch[id] : typeof G.boxes?.[id] === 'string' ? G.boxes[id] : '';
+  const own = id === WATER_BOX && typeof G.newWater === 'string' ? G.newWater : null;   // (LAKE 2, lane S: the new water's box, its own key)
+  const text = own ?? (touch && typeof G.touch?.[id] === 'string' ? G.touch[id] : typeof G.boxes?.[id] === 'string' ? G.boxes[id] : '');
   return { text, tag: G.tag || 'Guide', ok: G.ok || 'Got it', skip: G.skip || 'Skip the guide' };
 }
 
@@ -89,6 +106,8 @@ export function guideCond(id, s = {}) {
     case 'home': return water(s) && s.fish === 'idle' && s.holdFull === true;
     case 'murk': return s.flow === 'home' && s.top === 'jetty' && num(s.evenings) >= 1;
     case 'away': return water(s) && s.fish === 'idle' && s.away === true;
+    // LAKE 2, lane S: on a trip at a later water, calm, before the trip's first cast there (once a water: the machine's waterBoxKey)
+    case WATER_BOX: return water(s) && s.fish === 'idle' && num(s.casts) === 0 && typeof s.newWater === 'string' && s.newWater !== '';
     default: return false;
   }
 }
@@ -100,7 +119,7 @@ export function guideCond(id, s = {}) {
  * one start its wait afresh; skip() turns the guide off; setOn(v); replay() clears seen and turns it on.
  */
 export function createGuide({ record = () => ({ on: true, seen: {} }), force = null } = {}) {
-  const S = { open: null, held: {} };
+  const S = { open: null, held: {}, key: null };
   const rec = () => { const r = record(); return isObj(r) ? r : { on: false, seen: {} }; };
   const isOn = () => force === false ? false : force === true ? true : rec().on === true;
   return {
@@ -113,9 +132,21 @@ export function createGuide({ record = () => ({ on: true, seen: {} }), force = n
         S.held[id] = num(S.held[id]) + d;
         if (!pick && S.held[id] >= GUIDE_WAIT[id] - 1e-9) pick = id;
       }
+      // (LAKE 2, lane S: the new water's box, after the ten; seen once a water)
+      const wk = typeof s.newWater === 'string' && s.newWater ? waterBoxKey(s.newWater) : null;
+      if (!wk || seen[wk] || !guideCond(WATER_BOX, s)) S.held[WATER_BOX] = 0;
+      else {
+        S.held[WATER_BOX] = num(S.held[WATER_BOX]) + d;
+        if (!pick && S.held[WATER_BOX] >= WATER_WAIT - 1e-9) { pick = WATER_BOX; S.key = wk; }
+      }
       return pick;
     },
-    open(id) { const r = rec(); if (!isObj(r.seen)) r.seen = {}; r.seen[id] = true; S.open = id; S.held = {}; },
+    /** marks the box seen (the new water's under its water's key: the step's, or `key`) */
+    open(id, key = null) {
+      const r = rec(); if (!isObj(r.seen)) r.seen = {};
+      r.seen[id === WATER_BOX ? key || S.key || WATER_BOX : id] = true;
+      S.open = id; S.held = {}; S.key = null;
+    },
     close() { S.open = null; S.held = {}; },
     skip() { rec().on = false; S.open = null; S.held = {}; },
     setOn(v) { rec().on = v === true; },
@@ -238,6 +269,7 @@ export function createGuideView(K) {
       measuring: call(() => K.measure?.holding?.() === true, false), cinematic: ctx.cinematic === true, lifting: call(() => ctx.game?.lifting?.() === true, false),
       casts: S.casts, holdFull: call(() => loop()?.holdFull?.() === true, false), evenings: num(Number(m.loop?.evenings), 0),
       towPhase: S.towPhase, away: S.away, tin: !!visible('[data-loop=tin]'), kit: ownsKit(m.loop),
+      newWater: ctx.state?.run?.outing === 'trip' ? newWaterOf(D(), ctx.state?.run?.zone) : null,   // (LAKE 2, lane S)
     };
   }
   function place() {
@@ -282,10 +314,10 @@ export function createGuideView(K) {
     K.sfx?.('ui_click', { volume: 0.45 });
     save();
   }
-  function show(id) {
+  function show(id, key = null) {
     const w = guideWords(D(), id, { touch: K.isTouch === true });
-    if (!w.text) { machine.open(id); machine.close(); return false; }
-    machine.open(id);
+    if (!w.text) { machine.open(id, key); machine.close(); return false; }
+    machine.open(id, key);
     if (id === 'away') S.away = false;
     S.id = id;
     const h = K.h;
@@ -361,6 +393,10 @@ export function createGuideView(K) {
     debug: () => ({ open: S.id, on: machine.isOn(), force, seen: { ...(guideRecord(meta()).seen || {}) }, held: machine.held, placed: S.placed ? { ...S.placed } : null, snapshot: snapshot() }),
     /** debug builds: close the open box ('ok' or 'skip'); show a box now, out of its moment (the look's frames) */
     close: (how) => close(how),
-    show: (id) => (S.id || !GUIDE_ORDER.includes(id) ? false : show(id)),
+    show: (id) => {
+      if (S.id) return false;
+      if (id === WATER_BOX) { const w = snapshot().newWater; return w ? show(id, waterBoxKey(w)) : false; }   // (LAKE 2, lane S: on a later water's trip)
+      return GUIDE_ORDER.includes(id) ? show(id) : false;
+    },
   };
 }

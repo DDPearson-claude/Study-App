@@ -134,6 +134,7 @@ export function shelfCards(shelf, { D = null, clams = 0 } = {}) {
           Object.assign(card, { placeId: it.placeId ?? null, kind: it.kind ?? null, fish: it.fish ?? null, fishName: sp?.name || '', star: !!star, hours: arr(it.hours).slice() });
         } else if (it.slot === 'lake') Object.assign(card, { waterId: it.waterId ?? null, sealed, seals: isObj(it.seals) ? it.seals : null, name: sealed ? '' : card.name });
         else if (consumable) Object.assign(card, { consumable: true, baitId: it.baitId ?? null, count: Math.max(0, Math.floor(num(Number(it.count), 0))) });
+        if (it.itemId || it.gearWater) Object.assign(card, { itemId: it.itemId ?? null, gearWater: it.gearWater ?? null });   // (LAKE 2, lane S: a later water's make, its engraving)
         return card;
       }),
     })),

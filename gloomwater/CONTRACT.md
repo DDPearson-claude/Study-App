@@ -2519,3 +2519,23 @@ there and a third of it is kept for good; found things travel; each water's lure
 - **data.js** (block "LAKE 2, lane C"): `LOOP.tow.legs.sporewood`, `LOOP.tow.glideIn.sporewood` (`astern: true`).
 - **Tests**: `tools/tests/lake2-c.test.mjs`, `loop-tow.test.mjs` (Lake 2 sections), `ui-chart.test.mjs` (byte lines per sheet),
   `validate-data --loop` (the ahead sheet; each later leg from the water before it; each glide in); `tools/tests/lake2-c.scenario.mjs`.
+
+### 14.28 Murk at a later water: its make, its finds, its maps (LAKE 2, lane S; `docs/loop/LAKE2.md` §5.6–§5.7, §6.5, §7, §9.8)
+
+- **`murk-engrave.plateKey(card)`**: a card whose `itemId` is one of Sporewood's tiers or creels draws as `${slot}:${itemId}`; a raft part
+  whose `gearWater` is `'sporewood'` as `${slot}:${level}:sporewood`; `lure:<id>`, `tin:<id>` and `bait:<id>` as before, Sporewood's ids
+  their own plates. Any other card (and every Mossmere card) keys as built. `ui-loop.shelfCards` passes `itemId` and `gearWater` through
+  when the shelf item has them; `loop-sheet`'s tackle, hold and raft plates carry them at a later gear water and `ui-sheet` hands them to
+  the engraving.
+- **Finds**: `LOOP.finds.items` holds Sporewood's five treasures (`water: 'sporewood'`); `loop-finds` reads every water's set by its
+  `water` (no change). validate-data accepts a later water with treasures only.
+- **`mapCards(D, metaLoop)`** offers the place maps of the water the barge lies at (`metaLoop.barge.water`, else the first water) and
+  **`shelfItems`**' legend's bait card is that water's only; the next water's sealed or priced card as before.
+- **Glyphs**: `ui-gear.GEAR_GLYPH` and `loop-gear`'s shelf `ART` name Sporewood's hooks; `ui-icons` gains `seedpod`, `minnow`, `rootjig`.
+- **`ui-guide`**: `WATER_BOX` ('newWater'), `WATER_WAIT`, `waterBoxKey(water)`, `newWaterOf(D, zone)`; the snapshot's `newWater` (the
+  trip's water when it is a later water); `createGuide().open(id, key)`; the view's `debug.show('newWater')` on such a trip. Seen once a
+  water under `meta.guide.seen['newWater:<water>']`.
+- **Scene**: `actors-home.homeVariants(metaLoop).rodAt` (the gear water, a later one) and the rack's rod in its make; `actors-raft-gear
+  .raftGearParts({oars, keel, water})`, the raft gear's sync reading `meta.loop.gearWater`.
+- **Tests**: `tools/tests/lake2-s.test.mjs`; `tools/tests/lake2-s.scenario.mjs` (`--part=shop`).
+

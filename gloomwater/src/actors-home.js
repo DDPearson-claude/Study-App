@@ -468,9 +468,15 @@ function variantParts(V, A) {
   {
     const z = CB.z1 + 0.07, x = -1.0, y0 = HULL.deckY;
     timber.push(box(0.05, 0.1, 0.1, [x - 0.02, y0 + 1.45, z], lit(C.post)), box(0.05, 0.1, 0.1, [x - 0.02, y0 + 0.55, z], lit(C.post)));
-    const tierCol = [0x5a4430, 0x6a4a2a, 0x4a3a52, 0x7a5a2a, 0x3a4a5a, 0x8a6a3a, 0xa08040][clamp(V.rod | 0, 0, 6)];
+    // (LAKE 2, lane S: a rod bought at Sporewood is its own make on the rack: the Stalkwood pale and ringed, the Amberheart dark root-wood
+    // with its amber window; the Mossmere's tiers as built)
+    const spore = V.rodAt === 'sporewood' && (V.rod | 0) >= 1;
+    const tierCol = spore ? [0x5a4430, 0xb6a888, 0x3a2a22][clamp(V.rod | 0, 0, 2)] : [0x5a4430, 0x6a4a2a, 0x4a3a52, 0x7a5a2a, 0x3a4a5a, 0x8a6a3a, 0xa08040][clamp(V.rod | 0, 0, 6)];
+    const rodAt = (u) => new THREE.Vector3(x + 0.06 - 0.05 * u, y0 + 0.2 + 1.8 * u, z + 0.05 + 0.01 * Math.sin(u * Math.PI));
     timber.push(paint(tube([new THREE.Vector3(x + 0.06, y0 + 0.2, z + 0.05), new THREE.Vector3(x + 0.04, y0 + 1.0, z + 0.06), new THREE.Vector3(x + 0.01, y0 + 2.0, z + 0.05)], (u) => 0.022 - u * 0.014, 5, { capStart: true }), lit(tierCol, 1.8)));
-    timber.push(cyl(0.035, 0.035, 0.09, 8, [x + 0.07, y0 + 0.62, z + 0.08], lit(C.iron), [0, 0, Math.PI / 2]));
+    timber.push(cyl(0.035, 0.035, 0.09, 8, [x + 0.07, y0 + 0.62, z + 0.08], lit(spore ? 0x8a7a5a : C.iron), [0, 0, Math.PI / 2]));
+    if (spore && (V.rod | 0) === 1) for (let i = 0; i < 6; i++) { const p = rodAt(0.3 + i * 0.1); timber.push(cyl(0.021 - i * 0.0012, 0.021 - i * 0.0012, 0.012, 6, [p.x, p.y, p.z], lit(0xd6ccb0, 1.6))); }   // its stalk rings
+    if (spore && (V.rod | 0) === 2) { const p = rodAt(0.3); timber.push(cyl(0.023, 0.023, 0.09, 6, [p.x, p.y, p.z], lit(0xd8963c, 1.7))); }   // the amber window
   }
   homeParts5b(V, A, timber, glow);   // M1 step 5b (lane 5b-home): the gallery's frames, the eave's print, the Order Board, the dozing Wicks
   return { timber, glow, lamps };
@@ -638,13 +644,14 @@ export function homeVariants(metaLoop, waterOrder = ['mossmere']) {
   }
   const v = { bed: Math.max(0, Number(H.baitBed) | 0), lights: Math.max(0, Number(H.lights) | 0), wall: Math.max(0, Number(H.wall) | 0),
     rod: Math.max(0, Number(L.tackle?.rod) | 0), stones, looks: Array.isArray(L.looks) ? L.looks.filter((x) => typeof x === 'string').sort() : [] };
+  if (typeof L.gearWater === 'string' && L.gearWater !== 'mossmere') v.rodAt = L.gearWater;   // (LAKE 2, lane S: whose make the rack's rod is)
   // M1 step 5b (lane 5b-home): Murk's Order Board I–II (a chalk board on the rail facing his barge), the legend's print along the eave
   // once she is home (SPEC §6.2), and how many prints wing I's frames hang (the cabin's port windows show them)
   v.orders = Math.max(0, Number(H.orders) | 0);
   const P = L.prints && typeof L.prints === 'object' ? L.prints : {};
   v.eave = Object.values(legendOf).some((id) => (Number(legends[id]) || 0) >= 1 && Number(P[id]?.length) > 0) ? 1 : 0;
   v.prints = v.wall > 0 ? Math.min(6, Object.keys(P).filter((id) => Number(P[id]?.length) > 0 && !Object.values(legendOf).includes(id)).length) : 0;
-  v.sig = JSON.stringify([v.bed, v.lights, v.wall, v.rod, v.stones, v.looks, v.orders, v.eave, v.prints]);
+  v.sig = JSON.stringify([v.bed, v.lights, v.wall, v.rod, v.stones, v.looks, v.orders, v.eave, v.prints, ...(v.rodAt ? [v.rodAt] : [])]);
   return v;
 }
 

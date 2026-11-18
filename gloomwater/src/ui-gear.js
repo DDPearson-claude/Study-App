@@ -22,7 +22,9 @@ const arr = (v) => (Array.isArray(v) ? v : []);
 
 /** The glyph of a bait or a lure on the slots (ui-icons' names). */
 export const GEAR_GLYPH = Object.freeze({ heartmoss: 'mossball', mireworm: 'worm', lumen_moss: 'moss', cut_strip: 'fish',
-  feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'bentspoon', guard_button: 'coin' });   // (the found button: LOST-TACKLE §3.2)
+  feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'bentspoon', guard_button: 'coin',   // (the found button: LOST-TACKLE §3.2)
+  // LAKE 2, lane S (LAKE2.md §5.7, §7.1): Sporewood's own hooks, each its own glyph (no Mossmere item's)
+  glowcap_bulb: 'cap', spore_cake: 'cake', amber_larvae: 'larva', seedpod_twirl: 'seedpod', spore_moth: 'moth', ember_minnow: 'minnow', root_jig: 'rootjig', sporelamp_fly: 'fly' });
 /** The chalk tick (SPEC §8.2, §8.3: "a chalk-tick glyph beside the value, no words"). */
 export const CHALK_TICK = '<i class="gw-chalk-tick" aria-hidden="true"><svg viewBox="0 0 22 16"><path d="M2.5 9.2 C4.4 10.3 6 12 7.6 14 C10.6 8.6 14.2 4.6 19.6 1.8"/></svg></i>';
 

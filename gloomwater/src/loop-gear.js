@@ -58,7 +58,9 @@ export function gearName(D, id) {
 const ROMAN = ['I', 'II', 'III', 'IV'];
 /** The shelf cards' drawings (ui-icons' names). */
 const ART = { feather_fly: 'feather', glimmer_spoon: 'spoon', bone_jig: 'bone', bell_spinner: 'bell', bent_spoon: 'bentspoon', mireworm: 'worm', lumen_moss: 'moss',
-  oars: 'oar', keel: 'hull', lantern: 'lantern', orders: 'ledger' };
+  oars: 'oar', keel: 'hull', lantern: 'lantern', orders: 'ledger',
+  // LAKE 2, lane S: Sporewood's lures and tins (ui-icons' glyphs; the catalogue draws their engravings)
+  spore_moth: 'moth', ember_minnow: 'minnow', root_jig: 'rootjig', sporelamp_fly: 'fly', seedpod_twirl: 'seedpod', spore_cake: 'cake', amber_larvae: 'larva' };
 function levelName(D, slot, lv) {
   const n = D?.TEXT_LOOP?.gearNames?.[slot]?.[lv - 1];
   if (typeof n === 'string') return n;
