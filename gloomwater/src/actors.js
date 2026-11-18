@@ -47,6 +47,8 @@ const damp = THREE.MathUtils.damp;
 const clamp = THREE.MathUtils.clamp;
 const AUTO_POSE = { idle: 'idle', charging: 'charge', casting: 'wait', waiting: 'wait', bite: 'wait', reeling: 'reel', landing: 'reel', lost: 'idle' };
 const LANTERN_WARM = new THREE.Color(0xffa94d);
+// a ray shows its disc (LAKE 2, lane F: the loop's disc plan, a river ray, too)
+const RAYLIKE = (shape) => shape === 'ray' || shape === 'disc';
 const MEASURE = new Set(MEASURE_POSES);
 const WICK_HOME = new THREE.Vector3(0.1, DECK_Y, 0.16);
 const UP = new THREE.Vector3(0, 1, 0);
@@ -437,7 +439,7 @@ export function create(ctx) {
           obj.position.set(tip.x, tip.y - fv.length * 0.5 - 0.12, tip.z);
           tmp.subVectors(camPos, obj.position);
           // hang head-up, flank toward the camera (rays present their disc instead)
-          obj.rotation.set(-Math.PI / 2, fv.shape === 'ray' ? Math.atan2(-tmp.x, -tmp.z) : Math.atan2(-tmp.z, tmp.x), 0, 'YXZ');
+          obj.rotation.set(-Math.PI / 2, RAYLIKE(fv.shape) ? Math.atan2(-tmp.x, -tmp.z) : Math.atan2(-tmp.z, tmp.x), 0, 'YXZ');
           obj.scale.setScalar(1);
           try { fv.update?.(dt, t, { swim: 0.2, struggle: 0.35 + Math.max(0, Math.sin(t * 2.1)) * 0.4 }); } catch { /* visual */ }
         } else {
@@ -953,7 +955,7 @@ export function create(ctx) {
   function placeMeasured(fv, mp, dt, t) {
     const obj = fv.object3d, M = st.meas, L = fv.length || 0.5;
     const b = fv.bounds || { noseZ: L * 0.5, tailZ: -L * 0.5, halfW: L * 0.07, top: L * 0.1, bottom: -L * 0.1 };
-    const ray = fv.shape === 'ray', midZ = (b.noseZ + b.tailZ) / 2;
+    const ray = RAYLIKE(fv.shape), midZ = (b.noseZ + b.tailZ) / 2;
     let swim = 0.2, struggle = 0.12;
     if (mp === 'measurePalm' || mp === 'measureArms') {
       wick.getHandPos('r', mv.hR); wick.getHandPos('l', mv.hL);
@@ -1035,7 +1037,7 @@ export function create(ctx) {
     mv.x.setFromMatrixColumn(obj.matrixWorld, 0).normalize();
     mv.y.setFromMatrixColumn(obj.matrixWorld, 1).normalize();
     mv.z.setFromMatrixColumn(obj.matrixWorld, 2).normalize();
-    const ray = fv.shape === 'ray';
+    const ray = RAYLIKE(fv.shape);
     // the snout: on the body's mid-line for a big fish; on a small one the knots would hide the flank, so its cord runs along
     // the belly edge, between the fish and the palms (touching the belly, sagging only a little)
     const low = ray ? 0 : clamp((0.45 - L) / 0.2, 0, 1);
@@ -1054,7 +1056,7 @@ export function create(ctx) {
     const show = (C.explicit ? C.show : C.autoShow) && L > 0 && (!!fv || !!mp);
     if (show) {
       const b = fv?.bounds;
-      cord.ensure(L, fv ? (fv.shape === 'ray' ? Math.max(0.005, b?.top ?? 0.02) : (b?.halfW ?? L * 0.07)) : 0);
+      cord.ensure(L, fv ? (RAYLIKE(fv.shape) ? Math.max(0.005, b?.top ?? 0.02) : (b?.halfW ?? L * 0.07)) : 0);
       if (fv && fv.object3d?.parent === catchHolder) placeCord(fv);
       else {   // no fish in hand: lay it across the Wick's hands
         wick.getHandPos('r', mv.hR); wick.getHandPos('l', mv.hL);
