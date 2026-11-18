@@ -1167,7 +1167,13 @@ scratch diff against gw-lake2).
   `ui-chart.test.mjs` (the byte lines per sheet); `validate-data --loop` (the ahead sheet, each leg from the water before it, each
   glide in); `tools/tests/lake2-c.scenario.mjs` (the lake map, the Chart with two sheets, the leaving card, Not yet, the tow, the first
   evening, home at Rootfoot, the way back both ways, a reload mid-leg; `--part=chart` for the Chart's and the card's frames at a size).
+- **Run** (18 November 2026, a dev build, `LOOP.shipped` set in the page): the whole scenario green at 1280 × 720 and 390 × 844 (the
+  lake map, the Chart, the leaving card, Not yet, the tow, the first evening at the Lullaby, home at Rootfoot, the way back both ways, a
+  reload mid-leg; no page, console or game error), its Chart part green at 960 × 540, 358 × 664, 690 × 760 and 1280 × 800 touch; the
+  bake re-run: both sheets decode the same twice and `chart-art.js` came out unchanged.
 - **Left for the gate**: `LOOP.shipped = 'sporewood'` (the scenario sets it in the page); a look sheet of the Chart beside the world.
+  Murk's map cards (`mapCards`) are not yet per water: with Sporewood's lake map owned, the Mossmere's shelf can offer the Veilwater's
+  and the Mother's Cup's maps before the tow (harmless: owned maps wait for their water; lane S or the gate may keep them to their water).
 
 ---
 
