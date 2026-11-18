@@ -261,6 +261,17 @@ section('the catalogue\'s pages with Sporewood\'s shelf (murk-catalogue.bookPage
   });
 }
 
+section('a legend\'s bait at its own water\'s shelf: the Glowcap Bulb at Sporewood, the Heartmoss Ball waits at the Mossmere');
+{
+  withShipped(() => {
+    const m = mossEndMeta();
+    eq(PL.shelfItems(D, m.loop, [], { meta: m }).filter((i) => i.slot === 'bait').map((i) => i.baitId), ['heartmoss'], 'at the Mossmere: the Heartmoss Ball only');
+    const env = atSporewood();
+    eq(PL.shelfItems(D, env.L.state(), [], { meta: env.ctx.state.meta }).filter((i) => i.slot === 'bait').map((i) => i.baitId), ['glowcap_bulb'], 'at Sporewood: the Glowcap Bulb only');
+  });
+  eq(PL.shelfItems(D, mossEndMeta().loop).filter((i) => i.slot === 'bait').map((i) => i.baitId), ['heartmoss'], 'before Sporewood ships: the Mossmere\'s as built');
+}
+
 section('the glyphs: Sporewood\'s hooks each their own (ui-gear GEAR_GLYPH, loop-gear\'s shelf art), none a Mossmere item\'s');
 {
   const swHooks = ['seedpod_twirl', 'spore_moth', 'ember_minnow', 'root_jig', 'sporelamp_fly', 'spore_cake', 'amber_larvae', 'glowcap_bulb'];

@@ -405,8 +405,10 @@ export function shelfItems(D, metaLoop, session = [], { meta = null } = {}) {
   // water, never "Yours.", never the goal line; `count` the bag holds) and the Maps tab (mapCards: the two cheapest place maps not owned,
   // then the next lake's card). A place map bought while the shelf is open keeps its slot as {bought: true} ("Yours.") and the next card
   // takes it only when the shelf closes, so the tab never holds more than three cards.
+  // (LAKE 2, lane S: a legend's bait is sold at its own water, as its tins are: the Heartmoss Ball waits at the Mossmere)
+  const shelfAt = typeof ml.barge?.water === 'string' && isObj(L.waters?.[ml.barge.water]) ? ml.barge.water : firstWater(D);
   for (const [water, lb] of Object.entries(isObj(L.legendBait) ? L.legendBait : {})) {
-    if (!isObj(lb) || typeof lb.id !== 'string' || !(ml.maps?.lakes || []).includes(water) || !waterShipped(D, water)) continue;
+    if (!isObj(lb) || typeof lb.id !== 'string' || !(ml.maps?.lakes || []).includes(water) || !waterShipped(D, water) || water !== shelfAt) continue;
     const b = (D.BAITS || []).find((x) => x?.id === lb.id);
     out.push({ id: `bait:${lb.id}`, tab: 'bait', slot: 'bait', level: null, baitId: lb.id, water, name: b?.name ?? lb.id, goalName: b?.name ?? lb.id,
       line: TL.shelf?.[lb.id] ?? '', price: num(lb.price, 0), count: Math.max(0, int(ml.bait?.[water]?.[lb.id])), consumable: true, bought: false });

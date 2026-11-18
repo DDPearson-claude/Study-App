@@ -178,7 +178,7 @@ export function findPropParts(id) {
       const h = 0.072, R = 0.17, n = 5, rAt = (x) => R * Math.sqrt(Math.max(0, 1 - (x / h) ** 2));
       for (let i = 0; i < n; i++) {
         const xa = (h * 0.92 * i) / n, xb = (h * 0.92 * (i + 1)) / n;
-        g.push(P(new THREE.CylinderGeometry(rAt(xb) + 0.004, rAt(xa) + 0.004, xb - xa, 12, 1, true), i % 2 ? STRAW_DK : STRAW, { r: [0, 0, -Math.PI / 2], p: [(xa + xb) / 2, 0, 0] }));
+        g.push(P(new THREE.CylinderGeometry(rAt(xb) + 0.004, rAt(xa) + 0.004, xb - xa, 12), i % 2 ? STRAW_DK : STRAW, { r: [0, 0, -Math.PI / 2], p: [(xa + xb) / 2, 0, 0] }));   // (closed: its underside reads as the lid's flat weave as the show turns it)
       }
       g.push(P(new THREE.CylinderGeometry(0.0005, rAt(h * 0.92) + 0.004, h * 0.08, 12), STRAW, { r: [0, 0, -Math.PI / 2], p: [h * 0.96, 0, 0] }));
       g.push(P(new THREE.TorusGeometry(0.168, 0.012, 3, 14), STRAW_DK, { r: [0, Math.PI / 2, 0] }));
@@ -186,8 +186,8 @@ export function findPropParts(id) {
       break;
     }
     case 'gardeners_trowel': {   // a garden trowel: a brass scoop worn bright on one side, its shank, a turned wooden handle with a ferrule
-      g.push(P(new THREE.SphereGeometry(0.05, 10, 6, 0, Math.PI), BRASS, { r: [0, Math.PI / 2, 0], s: [1, 0.28, 1.7], p: [0, 0, 0.07] }));
-      g.push(P(new THREE.SphereGeometry(0.046, 8, 4, 0, Math.PI * 0.5), GOLD, { r: [0, Math.PI / 2, 0], s: [1, 0.3, 1.6], p: [0.003, 0.004, 0.072] }));   // the bright side
+      g.push(P(new THREE.SphereGeometry(0.05, 10, 6), BRASS, { s: [0.24, 1, 1.75], p: [0, 0.004, 0.075] }));   // the blade, its face to the lens
+      g.push(P(new THREE.SphereGeometry(0.046, 8, 5), GOLD, { s: [0.14, 0.82, 1.55], p: [0.006, 0.012, 0.08] }));   // the bright side, worn
       g.push(P(new THREE.CylinderGeometry(0.006, 0.008, 0.06, 6), BRASS_DK, { r: RZ, p: [0, 0.006, -0.02] }));
       g.push(P(new THREE.CylinderGeometry(0.016, 0.016, 0.014, 8), BRASS, { r: RZ, p: [0, 0.008, -0.052] }));
       g.push(P(new THREE.CylinderGeometry(0.015, 0.019, 0.1, 8), WOOD, { r: RZ, p: [0, 0.008, -0.11] }));
@@ -197,13 +197,13 @@ export function findPropParts(id) {
     case 'cloche_handle': {   // the glass knob off a garden bell-glass, a ragged collar of the bell still on it (pale glass, never a glint)
       g.push(P(new THREE.SphereGeometry(0.026, 10, 6), GLASS, { p: [0, 0, 0.026] }));
       g.push(P(new THREE.CylinderGeometry(0.012, 0.016, 0.022, 8), GLASS, { r: RZ, p: [0, 0, 0] }));
-      g.push(P(new THREE.ConeGeometry(0.05, 0.034, 9, 1, true, 0.3, Math.PI * 1.55), GLASS, { r: [-Math.PI / 2, 0, 0], p: [0, 0, -0.022] }));
+      for (let i = 0; i < 5; i++) { const a = 0.4 + i * 1.18; g.push(P(new THREE.BoxGeometry(0.004, 0.028 + (i % 2) * 0.012, 0.03), GLASS, { r: [0.9, a, 0], p: [Math.sin(a) * 0.022, Math.cos(a) * 0.022, -0.026] })); }   // shards of the bell
       g.push(P(new THREE.TorusGeometry(0.018, 0.003, 3, 10), MOSS, { p: [0, 0, -0.008] }));   // a thread of moss where it lay
       break;
     }
     case 'seedkeeper_casket': {   // a seed-keeper's dark casket bound in brass, its lid a little open on its seeds, a brass lock-plate
       g.push(P(new THREE.BoxGeometry(0.13, 0.1, 0.28), WOOD_DK, { p: [0, -0.02, 0] }));
-      g.push(P(new THREE.CylinderGeometry(0.066, 0.066, 0.28, 10, 1, false, 0, Math.PI), WOOD_DK, { r: [0, 0, Math.PI / 2], p: [0, 0.03, 0], s: [1, 0.55, 1] }));
+      g.push(P(new THREE.CylinderGeometry(0.066, 0.066, 0.28, 10, 1, false, Math.PI / 2, Math.PI), WOOD_DK, { r: [Math.PI / 2, 0, 0], p: [0, 0.03, 0], s: [1, 1, 0.55] }));   // the lid's low dome along it
       for (const z of [-0.12, 0, 0.12]) g.push(P(new THREE.BoxGeometry(0.136, 0.104, 0.014), BRASS, { p: [0, -0.02, z] }));
       g.push(P(new THREE.BoxGeometry(0.008, 0.04, 0.036), BRASS, { p: [0.068, 0.005, 0] }));
       g.push(P(new THREE.SphereGeometry(0.006, 6, 3), GOLD, { p: [0.073, 0.005, 0] }));
