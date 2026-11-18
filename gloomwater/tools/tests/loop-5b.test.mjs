@@ -149,6 +149,15 @@ section('the empty shelf and the Mossmere\'s gilding (M1.md §2.5)');
   for (const id of HS.giantsOf(D, 'mossmere')) m.journal[id] = { caught: 1 };
   ok(HS.waterGilded(m, D, 'mossmere', { items, listCount: PL.listCount }), 'the shelf, the list and the three giants: gilded');
   ok(!HS.waterGilded(m, D, 'mossmere', { items: [...items, { id: 'x', price: 9, bought: false }], listCount: PL.listCount }), 'a card left on the shelf: not gilded');
+  // the Lake 2 gate: the Mossmere's real shelf with every card of its own bought is bare, though Sporewood's lake map (priced, the goal
+  // line) is still on it: Murk's empty-shelf line and the gilding come with the 32nd purchase, never wait for the next water's map
+  ok(HS.shelfBare([{ id: 'a', price: 1, bought: true }, { id: 'lake:sporewood', slot: 'lake', waterId: 'sporewood', price: 2800, bought: false }]), 'the next water\'s lake card, priced, never counts against the empty shelf');
+  const top = { ...m.loop, holdSlots: 6, tackle: { rod: 2, line: 2, reel: 2 }, raft: { oars: 99, keel: 99, lantern: 99 }, home: { baitBed: 99, wall: 99, lights: 99, orders: 99 }, looks: Object.keys(D.LOOP.looks || {}),
+    lures: Object.keys(D.LOOP.lures || {}).filter((id) => D.LOOP.lures[id].water === 'mossmere'), maps: { lakes: ['mossmere'], places: ['lily_maze', 'under_the_span', 'buoy_lights', 'bell_pool'] } };
+  const real = PL.shelfItems(D, top, [], { meta: { ...m, loop: top } }), left = real.filter((i) => i.consumable !== true && i.price != null && !i.bought);
+  ok(left.length === 1 && left[0].id === 'lake:sporewood' && HS.shelfBare(real), 'the Mossmere\'s shelf with all its own bought: bare, Sporewood\'s map the one card left', left.map((i) => i.id));
+  eq(PL.goalOf(real)?.id, 'lake:sporewood', '… and the goal line is the Sporewood map');
+  ok(HS.waterGilded({ ...m, loop: top }, D, 'mossmere', { items: real, listCount: PL.listCount }), '… and with the list and the giants the Mossmere is gilded (the map need not be bought)');
 }
 
 section('the prints: one at the measure for a kept and for a let-go fish; the best per species wins (SPEC §6.4)');

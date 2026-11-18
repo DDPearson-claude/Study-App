@@ -12,6 +12,7 @@ import * as THREE from 'three';
 
 const { loadLoopData, freshLoopMeta, placesMeta } = await import('./loop-fixture.mjs');
 const D = await loadLoopData({ query: 'lake2-g' });
+const SHIPPED = D.LOOP.shipped;   // (the Lake 2 gate: 'sporewood'; a section that raises it puts back this, never the pre-gate 'mossmere')
 const { createBus } = await import('../../src/core.js');
 const { create } = await import('../../src/progression.js');
 const UT = await import('../../src/ui-tackle.js');
@@ -246,7 +247,7 @@ section('after the tow (LAKE2 §5.2, §5.3): the gear water\'s tiers named by th
     eq(keys(b, 'bait'), ['mireworm', 'lumen_moss', 'bare'], '… and its tins (Sporewood\'s Spore Cake, fitted there, waits there)');
     eq([onKey(b, 'bait'), onKey(b, 'lure')], [['bare'], []], '… the next trip here carries no Sporewood bait: the bare hook until a Mossmere bait is picked');
     eq(onLog(b, 'line'), ['+5 Hold.', 'Lands up to Elder.'], 'Rootthread\'s +5 against the Mossmere\'s lineAt: Elder (the Mossmere fishes easier)');
-  } finally { D.LOOP.shipped = 'mossmere'; }
+  } finally { D.LOOP.shipped = SHIPPED; }
 }
 
 section('every word the screen shows is on the T43 list (TEXT_LOOP, the names; no odds), and no "%" but a found line\'s own');

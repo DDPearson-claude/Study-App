@@ -99,9 +99,10 @@ export function applyBaitBed(D, metaLoop, run) {
   return add;
 }
 
-/** The empty shelf (M1.md §2.5): every permanent card bought (the consumables and the sealed next water never count). */
+/** The empty shelf (M1.md §2.5): every permanent card bought (the consumables and the next water's lake card never count: sealed past
+ *  LOOP.shipped, priced once it ships, when it is the empty shelf's goal line, the Lake 2 gate). */
 export function shelfBare(items) {
-  const perm = arr(items).filter((it) => isObj(it) && it.consumable !== true && it.sealed !== true && it.price != null);
+  const perm = arr(items).filter((it) => isObj(it) && it.consumable !== true && it.sealed !== true && it.slot !== 'lake' && it.price != null);
   return perm.length > 0 && perm.every((it) => it.bought === true);
 }
 /** A water's giants and its legend (D.SPECIES: `giant`, or legendary), as ids. */

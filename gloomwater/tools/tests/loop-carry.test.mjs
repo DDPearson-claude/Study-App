@@ -11,9 +11,11 @@ import * as THREE from 'three';
 // (every module that reads data.js comes in after the loop's flags are set, so the sim's data.js instance is the loop's too)
 const { loadLoopData, freshLoopMeta, fakeLoop } = await import('./loop-fixture.mjs');
 const D = await loadLoopData({ query: 'loop-carry' });
+const SHIPPED = D.LOOP.shipped;   // (the Lake 2 gate: 'sporewood'; a section that raises it puts back this, never the pre-gate 'mossmere')
 const { createBus } = await import('../../src/core.js');
 const { create } = await import('../../src/progression.js');
 const PL = await import('../../src/progression-loop.js');
+const UL = await import('../../src/ui-loop.js');
 const LC = await import('../../src/loop-carry.js');
 const WC = await import('../../src/watercraft.js');
 const { gearItems, raftStats, refillOrders, orderWater } = await import('../../src/loop-gear.js');
@@ -116,6 +118,39 @@ section('stacking without breaking the ladder: two waters\' carries add (Sporewo
   eq(LC.tackleHold(D3, L, {}), { rod: 4, line: 5, reel: 4 }, 'the start pieces on the carry: the carry alone');
 }
 
+section('the Lake 2 gate: an old save sitting at the Mossmere\'s end from before the gate (Sporewood sealed, its map never bought, clams banked) opens cleanly');
+{
+  const { migrateSave } = await import('../../src/progression.js');
+  const { normalizeSave } = await import('../../src/core.js');
+  // the M1-end fixture as a pre-gate save would hold it: the lake map never bought (its card was sealed), the list landed, clams banked
+  const raw = clone(FIX);
+  raw.meta.loop.maps.lakes = ['mossmere'];
+  raw.meta.loop.clams = 3200;
+  for (const id of PL.listFor(D, 'mossmere')) raw.meta.journal[id] = { ...(raw.meta.journal[id] || {}), caught: Math.max(1, raw.meta.journal[id]?.caught | 0) };
+  const before = clone(raw.meta.loop);
+  migrateSave(raw, D);
+  const { meta } = normalizeSave(raw);
+  const env = makeEnv({ meta });
+  const S = env.L.state();
+  const keep = ['clams', 'tackle', 'holdSlots', 'raft', 'evenings', 'maps', 'lures', 'home', 'finds', 'barge'];
+  eq(keep.map((k) => S[k]), keep.map((k) => before[k]), 'the save opens with everything as saved (clams, tackle, hold, raft, evenings, maps, lures, home, finds, the barge at the Mossmere)');
+  eq([S.v, S.gearWater, S.carry, S.fit.reel], [PL.LOOP_SCHEMA, 'mossmere', LC.freshCarry(), 'belfry_winch'], '… migrated additively: LOOP_SCHEMA, the gear water the Mossmere, nothing carried, its found reel fitted');
+  const again = clone(meta.loop); PL.migrateLoop(meta, D);
+  eq(meta.loop, again, 'a second migrateLoop changes nothing');
+  const card = PL.mapCards(D, S, { meta }).find((c) => c.waterId);
+  ok(card?.id === 'lake:sporewood' && card.sealed === false && card.price === D.LOOP.waters.sporewood.lake && card.seals.gear.held && card.seals.catch.held && !card.seals.map.held,
+    'its Maps tab: Sporewood\'s lake map, priced, the gear and catch keys already held, the map seal hollow');
+  ok(PL.waterOpen(meta, D, 'sporewood') === false && UL.chartModel(meta, D, {}).next?.waterId === 'sporewood' && UL.chartModel(meta, D, {}).next.shipped === true, 'the Chart: Sporewood the priced sealed sheet, not yet sailable');
+  ok(env.L.buy('lake:sporewood').ok === true && S.clams === 3200 - D.LOOP.waters.sporewood.lake && S.maps.lakes.includes('sporewood') && ['lullaby', 'gill_harp'].every((p) => S.maps.places.includes(p)), 'the banked clams buy the map: the lake owned, with the Lullaby and the Gill Harp');
+  const cm = UL.chartModel(meta, D, {});
+  ok(PL.waterOpen(meta, D, 'sporewood') === true && cm.sheets.map((x) => x.waterId).join() === 'mossmere,sporewood' && cm.next?.waterId === 'glasswater' && cm.next.shipped === false, 'open: both sheets drawn, Glasswater the sealed "Coming soon" sheet');
+  const t = env.L.leaveTerms('sporewood');
+  ok(t.first === true && t.add.rod === 2 && t.add.line === 2 && t.add.reel === 2, 'the leaving card\'s figures: +2 · +2 · +2 from the Mossmere\'s top');
+  ok(env.L.towTo('sporewood').ok === true && S.barge.water === 'sporewood' && S.gearWater === 'sporewood', 'the tow: the barge at Sporewood, its gear water Sporewood\'s');
+  const re = makeEnv({ meta: clone(env.ctx.state.meta) });
+  eq([re.L.state().barge.water, re.L.state().carry.rod, re.L.state().maps.lakes], ['sporewood', 2, ['mossmere', 'sporewood']], 'a reload after the tow: at Sporewood, the carry written once');
+}
+
 section('nothing owned is lost without the card: towTo is the one writer; the card\'s terms are read first, and they are what the tow writes');
 {
   const env = makeEnv({ meta: fixtureMeta() });
@@ -212,13 +247,13 @@ section('the tackle as it works: trip stats and the loadout read the carry and t
     env.L.towTo('sporewood');
     env.L.buy('line:1');   // (the test's clams: 412, Rootthread at 300)
     const r = startTrip(env, 'sporewood');
-    eq(r.zone, 'sporewood', 'a trip at Sporewood (LOOP.shipped raised for the test)');
+    eq(r.zone, 'sporewood', 'a trip at Sporewood (it ships)');
     env.P.invalidateStats?.(); const st = env.P.getStats(), lo = env.P.getLoadout();
     eq(st.castMax, 17, 'the start rod on the carried metre: 17 m'); eq(st.hold, { rod: 2, line: 5, reel: 4 }, 'Hold: +2 · Rootthread 3 + 2 · the Winch 2 + 2');
     eq([lo.line, lo.hold.line], [1, 5], 'the loadout: Rootthread, its Hold with the carry');
     near(raftStats(D, env.L.state()).speed, 1.0, 'the carried oars: 0.667 × 1.5 m/s', 1e-3);
     endTrip(env);
-  } finally { D.LOOP.shipped = 'mossmere'; }
+  } finally { D.LOOP.shipped = SHIPPED; }
 }
 
 section('each water\'s shelf (LAKE2 §5.6, §7.1): its own tiers, creels, raft parts, lures and tins; the Mossmere\'s shelf as before');
@@ -231,7 +266,7 @@ section('each water\'s shelf (LAKE2 §5.6, §7.1): its own tiers, creels, raft p
   const pre = PL.shelfItems(D, env.L.state());
   ok(!pre.some((i) => i.id === 'rod:3'), 'the Sporewood map owned, the barge at the Mossmere: no global T3 (each water\'s tiers are its own)');
   env.L.towTo('sporewood');
-  D.LOOP.shipped = 'sporewood';   // (a water's lures and tins are offered once it ships: LOOP.shipped raised for the test)
+  D.LOOP.shipped = 'sporewood';   // (a water's lures and tins are offered once it ships: so it does since the gate)
   const sh = PL.shelfItems(D, env.L.state());
   const by = (id) => sh.find((i) => i.id === id);
   eq(['rod:1', 'line:1', 'reel:1'].map((id) => [by(id)?.name, by(id)?.price, by(id)?.itemId]), [['Stalkwood', 300, 'stalkwood'], ['Rootthread', 300, 'rootthread'], ['Capwheel', 300, 'capwheel']],
@@ -251,7 +286,7 @@ section('each water\'s shelf (LAKE2 §5.6, §7.1): its own tiers, creels, raft p
   ok(env.L.buy('hold:5').ok && env.L.state().holdSlots === 5, 'the Rootwoven Creel: Hold 5');
   ok(env.L.buy('oars:1').ok && env.L.state().raft.oars === 1, 'Capleaf Oars I: a level at Sporewood');
   near(LC.raftLevels(env.L.state()).oars, 1.667, '… on the carried 0.667', 1e-3);
-  D.LOOP.shipped = 'mossmere';
+  D.LOOP.shipped = SHIPPED;
 }
 
 section('lures and tins at their own water; the way back by the lamps (LAKE2 §6.3): the Mossmere\'s wait there, the tackle travels');
@@ -322,7 +357,7 @@ section('the first evenings at a water reached by a tow (LOOP.arrival; the user\
     const r = startTrip(env, 'mossmere');
     ok(r.arrival === undefined, 'never on the way back to the first water');
     endTrip(env);
-  } finally { D.LOOP.shipped = 'mossmere'; }
+  } finally { D.LOOP.shipped = SHIPPED; }
 }
 
 section('Murk\'s orders by water (LAKE2 §7.2): the Mossmere\'s open orders wait at the Mossmere; Sporewood rolls its own');
