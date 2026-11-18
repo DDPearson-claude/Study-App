@@ -1,5 +1,5 @@
-// LAKE 2, lane C in the browser (docs/loop/LAKE2.md §6, §9): the road in. A loop dev build from a fresh save; Sporewood is made to ship
-// in the page (LOOP.shipped = 'sporewood', as the gate will set it in the source) and the save is given the Mossmere's end (its gear
+// LAKE 2, lane C in the browser (docs/loop/LAKE2.md §6, §9): the road in. A loop dev build from a fresh save; Sporewood ships in the
+// source since the gate (LOOP.shipped = 'sporewood': checked, never set, in the page) and the save is given the Mossmere's end (its gear
 // bought, its list landed, the clams for the map). Then, as a player would: Murk's lake map (its price, its line, "Moving on leaves bought
 // gear behind."), bought (Murk's line); the Chart with two sheets (the window over both, the Mossmere's card, Sporewood's card from its
 // mark: the outline coast, its hachures, reeds, in and out, isles, the jetty, Murk's barge); Sail for Sporewood: the leaving card, "Not
@@ -26,7 +26,7 @@ export default async function (api) {
   // the Mossmere's end: its gear bought (Rod T2, Line T2, Reel T2, Hold 6, the raft's parts at II), its list landed, clams for the map
   const mossmereEnd = () => g(() => {
     const c = window.__gw, d = c.data, l = c.state.meta.loop;
-    d.LOOP.shipped = 'sporewood';
+    if (d.LOOP.shipped !== 'sporewood') throw new Error(`LOOP.shipped is ${d.LOOP.shipped}: Sporewood must ship in the source (the Lake 2 gate)`);
     Object.assign(l, { clams: 12000, tackle: { rod: 2, line: 2, reel: 2 }, holdSlots: 6, raft: { oars: 2, keel: 2, lantern: 2 } });
     c.state.meta.journal = c.state.meta.journal || {};
     for (const s of d.SPECIES.filter((x) => x.zone === 'mossmere')) c.state.meta.journal[s.id] = { ...(c.state.meta.journal[s.id] || {}), caught: Math.max(1, Number(c.state.meta.journal[s.id]?.caught) || 0) };
@@ -178,7 +178,7 @@ export default async function (api) {
     K.need((await K.until("c.debug.loop.tow?.('state')?.phase === 'leg'", 3)).ok, 'the leg begins');
     await K.secs(1.5);
     await K.reload();
-    await g(() => window.__gw.data.LOOP.shipped = 'sporewood');
+    K.check(await g(() => window.__gw.data.LOOP.shipped === 'sporewood'), 'after the reload Sporewood still ships (the source\'s LOOP.shipped)');
     await g(() => window.__gw.game.toHome());
     K.need((await K.until("c.flow === 'home'", 6)).ok, 'Continue: home');
     await K.secs(1.5); await K.settle(400);

@@ -1409,11 +1409,50 @@ part-1 tests unchanged and green).
 - **The leaving card fails closed**: a first tow never goes on unless the card has shown and Tow was pressed; a card that cannot show
   falls back to the plain question; with no answer nothing moves (`loop-tow.test.mjs`).
 - Left for the gate or later, recorded here: the tests that pin the sealed state flip with `LOOP.shipped = 'sporewood'` (the gate's
-  rewrite); the lures differ in play only by their engraving and glyph (no lure is drawn on the line and none of §7.1's motions is built:
+  rewrite: done, below); the lures differ in play only by their engraving and glyph (no lure is drawn on the line and none of §7.1's motions is built:
   **a decision for the user**, §11); the Lostsea Mackerel and the Downcast still read alike in the show's warm light (a colour-only change
   of their backs was tried and shows no difference: the held flank is the belly's colour, so it needs a skin pass that moves the counter-
   shade line); the Gill Harp's dark silhouette, the banks' large-scale tint, the Veil's near stalk, the isles' near circles, the Skep
   Lid's hold and the Nightbloom's head are art passes not yet made.
+
+**The release gate (18 Nov 2026, gw-lake2): Sporewood opens.** `index.html` is not rebuilt here (the integration step does).
+
+- **The dev branch merged** (9315346: the soft fish shadows): no textual conflict. `fishing-sight.js` holds both sides, Sporewood's
+  own outlines and never-seen (`OUTLINE_AT`, `NEVER_AT`, the water through `outlineOf`, `pickSight`, `createSight`) and the glide (a
+  turn of at most 0.7 rad/s, an eased pace, a calm bolt, about 1 s fades, two alive at most on every tier); `fishing.js` the eased
+  visibility beside the per-water readers. `lake2-fishing.test.mjs` checks at Sporewood too: two alive at most, never over 0.8 m/s
+  unbolted, never turning faster than the glide's rate. `index.html` is the dev branch's build taken whole (this branch never built it).
+- **`LOOP.shipped = 'sporewood'`**: its lake map is priced on the Mossmere's shelf (Maps) and on the Chart's sealed sheet; Glasswater
+  is the sealed "Coming soon" sheet once Sporewood is drawn; wing I of the gallery hangs both waters; the Mossmere's empty shelf's
+  goal line is the Sporewood map. Three seams the switch showed, fixed:
+  - the map seal carries **Murk's asking price** (`sealsOf`, the factor on the base), so the Chart's sheet and the shelf's card ask the
+    same 2,800 in the game (the Chart had read the base 1,400 while the card asked 2,800);
+  - **the empty shelf is the water's own cards** (`home-shelf.shelfBare`: the next water's lake card never counts), so Murk's
+    empty-shelf line and the Mossmere's gilding still come with its own last purchase, never wait for the next water's map;
+  - **the shelf's frontier is the Chart's** (`frontierOf` reads `waterOpen`): a lake map bought before its keys are held leaves its
+    card sealed again, its map seal pressed, no price (never bought twice), as the Chart and the catalogue's head show it; Glasswater's
+    card follows only once Sporewood is open. The shelf's sealed card of a shipped water says nothing where "Coming soon" stood.
+- **The tests re-pinned to the shipped meaning**, each keeping the pre-gate state as a fixture (`LOOP.shipped` the Mossmere: Sporewood
+  sealed, unpriced, never sold): `lake2-c` (3 + the Glasswater sheet and the priced sealed sheet), `loop-5b` (wing I; the real
+  Mossmere shelf bare with the map its one card and goal, the water gilded), `loop-trip` (the step-2 save's card priced, not sailable),
+  `loop` (the Maps tab, the empty shelf's goal, the map owned before and after its keys), `roster-species` (4), `ui-chart` (11: the
+  priced sheet at every size, the fixture's "Coming soon" at every size), `ui-loop` (3 + the keys held: Glasswater next),
+  `loop-places` (T108, T109, T116, which the review's crash hid: the walk, the refused and the bought map, the seals priced, the one
+  price at ×2); `validate-data --loop`'s three (LOOP.shipped Sporewood, no water past it shipped; the map cards with the map priced,
+  then sealed and pressed, then Glasswater's; the pre-gate fixture). `loop-carry` and `lake2-g-tackle` now put back the shipped value
+  after a section (they put back 'mossmere' and ran the rest pre-gate); `fakeLoop` buys a lake map as the ledger does.
+- **An old save at the Mossmere's end** (the M1-end fixture with its map never bought, the list landed, clams banked) through
+  `migrateSave` and `normalizeSave` (`loop-carry`): everything kept, migrated additively and idempotently, the map priced with its
+  keys held, bought with the banked clams (the Lullaby and the Gill Harp with it), both sheets drawn, +2 · +2 · +2 on the leaving card,
+  the tow, a reload after it.
+- **Re-bakes**: the Chart's art (`build.mjs --game`, sheets 1 and 2): `chart-art.js` unchanged, both sheets decode the same twice;
+  `roster-export --check` current. No other table reads `LOOP.shipped`.
+- **The gate's runs**: `check.mjs --quick` all green (83); `validate-data` plain, `--v3` and `--loop` OK (22,694 · 93,351 · 2,341
+  checks). `clams.mjs --shipped=mossmere --quick` byte-identical before and after the switch (its one FAIL, the hold steps' clams a
+  minute, and its stalking warning are older than the gate, in the review's baseline too). `clams.mjs --shipped=sporewood` all checks
+  pass, byte-identical before and after: the first evening loses **15%** of hooked fish (at most about one in five) and earns **64%** of
+  the Mossmere's last trip (at least about 60%; 101% a minute); the map 34 min after the empty shelf; Sporewood's empty shelf 3.28 h.
+  Two warnings as before (the list's p95, the return to the Mossmere's pace at trip 16).
 
 ## 10. Left for later (named, not built)
 
