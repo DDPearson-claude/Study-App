@@ -1428,23 +1428,25 @@ The user's words on the current frames: too purple, the three lights alike, bloc
 one, a dark Gill Harp, a camouflage bank, a Veil that fills the lens, round isles. Fixed as follows, Sporewood only under the loop; the
 Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same) and so is the flag-off game (ZONES as fingerprinted).
 
-- **Its own air, green** (`ZONE_LOOKS.sporewood.air`; the loop's apply block lays `air.palette` and `air.grade` over ZONES' Sporewood):
-  fog #2c4434, water #1a3830, ink #06100c, ambient #3e5c44, far #9ca878, light #ece6b8, lamp #e6dcbc, the nebula a violet #b88ccc held
-  at half strength (the one violet: the cap-rim window's sky, a few flowers), the grade's tint a green #2e5838 at 0.14. The amber glow,
-  the candle and the rose accent as built. `air.kit` gives the banks, stalks and roots green-earth tones in place of world-art's violet
-  ones (rock #1c2218, moss #2c4a2e, stalks cream #c6b898, caps #6e4a24 / #c49448). The leaves' `gain` [0.92, 1.22, 0.8] (it was
-  [0.82, 1.65, 0.62], to carry them through a violet light). This is the one exception to WATERS §3.2's "air never green", the user's
-  words; WATERS §1's row, its §7 and the colour script (`AIR_EXCEPT`: Sporewood's share a floor, its sky, water and cast reported) say so.
+- **Its own air, Clear Night-led and never green** (`ZONE_LOOKS.sporewood.air`; the loop's apply block lays `air.palette` and
+  `air.grade` over ZONES' Sporewood): fog #26343f, water #203444, ink #060c12, ambient #3a4a5a, far #8e9cae, light #ece2cc, lamp
+  #e6dcbc, the nebula a plum-rose #a47a86 held low (the one accent in the cap-rim window's sky), the grade's tint a cool slate #3a4250.
+  The amber glow, the candle and the rose accent as built; purple gone. `air.kit` gives the banks, stalks and roots slate and muted moss
+  in place of world-art's violet ones (rock #1e2226, moss #2e3c30 / #4e5a44, stalks cream #c6b898, caps #6e4a24 / #c49448). The green
+  is the leaves' and the moss's own, muted: moss, sage, olive and bottle green, never lime (leafDark #2c3e30, leaf #4a5c40, leafHi
+  #727e56, moss #46503c / #66704f, albedo 1.25, `gain` [0.98, 1.1, 0.92]; it was [0.82, 1.65, 0.62] to carry the leaves through a
+  violet light). WATERS §3.1's "air never green" holds for it again (validate-data checks its air, light, sky, water and grade); WATERS
+  §1's row and the colour script (`AIR_EXCEPT`: its share a floor, its sky, water and cast reported) carry it.
 - **Three lights apart** (`air.lights`, world.js `lit`): the mood gains a dusk weight from the phase (0 → 1 in the dusk's first 12%,
   easing out at its end and in the gloomtide's first 4%); each light sets the air (fog and the sky's base), the sky's low band
   (`horizon`), the key's colour, strength and height, the fill, the water's own colour, the grade's tint, exposure and saturation, the
   stars and the nebula, the glowcaps' light and the leaves' translucency, blended day (1 − d)(1 − n′), dusk d, night (1 − d)·n′. Day: a
-  green-gold key #f6eab2 at 2.8, a pale gold-green haze on the horizon, water #224c3e, exposure 1.18, no stars (0.03) and the nebula at
-  0.25. Dusk: an amber-rose key #ffa874 at 2.6 held low (its height × 0.35: long shadows) over a blue-green fill, a green-grey air #2e3c34
-  under a rose-amber horizon #f0a070 (the leaves turn olive-bronze, the shade stays green), the grade's tint barely there (0.05) so it
-  never goes sepia, exposure 0.98, saturation 1.1, few stars (0.12), the flowers open, the fireflies wake late in it. Night: a deep
-  blue-green air #0b2428, a pale moon key at 0.6, exposure 0.8, the glowcaps at 1.8×, stars 0.65, the nebula 0.3. Every other water:
-  `lit` is null and none of it runs.
+  cream-gold key #f4e6c4 at 2.8 under a blue-grey air #3e5462 with a warm cream haze on the horizon #d4c8aa, a slate fill, a dark teal
+  water #1e3a48, exposure 1.18, no stars (0.03); the soft green-gold is the light through the leaves under the caps. Dusk: an
+  amber-rose key #ffb88a at 2.6 held low (its height × 0.35: long shadows) over a slate fill #3a4a52, a blue-slate air #2e3442 under a
+  rose-amber horizon #f0a070 (the leaves turn olive-bronze), a rose grade tint barely there (0.05), exposure 0.98, few stars (0.12), the
+  flowers open, the fireflies wake late in it. Night: a deep blue-teal air #0c2630, a silver moon key #a4b4c0 at 0.6, a dark teal water
+  #0a1e2a, exposure 0.8, the glowcaps' amber at 1.8×, stars 0.65. Every other water: `lit` is null and none of it runs.
 - **Soft leaves** (`world-flora.leafMass`): the shrubs', the broadleaf trees' and the far crowns' masses are lobed spheres (a few bumps
   push each into lobes; the shrubs' 11 × 8 segments, the crowns' 10 × 7, so a 4 m crown's outline is round) with smooth normals from the
   heart and a soft dapple that drifts over the mound (a per-vertex jitter had lit each triangle on its own: facets); leaf cards, most of
@@ -1455,7 +1457,7 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   and the lantern's amber laid over the whole foot of the low lens's frame. On a lush water (`GW_LUSH`) a warm mirrored light (amber,
   gold: red over blue and at least as red as green) is dulled to a soft olive-ochre and held down to a quarter (the leaves' images are
   untouched); the light pools are 0.55× and drain only a fifth of the water's own colour (the Mossmere drains it all, against rose), so
-  the water stays deep green-teal and the warm light gathers round the raft and under the glowcaps; the glowcaps' anchors lay no thread
+  the water keeps its own dark teal and the warm light gathers round the raft and under the glowcaps; the glowcaps' anchors lay no thread
   of gold across the water (world.js streak 0 on a water with its own lights). The lantern's glitter path is off as on the loop's
   Mossmere, the mirror as calm (no key glitter, no glints: calmW 1); the fallen cap-leaves rarer (4%), smaller and a matte dull
   olive-ochre, the lily pads a step deeper; the gill-flakes 4 on high (8), 3 on medium, smaller, a matte ochre #86704a, no rim.
@@ -1485,25 +1487,27 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   re-baked (`watercraft.test.mjs --bake=sporewood`: margin 22.1 → 22.6%, open 23.4 → 22.7%, the rest within 0.3 points); the Chart's
   sheet is drawn live from the outline (nothing to re-bake); world hashes are pinned for the Mossmere only (unchanged). The sim's §8.4
   figures move with the shares by a hair (not re-run here; the gate's `clams.mjs --shipped=sporewood` re-measures them).
-- **The haze and the places' banks**: a warm cream (#e4dac6), green-grey in shade and at night, never lavender.
+- **The haze and the places' banks**: a warm cream (#e4dac6), slate-grey in shade and blue-grey at night, never lavender.
 
 - **Not done** (named): the Netcloud Fry's cloud centred in a cupped hand (the show holds a fry in a pinch; a cupped hand is a new pose
-  in actors-show, left for a show pass); the near water inside the lantern's reach still reads warm olive under the low lens, most on a
-  tall phone frame (the lantern's pool is the play's light; it is softer, and green beyond it); the dusk's green share (7.8%) sits under
-  W2's dusk figure (10.5): its leaves are lit amber-bronze by the low key, as asked, and fall in the yellow band.
+  in actors-show, left for a show pass); the near water inside the lantern's reach still reads warm under the low lens, most on a tall
+  phone frame (the lantern's pool is the play's light; it is softer, and the water is dark teal beyond it); the dusk's and the night's
+  green shares sit well under W2's 10.5 and 6.5: the amber-rose key turns the muted leaves bronze (the report's yellow and orange) and the
+  moon's silver keeps them grey-green, as the user's palette asks; by eye both stay greener than the Mossmere's, which has none.
 - **Measured** (`lake2-art.scenario.mjs --hue --tier=medium`, 960 × 540, W2's three poses: the spawn, the day water, the old water;
-  `hue-report.mjs`, chromatic weight per band). Green share, the mean of the three poses: **day 30.1%** (32.4 · 40.6 · 17.4; before,
-  9c5bf45: 4.9), **dusk 7.8%** (7.9 · 9.7 · 5.7; before 4.1), **night 9.4%** (8.3 · 15.6 · 4.4, teal 4–11% more; before 2.3). **Violet
-  and magenta 0.0%** in every frame (before: day 8.4 + 10.2, dusk 13.2 + 9.4, night 17.7 + 8.5). The three lights apart: day yellow-green
-  (yellow 59%, green 30%), dusk amber (orange 42%, yellow 50%), night dark (chroma 0.12–0.14 at the spawn and the day water against 0.22 by day) with the glowcaps'
-  amber (orange 72%) and teal. The Mossmere's frames (1280 × 800, its play lens and the moat, three lights) measure as before within the
-  water's animation: pooled blue 45.5 / 45.5, violet 34.4 / 33.8, green 0.0 / 0.0 (after / before); its geometry hashes
-  (outline-shore part 1) unchanged. **The cost** (`clarity-perf --loop --sporewood`, at night, the West Pool, the East Pool and the
-  neck): on the phone (390 × 844, `--mobile`) **low 96–98 calls**, 94–100k triangles, the world's own 25–27 calls (the Mossmere's banks
-  frame 32), cpuMs 1.8–2.5k against that frame's 4.4k; medium 177–178 calls, 239–256k triangles, cpuMs 2.6–2.7k against 5.2k; high
-  179–186 calls, 391–417k triangles. DESKPERF The kit is 64.5k triangles on high, 46.0k on medium, 26.8k on low, in 14 meshes on high and
-  7 on low (draws as W2's). A giant's show at night was not measured on either run (the forced bite timed out at 240 s, as on the
-  shared box before); it is a Mossmere case.
+  `hue-report.mjs`, chromatic weight per band). Green share, the mean of the three poses, **the muted palette**: **day 11.1%** (12.2 ·
+  16.8 · 4.4; W2's target 12), dusk 0.2% (0.1 · 0.2 · 0.2), night 1.8% (1.4 · 3.2 · 0.9; teal 2.5–10.9% more). **Violet and magenta
+  0.0–0.3%** in every frame. The greener palette (04e12c8) measured 30.1 · 7.8 · 9.4; the build before the pass (9c5bf45) 4.9 · 4.1 · 2.3
+  with violet and magenta at day 8.4 + 10.2, dusk 13.2 + 9.4, night 17.7 + 8.5. The three lights apart: day cream-gold over muted greens
+  (chroma 0.13–0.21), dusk amber-rose (orange 84–94%), night dark blue-teal (chroma 0.11–0.21) with the glowcaps' amber. The Mossmere's
+  frames (1280 × 800, its play lens and the moat, three lights) measure as before within the water's animation: pooled blue 45.6 / 45.5,
+  violet 33.9 / 33.8, green 0.0 / 0.0 (after / before); its geometry hashes (outline-shore part 1) unchanged. **The cost**
+  (`clarity-perf --loop --sporewood`, at night, the West Pool, the East Pool and the neck; the palette change is colour values only, so
+  the draws and triangles are 04e12c8's): on the phone (390 × 844, `--mobile`) **low 96–98 calls**, 94–100k triangles, the world's own
+  25–27 calls (the Mossmere's banks frame 32), cpuMs 1.8–2.5k against that frame's 4.4k; medium 177–178 calls, 239–256k triangles (≤ 230
+  and ≤ 320k), cpuMs 2.6–2.7k against 5.2k; high 179–186 calls, 391–417k triangles, cpuMs 2.5–3.4k against 5.5k. DESKPERF The kit is
+  64.5k triangles on high, 46.0k on medium, 26.8k on low, in 14 meshes on high and 7 on low (draws as W2's). A giant's show at night was
+  not measured (the forced bite timed out at 240 s, as on the shared box before); it is a Mossmere case.
 - **Frames**: the look sheet (Sporewood's three lights beside the Mossmere's, before and after), the set pieces before and after, the
   fish sheet (each changed fish beside its relative in Sporewood's show light, its card ink) and the phone frames: the lane's scratch
   folder `l2-art/` (look-sheet.jpg, set-pieces.jpg, fish-sheet.jpg, phone/).
