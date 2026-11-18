@@ -855,7 +855,7 @@ if (process.argv.includes('--loop')) {
       ok4(['day', 'dusk', 'night'].every((ph) => { const L5 = LT[ph]; return !!L5 && ['fog', 'water', 'deep'].every((k) => hsv(L5[k]).v <= 0.42) && hsv(L5.amb).v <= 0.5 && hsv(L5.key).s <= 0.65 && L5.exposure > 0.6 && L5.exposure < 1.3; })
         && hsv(LT.day.key).h >= 40 && hsv(LT.day.key).h <= 75 && hsv(LT.dusk.key).h >= 10 && hsv(LT.dusk.key).h <= 35 && LT.dusk.elev < 0.7
         && hsv(LT.night.fog).h >= 150 && hsv(LT.night.fog).h <= 200 && LT.night.exposure < LT.dusk.exposure && LT.dusk.exposure < LT.day.exposure && LT.night.glow > LT.day.glow,
-        'LAKE2 art: three lights apart (a green-gold day key, an amber-rose dusk key held low, a deep blue-green night carried by the glowcaps), each dark and never neon');
+        'LAKE2 art: three lights apart (a green-gold day key, an amber-rose dusk key held low over a green fill, a deep blue-green night carried by the glowcaps), each dark and never neon');
       ok4(Object.values(LK.flora || {}).every((v) => Number.isInteger(v) && v >= 0) && Array.isArray(LK.gain) && LK.gain.length === 3 && LK.tiers?.low === 0.4 && LK.tiers?.medium === 0.7, 'LAKE2 W2: the kit\'s counts, its gain and its tiers');
       const CP = LP.camera?.sporewood;
       ok4(!!CP && CP.eye > 0.6 && CP.eye < 1 && CP.fov > 0 && CP.fov <= 6 && !LP.camera.mossmere, 'LAKE2 W2: Sporewood\'s lens lower and closer (LOOP.camera.sporewood); the Mossmere\'s as built');
