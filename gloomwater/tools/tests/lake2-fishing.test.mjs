@@ -135,7 +135,22 @@ section('silhouettes at Sporewood: its own fish by its own bodies, in its clear 
   const E = env({ raft: RAFT, seed: 11 });
   const spawned = [];
   E.ctx.bus.on('sign:spawn', (p) => { if (p.kind === 'sight') { const f = E.ctx.debug.fishSights().find((q) => q.id === p.id); if (f) spawned.push(f); } });
-  for (let i = 0; i < 30 * 600; i += 30) E.tick(30);
+  // (the merge of the soft shadows, 18 Nov 2026: at Sporewood too, two at most, and they glide: no dart, no jump, gentle turns)
+  let maxAlive = 0, fast = 0, worstTurn = 0;
+  const lastH = new Map();
+  for (let i = 0; i < 30 * 600; i += 30) {
+    E.tick(30);
+    const live = E.ctx.debug.fishSights();
+    maxAlive = Math.max(maxAlive, live.length);
+    for (const f of live) {
+      if (f.mode !== 'bolt' && f.speed > 0.8 + 1e-9) fast++;
+      const h0 = lastH.get(f.id);
+      if (h0 != null && f.mode !== 'bolt' && f.mode !== 'take' && f.mode !== 'nose') worstTurn = Math.max(worstTurn, Math.abs(Math.atan2(Math.sin(f.heading - h0), Math.cos(f.heading - h0))));
+      lastH.set(f.id, f.heading);
+    }
+  }
+  ok(maxAlive >= 1 && maxAlive <= 2, `at most two alive at Sporewood (${maxAlive})`);
+  ok(!fast && worstTurn <= SI.SIGHT.glide.turn * 1.05 + 1e-6, `they glide at Sporewood: never over 0.8 m/s unbolted, turning ≤ ${SI.SIGHT.glide.turn} rad a second (worst ${worstTurn.toFixed(2)} rad in 1 s)`);
   const O = SI.OUTLINE_AT.sporewood, N = SI.NEVER_AT.sporewood;
   ok(spawned.length >= 4, `${spawned.length} silhouettes in 10 min at dusk`);
   const wrong = spawned.filter((f) => !SWF.has(f.speciesId) || N.has(f.speciesId) || O[f.speciesId] !== f.outline || !(f.depth < 0.45) || !SI.SIGHT_AREAS.has(f.area));

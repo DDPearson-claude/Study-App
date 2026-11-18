@@ -2,7 +2,7 @@
 // tests drive them: where a fish can be seen (clear, calm, shallow water by day and dusk; at night only in the lantern's light or
 // over a drowned lamp at the Buoy Lights), which fish (the "who is there" pool, deep-bodied and long shapes ×1.5, never a giant, the
 // legend, the sturgeon, the trout or the eel), how big (its true length, data.sizeLength), how far off the raft (by length), how it
-// moves (five outlines), when it bolts (a cast on it, the raft too near, a splash by a still fish) and when a cast leads it (ahead
+// moves (five outlines: a slow glide and gentle turns, never a dart or a jump), when it bolts (a cast on it, the raft too near, a splash by a still fish) and when a cast leads it (ahead
 // on its line; beside a still fish's head). fishing.js owns the list (spawn, step, the cast test, the take through the built
 // pre-roll path); fishing-fx.js draws each as ONE instance of the sign buffer (the fish, its shadow, a shoal's shapes).
 //
@@ -18,7 +18,7 @@ const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 export const SIGHT = {
   depth: 0.45,                       // never at or below this depth (the bed is out of sight)
   reedOuter: 0.18,                   // a reed line's outer edge: its deeper part
-  alive: { high: 4, medium: 4, low: 3 },
+  alive: { high: 2, medium: 2, low: 2 },   // (17 Nov 2026, the user: at most two at a time; a shoal counts as one)
   every: [12, 30],                   // a new one every 12–30 s while fewer are alive
   life: [40, 90],
   bands: [[0.3, [4.5, 8]], [0.6, [5, 11]], [1.0, [6, 15]], [Infinity, [7, 20]]],   // the fallback spawn distance off the raft by length (m), no camera
@@ -27,6 +27,9 @@ export const SIGHT = {
   lantern: { r: 8, stub: 1.5, perLevel: 0.15, min: 0.25 },
   lamp: { r: 1.9 },                  // a drowned lamp's glow at the Buoy Lights (m)
   spook: { r: 0.6, splash: 2, quietR: 10, quietT: 30, waitMult: 1.5, bolt: 1.2 },
+  // how it moves on screen (17 Nov 2026): it glides and turns slowly, never darts or jumps; it fades in and out over about 1 s; a
+  // spooked fish bolts calmly (a smooth speed-up as it fades)
+  glide: { turn: 0.7, boltTurn: 1.6, acc: 0.35, boltAcc: 1.4, boltV: 1.4, fadeIn: 1, fadeOut: 1.1 },
   lead: { near: [1, 1.6], far: [3, 2.5], side: 1.2, still: [0.8, 2] },
   take: { base: 0.45, waitMult: 0.3, delay: [0.5, 1.5] },
 };
@@ -376,8 +379,8 @@ export function bestReadPx(L, lens, raft = { x: 0, z: 0 }, dMin = 3.4, maxD = RE
   }
   return best;
 }
-/** How many may live (§6.3): 4 on high and medium, 3 on low. */
-export const sightCap = (tier = 'high', S = SIGHT) => num(S.alive[tier], tier === 'low' ? 3 : 4);
+/** How many may live: two at a time on every tier (17 Nov 2026; a shoal is one). */
+export const sightCap = (tier = 'high', S = SIGHT) => Math.min(2, num(S.alive[tier], 2));
 
 let SEQ = 0;
 /**
@@ -391,7 +394,7 @@ export function createSight(o = {}) {
   const seed = rng();
   return {
     id: o.id ?? `sight${++SEQ}`, kind: 'sight', sp: o.sp || null, zs: num(o.zScore, 0), length: L, outline,   // (zs: its size score; z is where it is)
-    x: o.x, z: o.z, home: { x: o.x, z: o.z }, heading: num(o.heading, rng() * TAU), speed: 0, turn: 0,
+    x: o.x, z: o.z, home: { x: o.x, z: o.z }, heading: num(o.heading, rng() * TAU), speed: 0, turn: 0, hT: null, vT: null,   // (hT, vT: where it is turning to and the pace it eases to)
     area: o.area || null, light: o.light || 'day', depth: num(o.depth, 0.3), seed,
     keepOff: keepOffFor(L, seed), leash: clamp(3 + 5 * L, 4, 12), n: outline === 'shoal' ? 3 + Math.floor(rng() * 3) : 1,
     mode: 'cruise', modeT: 0, age: 0, life: U(rng, SIGHT.life[0], SIGHT.life[1]), alpha: 0, vis: 1,
@@ -402,15 +405,15 @@ export function createSight(o = {}) {
 const PACE = {
   deep:    { speed: [0.25, 0.45], cruise: [6, 14], stop: [4, 10] },
   torpedo: { speed: [0.4, 0.8], cruise: [3, 8], stop: [2, 5] },
-  long:    { speed: [1.5, 1.5], cruise: [1, 2], stop: [2.2, 4.4] },     // holds 70% of the time, darts 1.5 m/s for 1–2 s
+  long:    { speed: [0.22, 0.35], cruise: [3, 6], stop: [6, 12] },     // holds most of the time, then glides a little way (never darts)
   shoal:   { speed: [0.5, 0.5], cruise: [4, 8], stop: [0, 0] },
   claw:    { speed: [0.1, 0.1], cruise: [2, 5], stop: [2, 6] },
 };
 function setMode(f, mode, rng) {
   const P = PACE[f.outline] || PACE.torpedo;
   f.mode = mode;
-  if (mode === 'cruise') { f.modeT = U(rng, P.cruise[0], P.cruise[1]); f.speed = U(rng, P.speed[0], P.speed[1]); if (f.outline === 'shoal') f.turn = (rng() < 0.5 ? -1 : 1) * U(rng, 0.3, 0.7); else f.turn = (rng() - 0.5) * 0.3; }
-  else if (mode === 'hold' || mode === 'root') { f.modeT = U(rng, P.stop[0], P.stop[1]); f.speed = 0; }
+  if (mode === 'cruise') { f.modeT = U(rng, P.cruise[0], P.cruise[1]); f.vT = U(rng, P.speed[0], P.speed[1]); if (f.outline === 'shoal') f.turn = (rng() < 0.5 ? -1 : 1) * U(rng, 0.15, 0.35); else f.turn = (rng() - 0.5) * 0.25; }
+  else if (mode === 'hold' || mode === 'root') { f.modeT = U(rng, P.stop[0], P.stop[1]); f.vT = 0; }
 }
 /**
  * Step a silhouette by dt. env = {raft: {x, z}, ok(x, z) → it may swim there (its area, shallow enough, 1 m off islands and pillars),
@@ -422,14 +425,17 @@ export function stepSight(f, dt, env = {}) {
   const rng = env.rng || Math.random;
   const ev = [];
   if (!f || f.gone) return ev;
+  const G = SIGHT.glide;
+  if (!Number.isFinite(f.hT)) f.hT = f.heading;
+  if (!Number.isFinite(f.vT)) f.vT = f.speed;
   f.age += dt;
   if (f.mode !== 'bolt' && f.mode !== 'sink' && f.mode !== 'take' && f.mode !== 'nose') {
-    if (f.age >= f.life || env.quiet) { f.mode = 'sink'; f.modeT = 2.5; f.speed = Math.min(f.speed, 0.2); }
+    if (f.age >= f.life || env.quiet) { f.mode = 'sink'; f.modeT = G.fadeOut + 0.2; f.vT = Math.min(f.vT, 0.15); }
   }
-  // fade: in over 2 s; out as it bolts (1.2 s) or sinks (2.5 s)
+  // fade: in over about 1 s; out over about 1 s as it bolts or sinks
   if (f.mode === 'bolt') f.alpha = Math.max(0, f.alpha - dt / SIGHT.spook.bolt);
-  else if (f.mode === 'sink') f.alpha = Math.max(0, f.alpha - dt / 2.5);
-  else f.alpha = Math.min(1, f.alpha + dt / 2);
+  else if (f.mode === 'sink') f.alpha = Math.max(0, f.alpha - dt / G.fadeOut);
+  else f.alpha = Math.min(1, f.alpha + dt / G.fadeIn);
   const raft = env.raft;
   const rd = raft ? Math.hypot(f.x - raft.x, f.z - raft.z) : 1e9;
   if (raft && rd < f.keepOff && f.mode !== 'bolt' && f.mode !== 'sink' && f.mode !== 'take') {
@@ -440,39 +446,38 @@ export function stepSight(f, dt, env = {}) {
   switch (f.mode) {
     case 'cruise': {
       if (f.outline === 'shoal' && f.modeT <= 0) f.turn = -f.turn;
-      f.heading = wrap(f.heading + f.turn * dt);
-      if (f.outline !== 'shoal' && rng() < dt * 0.2) f.turn = (rng() - 0.5) * 0.5;
+      if (Math.abs(wrap(f.hT - f.heading)) < 0.05) f.hT = wrap(f.hT + f.turn * dt);   // (a slow drift of its line; a turn under way runs out first)
+      if (f.outline !== 'shoal' && rng() < dt * 0.2) f.turn = (rng() - 0.5) * 0.35;
       if (f.modeT <= 0) {
         if (f.outline === 'shoal') setMode(f, 'cruise', rng);
         else if (f.outline === 'deep') setMode(f, 'root', rng);
-        else if (f.outline === 'torpedo') { if (rng() < 0.35) setMode(f, 'hold', rng); else { f.heading = wrap(f.heading + (rng() < 0.5 ? -1 : 1) * U(rng, 0.8, 1.6)); setMode(f, 'cruise', rng); } }
+        else if (f.outline === 'torpedo') { if (rng() < 0.35) setMode(f, 'hold', rng); else { f.hT = wrap(f.heading + (rng() < 0.5 ? -1 : 1) * U(rng, 0.8, 1.6)); setMode(f, 'cruise', rng); } }
         else setMode(f, 'hold', rng);
       }
       break;
     }
     case 'hold': case 'root': {
-      f.speed = 0;
+      f.vT = 0;
       if (f.mode === 'root' && num(env.depth?.(f.x, f.z), 1) < 0.3) {   // tailing: the tail breaks the film, head down; a cloud where it digs
         f.tailT -= dt;
         if (f.tailT <= 0) { f.tailT = U(rng, 1.8, 3.2); ev.push({ type: 'tail', x: f.x - Math.sin(f.heading) * f.length * 0.45, z: f.z - Math.cos(f.heading) * f.length * 0.45, heading: f.heading }); }
       }
       if (f.modeT <= 0) {
-        if (f.mode === 'root') f.heading = wrap(f.heading + Math.PI + (rng() - 0.5) * 0.8);   // turns back along the same route
-        if (f.outline === 'long') f.heading = wrap(f.heading + (rng() - 0.5) * 1.6);
+        if (f.mode === 'root') f.hT = wrap(f.heading + Math.PI + (rng() - 0.5) * 0.8);   // turns back along the same route (slowly)
+        if (f.outline === 'long') f.hT = wrap(f.heading + (rng() - 0.5) * 1.6);
         setMode(f, 'cruise', rng);
       }
       break;
     }
-    case 'bolt': f.speed = 3; if (f.modeT <= 0) f.gone = true; break;
+    case 'bolt': f.vT = G.boltV; if (f.modeT <= 0 || f.alpha <= 0) f.gone = true; break;
     case 'sink': if (f.modeT <= 0 || f.alpha <= 0) f.gone = true; break;
     case 'take': case 'nose': {
       const b = f.bait;
       if (!b) { setMode(f, 'cruise', rng); break; }
-      if (f.wait > 0) { f.wait -= dt; f.speed = 0; break; }   // the bob settles (0.5–1.5 s), then it turns to the bait
-      const want = Math.atan2(b.x - f.x, b.z - f.z);
-      f.heading = wrap(f.heading + clamp(wrap(want - f.heading), -2.5 * dt, 2.5 * dt));
+      if (f.wait > 0) { f.wait -= dt; f.vT = 0; break; }   // the bob settles (0.5–1.5 s), then it turns to the bait
+      f.hT = Math.atan2(b.x - f.x, b.z - f.z);
       const d = Math.hypot(b.x - f.x, b.z - f.z) - f.length * 0.5;
-      f.speed = d > 0.15 ? Math.min(0.7, 0.25 + d * 0.4) : 0;
+      f.vT = d > 0.15 ? Math.min(0.5, 0.15 + d * 0.3) * (Math.abs(wrap(f.hT - f.heading)) < 0.8 ? 1 : 0.3) : 0;
       if (d <= 0.15 && !f.reached) {
         f.reached = true;
         if (f.mode === 'take') ev.push({ type: 'reach' });
@@ -481,30 +486,40 @@ export function stepSight(f, dt, env = {}) {
       break;
     }
     case 'turn': {   // it noses the bait and turns slowly away (no spook)
-      f.heading = wrap(f.heading + 1.6 * dt);
-      f.speed = 0.22;
+      f.hT = wrap(f.heading + 0.6);
+      f.vT = 0.18;
       if (f.modeT <= 0) { f.bait = null; f.reached = false; setMode(f, 'cruise', rng); }
       break;
     }
     default: setMode(f, 'cruise', rng);
   }
+  // the glide: it turns toward hT and eases to vT, never by a jump (a calm bolt turns and speeds up a little quicker)
+  const bolting = f.mode === 'bolt';
+  const tr = (bolting ? G.boltTurn : G.turn) * dt, ac = (bolting ? G.boltAcc : G.acc) * dt;
+  f.hT = wrap(f.hT);
+  f.heading = wrap(f.heading + clamp(wrap(f.hT - f.heading), -tr, tr));
+  f.speed = Math.max(0, f.speed + clamp(f.vT - f.speed, -ac, ac));
   if (f.speed > 0) {
-    const nx = f.x + Math.sin(f.heading) * f.speed * dt, nz = f.z + Math.cos(f.heading) * f.speed * dt;
     const free = f.mode === 'bolt' || f.mode === 'take' || f.mode === 'nose' || f.mode === 'turn';
-    const homeOk = Math.hypot(nx - f.home.x, nz - f.home.z) < num(f.leash, 12);   // (it keeps near where it was first seen: a small fish a few metres)
-    const raftOk = !raft || Math.hypot(nx - raft.x, nz - raft.z) >= f.keepOff + 0.3;
-    if (free || (homeOk && raftOk && (!env.ok || env.ok(nx, nz)))) { f.x = nx; f.z = nz; }
-    else {   // the edge of its water (or the raft's distance): it turns back
-      f.heading = wrap(f.heading + Math.PI * (0.55 + 0.3 * rng()) * (rng() < 0.5 ? -1 : 1));
-      if (f.outline === 'long') setMode(f, 'hold', rng);
+    const can = (x, z) => Math.hypot(x - f.home.x, z - f.home.z) < num(f.leash, 12)   // (it keeps near where it was first seen: a small fish a few metres)
+      && (!raft || Math.hypot(x - raft.x, z - raft.z) >= f.keepOff + 0.3) && (!env.ok || env.ok(x, z));
+    // it looks ahead by its head and the way it needs to slow: nearing the edge of its water (or the raft's distance) it slows and
+    // turns back gently
+    const la = 0.2 + f.length * 0.5 + f.speed * f.speed / (2 * G.acc);
+    if (!free && Math.abs(wrap(f.hT - f.heading)) < 0.3 && !can(f.x + Math.sin(f.heading) * la, f.z + Math.cos(f.heading) * la)) {
+      f.hT = wrap(f.heading + Math.PI * (0.55 + 0.3 * rng()) * (rng() < 0.5 ? -1 : 1));
+      f.vT = Math.min(f.vT, 0.1);
     }
+    const nx = f.x + Math.sin(f.heading) * f.speed * dt, nz = f.z + Math.cos(f.heading) * f.speed * dt;
+    if (free || can(nx, nz)) { f.x = nx; f.z = nz; }
+    else f.speed = Math.max(0, f.speed - (G.boltAcc - G.acc) * dt);   // (at the very edge it comes to rest while it turns)
   }
   if (f.gone) ev.push({ type: 'gone' });
   return ev;
 }
 function bolt(f, away) {
-  f.mode = 'bolt'; f.modeT = SIGHT.spook.bolt; f.speed = 3; f.bait = null;
-  if (Number.isFinite(away)) f.heading = away;
+  f.mode = 'bolt'; f.modeT = SIGHT.spook.bolt; f.vT = SIGHT.glide.boltV; f.bait = null;
+  if (Number.isFinite(away)) f.hT = away;   // (it turns away and speeds up smoothly as it fades: a calm bolt, never a jump)
 }
 /** Make it bolt away from (x, z) (a cast on it, a splash by it): {type: 'bolt', x, z, heading}. */
 export function boltFrom(f, x, z) {

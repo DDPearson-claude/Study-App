@@ -3987,7 +3987,7 @@ export function create(ctx) {
         }
       } else if (!o.at && c.rd < f.keepOff + 0.4) continue;
       f.x = c.x; f.z = c.z; f.home = { x: c.x, z: c.z }; f.heading = heading; f.depth = c.depth;
-      if (o.mode) { f.mode = o.mode; f.modeT = 30; f.speed = o.mode === 'cruise' ? num(o.speed, 0.35) : 0; }
+      if (o.mode) { f.mode = o.mode; f.modeT = 30; f.speed = f.vT = o.mode === 'cruise' ? num(o.speed, 0.35) : 0; f.hT = heading; }
       if (o.life) f.life = o.life;
       S.prerolls.set(f.id, pre);
       W2.sights.push(f);
@@ -4099,7 +4099,7 @@ export function create(ctx) {
       SENV.raft = raft; SENV.quiet = quiet; SENV.f = f;
       const ev = SI.stepSight(f, dt, SENV);
       f.depth = depthAt(f.x, f.z);
-      f.vis = sightVis(f, light, raft, lanternR);
+      { const v = sightVis(f, light, raft, lanternR); f.vis = Number.isFinite(f.vis) && f.age > dt ? f.vis + clamp(v - f.vis, -dt, dt) : v; }   // (its visibility eases over about 1 s: never a pop)
       for (const e of ev) onSightEvent(f, e);
       if (f.gone) { W2.sights.splice(i, 1); S.prerolls.delete(f.id); emit('sign:end', { id: f.id, kind: 'sight', x: f.x, z: f.z }); }
     }
