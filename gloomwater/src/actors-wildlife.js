@@ -488,6 +488,7 @@ export function attachWildlife(ctx) {
         Fm.mesh.setMatrixAt(i, m4.compose(v.set(b.x, wy * 0.4 + 0.03, b.z), q, fsc));
         iP.setXYZW(i, b.dip, b.tuck, b.dive, b.wake);
         iM.setX(i, b.dimple);
+        if (b.events.length && b.events.includes('dive')) { try { ctx.bus?.emit?.('wild:frogDive', { x: b.x, z: b.z }); } catch { /* optional */ } }   // (LAKE 2, lane A: its plop)
       }
       Fm.mesh.count = n;
       Fm.mesh.instanceMatrix.needsUpdate = true; iP.needsUpdate = true; iM.needsUpdate = true;

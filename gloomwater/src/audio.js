@@ -74,12 +74,18 @@
 //   the bed by light (late day's air and reeds, dusk thinner with a low tone, night's low tones) and its breaths; each place in
 //   earshot (moss_lily, moss_chain, the Buoy Lights' hum and moss_buoy, moss_toll), low-passed and quieter through a standing bank;
 //   world:giantBack {placeId, x, z} → giant_roll (at night only) · place:lift {phase: 'start'} → mist_lift · loop:seal → seal_press
+// Sporewood under the loop (LAKE 2, lane A, docs/loop/LAKE2.md §3.7; the rules in audio-sporewood.js), on a trip there or at home while
+// the barge lies there (the Mossmere's sound stays the Mossmere's): its bed by light (the air under the caps, drips, spore pops, the frog
+// chorus building over the dusk, the night's insect pulse and deeper drone), the Seep's fall, each place in earshot (the Lullaby's
+// music-box drip, the Gill Harp's hum, the Veil's whisper, the Mother's Cup's breath), world:giantBack → harp_swell / puffer_rustle (at
+// night), wild:frogDive {x, z} → frog_plop
 import { createEngine, clamp, lerp, mtof } from './audio-dsp.js';
 import { createMusic, ZONE_MUSIC } from './audio-music.js';
 import { SFX, CONTRACT_SFX, V3_SFX } from './audio-sfx.js';
 import * as V3 from './audio-v3.js';
 import * as MOSS from './audio-mossmere.js';   // M1 step 3a: the Mossmere's own sound under the loop (pure rules)
 import * as HOME from './audio-home.js';   // M1 step 5b (lane 5b-home): home's bed on the barge (pure rules and recipes)
+import * as SPORE from './audio-sporewood.js';   // LAKE 2, lane A: Sporewood's own sound under the loop (pure rules and recipes)
 // >>> INTRO LANE B: import (the opening cut scene's sound cue; docs/v3/intro/SPEC.md section 7.7)
 import { createIntroCue } from './audio-intro.js';
 import { soundEvents, soundEventsBetween } from './intro.js';
@@ -336,6 +342,8 @@ export function create(ctx) {
   function fishView() { const v = ctx.fishing?.view; return v && typeof v === 'object' && !v.isStub ? v : null; }
   function zoneId() {
     if (ctx.flow === 'hub' && cove.active) return 'cove';
+    // (LAKE 2, lane A: home at a later water plays its hub mood in that water's key; on the Mossmere as built)
+    if (ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true) { const w = homeWater(); if (w !== 'mossmere' && ZONE_MUSIC[w]) return w; }
     const zones = ctx.data?.ZONES;
     const run = ctx.state?.run;
     let id = run && typeof run.zone === 'string' ? run.zone : null;
@@ -877,13 +885,15 @@ export function create(ctx) {
   }
   // ---------------------------------------------------------------- the Mossmere under the loop (M1 step 3a; audio-mossmere.js)
   const LOOP_ON = () => ctx.data?.LOOP_ENABLED === true;
-  /** The loop's places with their water, centre and whether their mist has lifted (re-read every 0.5 s). */
-  function mossPlaces() {
+  /** A water's places (the loop's, LOOP.places[id].water) with their water, centre and whether their mist has lifted (re-read
+   *  every 0.5 s). */
+  function mossPlaces(water = 'mossmere') {
     const P = ctx.data?.LOOP?.places || {}, lp = ctx.data?.loopPlace;
     let lifted = [];
     try { const l = ctx.progression?.loop; const v = l && !l.isStub ? l.lifted?.() : null; lifted = Array.isArray(v) ? v : []; } catch { lifted = []; }
     const out = [];
     for (const id of Object.keys(P)) {
+      if (typeof P[id]?.water === 'string' && P[id].water !== water) continue;
       let p = null;
       try { p = typeof lp === 'function' ? lp(id) : null; } catch { p = null; }
       if (p?.area) out.push({ id, area: p.area, x: num(p.x), z: num(p.z), lifted: lifted.includes(id) });
@@ -913,7 +923,7 @@ export function create(ctx) {
   /** The bed by light, its breaths, and each place's voice by distance (clear when lifted, through its bank when not). */
   function mossContinuous(dt, flow) {
     const run = ctx.state?.run;
-    const on = MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? (flow === 'home' ? 'mossmere' : null), outing: run?.outing ?? null });
+    const on = MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? (flow === 'home' ? homeWater() : null), outing: run?.outing ?? null });
     const k = MOSS.mossLevel(on, { paused: ctx.paused === true, blocking: isBlocking() }) * (now0() < af.stillUntil ? 0.2 : 1);
     moss.level = k;
     if (k <= 0) {
@@ -946,7 +956,7 @@ export function create(ctx) {
     }
     // the places: their voices at the raft (re-read every 0.5 s: what is lifted changes at a lift's end)
     moss.placesT -= dt;
-    if (moss.placesT <= 0 || !moss.places.length) { moss.placesT = 0.5; moss.places = mossPlaces(); }
+    if (moss.placesT <= 0 || !moss.places.length) { moss.placesT = 0.5; moss.places = mossPlaces('mossmere'); }
     const p = ctx.player?.position, px = num(p?.x, NaN), pz = num(p?.z, NaN);
     let hum = null;
     for (const pl of moss.places) {
@@ -1000,7 +1010,7 @@ export function create(ctx) {
   }
   function mossTrip() { const r = ctx.state?.run; return LOOP_ON() && MOSS.mossOn({ loopOn: true, flow: ctx.flow, zone: r?.zone ?? null, outing: r?.outing ?? null }); }
   function wcStems(p) {
-    if (!mossTrip()) return;
+    if (!mossTrip() && !sporeTrip()) return;   // (LAKE 2, lane A: Sporewood's reeds knock too)
     const pl = ctx.player?.position, g = MOSS.stemsRustle(p, num(pl?.x, NaN), num(pl?.z, NaN));
     if (g <= 0.01) return;
     wcReg(); resetScratch(); if (Number.isFinite(p.x)) spatial({ x: p.x, z: p.z }, scratch);
@@ -1022,6 +1032,182 @@ export function create(ctx) {
     scratch.volume = MOSS.CROAK.volume * g; scratch.why = 'heron'; play(MOSS.CROAK.sfx, scratch);
   }
   // <<< WC-3
+  // >>> LAKE 2, lane A (docs/loop/LAKE2.md §3.7): Sporewood's own sound under the loop (audio-sporewood.js): its bed by light and the
+  // frog chorus, the Seep's fall, each place in earshot (the Gill Harp a hum of partials), the giants' backs, the lily frogs' plops.
+  // Its voices are added to SFX the first time Sporewood sounds (under the loop only: the flag-off tables are untouched).
+  const spore = { layers: {}, zero: {}, idle: 0, timers: {}, chorusT: null, places: [], placesT: 0, ptimers: {}, hum: null, humPan: null, humIdle: 0,
+    fall: null, fallPan: null, fallIdle: 0, dropT: 0.5, light: null, k: 0, level: 0, swellUntil: 0, swellGain: 1, reg: false,
+    o: { volume: 1, pitch: 1, pan: 0, delay: 0, force: false, why: undefined, muffle: undefined, n: undefined, at: undefined } };
+  function sporeReg() { if (!spore.reg) { spore.reg = true; Object.assign(SFX, SPORE.SFX_SPORE); } }
+  /** The one options object Sporewood's voices are played with (reset each time: no allocation per sound). */
+  function sporeO() { const o = spore.o; o.volume = 1; o.pitch = 1; o.pan = 0; o.delay = 0; o.force = false; o.why = undefined; o.muffle = undefined; o.n = undefined; o.at = undefined; return o; }
+  /** The water home lies on: the world's (a loop water), else where the barge lies, else the Mossmere (the Mossmere until a tow). */
+  function homeWater() {
+    const W = ctx.data?.LOOP?.waters || {};
+    let id = null;
+    try { const z = ctx.world && !ctx.world.isStub ? ctx.world.getZone?.() : null; id = typeof z?.id === 'string' && W[z.id] ? z.id : null; } catch { id = null; }
+    if (!id) { const b = ctx.state?.meta?.loop?.barge?.water; id = typeof b === 'string' && W[b] ? b : null; }
+    return id || 'mossmere';
+  }
+  function sporeTrip() { const r = ctx.state?.run; return LOOP_ON() && SPORE.sporeOn({ loopOn: true, flow: ctx.flow, zone: r?.zone ?? null, outing: r?.outing ?? null }); }
+  /** A loop of the bed (a tone or a noise through its filter; `vib` the pitch, `lfo` the filter, `am` / `sway` the gain), shaped for killLoop. */
+  function sporeLoop(def, dest) {
+    const t = ac.currentTime, l = { dead: false, idle: 0 };
+    l.flt = ac.createBiquadFilter(); l.flt.type = def.ft; l.flt.frequency.value = def.src === 'osc' ? num(def.ff, def.f) : def.f; l.flt.Q.value = num(def.q, 0.7);
+    l.g = ac.createGain(); l.g.gain.value = 0;
+    let head = l.flt;
+    const A = def.am || def.sway;
+    if (A) {   // (the gain swings between 1 − depth and 1 at `rate`: the insects' pulse, the strings' sway)
+      l.hp = ac.createGain(); l.hp.gain.value = 1 - num(A.depth, 0) / 2;
+      l.o2 = ac.createOscillator(); l.o2.frequency.value = num(A.rate, 1);
+      l.hg = ac.createGain(); l.hg.gain.value = num(A.depth, 0) / 2;
+      l.o2.connect(l.hg); l.hg.connect(l.hp.gain); l.o2.start(t);
+      l.flt.connect(l.hp); head = l.hp;
+    }
+    head.connect(l.g); l.g.connect(dest);
+    if (def.src === 'osc') {
+      l.o = ac.createOscillator(); l.o.type = def.type; l.o.frequency.value = def.f;
+      l.lfo = ac.createOscillator(); l.lfo.frequency.value = 0.13; l.lg = ac.createGain(); l.lg.gain.value = num(def.vib, 0);
+      l.lfo.connect(l.lg); l.lg.connect(l.o.frequency); l.o.connect(l.flt); l.o.start(t); l.lfo.start(t);
+    } else {
+      l.s = ac.createBufferSource(); l.s.buffer = eng.buf(def.kind); l.s.loop = true; l.s.connect(l.flt); l.s.start(t, Math.random() * 1.5);
+      if (def.lfo) { l.lfo = ac.createOscillator(); l.lfo.frequency.value = def.lfo.rate; l.lg = ac.createGain(); l.lg.gain.value = def.lfo.depth; l.lfo.connect(l.lg); l.lg.connect(l.flt.frequency); l.lfo.start(t); }
+    }
+    return l;
+  }
+  function sporePanner() { const pn = ac.createStereoPanner ? ac.createStereoPanner() : ac.createGain(); pn.connect(N.sfxDry); return pn; }
+  function dropPan(pn) { if (pn) setTimeout(() => { try { pn.disconnect(); } catch { /* ignore */ } }, 500); }
+  function sporeKillHum() { if (spore.hum) for (const h of spore.hum) killLoop(h); spore.hum = null; dropPan(spore.humPan); spore.humPan = null; spore.humIdle = 0; spore._hp = undefined; }
+  function sporeKillFall() { spore.fall = killLoop(spore.fall); dropPan(spore.fallPan); spore.fallPan = null; spore.fallIdle = 0; spore._fp = undefined; }
+  function sporeKill() {
+    for (const k of Object.keys(spore.layers)) killLoop(spore.layers[k]);
+    spore.layers = {}; spore.zero = {}; sporeKillHum(); sporeKillFall(); spore.timers = {}; spore.ptimers = {}; spore.chorusT = null;
+  }
+  function sporeFade() {
+    for (const l of Object.values(spore.layers)) if (l && !l.dead) setT(l, 'g', l.g.gain, 0, 0.8);
+    if (spore.hum) for (const h of spore.hum) if (!h.dead) setT(h, 'g', h.g.gain, 0, 0.8);
+    if (spore.fall && !spore.fall.dead) setT(spore.fall, 'g', spore.fall.g.gain, 0, 0.8);
+  }
+  /** The bed by light, its one-shots and the chorus, the Seep, and each place's voice by distance (clear when lifted, else through
+   *  its bank): on a trip at Sporewood, or at home while it lies there. */
+  function sporeContinuous(dt, flow) {
+    const run = ctx.state?.run;
+    const on = SPORE.sporeOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? (flow === 'home' ? homeWater() : null), outing: run?.outing ?? null });
+    const k = SPORE.sporeLevel(on, { paused: ctx.paused === true, blocking: isBlocking() }) * (now0() < af.stillUntil ? 0.2 : 1);
+    spore.level = k;
+    if (k <= 0) {
+      if (Object.keys(spore.layers).length || spore.hum || spore.fall) { sporeFade(); spore.idle += dt; if (spore.idle > 3) sporeKill(); }
+      return;
+    }
+    sporeReg();
+    spore.idle = 0;
+    const light = SPORE.sporeLight(phaseName()), pk = num(phaseInfo()?.k, 0);
+    spore.light = light; spore.k = pk;
+    const L = SPORE.bedLevels(light);
+    for (const [key, def] of Object.entries(SPORE.BED_LAYERS)) {
+      let l = spore.layers[key];
+      if (!l && L[key] > 0) { l = spore.layers[key] = sporeLoop(def, N.sfxDry); spore.zero[key] = 0; }
+      if (!l) continue;
+      setT(l, 'g', l.g.gain, L[key] * k, 2.5);
+      // (a layer silent at this light for 6 s is let go: a phone keeps only the loops it hears)
+      spore.zero[key] = L[key] > 0 ? 0 : num(spore.zero[key], 0) + dt;
+      if (spore.zero[key] > 6) { killLoop(l); delete spore.layers[key]; delete spore.zero[key]; }
+    }
+    const live = k >= 1, rnd = Math.random;
+    if (live) {
+      for (const [id, V] of SPORE.bedVoices(light)) {
+        spore.timers[id] = num(spore.timers[id], V.every[0] * rnd()) - dt;
+        if (spore.timers[id] > 0) continue;
+        spore.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * rnd();
+        const o = sporeO(); o.pan = (rnd() * 2 - 1) * V.spread; o.volume = V.volume * (0.7 + 0.3 * rnd()); o.why = `bed:${light}`;
+        play(V.sfx, o);
+      }
+      const C = SPORE.chorus(light, pk);
+      if (C) {
+        spore.chorusT = num(spore.chorusT, C.every[0] * rnd()) - dt;
+        if (spore.chorusT <= 0) {
+          spore.chorusT = C.every[0] + (C.every[1] - C.every[0]) * rnd();
+          const o = sporeO(); o.pan = (rnd() * 2 - 1) * SPORE.CHORUS.spread; o.volume = C.volume * (0.5 + 0.5 * rnd()); o.pitch = C.pitch;
+          o.n = C.croaks[0] + ((rnd() * (C.croaks[1] - C.croaks[0] + 1)) | 0); o.why = `frogs:${light}`;
+          play(SPORE.CHORUS.sfx, o);
+        }
+      } else spore.chorusT = null;
+    }
+    const p = ctx.player?.position, px = num(p?.x, NaN), pz = num(p?.z, NaN);
+    // the Seep: its fall a loop by distance, the drops at its foot
+    const S = SPORE.SEEP, sa = SPORE.seepAt(px, pz), sl = SPORE.seepLight(light), fg = sa.gain * k * sl * S.fall.level;
+    if (fg > 0.0005 && (!spore.fall || spore.fall.dead)) { spore.fallPan = sporePanner(); spore.fall = sporeLoop(S.fall, spore.fallPan); }
+    if (spore.fall && !spore.fall.dead) {
+      setT(spore.fall, 'g', spore.fall.g.gain, fg, 0.6);
+      const o = sporeO(); spatial({ x: S.x, z: S.z }, o); if (spore.fallPan?.pan) setT(spore, 'fp', spore.fallPan.pan, o.pan * 0.8, 0.5, 0.01);
+      spore.fallIdle = fg > 0.0005 ? 0 : spore.fallIdle + dt;
+      if (spore.fallIdle > 3) sporeKillFall();
+    }
+    if (live && sa.gain > 0.01) {
+      spore.dropT -= dt;
+      if (spore.dropT <= 0) {
+        spore.dropT = S.drop.every[0] + (S.drop.every[1] - S.drop.every[0]) * rnd();
+        const o = sporeO(); spatial({ x: S.x, z: S.z }, o); o.volume = S.drop.volume * sa.gain * k * sl; o.why = 'seep';
+        play(S.drop.sfx, o);
+      }
+    } else spore.dropT = Math.min(spore.dropT, 0.4);
+    // the places: their voices at the raft (re-read every 0.5 s: what is lifted changes at a lift's end)
+    spore.placesT -= dt;
+    if (spore.placesT <= 0 || !spore.places.length) { spore.placesT = 0.5; spore.places = mossPlaces(SPORE.WATER); }
+    let harp = null;
+    for (const pl of spore.places) {
+      const V = SPORE.PLACE_VOICES[pl.id];
+      if (!V) continue;
+      const at = SPORE.placeVoiceAt(pl.id, pl.area, px, pz, { lifted: pl.lifted });
+      pl.gain = at.gain; pl.muffle = at.muffle; pl.dist = at.dist;
+      if (V.hum) harp = { V, pl, at };
+      if (!V.sfx) continue;
+      if (!live || at.gain <= 0.01) { spore.ptimers[pl.id] = Math.min(num(spore.ptimers[pl.id], 0.5), 0.5); continue; }
+      spore.ptimers[pl.id] = num(spore.ptimers[pl.id], 0.5) - dt;
+      if (spore.ptimers[pl.id] > 0) continue;
+      spore.ptimers[pl.id] = V.every[0] + (V.every[1] - V.every[0]) * rnd();
+      const o = sporeO(); spatial({ x: pl.x, z: pl.z }, o);
+      o.volume = V.volume * at.gain * k; o.muffle = at.muffle || undefined; o.why = `${pl.id}${at.muffle ? ':bank' : ''}`;
+      play(V.sfx, o);
+    }
+    // the Gill Harp's one note: its partials as loops through one panner, by distance, swelling while the Harpstring's back turns
+    const swelling = now0() < spore.swellUntil;
+    const hg = harp ? harp.at.gain * SPORE.harpLight(light) * k * (swelling ? spore.swellGain : 1) : 0;
+    if (hg > 0.0005 && !spore.hum) { spore.humPan = sporePanner(); spore.hum = harp.V.hum.map((H) => sporeLoop({ src: 'osc', ...H }, spore.humPan)); }
+    if (spore.hum) {
+      const H = harp ? harp.V.hum : SPORE.PLACE_VOICES.gill_harp.hum;
+      spore.hum.forEach((h, i) => {
+        if (h.dead) return;
+        setT(h, 'g', h.g.gain, hg * H[i].level, swelling ? 0.5 : 0.8);
+        if (harp) setT(h, 'f', h.flt.frequency, harp.at.muffle > 0 ? Math.min(H[i].ff, harp.at.muffle * 0.3) : H[i].ff, 0.8, 0.01);
+      });
+      if (harp) { const o = sporeO(); spatial({ x: harp.pl.x, z: harp.pl.z }, o); if (spore.humPan?.pan) setT(spore, 'hp', spore.humPan.pan, o.pan * 0.8, 0.5, 0.01); }
+      spore.humIdle = hg > 0.0005 ? 0 : spore.humIdle + dt;
+      if (spore.humIdle > 3) sporeKillHum();
+    }
+  }
+  /** world:giantBack {placeId, x, z} at Sporewood: at night, the Harpstring's hum swells, the Puffer's globe rustles (through its bank). */
+  function sporeGiantBack(p = {}) {
+    if (!LOOP_ON() || !SPORE.backOn(phaseName()) || !sporeTrip()) return;
+    sporeReg();
+    const B = SPORE.backVoice(p.placeId);
+    const pos = Number.isFinite(p.x) ? { x: p.x, z: p.z } : null, pp = ctx.player?.position;
+    const d = pos && pp ? Math.hypot(pos.x - num(pp.x), pos.z - num(pp.z)) : 30;
+    const o = sporeO(); spatial(pos, o);
+    o.volume = Math.max(0.3, MOSS.voiceGain(d, SPORE.BACK_EARSHOT)); o.muffle = SPORE.BACK_MUFFLE; o.why = p.placeId || 'giant';
+    play(B.sfx, o);
+    if (B.swell) { spore.swellUntil = now0() + B.swell.hold; spore.swellGain = B.swell.gain; }
+  }
+  /** wild:frogDive {x, z}: a lily frog off its raft, by distance (on a trip at Sporewood or at home there). */
+  function sporePlop(p = {}) {
+    if (!(spore.level > 0)) return;
+    const pl = ctx.player?.position, g = SPORE.plopGain(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    sporeReg();
+    const o = sporeO(); spatial({ x: p.x, z: p.z }, o); o.volume = SPORE.PLOP.volume * g * spore.level; o.why = 'frog';
+    play(SPORE.PLOP.sfx, o);
+  }
+  // <<< LAKE 2, lane A
   // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): home's bed (audio-home.js)
   const homeS = { stove: null, idle: 0, timers: {}, reg: false };
   /** Where a home voice sounds: the cabin door (the stove), the barge's side, Murk's barge, or nowhere (far: unpanned). */
@@ -1259,6 +1445,8 @@ export function create(ctx) {
         resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.6; scratch.volume = 0.7 + Math.random() * 0.3;
         // (wave 2: the Mossmere under the loop keeps the crickets and the drip, never the frogs: no frogs in the stone north)
         if (MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? null, outing: run?.outing ?? null })) scratch.frogs = false;
+        // (LAKE 2, lane A: on Sporewood its own lily frogs' chorus takes the far frogs' place; the crickets and the drip kept)
+        else if (SPORE.sporeOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? null, outing: run?.outing ?? null })) scratch.frogs = false;
         play('stillnight_bed', scratch);
         bedTimer = 2.6 + Math.random() * 2.8;
       }
@@ -1272,6 +1460,7 @@ export function create(ctx) {
     afContinuous(dt, flow, fs, fv);
     coveContinuous(dt, flow);
     if (LOOP_ON()) mossContinuous(dt, flow);   // M1 step 3a: the Mossmere's bed and its places (never off the loop)
+    if (LOOP_ON()) sporeContinuous(dt, flow);  // LAKE 2, lane A: Sporewood's bed, the Seep and its places (never off the loop)
     if (LOOP_ON()) homeContinuous(dt, flow);   // M1 step 5b: home's bed on the barge (the stove, the hulls, a far bell, Murk's hand bell)
 
     // --- heartbeat at hp ≤ 2 (DESIGN §6.6), quicker on the last Ember
@@ -1557,7 +1746,8 @@ export function create(ctx) {
     // the loop, Ashwick's comeback settling on the float (WICKS §2.5): a short ember hiss beside the bobber
     on('fishing:comeback', () => { if (MOSS.comebackQuiet({ loopOn: LOOP_ON(), zone: ctx.state?.run?.zone ?? null })) return; resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });   // (WC-3: silent on the Mossmere under the loop)
     // the loop, M1 step 3a: the giant's back, a place's lift, the catch seal's press (audio-mossmere.js)
-    on('world:giantBack', (p) => mossGiantBack(p));
+    on('world:giantBack', (p) => { mossGiantBack(p); sporeGiantBack(p); });   // (LAKE 2, lane A: Sporewood's giants their own)
+    on('wild:frogDive', (p) => sporePlop(p));   // LAKE 2, lane A: a lily frog plops off its raft
     on('place:lift', (p) => mossLift(p));
     // (LOST-TACKLE §5.2: the glide through the Sluice Veil: as the raft passes under it, a splash and the water's own voice, close)
     on('place:veil', () => {
@@ -1760,6 +1950,15 @@ export function create(ctx) {
         layers: Object.fromEntries(Object.entries(moss.layers).map(([k, l]) => [k, r3(num(l?._g, 0))])),
         hum: moss.hum && !moss.hum.dead ? { level: r3(num(moss.hum._g, 0)), lowpass: r3(num(moss.hum._f, 0)) } : null,
         places: moss.places.map((p) => ({ id: p.id, lifted: p.lifted, gain: r3(num(p.gain, 0)), muffle: num(p.muffle, 0), dist: p.dist === undefined ? null : r3(p.dist) })),
+      });
+      // LAKE 2, lane A: Sporewood's layers as audio has them (the loop only)
+      if (ctx.data?.LOOP_ENABLED === true) ctx.debug.audioSpore = () => ({
+        level: spore.level, light: spore.light, k: r3(spore.k),
+        layers: Object.fromEntries(Object.entries(spore.layers).filter(([, l]) => l && !l.dead).map(([k, l]) => [k, r3(num(l?._g, 0))])),
+        hum: spore.hum ? spore.hum.map((h) => ({ level: r3(num(h._g, 0)), lowpass: r3(num(h._f, 0)) })) : null,
+        fall: spore.fall && !spore.fall.dead ? { level: r3(num(spore.fall._g, 0)) } : null,
+        swell: !!ac && ac.currentTime < spore.swellUntil,
+        places: spore.places.map((p) => ({ id: p.id, lifted: p.lifted, gain: r3(num(p.gain, 0)), muffle: num(p.muffle, 0), dist: p.dist === undefined ? null : r3(p.dist) })),
       });
       // v3 (Au2): the automatic play as audio hears it — class, class length, tier, the score, the hum and drone, the beats
       ctx.debug.audioPlay = () => {
