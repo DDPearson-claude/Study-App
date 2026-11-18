@@ -1108,6 +1108,66 @@ nothing reads `ZONE_LOOKS` at all (Sporewood's flag-off arena is its twoBasins o
   Sporewood itself); the Chart's sheet 2; the sky's share measured on sky pixels (hue-report reads the whole frame); a look sheet beside
   the Mossmere's at the gate's index.html.
 
+### 9.7 Lane C as built (gw-l2-c): the road in
+
+`LOOP.shipped` stays `'mossmere'`: everything below waits unseen until the gate sets it, and nothing of it changes the Mossmere's game
+before the tow (its Chart's 288 layouts, every size, fixture state and pick, are byte-for-byte the base's; `lake2-c.test.mjs` and a
+scratch diff against gw-lake2).
+
+- **Sheet 2, baked ahead** (`node tools/world-map/build.mjs --game`): `game.mjs`'s `shippedSheets` bakes the shipped waters' sheets and
+  the next water `LOOP.waters` already holds, so the gate needs no second bake. The Chart draws a sheet only once its water is open,
+  and decodes it only once the save owns its map (`ui-chart.prepare`, `sheetsFor`), so a phone pays nothing for it before then.
+  Sporewood's crop: box 488, 228, 164 × 109 Chart units (902 × 600 px), **57.6 KB** raw WebP with alpha (76.8 KB as base64; its line
+  100 KB). The live layer gains `more[2]` (the edge and wisp with two sheets owned); the veil fixture holds one grid per count owned.
+  `canon.mjs`'s Sporewood is the outline's two pools and the bent neck (§6.2's three blobs), its ground's height guides kept at the
+  first sketch's (`heights`). **Sheet 1 re-baked**: the global drainage routes a few thin streams on the Mossmere's sheet a little
+  differently (3,631 of 835,670 px, all in its south-west, no lake, road, mark or word moved; its hash 2dd4a235 → bd0d732a).
+- **The Chart for two waters** (`chart-draw.js`): `chartReach(model, art)` is the window over the owned sheets (their boxes' union;
+  one water: the first sheet's own box, edges and wisp, exactly as M1 drew it); each owned water's mark on the window lays its own sheet
+  beside it (`[data-sheet]`); the card is the picked water's. An outline water's sheet (`drawOutlineLake`, from `ui-chart.waterGeometry`:
+  the world's own shore every 2 m with each sample's bank height and normal, its isles' coasts, its reed runs by arc length, the Seep
+  and the Root Weir, its mooring) is one closed coast in the pen; hachures fall away from the water only where the bank stands high
+  (the Fern Bluff, the East Pool's north shore), broken, longer where higher; reed hatching on the Reed Flats and round the reedy isles;
+  the Seep comes down its ravine and the Root Weir lets the water out; the isles are their own small coasts (the Mother Cap on her
+  foot); the Mother's Cup a dark well, never a ring; the root jetty, the Hearth where it lies, Murk's lily-pad barge. The four places
+  draw their own vignettes (lily rafts, the harp's strings, the parted veil, the great cap). On an outline water a place's words never
+  cross the pen: they letter on the water or out on the paper beyond the coast with a leader; on the smallest sheet (358 × 364, all four
+  owned) a name with no room waits unlettered, its mark alone, until it is the chosen place, lettered first. Checked over 120 layouts,
+  354–1200 px wide (`lake2-c.test.mjs`). The coast's water is the world's within 3% and every vertex lies on the SDF's shore.
+- **The keys** (SPEC §5.5): `waterOpen(meta, D, water)` (progression-loop): a later water is drawn and sailed once its map is owned and
+  shipped and its gear and catch keys are held, or once the home has lain there (towed: open for good though its rod stayed behind).
+  `loop.isOpen`, `chartModel` and `chartNext` read it: a map bought with a key missing stays the sealed sheet, its map seal pressed. A
+  shipped next water's sealed sheet carries its map's price where "Coming soon" stood; tapping it opens Murk's Maps at its card. Buying
+  the lake map owns the places it opens (`LOOP.places`' `lake`: the Lullaby and the Gill Harp), as the sim already counted them.
+- **The map card**: the shelf's sealed card and the catalogue's lake page show the map's line, **"Moving on leaves bought gear
+  behind."** and the price, never clamped; buying it says Murk's line, "New water, new tackle. Your hands keep a third."
+- **The leaving card** (`ui-tow.leave`, opened by `loop-home.sailAway` on the first Sail for a water not yet towed to): "To Sporewood
+  Pools", the raft towing the Hearth in ink with Murk alongside, the four lines (`TEXT_LOOP.leave`), the hands' figures by the rod, line
+  and reel glyphs from `loop.leaveTerms` (+2 · +2 · +2 from the Mossmere's top), **Not yet** and **Tow**. Nothing is written until Tow;
+  Not yet, Escape and Back leave the Chart as it was.
+- **The tow** (`LOOP.tow.legs.sporewood`: the Lockwater's piece, sailed against its flow from the Mossmere's lamp to Sporewood's, a fall
+  and a lock: 4 s + 2 × 0.5 s; `LOOP.tow.glideIn.sporewood`: astern, `d` 14 m, the line 3 m): Tow writes the carry and the reset as the
+  leg begins (D2's `towTo` through `towBarge`, one save), the leg plays over every sheet the road has inked from the water left, the
+  world is put on Sporewood under the dip's full ink (`loop-tow` `show` → `loop-home.showWater`), and the Slow Hearth comes in stern
+  first to Rootfoot Landing, the raft towing it by the stern (`towLeadPose(…, {astern})`), then the evening at Sporewood begins. No
+  per-water camera key was needed: the glide in's camera frames from the mooring (§9.5's `LOOP.camera.sporewood` does the water's lens).
+  A reload mid-leg lands at Rootfoot with the carry written once.
+- **The way back by the lamps** (`loop-tow.wayBack`): the Sail for a water the home has lain at plays one ink dip (`LOOP.tow.dip`, held at
+  full ink until the water's first frame): the barge moves there (`towBarge`, only the barge), the world is put on it, the raft at the
+  stern's tie-up, and the glide out begins as the ink clears. No Chart, no leg, no words. Home after an evening is where the barge lies.
+- **Murk's lines at a later water** (§6.4): `saleLineId({…, water, at})` and `sayOnce('at:<water>:<key>')` say `TEXT_LOOP.murk.at`'s
+  first-evening line at home there, then its own first cap loss (GEAR-GATES' firstAway, per water), each once; the Mossmere's as built.
+- **Bytes** (M1 §3.2): `chart-draw.js` + `ui-chart.js` 76.2 KB minified (M1's 62 KB + 16 KB for the second water's drawing);
+  chart-art.js 190.6 KB in the bundle; the Chart in the built file **266.9 KB** against its line of 300 KB (M1's 200 KB and the later
+  sheet's 100 KB); `ui-tow.js` 16.7 KB (+4.1 KB: the leaving card, the later leg, the way back).
+- **Tests**: `tools/tests/lake2-c.test.mjs` (the art, `waterOpen`, the model's sealed and open sheets, `chartReach`, the outline sheet
+  against the world, the names at every size, the Mossmere's layout as built, the lake map's places, Murk's lines);
+  `loop-tow.test.mjs` (Sporewood's leg and its astern glide in; a later water's first tow and the way back's one dip);
+  `ui-chart.test.mjs` (the byte lines per sheet); `validate-data --loop` (the ahead sheet, each leg from the water before it, each
+  glide in); `tools/tests/lake2-c.scenario.mjs` (the lake map, the Chart with two sheets, the leaving card, Not yet, the tow, the first
+  evening, home at Rootfoot, the way back both ways, a reload mid-leg; `--part=chart` for the Chart's and the card's frames at a size).
+- **Left for the gate**: `LOOP.shipped = 'sporewood'` (the scenario sets it in the page); a look sheet of the Chart beside the world.
+
 ---
 
 ## 10. Left for later (named, not built)
