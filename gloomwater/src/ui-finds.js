@@ -87,6 +87,19 @@ export function findInkPath(g, id, { detail = false } = {}) {
       if (detail) { g.moveTo(0.08, 0.56); g.lineTo(0.82, 0.52); g.moveTo(0.46, 0.18); g.lineTo(0.48, 0.92); g.moveTo(0.82, 0.3); g.quadraticCurveTo(0.86, 0.5, 0.82, 0.7); } return { aspect: 1.1 };
     case 'lily_notebook': R(0.16, 0.06, 0.66, 0.8); g.moveTo(0.6, 0.86); g.lineTo(0.64, 1.0); g.lineTo(0.7, 0.92); g.lineTo(0.74, 0.86); g.closePath();
       if (detail) { g.moveTo(0.49, 0.62); g.quadraticCurveTo(0.36, 0.4, 0.49, 0.26); g.quadraticCurveTo(0.62, 0.4, 0.49, 0.62); g.moveTo(0.49, 0.62); g.quadraticCurveTo(0.32, 0.56, 0.3, 0.42); g.moveTo(0.49, 0.62); g.quadraticCurveTo(0.66, 0.56, 0.68, 0.42); g.moveTo(0.22, 0.06); g.lineTo(0.22, 0.86); } return { aspect: 0.95 };
+    // Sporewood's treasures (LAKE 2, lane S): no two closed shapes overlap, as above
+    case 'seed_jar': R(0.24, 0.04, 0.52, 0.12); R(0.32, 0.16, 0.36, 0.12); g.moveTo(0.14, 0.4); g.quadraticCurveTo(0.14, 0.28, 0.32, 0.28); g.lineTo(0.68, 0.28); g.quadraticCurveTo(0.86, 0.28, 0.86, 0.4);
+      g.lineTo(0.84, 0.88); g.quadraticCurveTo(0.84, 0.96, 0.74, 0.96); g.lineTo(0.26, 0.96); g.quadraticCurveTo(0.16, 0.96, 0.16, 0.88); g.closePath();
+      if (detail) { g.moveTo(0.15, 0.58); g.lineTo(0.85, 0.58); g.moveTo(0.15, 0.68); g.lineTo(0.85, 0.68); g.moveTo(0.36, 0.22); g.quadraticCurveTo(0.3, 0.34, 0.24, 0.42); } return { aspect: 0.85 };
+    case 'skep_lid': E(0.5, 0.07, 0.06, 0.05); g.moveTo(0.03, 0.9); g.quadraticCurveTo(0.06, 0.14, 0.5, 0.13); g.quadraticCurveTo(0.94, 0.14, 0.97, 0.9); g.closePath();
+      if (detail) { for (const [y, w] of [[0.32, 0.3], [0.5, 0.4], [0.68, 0.45], [0.82, 0.46]]) { g.moveTo(0.5 - w, y); g.quadraticCurveTo(0.5, y + 0.06, 0.5 + w, y); } } return { aspect: 1.5 };
+    case 'gardeners_trowel': g.moveTo(0.98, 0.5); g.quadraticCurveTo(0.8, 0.1, 0.5, 0.26); g.lineTo(0.5, 0.74); g.quadraticCurveTo(0.8, 0.9, 0.98, 0.5); g.closePath(); R(0.4, 0.44, 0.1, 0.12); R(0.02, 0.38, 0.36, 0.24);
+      if (detail) { g.moveTo(0.56, 0.5); g.lineTo(0.9, 0.5); g.moveTo(0.1, 0.42); g.lineTo(0.1, 0.58); } return { aspect: 3 };
+    case 'cloche_handle': E(0.5, 0.2, 0.17, 0.17); R(0.42, 0.37, 0.16, 0.13); g.moveTo(0.06, 0.92); g.lineTo(0.2, 0.62); g.lineTo(0.38, 0.5); g.lineTo(0.62, 0.5); g.lineTo(0.8, 0.6); g.lineTo(0.9, 0.78);
+      g.lineTo(0.76, 0.72); g.lineTo(0.66, 0.9); g.lineTo(0.5, 0.74); g.lineTo(0.3, 0.86); g.lineTo(0.2, 0.78); g.closePath();
+      if (detail) { g.moveTo(0.42, 0.14); g.quadraticCurveTo(0.46, 0.08, 0.54, 0.08); g.moveTo(0.3, 0.62); g.lineTo(0.42, 0.7); } return { aspect: 1 };
+    case 'seedkeeper_casket': g.moveTo(0.06, 0.4); g.quadraticCurveTo(0.08, 0.08, 0.5, 0.06); g.quadraticCurveTo(0.92, 0.08, 0.94, 0.4); g.closePath(); R(0.06, 0.44, 0.88, 0.5);
+      if (detail) { for (const x of [0.18, 0.5, 0.82]) { g.moveTo(x, 0.1); g.lineTo(x, 0.94); } R(0.46, 0.5, 0.08, 0.14); g.moveTo(0.06, 0.4); g.lineTo(0.94, 0.4); } return { aspect: 1.6 };
     default: E(0.5, 0.5, 0.4, 0.4); return { aspect: 1 };
   }
 }
