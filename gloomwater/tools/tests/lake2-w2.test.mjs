@@ -142,9 +142,10 @@ section('Sporewood\'s arena under the loop: the kit and the landmarks built, in 
   const fl = A.lush?.flora, art = A.lush?.art;
   ok(!!fl && !!art, 'the kit and the landmarks are built');
   ok(fl.cells <= 12 && fl.meshes <= 14, `the kit in at most 3 × 2 cells × 2 materials, and the flowers and the fireflies (${fl.cells} cells, ${fl.meshes} meshes)`);
-  // (LAKE 2, the art pass: the shrubs', the trees' and the far crowns' soft lobed masses and their leaf cards, the user's "blocky shrubs",
-  // cost about 16k more on high; medium 0.7×, low 0.4×, and the low tier's draws unchanged: clarity-perf --loop --sporewood measures it)
-  ok(fl.tris < 48000, `the kit's triangles on high (${fl.tris}; the design's about 23k for its plants, the strands, the landmarks' moss and the soft leaf masses on top)`);
+  // (LAKE 2, the art pass: the shrubs', the trees' and the far crowns' soft lobed masses (rounder, a leafy edge) and their leaf cards, the
+  // user's "blocky shrubs", cost about 36k more on high; medium 0.7×, low 0.4×, and the draws unchanged: clarity-perf --loop --sporewood
+  // measures the frame)
+  ok(fl.tris < 70000, `the kit's triangles on high (${fl.tris}; the design's about 23k for its plants, the strands, the landmarks' moss and the soft leaf masses on top)`);
   ok(art.rim >= 8 && art.mother && art.harp.length === 2 && art.veil?.strands > 30 && art.seep && art.groves === 5 && art.capTrees >= 10 && art.landing, 'the cap-rim window, the Mother Cap, the Gill Harp\'s two caps, the Veil\'s curtain, the Seep, five Lantern groves, the cap trees, Rootfoot Landing', art);
   ok(A.capLamps.length >= 10 && A.capLamps.every((l) => l.kind === 'cap'), `the glowcaps are the spore moths' lamps (${A.capLamps.length})`);
   ok(art.veil.w < 16, `the Veil hangs across the inlet's mouth (${art.veil.w} m across)`);

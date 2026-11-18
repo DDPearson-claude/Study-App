@@ -141,6 +141,9 @@ export function buildArena(ctx, L, opts = {}) {
   // stalks carry a grain running up them (toon.js surface shading; the detail is compiled out on low)
   const rockMat = M(inkToon({ color: 0xffffff, vertexColors: true, flatShading: true, rim: 0.32, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'stone', wet: 0.6, gloss: 0.1, shine: 48, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
   const orgMat = M(inkToon({ color: 0xffffff, vertexColors: true, rim: 0.3, rimColor: rimC, rimPower: 0.56, steps: 3, detail: 'wood', detailAmount: 0.7, grain: [0, 1, 0], wet: 0.5, gloss: 0.1, shine: 56, floor: 1 }, { fogScale: 0.9, fogMax: 1 }));
+  // (LAKE 2, the art pass: on a lush water the stalks, roots and fallen logs take the moss's floor in their shade, as the banks do, so a
+  // cream stalk seen from below reads as a stalk, never as a black arch over the water)
+  if (look) lushFloor(orgMat, bankFloorU, 'org');
   const glowMat = M(new THREE.MeshBasicMaterial({ vertexColors: true, fog: true, toneMapped: false }));
   // ink lines: a little lighter than before and evened on screen (toon.evenOutline), so near rocks are not ringed heavy
   const olRock = M(evenOutline(outlineMat(0.09, INK)));

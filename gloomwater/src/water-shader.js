@@ -936,6 +936,12 @@ void main() {
 #endif
   }
 
+#ifdef GW_LUSH
+  // (LAKE 2, the art pass: on a lush water the low lens puts the whole foot of the frame inside the lantern's reach, and its even amber
+  // floor laid one tan sheet over the green water: the pools are softer, so the water keeps its own deep green-teal and the warm light
+  // gathers round the raft and under the glowcaps)
+  pool *= 0.55;
+#endif
   // ---- warm light owns the water it touches: inside a light pool the lake's cold cast drains
   // to grey before the pool is added, so the lantern reads amber on slate/indigo water
   // (amber + blue would otherwise mix to rose)

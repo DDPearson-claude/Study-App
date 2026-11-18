@@ -451,7 +451,9 @@ function prototypes(look, K) {
     return S;
   };
   P.strand = strand([dark, m2, mixArr(hi, mgh, 0.5)]);
-  P.gill = strand([scaleArr(capC, 0.8), mixArr(capC, capHi, 0.6), scaleArr(capHi, 1.15)]);
+  // (LAKE 2, the art pass: the gill strings cream, lit from the gills they hang from: pale threads under a cap, never yellow sticks)
+  const creamC = K.bone || scaleArr(lin(0xd6caae), A * 0.8);
+  P.gill = strand([mixArr(capHi, creamC, 0.45), mixArr(capHi, creamC, 0.75), scaleArr(creamC, 1.12)]);
   // >>> LAKE 2, the art pass (the user's "blocky shrubs and crowns"): every leafy mass is soft: a lobed mound (a low sphere pushed out into
   // lobes by a few bumps) with smooth normals from its heart, so the toon lights it as one rounded thing, never as facets; leaf cards
   // round its rim and crown break its silhouette into leaves, and they and the mound's lit side carry the light through the leaves
