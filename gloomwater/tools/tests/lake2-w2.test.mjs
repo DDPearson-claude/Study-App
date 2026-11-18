@@ -39,7 +39,8 @@ ok(Math.abs(LK.lush - 0.33) < 1e-9 && LK.step === 5, 'lush 0.33, step 5 (LAKE2 Â
   const mid = hsv(LK.leaf); ok(mid.h >= 82 && mid.h <= 135, `the mid leaf's hue ${mid.h.toFixed(0)} in 82â€“135`);
   const ff = hsv(LK.fireflies); ok(ff.h >= 55 && ff.h <= 80 && ff.s <= 0.4, `the fireflies pale lime (hue ${ff.h.toFixed(0)}, s ${ff.s.toFixed(2)})`);
   const P = D.ZONES.find((z) => z.id === 'sporewood').palette, Poff = D_OFF.ZONES.find((z) => z.id === 'sporewood').palette;
-  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, pulled to green by the user's words; off the loop the ember garden's)
+  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, Clear Night-led and never green, by the user's words; off the loop
+  // the ember garden's)
   ok(JSON.stringify(P) === JSON.stringify({ ...Poff, ...LK.air.palette }) && JSON.stringify(P) !== JSON.stringify(Poff), 'under the loop the palette is the ember garden\'s with Sporewood\'s own air laid over it; off the loop as built');
   for (const k of ['fog', 'water', 'waterDeep', 'ink', 'ambient']) { const c = hsv(P[k]); ok(c.v <= 0.4 && (c.v < 0.1 || c.s <= 0.6), `the air's ${k} keeps Clear Night's darkness (v ${c.v.toFixed(2)}, s ${c.s.toFixed(2)})`); }
   ok(P.glow === Poff.glow && P.candle === Poff.candle && P.accent === Poff.accent, 'its amber glow, its candle and its rose accent as built');

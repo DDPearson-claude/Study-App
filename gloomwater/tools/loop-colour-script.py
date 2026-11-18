@@ -69,11 +69,11 @@ AMOUNT = {1: 0.0, 2: 0.671, 3: 1.332, 4: 1.202, 5: 0.47, 6: 1.124, 7: 2.298, 8: 
 # mere"): Sporewood takes step 5's green at once. Its own step in is held to the lower bounds only (it must rise, never fall), and the
 # step out of it is reported as pending, not failed, until the waters after it are re-stepped from it as each ships.
 EXCEPT = {2: 'LAKE2 section 1A: Sporewood takes step 5 at once; the waters after it re-step from it when each ships'}
-# The second exception (LAKE2.md section 9.11, the user's words "too purple"): Sporewood's air, sky and water are its own, pulled to green
-# (a green-gold day, an amber-rose dusk, a deep blue-green night), so the gates that keep the air, the sky and the water out of green
-# (air never green, the sky band, the water band, teal, the Oklab cast) are reported for it, not failed. Its darkness and its leaf caps
-# still hold.
-AIR_EXCEPT = {2: 'LAKE2 section 9.11: Sporewood\'s air, sky and water pulled to green (the user\'s words)'}
+# The second exception (LAKE2.md section 9.11, the user's words "too purple", then "possibly too much green"): Sporewood's air, sky and
+# water are its own (Clear Night-led and never green: a blue-teal air, cream light, a dark teal water), its share a floor rather than a
+# band, and the gates on its sky, water, teal and cast reported for it rather than failed (its painted frame keeps the lake's green
+# reflections). Its darkness and its leaf caps still hold.
+AIR_EXCEPT = {2: 'LAKE2 section 9.11: Sporewood\'s own air, sky and water (the user\'s words)'}
 
 
 # ----------------------------------------------------------------------------------------------------------- colour helpers

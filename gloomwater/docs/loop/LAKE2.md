@@ -1487,7 +1487,26 @@ Mossmere is untouched (outline-shore part 1's hashes pinned, its frames the same
   figures move with the shares by a hair (not re-run here; the gate's `clams.mjs --shipped=sporewood` re-measures them).
 - **The haze and the places' banks**: a warm cream (#e4dac6), green-grey in shade and at night, never lavender.
 
-MEASURED_PLACEHOLDER
+- **Not done** (named): the Netcloud Fry's cloud centred in a cupped hand (the show holds a fry in a pinch; a cupped hand is a new pose
+  in actors-show, left for a show pass); the near water inside the lantern's reach still reads warm olive under the low lens, most on a
+  tall phone frame (the lantern's pool is the play's light; it is softer, and green beyond it); the dusk's green share (7.8%) sits under
+  W2's dusk figure (10.5): its leaves are lit amber-bronze by the low key, as asked, and fall in the yellow band.
+- **Measured** (`lake2-art.scenario.mjs --hue --tier=medium`, 960 × 540, W2's three poses: the spawn, the day water, the old water;
+  `hue-report.mjs`, chromatic weight per band). Green share, the mean of the three poses: **day 30.1%** (32.4 · 40.6 · 17.4; before,
+  9c5bf45: 4.9), **dusk 7.8%** (7.9 · 9.7 · 5.7; before 4.1), **night 9.4%** (8.3 · 15.6 · 4.4, teal 4–11% more; before 2.3). **Violet
+  and magenta 0.0%** in every frame (before: day 8.4 + 10.2, dusk 13.2 + 9.4, night 17.7 + 8.5). The three lights apart: day yellow-green
+  (yellow 59%, green 30%), dusk amber (orange 42%, yellow 50%), night dark (chroma 0.12–0.14 at the spawn and the day water against 0.22 by day) with the glowcaps'
+  amber (orange 72%) and teal. The Mossmere's frames (1280 × 800, its play lens and the moat, three lights) measure as before within the
+  water's animation: pooled blue 45.5 / 45.5, violet 34.4 / 33.8, green 0.0 / 0.0 (after / before); its geometry hashes
+  (outline-shore part 1) unchanged. **The cost** (`clarity-perf --loop --sporewood`, at night, the West Pool, the East Pool and the
+  neck): on the phone (390 × 844, `--mobile`) **low 96–98 calls**, 94–100k triangles, the world's own 25–27 calls (the Mossmere's banks
+  frame 32), cpuMs 1.8–2.5k against that frame's 4.4k; medium 177–178 calls, 239–256k triangles, cpuMs 2.6–2.7k against 5.2k; high
+  179–186 calls, 391–417k triangles. DESKPERF The kit is 64.5k triangles on high, 46.0k on medium, 26.8k on low, in 14 meshes on high and
+  7 on low (draws as W2's). A giant's show at night was not measured on either run (the forced bite timed out at 240 s, as on the
+  shared box before); it is a Mossmere case.
+- **Frames**: the look sheet (Sporewood's three lights beside the Mossmere's, before and after), the set pieces before and after, the
+  fish sheet (each changed fish beside its relative in Sporewood's show light, its card ink) and the phone frames: the lane's scratch
+  folder `l2-art/` (look-sheet.jpg, set-pieces.jpg, fish-sheet.jpg, phone/).
 
 ## 10. Left for later (named, not built)
 

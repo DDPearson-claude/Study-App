@@ -5952,47 +5952,50 @@ LOOP.tow.glideIn.sporewood = { d: 14, line: 3, astern: true };
 export const ZONE_LOOKS = Object.freeze({
   sporewood: Object.freeze({
     lush: 0.33, step: 5,
-    leafDark: 0x3f5a3c, leaf: 0x566e48, leafHi: 0x7f9a5a, moss2: 0x4d6a42, mossG: 0x4d5a3b, mossGHi: 0x7b8a59, mossAmt: 0.6,
-    bloom: Object.freeze([0xf0e0d0, 0xeeb0c8]), fireflies: 0xe0e49c, albedo: 1.4,
+    leafDark: 0x2c3e30, leaf: 0x4a5c40, leafHi: 0x727e56, moss2: 0x46523e, mossG: 0x46503c, mossGHi: 0x66704f, mossAmt: 0.6,
+    bloom: Object.freeze([0xf0e0d0, 0xeeb0c8]), fireflies: 0xe0e49c, albedo: 1.25,
     // (under Clear Night's violet light, ambient and shadow split-tone an olive albedo renders violet-grey: `gain` (linear, per channel)
     // carries the leaf track's colours through it, so a lit leaf lands on its own key; `floor` the green-violet floor the kit's leaves
     // and the moss take in their shadows, WATERS §5.2's "flora floor tint", by day; `night` its floor and the moon's translucency through
     // the leaves at night (WATERS §3.2: at night the lushness is the silhouettes, the emitters and the moon's light through the leaves))
-    // (LAKE 2, the art pass: the light is green-gold now, not violet, so the gain that carried the leaves through it is gentler)
-    gain: Object.freeze([0.92, 1.22, 0.8]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
+    // (LAKE 2, the art pass: the light is cream-gold now, not violet, so the gain that carried the leaves through it is all but neutral:
+    // moss, sage, olive and bottle green, never lime; the user's "more green than the Mossmere but not lots and lots of green yet")
+    gain: Object.freeze([0.98, 1.1, 0.92]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
     flora: Object.freeze({ moss: 420, ferns: 150, reeds: 360, pads: 150, flowers: 30, strands: 90, bushes: 40, trees: 6, crowns: 40, capTrees: 14, fireflies: 120 }),
     tiers: Object.freeze({ high: 1, medium: 0.7, low: 0.4 }),
-    // (LAKE 2, the art pass: the haze and the places' banks a warm cream with a breath of rose, green-grey in their shade and at night,
-    // never lavender)
+    // (LAKE 2, the art pass: the haze and the places' banks a warm cream with a breath of rose, slate-grey in their shade and blue-grey at
+    // night, never lavender)
     haze: Object.freeze({ tint: 0xe4dac6, top: 1.2, amt: 0.42, from: 0.25 }),
-    mist: Object.freeze({ lit: 0xe6dfcc, litN: 0x8aa496, shade: 0x96a088, shadeN: 0x2e4a46, low: 0.7 }),
-    dapple: Object.freeze({ k: 0.42, scale: 0.075 }), weed: Object.freeze({ color: 0x4a5a36, k: 0.32 }),
-    // >>> LAKE 2, the art pass (LAKE2 §9.11; the user's words: "too purple", "day, dusk and night look alike"): Sporewood's own air under
-    // the loop, pulled to green. `palette` and `grade` are laid over ZONES' Sporewood in the loop's apply block (the flag-off game keeps
-    // the ember garden's); `kit` the banks', the stalks' and the roots' tones in place of world-art's violet ones; `lights` the three
-    // lights (world.js blends them by the hour: the day's green-gold dapple and soft haze, the dusk's amber-rose low light with long
-    // shadows and the flowers opening, the night's deep blue-green carried by the glowcaps and the fireflies). Violet only as an
-    // accent: the cap-rim window's nebula, a few flowers. Clear Night's darkness and its amber, rose and cream stay.
+    mist: Object.freeze({ lit: 0xe6dfcc, litN: 0x8a98a8, shade: 0x9a9c9e, shadeN: 0x2a3a4a, low: 0.7 }),
+    dapple: Object.freeze({ k: 0.42, scale: 0.075 }), weed: Object.freeze({ color: 0x3e4a3c, k: 0.32 }),
+    // >>> LAKE 2, the art pass (LAKE2 §9.11; the user's words: "too purple", "day, dusk and night look alike", then "possibly too much
+    // green ... more green than the moss mere but not lots and lots of green yet"): Sporewood's own air under the loop, led by Clear Night
+    // and never green: a blue-teal and slate air, cream light, a dark teal water; the green is the leaves' and the moss's own, muted.
+    // `palette` and `grade` are laid over ZONES' Sporewood in the loop's apply block (the flag-off game keeps the ember garden's); `kit`
+    // the banks', the stalks' and the roots' tones in place of world-art's violet ones; `lights` the three lights (world.js blends them
+    // by the hour: the day's cream-gold light with the soft green-gold under the caps and a warm haze, the dusk's amber-rose low light
+    // with long shadows and the flowers opening, the night's deep blue-teal carried by the glowcaps and the fireflies). Purple gone; plum
+    // only as an accent (the cap-rim window's nebula, a few flowers). Clear Night's darkness and its amber, rose, plum and cream stay.
     air: Object.freeze({
-      palette: Object.freeze({ fog: 0x2c4434, water: 0x1a3830, waterDeep: 0x07120f, foam: 0xdfe2cc, ambient: 0x3e5c44, ink: 0x06100c, far: 0x9ca878,
-        light: 0xece6b8, lamp: 0xe6dcbc, nebula: 0xb88ccc }),
-      grade: Object.freeze({ tint: 0x2e5838, tintAmount: 0.14, saturation: 1, exposure: 1.06, bloomThreshold: 0.88 }),
-      kit: Object.freeze({ rock: 0x1c2218, rockHi: 0x38422c, moss: 0x2c4a2e, mossHi: 0x5c7a46, wood: 0x2e2218, stone: 0x50584a, iron: 0x0e120e, bone: 0xd6caae, organic: 0xc6b898,
+      palette: Object.freeze({ fog: 0x26343f, water: 0x203444, waterDeep: 0x060f14, foam: 0xdcdcd4, ambient: 0x3a4a5a, ink: 0x060c12, far: 0x8e9cae,
+        light: 0xece2cc, lamp: 0xe6dcbc, nebula: 0xa47a86 }),
+      grade: Object.freeze({ tint: 0x3a4250, tintAmount: 0.14, saturation: 1, exposure: 1.06, bloomThreshold: 0.88 }),
+      kit: Object.freeze({ rock: 0x1e2226, rockHi: 0x3a3e3c, moss: 0x2e3c30, mossHi: 0x4e5a44, wood: 0x2e2218, stone: 0x50545a, iron: 0x0e1014, bone: 0xd6caae, organic: 0xc6b898,
         cap: 0x6e4a24, capHi: 0xc49448 }),
       // (each light: fog the air and the sky's base, horizon the sky's low band, key and keyI the moon's or the sun's colour and strength,
       // amb and ambI the fill, water and deep the water's own colour, tint and tintAmt the grade's, exposure, sat, stars (× the palette's), neb
-      // (the violet nebula in the cap-rim window, × the built: an accent, never the sky),
+      // (the plum nebula in the cap-rim window, × the built: an accent, never the sky),
       // glow (the glowcaps' and the gills' light), elev (the key's elevation × this: the dusk's low light, long shadows), leaf (the
       // leaves' light through them))
       lights: Object.freeze({
-        day: Object.freeze({ fog: 0x3c5a40, horizon: 0xc4c08a, key: 0xf6eab2, keyI: 2.8, amb: 0x587a52, ambI: 0.95, water: 0x224c3e, deep: 0x0a1c14,
-          tint: 0x46622c, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.03, neb: 0.25, glow: 0.7, elev: 1, leaf: 1.2 }),
-        // (dusk: the sky and the key amber-rose, the fill and the shadows blue-green, so the lit leaves turn olive-bronze and the shade
-        // stays green, WATERS §3.2's dusk)
-        dusk: Object.freeze({ fog: 0x2e3c34, horizon: 0xf0a070, key: 0xffa874, keyI: 2.6, amb: 0x34524a, ambI: 0.7, water: 0x1c4236, deep: 0x08140f,
-          tint: 0x404a34, tintAmt: 0.05, exposure: 0.98, sat: 1.1, stars: 0.12, neb: 0.4, glow: 1.15, elev: 0.35, leaf: 1.5 }),
-        night: Object.freeze({ fog: 0x0b2428, horizon: 0x183c40, key: 0x88b8c8, keyI: 0.6, amb: 0x16343a, ambI: 0.36, water: 0x0a2024, deep: 0x02090a,
-          tint: 0x0e3a48, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.65, neb: 0.3, glow: 1.8, elev: 1, leaf: 0.85 }),
+        day: Object.freeze({ fog: 0x3e5462, horizon: 0xd4c8aa, key: 0xf4e6c4, keyI: 2.8, amb: 0x52606e, ambI: 0.95, water: 0x1e3a48, deep: 0x08161c,
+          tint: 0x4c5052, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.03, neb: 0.25, glow: 0.7, elev: 1, leaf: 1.2 }),
+        // (dusk: the sky and the key amber-rose, the fill and the shadows blue-slate, so the lit leaves turn olive-bronze and the shade
+        // stays cool, WATERS §3.2's dusk)
+        dusk: Object.freeze({ fog: 0x2e3442, horizon: 0xf0a070, key: 0xffb88a, keyI: 2.6, amb: 0x3a4a52, ambI: 0.7, water: 0x1a3242, deep: 0x08101a,
+          tint: 0x5a4038, tintAmt: 0.05, exposure: 0.98, sat: 1.1, stars: 0.12, neb: 0.4, glow: 1.15, elev: 0.35, leaf: 1.5 }),
+        night: Object.freeze({ fog: 0x0c2630, horizon: 0x163444, key: 0xa4b4c0, keyI: 0.6, amb: 0x16303a, ambI: 0.36, water: 0x0a1e2a, deep: 0x02080c,
+          tint: 0x1e3038, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.65, neb: 0.3, glow: 1.8, elev: 1, leaf: 0.85 }),
       }),
     }),
     // <<< LAKE 2, the art pass
@@ -6663,8 +6666,8 @@ if (V3_ENABLED) {
   // LAKE 2, lane W1 (LAKE2 §3.1): under the loop Sporewood is its natural basin (SPOREWOOD_ARENA, the outline shore), a fresh arena: no
   // stopgap giant water, no raft watch-lamps (its places hold its giants); its name, palette, grade and words as built
   if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena = v3clone(SPOREWOOD_ARENA); }
-  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, ZONE_LOOKS.sporewood.air, pulled to green; the flag-off game keeps
-  // the ember garden's palette and grade)
+  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, ZONE_LOOKS.sporewood.air, Clear Night-led and never green; the
+  // flag-off game keeps the ember garden's palette and grade)
   if (LOOP_ENABLED) {
     const sw = ZONES.find((z) => z.id === 'sporewood'), A = ZONE_LOOKS.sporewood?.air;
     if (sw && A) { sw.palette = { ...sw.palette, ...A.palette }; sw.grade = { ...sw.grade, ...A.grade }; }
