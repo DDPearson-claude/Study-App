@@ -37,7 +37,7 @@ export const sporeLevel = mossLevel;
 /** The bed's continuous layers: a looped noise or a tone through a filter; `lfo` breathes the filter, `vib` the pitch, `am` the gain
  *  (a pulse: {rate Hz, depth 0..1}). The caps keep the wind off: the air is lower and softer than the Mossmere's open water. */
 export const BED_LAYERS = Object.freeze({
-  canopy: Object.freeze({ src: 'noise', kind: 'pink', ft: 'bandpass', f: 880, q: 0.7, lfo: Object.freeze({ rate: 0.04, depth: 260 }) }),     // the air under the caps
+  canopy: Object.freeze({ src: 'noise', kind: 'pink', ft: 'bandpass', f: 640, q: 0.9, lfo: Object.freeze({ rate: 0.04, depth: 200 }) }),     // the air under the caps
   leaves: Object.freeze({ src: 'noise', kind: 'pink', ft: 'bandpass', f: 4300, q: 1.6, lfo: Object.freeze({ rate: 0.07, depth: 1000 }) }),   // leaves stirring overhead
   warm:   Object.freeze({ src: 'osc', type: 'sine', f: mtof(46), ft: 'lowpass', ff: 320, q: 0.5, vib: 0.2 }),                               // the dusk's warm drone (B♭2)
   warm2:  Object.freeze({ src: 'osc', type: 'sine', f: mtof(46) * 1.0057, ft: 'lowpass', ff: 320, q: 0.5, vib: 0.2 }),                      // its twin, a slow beat against it
@@ -46,16 +46,16 @@ export const BED_LAYERS = Object.freeze({
 });
 /** Each layer's gain by light (under the built water bed, as the Mossmere's: late day and dusk a few dB under night's full chorus). */
 export const BED_LEVELS = Object.freeze({
-  day:   Object.freeze({ canopy: 0.13, leaves: 0.05, warm: 0, warm2: 0, deep: 0, pulse: 0 }),
-  dusk:  Object.freeze({ canopy: 0.085, leaves: 0.022, warm: 0.012, warm2: 0.008, deep: 0, pulse: 0 }),
-  night: Object.freeze({ canopy: 0.006, leaves: 0, warm: 0.006, warm2: 0.004, deep: 0.016, pulse: 0.006 }),
+  day:   Object.freeze({ canopy: 0.15, leaves: 0.035, warm: 0, warm2: 0, deep: 0, pulse: 0 }),
+  dusk:  Object.freeze({ canopy: 0.09, leaves: 0.016, warm: 0.012, warm2: 0.008, deep: 0, pulse: 0 }),
+  night: Object.freeze({ canopy: 0.006, leaves: 0, warm: 0.007, warm2: 0.005, deep: 0.03, pulse: 0.008 }),
 });
 /** The bed's gains at a light (a fresh object). */
 export function bedLevels(light) { return { ...(BED_LEVELS[light] || BED_LEVELS.day) }; }
 /** The bed's one-shots by light, each on its own timer: [min, max] s apart, panned up to ±spread. */
 export const BED_VOICES = Object.freeze({
   day: Object.freeze({
-    drip:  Object.freeze({ sfx: 'spore_drip', every: [1.3, 3.4], volume: 0.75, spread: 0.75 }),   // slow drips from the caps
+    drip:  Object.freeze({ sfx: 'spore_drip', every: [1.0, 2.8], volume: 0.85, spread: 0.75 }),   // slow drips from the caps
     pop:   Object.freeze({ sfx: 'spore_pop', every: [4.5, 9.5], volume: 0.7, spread: 0.6 }),      // soft spore pops
     click: Object.freeze({ sfx: 'frog_click', every: [6, 13], volume: 0.65, spread: 0.8 }),      // a few frog clicks from the rafts
   }),
@@ -70,7 +70,7 @@ export function bedVoices(light) { return Object.entries(BED_VOICES[light] || BE
 export const CHORUS = Object.freeze({
   sfx: 'frog_croak', spread: 0.85,
   dusk: Object.freeze({ from: [6, 10], to: [0.9, 2.1], volume: [0.42, 0.75], croaks: [1, 2], pitch: 1 }),
-  night: Object.freeze({ every: [0.45, 1.15], volume: 0.8, croaks: [2, 3], pitch: 0.88 }),
+  night: Object.freeze({ every: [0.45, 1.15], volume: 0.95, croaks: [2, 3], pitch: 0.88 }),
 });
 /** The chorus at a light and the phase's progress k: {every: [min, max] s, volume, croaks: [min, max], pitch} or null (no frogs). */
 export function chorus(light, k = 0) {
@@ -85,8 +85,8 @@ export function chorus(light, k = 0) {
 export const PLACE_VOICES = Object.freeze({
   lullaby:     Object.freeze({ sfx: 'lullaby_drip', every: [3, 5.8], volume: 0.85 }),
   gill_harp:   Object.freeze({ sfx: null, hum: Object.freeze([
-    Object.freeze({ type: 'sine', f: mtof(29), ft: 'lowpass', ff: 150, q: 0.7, level: 0.05, vib: 0.12, sway: Object.freeze({ rate: 0.09, depth: 0.35 }) }),       // F1: felt
-    Object.freeze({ type: 'triangle', f: mtof(41), ft: 'lowpass', ff: 260, q: 0.9, level: 0.016, vib: 0.25, sway: Object.freeze({ rate: 0.07, depth: 0.45 }) }), // F2: heard
+    Object.freeze({ type: 'sine', f: mtof(29), ft: 'lowpass', ff: 150, q: 0.7, level: 0.026, vib: 0.12, sway: Object.freeze({ rate: 0.09, depth: 0.35 }) }),       // F1: felt
+    Object.freeze({ type: 'triangle', f: mtof(41), ft: 'lowpass', ff: 260, q: 0.9, level: 0.008, vib: 0.25, sway: Object.freeze({ rate: 0.07, depth: 0.45 }) }), // F2: heard
   ]) }),
   veilwater:   Object.freeze({ sfx: 'veil_whisper', every: [3, 6.5], volume: 0.85 }),
   mothers_cup: Object.freeze({ sfx: 'cup_breath', every: [7, 10.5], volume: 0.9, earshot: Object.freeze({ full: 14, gone: 40 }) }),
@@ -104,8 +104,8 @@ export function placeVoiceAt(id, area, x, z, { lifted = false } = {}) {
  *  north-east), never at Rootfoot Landing (71 m off). */
 export const SEEP = Object.freeze({
   x: 79.2, z: -27.6, earshot: Object.freeze({ full: 8, gone: 40 }),
-  fall: Object.freeze({ src: 'noise', kind: 'pink', ft: 'bandpass', f: 1250, q: 0.55, lfo: Object.freeze({ rate: 0.27, depth: 380 }), level: 0.07 }),
-  drop: Object.freeze({ sfx: 'seep_drop', every: [0.4, 0.95], volume: 0.7 }),
+  fall: Object.freeze({ src: 'noise', kind: 'pink', ft: 'bandpass', f: 1250, q: 0.55, lfo: Object.freeze({ rate: 0.27, depth: 380 }), level: 0.16 }),
+  drop: Object.freeze({ sfx: 'seep_drop', every: [0.4, 0.95], volume: 1 }),
 });
 /** The fall by light: a touch softer under the day's air, clearest in the still night (the Mossmere's trickle's rule). */
 export function seepLight(light) { return light === 'night' ? 1 : light === 'dusk' ? 0.9 : 0.8; }
@@ -167,10 +167,10 @@ export const SFX_SPORE = {
     const n = 1 + ((Math.random() * 3) | 0);
     for (let i = 0; i < n; i++) {
       const tt = t + i * rr(0.07, 0.16);
-      v.burst(dst, { kind: 'pink', t: tt, a: 0.001, d: 0.02, peak: 0.13 * rr(0.6, 1), ft: 'lowpass', f: rr(900, 1600) * p, q: 0.8 });
-      v.tone(dst, { type: 'sine', f: rr(180, 320) * p, f2: 120 * p, glide: 0.03, t: tt, a: 0.001, d: 0.04, peak: 0.08 });
+      v.burst(dst, { kind: 'pink', t: tt, a: 0.001, d: 0.02, peak: 0.26 * rr(0.6, 1), ft: 'lowpass', f: rr(900, 1600) * p, q: 0.8 });
+      v.tone(dst, { type: 'sine', f: rr(180, 320) * p, f2: 120 * p, glide: 0.03, t: tt, a: 0.001, d: 0.04, peak: 0.14 });
     }
-    v.burst(dst, { kind: 'pink', t: t + 0.03, a: 0.04, hold: 0.06, d: 0.4, peak: 0.04, ft: 'bandpass', f: 2200 * p, f2: 1200 * p, glide: 0.45, q: 0.9 });
+    v.burst(dst, { kind: 'pink', t: t + 0.03, a: 0.04, hold: 0.06, d: 0.4, peak: 0.08, ft: 'bandpass', f: 2200 * p, f2: 1200 * p, glide: 0.45, q: 0.9 });
   } },
   frog_click: { gain: 0.5, gap: 0.3, max: 2, pri: 0, wet: 0.3, pj: 0.1, vj: 0.3, fn(v, out, t, p, o) {
     // a lily frog by day: a few dry clicks from its throat, quick, from a raft somewhere in the cove
@@ -178,8 +178,8 @@ export const SFX_SPORE = {
     const n = 2 + ((Math.random() * 3) | 0), f = rr(1800, 2600) * p;
     for (let i = 0; i < n; i++) {
       const tt = t + i * rr(0.05, 0.09);
-      v.burst(dst, { kind: 'white', t: tt, a: 0.0008, d: 0.01, peak: 0.16, ft: 'bandpass', f: f * rr(0.95, 1.05), q: 3.5 });
-      v.tone(dst, { type: 'triangle', f: rr(420, 620) * p, t: tt, a: 0.001, d: 0.025, peak: 0.05 });
+      v.burst(dst, { kind: 'white', t: tt, a: 0.0008, d: 0.01, peak: 0.28, ft: 'bandpass', f: f * rr(0.95, 1.05), q: 3.5 });
+      v.tone(dst, { type: 'triangle', f: rr(420, 620) * p, t: tt, a: 0.001, d: 0.025, peak: 0.08 });
     }
   } },
   frog_croak: { gain: 0.55, gap: 0.12, max: 5, pri: 0, wet: 0.45, pj: 0.08, vj: 0.3, fn(v, out, t, p, o) {
@@ -187,13 +187,14 @@ export const SFX_SPORE = {
     const dst = muffled(v, out, o);
     const n = Math.max(1, Math.min(4, num(o?.n, 1 + ((Math.random() * 2) | 0)) | 0));
     let tt = t;
+    const f0 = rr(100, 155) * p, fm = rr(500, 780) * p, rate = rr(15, 23);   // (one frog: its own pitch, throat and pulse)
     for (let i = 0; i < n; i++) {
-      const f = rr(105, 150) * p, dur = rr(0.16, 0.26), end = tt + dur + 0.08;
+      const f = f0 * rr(0.97, 1.03), dur = rr(0.16, 0.26), end = tt + dur + 0.08;
       const src = v.osc('sawtooth', f, tt, end);
       src.frequency.setValueAtTime(f, tt); src.frequency.linearRampToValueAtTime(f * 0.92, tt + dur);
-      const bp = v.filter('bandpass', rr(520, 760) * p, 3.2);
+      const bp = v.filter('bandpass', fm, 3.2);
       const am = v.gain(0.5);
-      const lfo = v.osc('square', rr(16, 22), tt, end); const lg = v.gain(0.5); lfo.connect(lg); lg.connect(am.gain);
+      const lfo = v.osc('square', rate, tt, end); const lg = v.gain(0.5); lfo.connect(lg); lg.connect(am.gain);
       const env = v.gain(0);
       env.gain.setValueAtTime(0, tt); env.gain.linearRampToValueAtTime(0.16, tt + 0.02); env.gain.setTargetAtTime(0.1, tt + 0.05, 0.04); env.gain.setTargetAtTime(0, tt + dur, 0.03);
       src.connect(bp); bp.connect(am); am.connect(env); env.connect(dst);
@@ -210,7 +211,7 @@ export const SFX_SPORE = {
     v.tone(dst, { type: 'sine', f: f * 0.55, f2: f * 0.4, glide: 0.06, t: t + 0.012, a: 0.002, d: 0.08, peak: 0.1 });
     for (let i = 0, k = 1 + ((Math.random() * 2) | 0); i < k; i++) { const g = rr(1300, 2200) * p; v.tone(dst, { type: 'sine', f: g, f2: g * 1.7, glide: 0.02, t: t + rr(0.1, 0.25), a: 0.001, d: 0.04, peak: 0.07 }); }
   } },
-  lullaby_drip: { gain: 0.5, gap: 1.5, max: 1, pri: 0, wet: 0.65, dly: 0.2, pj: 0.002, vj: 0.15, fn(v, out, t, p, o) {
+  lullaby_drip: { gain: 0.5, gap: 1.5, max: 2, pri: 0, wet: 0.65, dly: 0.2, pj: 0.002, vj: 0.15, fn(v, out, t, p, o) {
     // the Lullaby: drips off the lily rafts that fall on the notes of a music box (a tine's tone, its quick high partial, a click),
     // two to four notes of a slow falling figure in the score's key, sometimes a real drip into the water after
     const dst = muffled(v, out, o);
@@ -218,25 +219,26 @@ export const SFX_SPORE = {
     const n = 2 + ((Math.random() * 3) | 0);
     for (let k = 0; k < n; k++) {
       const f = mtof(LULL[i]) * p, a = 1 - k * 0.12;
-      v.tone(dst, { type: 'sine', f, t: tt, a: 0.001, d: 1.1, peak: 0.12 * a });
-      v.tone(dst, { type: 'sine', f: f * 3.01, t: tt, a: 0.001, d: 0.22, peak: 0.035 * a });
-      v.tone(dst, { type: 'sine', f: f * 5.2, t: tt, a: 0.0005, d: 0.05, peak: 0.015 * a });
+      v.tone(dst, { type: 'sine', f, t: tt, a: 0.001, d: 1.1, peak: 0.17 * a });
+      v.tone(dst, { type: 'sine', f: f * 3.01, t: tt, a: 0.001, d: 0.22, peak: 0.05 * a });
+      v.tone(dst, { type: 'sine', f: f * 5.2, t: tt, a: 0.0005, d: 0.05, peak: 0.02 * a });
       const step = [-1, -1, -2, 1][(Math.random() * 4) | 0];
       i = Math.max(0, Math.min(LULL.length - 1, i + step));
       tt += rr(0.42, 0.58) * (1 + k * 0.08);
     }
     if (Math.random() < 0.5) { const f = rr(1300, 2100) * p; v.tone(dst, { type: 'sine', f, f2: f * 1.9, glide: 0.025, t: tt + rr(0.1, 0.4), a: 0.001, d: 0.06, peak: 0.14 }); }
   } },
-  veil_whisper: { gain: 0.5, gap: 1.2, max: 2, pri: 0, wet: 0.45, pj: 0.05, vj: 0.2, fn(v, out, t, p, o) {
+  veil_whisper: { gain: 1, gap: 1.2, max: 2, pri: 0, wet: 0.45, pj: 0.05, vj: 0.2, fn(v, out, t, p, o) {
     // the Veil's whisper: the draught off the backwater through the moss curtain, its strands brushing (a flutter in the hush) and
     // now and then one ticking against another
     const dst = muffled(v, out, o);
     const dur = rr(1.4, 2.2), end = t + dur * 1.3 + 0.3;
-    const trem = v.gain(0.55); trem.connect(dst);
+    const hp = v.filter('highpass', 900, 0.7); hp.connect(dst);   // (a whisper: nothing of the pink noise's low end)
+    const trem = v.gain(0.55); trem.connect(hp);
     const lfo = v.osc('sine', rr(3.5, 5.5), t, end); const lg = v.gain(0.45); lfo.connect(lg); lg.connect(trem.gain);
-    v.burst(trem, { kind: 'pink', t, a: dur * 0.45, hold: dur * 0.15, d: dur * 0.55, peak: 0.16, ft: 'bandpass', f: rr(2600, 3400) * p, f2: rr(3800, 4800) * p, glide: dur * 0.6, q: 0.9 });
-    v.burst(dst, { kind: 'white', t: t + dur * 0.3, a: dur * 0.3, d: dur * 0.5, peak: 0.03, ft: 'highpass', f: 6500, q: 0.7 });
-    for (let i = 0, k = 2 + ((Math.random() * 2) | 0); i < k; i++) v.burst(dst, { kind: 'white', t: t + rr(0.2, dur), a: 0.0008, d: 0.008, peak: 0.05, ft: 'bandpass', f: rr(4600, 5800) * p, q: 2.5 });
+    v.burst(trem, { kind: 'pink', t, a: dur * 0.45, hold: dur * 0.15, d: dur * 0.55, peak: 0.4, ft: 'bandpass', f: rr(2600, 3400) * p, f2: rr(3800, 4800) * p, glide: dur * 0.6, q: 0.9 });
+    v.burst(dst, { kind: 'white', t: t + dur * 0.3, a: dur * 0.3, d: dur * 0.5, peak: 0.075, ft: 'highpass', f: 6500, q: 0.7 });
+    for (let i = 0, k = 2 + ((Math.random() * 2) | 0); i < k; i++) v.burst(dst, { kind: 'white', t: t + rr(0.2, dur), a: 0.0008, d: 0.008, peak: 0.12, ft: 'bandpass', f: rr(4600, 5800) * p, q: 2.5 });
   } },
   cup_breath: { gain: 0.6, gap: 3, max: 1, pri: 0, wet: 0.6, dly: 0.1, pj: 0.03, vj: 0.15, fn(v, out, t, p, o) {
     // the Mother's Cup: the sinkhole breathes, a slow rise and fall of air through the well under the Mother Cap, a hollow note
@@ -254,7 +256,7 @@ export const SFX_SPORE = {
     v.burst(out, { kind: 'white', t, a: 0.01, hold: 0.05, d: 0.18, peak: 0.05, ft: 'bandpass', f: rr(1800, 3000) * p, q: 1 });
     for (let i = 0, k = 2 + ((Math.random() * 3) | 0); i < k; i++) { const f = rr(700, 1500) * p; v.tone(out, { type: 'sine', f, f2: f * 1.6, glide: 0.03, t: t + rr(0, 0.3), a: 0.001, d: 0.06, peak: 0.12 * rr(0.5, 1) }); }
   } },
-  harp_swell: { gain: 0.7, gap: 4, max: 1, pri: 2, wet: 0.6, dly: 0.15, pj: 0.002, fn(v, out, t, p, o) {
+  harp_swell: { gain: 1, gap: 4, max: 1, pri: 2, wet: 0.6, dly: 0.15, pj: 0.002, fn(v, out, t, p, o) {
     // the Harpstring's back under the neck: the Gill Harp's one note swells, its strings singing with it (F1, F2, C3, F3), the
     // brightness opening and closing as the lit strings turn
     const dst = muffled(v, out, o);
@@ -268,17 +270,17 @@ export const SFX_SPORE = {
     }
     v.tone(dst, { type: 'sawtooth', f: mtof(41) * p, t: t + 0.3, a: sw, hold: hold * 0.6, d: rel * 0.8, peak: 0.025, ft: 'bandpass', ff: 520, fq: 2.5 });
   } },
-  puffer_rustle: { gain: 0.6, gap: 4, max: 1, pri: 2, wet: 0.4, pj: 0.05, fn(v, out, t, p, o) {
+  puffer_rustle: { gain: 1, gap: 4, max: 1, pri: 2, wet: 0.4, pj: 0.05, fn(v, out, t, p, o) {
     // the Festival Puffer's back under the Veil: its paper lantern of a body filling, a dry rustle swelling and settling, the air
     // drawn in, a soft low bloop as it rolls back down
     const dst = muffled(v, out, o);
     const dur = rr(0.9, 1.3), n = 22 + ((Math.random() * 10) | 0);
     for (let k = 0; k < n; k++) {
       const u = k / n, tt = t + dur * Math.pow(u, 0.8) * rr(0.92, 1.08);
-      v.burst(dst, { kind: 'white', t: tt, a: 0.0008, d: rr(0.006, 0.02), peak: 0.1 * rr(0.4, 1) * Math.sin(Math.PI * (0.15 + 0.85 * u)), ft: 'bandpass', f: rr(2800, 7200) * p, q: rr(1.2, 2.4) });
+      v.burst(dst, { kind: 'white', t: tt, a: 0.0008, d: rr(0.006, 0.02), peak: 0.16 * rr(0.4, 1) * Math.sin(Math.PI * (0.15 + 0.85 * u)), ft: 'bandpass', f: rr(2800, 7200) * p, q: rr(1.2, 2.4) });
     }
-    v.burst(dst, { kind: 'pink', t, a: dur * 0.6, d: 0.5, peak: 0.07, ft: 'bandpass', f: 600 * p, f2: 1500 * p, glide: dur, q: 0.9 });
-    v.tone(dst, { type: 'sine', f: 150 * p, f2: 110 * p, glide: 0.25, t: t + dur, a: 0.01, d: 0.3, peak: 0.12 });
+    v.burst(dst, { kind: 'pink', t, a: dur * 0.6, d: 0.5, peak: 0.12, ft: 'bandpass', f: 600 * p, f2: 1500 * p, glide: dur, q: 0.9 });
+    v.tone(dst, { type: 'sine', f: 150 * p, f2: 110 * p, glide: 0.25, t: t + dur, a: 0.01, d: 0.3, peak: 0.2 });
   } },
 };
 export const SPORE_SFX = Object.freeze(Object.keys(SFX_SPORE));

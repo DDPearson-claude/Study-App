@@ -1038,7 +1038,9 @@ export function create(ctx) {
   const spore = { layers: {}, zero: {}, idle: 0, timers: {}, chorusT: null, places: [], placesT: 0, ptimers: {}, hum: null, humPan: null, humIdle: 0,
     fall: null, fallPan: null, fallIdle: 0, dropT: 0.5, light: null, k: 0, level: 0, swellUntil: 0, swellGain: 1, reg: false,
     o: { volume: 1, pitch: 1, pan: 0, delay: 0, force: false, why: undefined, muffle: undefined, n: undefined, at: undefined } };
-  function sporeReg() { if (!spore.reg) { spore.reg = true; Object.assign(SFX, SPORE.SFX_SPORE); } }
+  // (each its own voice tag: TAGS is built when the module loads, so a voice added later has none and would share one count with
+  // every other late voice, its `max` refusing it while any of them sounds)
+  function sporeReg() { if (!spore.reg) { spore.reg = true; Object.assign(SFX, SPORE.SFX_SPORE); for (const k of SPORE.SPORE_SFX) TAGS[k] = 's:' + k; } }
   /** The one options object Sporewood's voices are played with (reset each time: no allocation per sound). */
   function sporeO() { const o = spore.o; o.volume = 1; o.pitch = 1; o.pan = 0; o.delay = 0; o.force = false; o.why = undefined; o.muffle = undefined; o.n = undefined; o.at = undefined; return o; }
   /** The water home lies on: the world's (a loop water), else where the barge lies, else the Mossmere (the Mossmere until a tow). */
