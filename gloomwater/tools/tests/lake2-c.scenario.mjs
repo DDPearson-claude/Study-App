@@ -12,7 +12,7 @@
 //   node tools/playtest.mjs --html=tools/out/l2c/dev.html --shots=tools/out/l2c/desk --script=tools/tests/lake2-c.scenario.mjs --width=1280 --height=720
 //   node tools/playtest.mjs --html=tools/out/l2c/dev.html --shots=tools/out/l2c/phone --script=tools/tests/lake2-c.scenario.mjs --mobile
 //
-// Prints `LAKE2_C {size, failures, notes, info}`; returns its failures.
+// Prints `LAKE2_C {size, failures, notes, info}`; returns {failures} (playtest exits 1 on any).
 import { makeKit, Abort } from './loop-1a.scenario.mjs';
 
 export default async function (api) {
@@ -186,7 +186,8 @@ export default async function (api) {
   } catch (e) {
     if (!(e instanceof Abort)) { K.failures.push(`[${K.part}] threw: ${e?.stack || e}`); log('THREW', e?.stack || e); }
   }
+  await K.release().catch(() => {});   // (the frames let go, so playtest's closing measure runs and the browser closes)
   const out = { size: `${width}x${height}`, failures: K.failures, notes: K.notes, info };
   log('LAKE2_C ' + JSON.stringify(out));
-  return K.failures;
+  return { failures: K.failures };
 }
