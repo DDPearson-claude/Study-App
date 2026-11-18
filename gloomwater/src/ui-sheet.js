@@ -115,6 +115,7 @@ export function sheetView(model, D, { names = {}, phone = false } = {}) {
       ...arr(M.tackle?.notes).map((id) => ({ key: `note:${id}`, slot: 'notebook', name: findName(id), lines: AF.lostLogLines(D, id), figure: '', find: id }))],
     // what a Clean strike adds (the gauge's notch; CATCH_V3.strike.clean, never typed): one quiet line
     hookSet: num(D?.CATCH_V3?.strike?.clean, 0) > 0 && TS.hookSet ? fill(TS.hookSet, { hold: num(D.CATCH_V3.strike.clean, 0) }) : '',
+    carried: typeof M.tackle?.carried === 'string' ? M.tackle.carried : '',   // (LAKE2 §5.3: "Carried +2 · +2 · +2", one line above the plates, from the first tow)
     hook: { lure: hookPlate('lure'), bait: hookPlate('bait'), lureChips: chips('lure'), baitChips: chips('bait'), canFit: !!hk.canFit, tipped: !!hk.tipped },
   };
   // ---- Raft and Home
@@ -261,6 +262,8 @@ const CSS = `
 /* a plate */
 .gw-sh-rating { margin: 0 0 8px; font: italic 400 17px/1.3 var(--f-body); text-align: center; text-wrap: balance; }
 .gw-sh-hookset { margin: -2px 0 10px; font: italic 400 16px/1.3 var(--f-body); text-align: center; opacity: .78; }
+.gw-sh-carry { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 6px; font: 400 17px/1.3 var(--f-body); font-variant-numeric: tabular-nums; }
+.gw-sh-carry .gw-ico { width: 20px; height: 20px; flex: none; opacity: .8; }
 .gw-sh-plate { position: relative; display: grid; grid-template-columns: 120px 1fr; gap: 2px 14px; padding: 8px 0 10px; border-top: 1px solid rgba(38, 29, 44, .22); }
 .gw-sh-plate:first-of-type { border-top: none; }
 .gw-sh-art { grid-row: span 6; width: 120px; height: 90px; display: flex; align-items: center; justify-content: center; }
@@ -662,6 +665,7 @@ export function createSheetView(K) {
     };
     // ---- Tackle
     const tk = sec('tackle', v.tackle.head);
+    if (v.tackle.carried) { const r = document.createElement('p'); r.className = 'gw-sh-carry'; r.innerHTML = `${icon('hand')}<span></span>`; r.querySelector('span').textContent = v.tackle.carried; tk.appendChild(r); }   // (LAKE 2, lane G)
     if (v.tackle.rating) { const r = document.createElement('p'); r.className = 'gw-sh-rating'; r.textContent = v.tackle.rating; tk.appendChild(r); }
     if (v.tackle.hookSet) { const r = document.createElement('p'); r.className = 'gw-sh-hookset'; r.textContent = v.tackle.hookSet; tk.appendChild(r); }
     for (const p of v.tackle.plates) tk.appendChild(plateEl(p, { open: opened(p.key, s.from === 'rack') }));

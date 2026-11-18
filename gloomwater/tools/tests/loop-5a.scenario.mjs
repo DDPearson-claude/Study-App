@@ -70,8 +70,9 @@ export default async function (api) {
     const vw = await g(() => [innerWidth, innerHeight]);
     K.check(s.btns.every((b) => b.l >= -0.5 && b.t >= -0.5 && b.r <= vw[0] + 0.5 && b.b <= vw[1] + 0.5), 'every target inside the screen', vw);
     const T = await g(() => window.__gw.data.TEXT_LOOP.jetty);
-    // the rack's accessible name: TEXT_LOOP.sheet.title with the Wick's name ("{name}'s Sheet", SHEET.md §6)
-    const sheetName = await g(() => { const d = window.__gw.data, id = d.loopWickId?.(window.__gw.progression.loop.wick?.()) || 'wick'; const n = (d.CHARACTERS || []).find((c) => c.id === id)?.name || ''; return String(d.TEXT_LOOP.sheet?.title || '').replace('{name}', n); });
+    // the rack's accessible name: the Tackle screen's title, the tin's word (LAKE2.md §5.5: the rack opens the Tackle screen; before it,
+    // the Wick's sheet, "{name}'s Sheet", which the screen links to)
+    const sheetName = await g(() => window.__gw.data.TEXT_LOOP.tackle?.tin || 'Tackle');
     const nameOf = { wall: T.wall, rack: sheetName };
     K.check(s.btns.filter((b) => !nameOf[b.id]).every((b) => b.word === T[b.id]) && ['wall', 'rack'].every((id) => s.btns.find((b) => b.id === id)?.word === '' && s.btns.find((b) => b.id === id)?.label === nameOf[id]),
       'each target carries its tile\'s word (Murk, Chart, Journal); the rod rack and the doorway none, their accessible names only', s.btns.map((b) => [b.id, b.word, b.label]));
@@ -109,14 +110,14 @@ export default async function (api) {
 
     // ------------------------------------------------------------------ each target opens its screen; Escape / close comes home
     K.step('5a: each target opens its screen; Escape and close come home');
-    const opens = { murk: 'shelf', chart: 'chart', journal: 'journal', rack: 'journal', wall: 'gallery' };   // (M1 step 5b: the doorway opens the cabin's gallery; the rack the Journal on its sheet, SHEET.md §2.3)
+    const opens = { murk: 'shelf', chart: 'chart', journal: 'journal', rack: 'tacklescreen', wall: 'gallery' };   // (M1 step 5b: the doorway opens the cabin's gallery; the rack the Tackle screen, LAKE2.md §5.5, with its link to the Wick's sheet)
     for (const id of want) {
       const b = await K.tap(`[data-modal=jetty] [data-tile=${id}]`);
       K.need(b, `the ${id} target can be tapped`);
       await K.settle(300); await K.steps(3);
       const m = await top();
       K.check(m === opens[id], `[data-tile=${id}] opens its screen (${opens[id]})`, m);
-      if (id === 'rack') K.check(await g(() => !!document.querySelector('[data-modal=journal] .gw-sheet')), '[data-tile=rack] opens the Journal on the Wick\'s sheet');
+      if (id === 'rack') K.check(await g(() => !!document.querySelector('[data-modal=tacklescreen] [data-loop=tackle-sheet]')), '[data-tile=rack] opens the Tackle screen, its foot linking to the Wick\'s sheet');
       if (id === 'chart') await K.shoot('chart-open');
       await K.key('Escape');
       await K.settle(400); await K.steps(3);

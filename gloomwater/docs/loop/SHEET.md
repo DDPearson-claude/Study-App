@@ -124,7 +124,7 @@ first person, and this design binds both:
 | object | where (BARGE-INSIDE's place) | the call | opens at |
 |---|---|---|---|
 | **the ledger** (target id `ledger`) | on the Wick's desk **inside the cabin**, aft-starboard under the aft window, in the **Hearth**'s frame (27% across, the window's cool light on it, its candle the desk's living light) | `screens.openSheet({from: 'ledger'})` | the head: the Wick, and on a phone Buffs right under it |
-| **the rod rack** (target id `rack`) | on the cabin's aft wall port of the door, on the stern deck under the awning, in the **Deck**'s frame; the rod you own hangs on it in its tier's colour, the rods it replaced on pegs below | `screens.openSheet({from: 'rack', section: 'tackle'})` | Tackle |
+| **the rod rack** (target id `rack`) | on the cabin's aft wall port of the door, on the stern deck under the awning, in the **Deck**'s frame; the rod you own hangs on it in its tier's colour, the rods it replaced on pegs below | `screens.openSheet({from: 'rack', section: 'tackle'})` | Tackle *(LAKE 2, lane G: the rack opens the Tackle screen, `LAKE2.md` §5.5, whose foot links here at Tackle)* |
 
 **The seam is two ids and two calls, and they are a must in both documents.** The interiors own where the objects are, how
 they are drawn and the close look that leans in before the page opens; the sheet owns what opens. Closing the sheet returns to

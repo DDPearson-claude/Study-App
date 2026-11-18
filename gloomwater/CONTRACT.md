@@ -2465,6 +2465,25 @@ there and a third of it is kept for good; found things travel; each water's lure
 - **Tests and tools**: `tools/tests/lake2-w2.test.mjs`; `tools/tests/lake2-w2.scenario.mjs` (`--hue --tier=medium`: the hue-report's
   nine frames); `clarity-perf.scenario.mjs --loop --sporewood`; `tools/loop-colour-script.py` (Sporewood's frame and the exception).
 
+### 14.26 The Tackle screen: rod, line, reel, lure and bait at leisure (LAKE 2, lane G; `docs/loop/LAKE2.md` §5.5, §9.6)
+- **`src/ui-tackle.js`** (beside the tin and its drawer, CONTRACT §14.19): `tackleScreenModel(D, {metaLoop, run, line, canChange})` (pure)
+  → `{water, waterName, gearWater, carried, busy, words, rows}`, the five rows `rod`, `line`, `reel`, `lure`, `bait`, each item `{kind,
+  key, pick, name, on, art | find | plain, count?, log}`; `screenCall(item)` → the ledger call `['fitTackle', slot, pick]` or
+  `['changeHook', {…}]`, or null for the item already fitted; `screenWords(D)`. The view (`createTackleView`'s return) adds
+  `openScreen({from: 'pause' | 'rack' | 'tin', pauseChild})`, `closeScreen()`, `screenOpen()`, `pauseItem({pauseChild})` (null before
+  the tutorial is done) and `debug().screen` (`{from, rows: {slot: [{key, on}]}}`). The modal is `tacklescreen` (blocking, dismissable);
+  its box `[data-loop=tackle-screen]`, a chip `.gw-ts-chip[data-slot][data-key]`, the sheet's link `[data-loop=tackle-sheet]` (from the
+  rack only), the pause item `[data-loop=tackle-item]`, the drawer's door `[data-loop=tackle-door]` (no line out).
+- **Seams**: ui-loop's rack target calls `tackle.openScreen({from: 'rack'})` (else the sheet at Tackle, as before) and its aria-label
+  is `TEXT_LOOP.tackle.tin`; the home pause and ui-screens' trip pause append `tackle.pauseItem(...)` after the Wick's sheet's item
+  (ui-screens reads it as `K.loop.tackle`). `progression-loop.buy` of a tier sets `fit[slot]` back to null (the tier bought is fitted)
+  unless a found piece is fitted there. `loop-sheet.sheetModel` names the start pieces by TACKLE at every water; ui-sheet draws
+  `tackle.carried` as `.gw-sh-carry` above the plates.
+- **Words**: `TEXT_LOOP.tackle.screen = {rod, line, reel, done, hold}` (data.js, block "LAKE 2, lane G"); `TEXT_LOOP.carry` joins
+  `ui-loop`'s sheet word list.
+- **Tests**: `tools/tests/lake2-g-tackle.test.mjs`; `tools/tests/lake2-g-tackle.scenario.mjs` (`--sizes=WxH,…`, `--skip=trip,tow`,
+  `--noshots`; prints `LAKE2_G`).
+
 ### 14.27 The road in: the Chart for two waters, the leaving card, the tow to a new water and the way back (LAKE 2, lane C; `docs/loop/LAKE2.md` §5.2, §6, §9.7)
 
 `LOOP.shipped` stays `'mossmere'` until the gate: the Mossmere's game, its Chart included, is as built until the tow.

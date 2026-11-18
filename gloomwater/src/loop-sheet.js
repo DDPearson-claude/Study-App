@@ -245,7 +245,8 @@ export function sheetModel(meta, D, { run = null, view = {}, live = null, cast =
     const tier = tiersOf(D, gw, slot)[t];
     const rec = LT ? { ...LT, name: D?.TEXT_LOOP?.finds?.items?.[fid]?.name || fid, hold: th[slot], ...(firstAge ? {} : { castMax: castMaxOf(D, ml, fk.castMax) }) }
       : firstAge ? D?.TACKLE?.[slot]?.[t] || {}
-      : { name: (gw === firstWaterOf(D) ? D?.TACKLE?.[slot]?.[t]?.name : D?.TEXT_LOOP?.gearItems?.[tier?.id]) || tier?.id || '', hold: th[slot], castMax: castMaxOf(D, ml), hookWindow: hookWindowOf(D, ml) };
+      // (the start pieces travel and keep their names at every water: TACKLE's tier 0, as the Tackle screen names them; LAKE 2, lane G)
+      : { name: (gw === firstWaterOf(D) || t === 0 ? D?.TACKLE?.[slot]?.[t]?.name : D?.TEXT_LOOP?.gearItems?.[tier?.id]) || tier?.id || '', hold: th[slot], castMax: castMaxOf(D, ml), hookWindow: hookWindowOf(D, ml) };
     const values = { hold: num(rec.hold) };
     if (slot === 'rod') { values.castMax = num(rec.castMax); values.strike = Math.round((num(rec.hookWindow, 1) - 1) * 100); }
     const nkit = kit.hold ? { ...kit, [slot]: int(nx?.level), hold: { ...kit.hold, [slot]: cy[slot] + num(tiersOf(D, gw, slot)[int(nx?.level)]?.hold) } } : { ...kit, [slot]: int(nx?.level) };
