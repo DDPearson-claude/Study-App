@@ -125,20 +125,24 @@ section('Sporewood\'s card: its four places\' words wholly on the water or the p
   const states = [['the two the map opens', (l) => l], ['all four owned', (l) => { l.maps.places.push('veilwater', 'mothers_cup'); return l; }]];
   let n = 0;
   const bad = [];
-  for (const [w, h] of SIZES) for (const [what, put] of states) for (const pick of [null, 'lullaby', 'gill_harp', 'veilwater', 'mothers_cup']) {
+  for (const [w, h] of SIZES) for (const [what, put] of states) for (const pick of [null, 'lullaby', 'gill_harp', 'veilwater', 'mothers_cup']) for (const last of [false, true]) {
     const meta = endMeta(); put(meta.loop);
     const m = U.chartModel(meta, shipped, { slots: 3 });
+    if (last) m.next = null;   // (no next water's sealed sheet, as at the road's last shipped water: a phone's card full width)
     for (const s of m.sheets) s.places = C.chartPlaces(D, s.places);
     m.pick = { water: 'sporewood', place: pick && m.sheets[1].places.some((p) => p.id === pick && p.owned) ? pick : null };
     const L = CD.layoutChart(m, art, viewFor(w, h)); n++;
     const card = L.cards.find((c) => c.waterId === 'sporewood');
-    if (!card) { bad.push([w, h, what, pick, 'no card']); continue; }
+    if (!card) { bad.push([w, h, what, pick, last, 'no card']); continue; }
     const P = L.places.filter((p) => p.box);
+    const mark = (B) => [B.at[0] - B.size / 2, B.at[1] - B.size / 2, B.size, B.size];
     for (const A of P) {
-      if (A.side === 'cross') bad.push([w, h, what, pick, 'across the pen', A.id]);
+      // (across the pen only for the chosen place on the two smallest sheets, when no spot off it is free: named, never hidden)
+      if (A.side === 'cross' && !(A.id === m.pick.place && h < 432)) bad.push([w, h, what, pick, 'across the pen', A.id]);
       if (!(A.box[0] >= card.x && A.box[0] + A.box[2] <= card.x + card.w && A.box[1] >= card.y && A.box[1] + A.box[3] <= card.y + card.h)) bad.push([w, h, what, pick, 'off the card', A.id]);
       for (const B of P) if (B !== A && meet(A.box, B.box)) bad.push([w, h, what, pick, 'words meet', A.id, B.id]);
-      for (const t of L.targets) if (!t.backdrop && t.place !== A.id && meet(A.box, t.rect)) bad.push([w, h, what, pick, 'on a target', A.id, t.id]);
+      for (const B of L.places) if (B !== A && meet(A.box, mark(B))) bad.push([w, h, what, pick, 'on a mark', A.id, B.id]);
+      for (const t of L.targets) if (!t.backdrop && t.kind !== 'place' && t.kind !== 'buy' && meet(A.box, t.rect)) bad.push([w, h, what, pick, 'on a target', A.id, t.id]);
     }
     // (a name with no room off the pen waits unlettered on the smallest sheets; the chosen place is always named)
     if (m.pick.place && !L.places.find((p) => p.id === m.pick.place)?.label) bad.push([w, h, what, pick, 'the chosen place unnamed']);

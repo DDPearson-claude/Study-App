@@ -1131,9 +1131,10 @@ scratch diff against gw-lake2).
   the Seep comes down its ravine and the Root Weir lets the water out; the isles are their own small coasts (the Mother Cap on her
   foot); the Mother's Cup a dark well, never a ring; the root jetty, the Hearth where it lies, Murk's lily-pad barge. The four places
   draw their own vignettes (lily rafts, the harp's strings, the parted veil, the great cap). On an outline water a place's words never
-  cross the pen: they letter on the water or out on the paper beyond the coast with a leader; on the smallest sheet (358 × 364, all four
-  owned) a name with no room waits unlettered, its mark alone, until it is the chosen place, lettered first. Checked over 120 layouts,
-  354–1200 px wide (`lake2-c.test.mjs`). The coast's water is the world's within 3% and every vertex lies on the SDF's shore.
+  cross the pen: they letter on the water or out on the paper beyond the coast (the lake is fitted with a band of paper above and below
+  it for a line of names); on the smallest sheets (358 × 364 and 354 × 372, all four owned) a name with no room waits unlettered, its
+  mark alone, until it is the chosen place, lettered first (across the pen only if nothing else is free). Checked over 220 layouts,
+  354–1200 px wide, with and without a next water's sealed sheet (`lake2-c.test.mjs`). The coast's water is the world's within 3% and every vertex lies on the SDF's shore.
 - **The keys** (SPEC §5.5): `waterOpen(meta, D, water)` (progression-loop): a later water is drawn and sailed once its map is owned and
   shipped and its gear and catch keys are held, or once the home has lain there (towed: open for good though its rod stayed behind).
   `loop.isOpen`, `chartModel` and `chartNext` read it: a map bought with a key missing stays the sealed sheet, its map seal pressed. A

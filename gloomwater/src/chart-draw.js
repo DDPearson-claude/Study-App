@@ -850,7 +850,9 @@ export function layoutChart(model, art, view) {
     const R = Math.max(10, geo?.Rmax || geo?.R || 60), bb = geo?.outline ? geo.bbox : null;
     // (LAKE2 §6.2: an outline water's sheet is fitted to its own shape, its hachures' room kept round it; a round one to its radius)
     if (bb && bb.x1 > bb.x0 && bb.z1 > bb.z0) {
-      lake.s = Math.min((lake.rect[2] - 16) / (bb.x1 - bb.x0), (lake.rect[3] - 14) / (bb.z1 - bb.z0));
+      // (a band of paper above and below it for a line of names, so a crowded pool can letter out off the pen)
+      const band = 2 * (LS.place + 8);
+      lake.s = Math.min((lake.rect[2] - 16) / (bb.x1 - bb.x0), (lake.rect[3] - 14 - band) / (bb.z1 - bb.z0));
       lake.ox = (bb.x0 + bb.x1) / 2; lake.oz = (bb.z0 + bb.z1) / 2;
     } else lake.s = Math.min(lake.rect[2], lake.rect[3]) / (2 * R * 1.06);
     lake.cx = lake.rect[0] + lake.rect[2] / 2; lake.cy = lake.rect[1] + lake.rect[3] / 2;
@@ -940,6 +942,7 @@ export function layoutChart(model, art, view) {
     // the nearest free spot (the spots come nearest first), slid along the line to stay on the sheet; lying on an isle costs it a
     // little, so the words keep by their place rather than wander off to clear water
     let shoreKeep = false;   // (set per place: only a place whose site lies behind the shore, the brook, keeps its words off the pen)
+    let crossOk = false;     // (LAKE2 lane C: the chosen place on an outline water, when no spot off the pen is free: across it, never unnamed)
     const nearest = (spots, bw, bh) => {
       const lo = card.x + 8 + bw / 2, hi = card.x + card.w - 8 - bw / 2;
       let best = null, cost = Infinity;
@@ -949,7 +952,7 @@ export function layoutChart(model, art, view) {
         const q = around(cxx, sp[1], bw, bh);
         if (!free(q)) return;
         const cross = shoreKeep && sideOf(q) === 'cross';
-        if (cross && geo?.outline === true) return;   // (LAKE2 §6.2: on an outline water a word never crosses the pen while paper is free)
+        if (cross && geo?.outline === true && !crossOk) return;   // (LAKE2 §6.2: on an outline water a word never crosses the pen while paper is free)
         const c = i + Math.abs(cxx - sp[0]) / 12 + (isles.some((o) => rectsMeet(q, o, 0)) ? 6 : 0) + (cross ? 60 : 0);
         if (c < cost) { cost = c; best = [cxx, sp[1]]; }
       });
@@ -1019,7 +1022,13 @@ export function layoutChart(model, art, view) {
         });
         // (LAKE2 §6.2: on an outline water a name with no room anywhere off the pen waits unlettered, its mark alone, until it is the
         // chosen place, lettered first; never across the shore or over another word)
-        if (!best && geo?.outline === true) { if (model?.pick?.place === A.id) ok = false; done.push(A); continue; }
+        if (!best && geo?.outline === true && model?.pick?.place === A.id) {
+          crossOk = true;
+          sets.forEach((s) => { const [w0, h0, l0] = size(s), nb = nearest(spotsFor(w0, h0), w0, h0), c = nb ? nb.cost + s.cost : Infinity; if (c < cost) { cost = c; use = s; best = nb.at; [bw, bh, lh] = [w0, h0, l0]; } });
+          crossOk = false;
+          if (!best) ok = false;
+        }
+        if (!best && geo?.outline === true) { done.push(A); continue; }
         if (!best) { use = sets[sets.length - 1]; [bw, bh, lh] = size(use); best = spotsFor(bw, bh)[0]; }
         const q = around(best[0], best[1], bw, bh);
         placed.push(q);

@@ -52,9 +52,12 @@ export default async function (api) {
     await K.titleReady();
     await g(() => { window.__lp.ev.length = 0; window.__gw.game.beginIntro({ character: 'wick' }); });
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Start: flow home');
-    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.ui.closeAll?.(); });
+    // (the tutorial marked done and its machine stopped, as after any first Sail: the Chart as a returning player sees it, with its prices
+    // and the next water's sealed sheet)
+    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.ui.loop?.tutorial?.start?.({}); c.ui.closeAll?.(); });
     await K.secs(0.5);
     const end = await mossmereEnd();
+    K.check(await g(() => window.__gw.ui.loop?.tutorial?.isActive?.() === false), 'the tutorial done and its machine stopped');
     info.end = end;
     K.check(end.seals?.gear?.held && end.seals?.catch?.held && !end.seals?.map?.held, 'the Mossmere\'s end: the gear and catch seals pressed, the map\'s to buy', end.seals);
 
@@ -86,7 +89,7 @@ export default async function (api) {
     const lay = await g(() => { const L = window.__gw.debug.loop.chart('layout'), c = L?.cards?.find((k) => k.waterId === 'sporewood');
       const meet = (a, b) => a[0] < b[0] + b[2] && a[0] + a[2] > b[0] && a[1] < b[1] + b[3] && a[1] + a[3] > b[1];
       const P = (L?.places || []).filter((p) => p.box);
-      return c ? { ids: (L?.places || []).map((p) => p.id), named: P.map((A) => ({ id: A.id, side: A.side, inCard: A.box[0] >= c.x && A.box[0] + A.box[2] <= c.x + c.w && A.box[1] >= c.y && A.box[1] + A.box[3] <= c.y + c.h,
+      return c ? { view: [L.w, L.h], cont: [L.cont.x, L.cont.y, L.cont.w, L.cont.h].map(Math.round), card: [c.x, c.y, c.w, c.h].map(Math.round), sealed: !!L.sealed, ids: (L?.places || []).map((p) => p.id), named: P.map((A) => ({ id: A.id, side: A.side, inCard: A.box[0] >= c.x && A.box[0] + A.box[2] <= c.x + c.w && A.box[1] >= c.y && A.box[1] + A.box[3] <= c.y + c.h,
         hits: [...P.filter((q) => q !== A).map((q) => q.box), ...(L?.targets || []).filter((q) => !q.backdrop && q.place !== A.id && q.kind !== 'water').map((q) => q.rect)].filter((o) => meet(A.box, o)).length })) } : null; });
     info.sporewoodCard = lay;
     K.check(!!lay && ['lullaby', 'gill_harp', 'veilwater', 'mothers_cup'].every((id) => lay.ids.includes(id)), 'Sporewood\'s sheet: its four places drawn', lay?.ids);
@@ -168,7 +171,7 @@ export default async function (api) {
     await K.titleReady();
     await g(() => { window.__gw.game.beginIntro({ character: 'wick' }); });
     K.need((await K.until("c.flow === 'home'", 5)).ok, 'Start: flow home');
-    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.ui.closeAll?.(); });
+    await g(() => { const c = window.__gw; c.debug.loop.tow?.('cut'); c.debug.loop.tutorial('done'); c.ui.loop?.tutorial?.start?.({}); c.ui.closeAll?.(); });
     await mossmereEnd();
     await g(() => { const c = window.__gw; c.progression.loop.buy('lake:sporewood'); c.game.save(); });
     await g(() => window.__gw.game.sail({ water: 'sporewood', leave: true }));

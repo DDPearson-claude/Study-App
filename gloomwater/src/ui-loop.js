@@ -1227,7 +1227,7 @@ export function createLoopView(K) {
   /** Murk's line at home (saleLineId's order) and the catch seal's press with it: {line, press: 'catch' | null}. */
   function homeLine({ rows = [], empty = true, zone = null } = {}) {
     const said = L('state')?.said || {};
-    const w = typeof zone === 'string' && zone ? zone : run()?.zone || 'mossmere';
+    const w = typeof zone === 'string' && zone ? zone : run()?.zone || L('barge')?.water || 'mossmere';   // (LAKE 2, lane C: no trip, the barge's water)
     const lc = L('listCount', w);
     const listDone = !!lc && num(Number(lc.need), 0) > 0 && num(Number(lc.have), 0) >= num(Number(lc.need), 0);
     const away = L('lastTrip')?.away === true;
