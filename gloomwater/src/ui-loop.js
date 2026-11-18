@@ -588,7 +588,7 @@ function sheetTextOk(t, D, W) {
     const list = [];
     const walk = (v) => { if (typeof v === 'string') { if (v.includes('{')) list.push(v); } else if (isObj(v)) Object.values(v).forEach(walk); };
     walk(TS);
-    for (const x of [T_(D).next, T_(D).log?.gear, T_(D).log?.unmet, AT.gear?.tackle, AT.gear?.compare, AT.rating, AT.ratingNone]) if (typeof x === 'string') list.push(x);
+    for (const x of [T_(D).next, T_(D).log?.gear, T_(D).log?.unmet, AT.gear?.tackle, AT.gear?.compare, AT.rating, AT.ratingNone, T_(D).carry]) if (typeof x === 'string') list.push(x);   // (LAKE 2: the carried line)
     if (typeof AT.rating === 'string') list.push(AT.rating.split(/(?<=\.)\s+/)[0]);
     // a number's slot is one token; a name's may be several words
     const NUMS = new Set(['from', 'to', 'n', 'm', 'k', 'price', 'hold', 'cap', 'mult', 'floor', 'share', 'sooner', 'quiet', 'good', 'of']);
@@ -932,7 +932,7 @@ export function createLoopView(K) {
         if (cue || (!c.tile && id === 'chart')) b.dataset.autofocus = '1';
         const word = id === 'wall' || id === 'rack' ? null : TL().jetty?.[id] || id;
         b.innerHTML = `<span class="gw-jetty-tbox" aria-hidden="true"></span>${word ? `<span class="gw-jetty-tword">${ORN.hookL}<b></b>${ORN.hookR}</span>` : ''}`;
-        if (word) b.querySelector('b').textContent = word; else b.setAttribute('aria-label', id === 'rack' ? sheetTitle() : TL().jetty?.wall || 'The Long Wall');
+        if (word) b.querySelector('b').textContent = word; else b.setAttribute('aria-label', id === 'rack' ? TL().tackle?.tin || 'Tackle' : TL().jetty?.wall || 'The Long Wall');   // (LAKE 2, lane G: the rack opens the Tackle screen)
         b.style.visibility = 'hidden';   // (until placeTargets puts it over its object, this frame)
         b.addEventListener('click', (e) => { e.stopPropagation(); K.sfx?.('ui_click'); onTile(id); });
         layer.appendChild(b);
@@ -1035,15 +1035,13 @@ export function createLoopView(K) {
     return lay;
   }
 
-  /** The Wick's sheet's label, "{name}'s Sheet" (the rack target's accessible name). */
-  const sheetTitle = () => { const wid = D().loopWickId?.(L('wick')) || 'wick'; const nm = arr(D().CHARACTERS).find((c) => c?.id === wid)?.name || 'The Wick'; return String(TL().sheet?.title || "{name}'s Sheet").replace('{name}', nm); };
   function onTile(id) {
     if (id === 'murk') { openShelf(); return; }
     if (id === 'journal') { K.screens?.openJournal?.({ from: 'jetty' }); return; }
     // the cabin's doorway (wing I): the gallery, wing I's prints at true size round you (M1 step 5b)
     if (id === 'wall') { gallery.open(); return; }
-    // the rod rack by the cabin's door: the Wick's sheet at Tackle (SHEET.md §2.3)
-    if (id === 'rack') { K.screens?.openSheet?.({ from: 'rack', section: 'tackle' }); return; }
+    // the rod rack by the cabin's door: the Tackle screen, with a link to the Wick's sheet (LAKE2.md §5.5; before it, the sheet at Tackle)
+    if (id === 'rack') { if (tackle?.openScreen?.({ from: 'rack' })) return; K.screens?.openSheet?.({ from: 'rack', section: 'tackle' }); return; }
     if (id === 'chart') { tut.onTile('chart'); openChart(); }
   }
   function jettyKeys(code) {
@@ -1072,6 +1070,7 @@ export function createLoopView(K) {
       menu.appendChild(btn(TL().resume || 'Resume', { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: () => K.closeModal('homepause') }));
       // the Wick's sheet (SHEET.md §2.2): once the opening's tutorial is done (during it the home pause stays Resume · Settings, T73)
       { const it = K.screens?.sheetItem?.({ pauseChild: true, homeChild: true }); if (it) menu.appendChild(it); }
+      { const it = tackle?.pauseItem?.({ pauseChild: true }); if (it) menu.appendChild(it); }   // LAKE 2, lane G: the Tackle screen (LAKE2.md §5.5)
       menu.appendChild(btn(TL().settings?.label || 'Settings', { cls: 'gw-mbtn', icon: 'sun', onClick: () => K.screens?.openSettings?.({ pauseChild: true, homeChild: true }) }));
       content.appendChild(menu);
       foot.remove();

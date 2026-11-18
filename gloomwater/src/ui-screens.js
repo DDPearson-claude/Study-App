@@ -2275,6 +2275,7 @@ export function createScreens(K) {
       const menu = h('nav', 'gw-pause-menu');
       menu.appendChild(btn(esc(TL().resume || 'Resume'), { cls: 'gw-mbtn gw-btn--primary', icon: 'flame', autofocus: true, onClick: resume }));
       { const it = sheetItem({ pauseChild: true }); if (it) menu.appendChild(it); }   // the Wick's sheet (SHEET.md §2.2), after the tutorial
+      { const it = safe(() => K.loop?.tackle?.pauseItem?.({ pauseChild: true }), null); if (it) menu.appendChild(it); }   // LAKE 2, lane G: the Tackle screen
       const can = safe(() => ctx.game?.canGoHome?.({ fromPause: true }), null)?.ok === true;
       // (main's goHome({fromPause}) clears the pause itself and ends the trip, whose run:end closes the screens; refused, the pause resumes)
       const home = btn(esc(TL().home || 'Home'), { cls: 'gw-mbtn gw-loop-home', icon: 'hearth', disabled: !can, onClick: () => {

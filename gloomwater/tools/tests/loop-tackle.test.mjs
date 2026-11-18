@@ -287,7 +287,9 @@ section('the tin\'s and the drawer\'s model (ui-tackle.tackleModel), its words a
   const E = await import('../../src/murk-engrave.js');
   const W = T.tackleWords(D);
   eq(W, { tin: 'Tackle', bait: 'Bait', lure: 'Lure', kit: 'Kit', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' }, 'TEXT_LOOP.tackle: seven words (LOST-TACKLE §6.1: the Kit row)');
-  ok(Object.values(D.TEXT_LOOP.tackle).every((t) => !/%/.test(t) && U.textAllowed(t, { D })), 'every word on the allow-list, no percentage');
+  // (LAKE 2, lane G: the Tackle screen's words sit in TEXT_LOOP.tackle.screen; every string, nested or not, is held to the same rule)
+  const flat = (o) => Object.values(o).flatMap((v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? flat(v) : [String(v)]));
+  ok(flat(D.TEXT_LOOP.tackle).every((t) => !/%/.test(t) && U.textAllowed(t, { D })), 'every word on the allow-list, no percentage');
   const all = ['feather_fly', 'glimmer_spoon', 'bone_jig', 'bell_spinner'];
   const run = { zone: 'mossmere', bait: { mireworm: 9, lumen_moss: 3, heartmoss: 1, cut_strip: 2 }, equippedBait: 'mireworm', lure: 'bell_spinner' };
   let m = T.tackleModel(D, { run, metaLoop: { lures: all } });

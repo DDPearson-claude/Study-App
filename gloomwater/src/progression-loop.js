@@ -1140,7 +1140,11 @@ export function createLoop(S) {
       bag[it.baitId] = Math.max(0, int(bag[it.baitId])) + 1;   // a legend's bait is one try a ball (SPEC §4.6)
     } else if (applyGear(D(), L, it)) {   // M1 step 4: a lure, a tin, a raft part, the Order Board (Murk chalks its orders at once)
       if (it.slot === 'orders') { try { refillOrders(D(), L, { listFor }); } catch (e) { report('refillOrders', e); } }
-    } else L.tackle[it.slot] = it.level;
+    } else {
+      L.tackle[it.slot] = it.level;
+      // LAKE 2, lane G (LAKE2.md §5.5): a tier bought is the one fitted (a lower tier fitted on the Tackle screen gives way; a found piece stays)
+      if (isObj(L.fit) && typeof L.fit[it.slot] === 'string' && !LOOP()?.lostTackle?.[L.fit[it.slot]]) L.fit[it.slot] = null;
+    }
     if (it.consumable !== true && !session.includes(id)) session.push(id);
     try { S.invalidate?.(); } catch { /* optional */ }
     saveNow();

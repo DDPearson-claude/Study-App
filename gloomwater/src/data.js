@@ -5959,6 +5959,12 @@ LOOP.ambient.sporewood = {
 };
 // <<< LAKE 2, lane W2
 
+// >>> LAKE 2, lane G (docs/loop/LAKE2.md §5.5; the user's words of 17 Nov 2026: "you can change rods and reels at your leisure in an options
+// menu"): the Tackle screen's few words. Its title is the tin's own (TEXT_LOOP.tackle.tin), its Lure and Bait rows the drawer's; the fitted
+// piece's log line is "+{n} Hold." with the built "Casts {m} m." (TEXT_LOOP.lost.log.cast) and "Lands up to {class}." (TEXT_LOOP.gate.upTo)
+TEXT_LOOP.tackle.screen = { rod: 'Rod', line: 'Line', reel: 'Reel', done: 'Done', hold: '+{n} Hold.' };
+// <<< LAKE 2, lane G
+
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
 /** L50 (cm) of a species in a lake (the Pilgrim Salmon grows each lake down). */
