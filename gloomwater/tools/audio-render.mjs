@@ -1,9 +1,16 @@
 // Offline renders of GLOOMWATER's synthesised sounds, to look at (spectrograms) and listen to (WAV) without playing the game.
 //
-//   node tools/audio-render.mjs [--out=tools/out/audio-render] [--only=name,name] [--set=af|fe|intro|mossmere|all] [--sr=32000]
+//   node tools/audio-render.mjs [--out=tools/out/audio-render] [--only=name,name] [--set=af|fe|intro|mossmere|sporewood|all] [--sr=32000]
 //   --set=mossmere  the Mossmere under the loop (M1 step 3a, src/audio-mossmere.js): bed_day, bed_dusk, bed_night (the bed's layers
 //                and breaths by light), each place clear and through its bank (lily, span, buoys, bell: _clear, _muffled),
 //                giant_roll (through its bank), mist_lift, seal_press; exit code 1 if the master's peak passes -1.0 dBFS in any
+//   --set=sporewood  Sporewood under the loop (LAKE 2, lane A, src/audio-sporewood.js): spore_day, spore_dusk_early, spore_dusk_late,
+//                spore_night (the bed's layers, its one-shots and the frog chorus by light; dusk at k 0.15 and 0.9), each place clear and
+//                through its bank (lullaby, harp, veil, cup: _clear, _muffled), seep_near and seep_far (the fall and its drops at 4 m
+//                and 28 m), harp_swell and puffer_rustle (the giants' backs, through their banks), frog_plop, frog_croak, frog_click,
+//                spore_drip, spore_pop; then the Mossmere's three beds on the same seeds beside them (moss_bed_*), the level of each
+//                Sporewood bed against the Mossmere's at its light printed; exit code 1 if a master's peak passes -1.0 dBFS, or a
+//                Sporewood bed sits more than 4 dB off the Mossmere's at its light (the waters' beds keep one level)
 //   --set=intro  the opening cut scene's cue (src/audio-intro.js, INTRO.sound): `intro_cue` is the whole film through the game's
 //                bus (with ember_swell and flame_catch), `intro_bus` the cue's own bus alone, whose peak must stay under
 //                INTRO.sound.peakDb + 3 dB (exit code 1 otherwise); `intro_skip_*` a skip's 0.25 s fade at three moments
@@ -101,6 +108,8 @@ import { createIntroCue } from '${resolve(root, 'src/audio-intro.js').replace(/\
 import { soundEvents } from '${resolve(root, 'src/intro.js').replace(/\\/g, '/')}';
 import { create as createAudio } from '${resolve(root, 'src/audio.js').replace(/\\/g, '/')}';
 import * as MOSS from '${resolve(root, 'src/audio-mossmere.js').replace(/\\/g, '/')}';
+import * as SPORE from '${resolve(root, 'src/audio-sporewood.js').replace(/\\/g, '/')}';
+Object.assign(SFX, SPORE.SFX_SPORE);   // (as audio.js adds them the first time Sporewood sounds)
 function bus(ac, eng) {
   const master = ac.createGain(); master.gain.value = 0.85;
   const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
@@ -220,7 +229,12 @@ window.introPeakDb = DATA.INTRO.sound.peakDb;
 const seeded = (seed) => { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
 function mossLoop(ac, eng, def, dest, level, t0, t1) {
   const g = ac.createGain(); g.gain.value = 0; g.connect(dest);
-  const flt = ac.createBiquadFilter(); flt.type = def.ft; flt.frequency.value = def.src === 'osc' ? def.ff : def.f; flt.Q.value = def.q; flt.connect(g);
+  const flt = ac.createBiquadFilter(); flt.type = def.ft; flt.frequency.value = def.src === 'osc' ? def.ff : def.f; flt.Q.value = def.q;
+  const A = def.am || def.sway;   // (Sporewood's: a pulse or a sway on the gain, as audio.js's sporeLoop)
+  if (A) {
+    const hp = ac.createGain(); hp.gain.value = 1 - A.depth / 2; const o2 = ac.createOscillator(); o2.frequency.value = A.rate; const hg = ac.createGain(); hg.gain.value = A.depth / 2;
+    o2.connect(hg); hg.connect(hp.gain); o2.start(t0); o2.stop(t1); flt.connect(hp); hp.connect(g);
+  } else flt.connect(g);
   let src;
   if (def.src === 'osc') {
     src = ac.createOscillator(); src.type = def.type; src.frequency.value = def.f;
@@ -254,6 +268,35 @@ window.renderMossPlace = (id, muffled, dur, seed) => {
 };
 window.mossMuffle = MOSS.ROLL_MUFFLE;
 window.mossLiftDur = DATA.LOOP?.lift?.thin ?? 3;
+// ---- Sporewood under the loop (--set=sporewood; LAKE 2, lane A, src/audio-sporewood.js): the bed by light with its one-shots and the
+// frog chorus at the dusk's progress k, each place's voice clear and through its bank, the Seep's fall at a distance
+window.renderSporeBed = (light, k, dur, seed) => {
+  const prev = Math.random; Math.random = seeded(seed);
+  return render(dur, (ac, eng, B) => {
+    const L = SPORE.bedLevels(light);
+    for (const [key, def] of Object.entries(SPORE.BED_LAYERS)) if (L[key] > 0) mossLoop(ac, eng, def, B.master, L[key], 0.05, dur);
+    for (const [, V] of SPORE.bedVoices(light)) for (const t of SPORE.voiceSchedule(V.every, dur - 1.5, Math.random, 0.3 + V.every[0] * Math.random())) voice(eng, B, V.sfx, t, { volume: V.volume * (0.7 + 0.3 * Math.random()), pan: (Math.random() * 2 - 1) * V.spread });
+    const C = SPORE.chorus(light, k);
+    if (C) for (const t of SPORE.voiceSchedule(C.every, dur - 1.5, Math.random, 0.4)) voice(eng, B, SPORE.CHORUS.sfx, t, { volume: C.volume * (0.5 + 0.5 * Math.random()), pitch: C.pitch, pan: (Math.random() * 2 - 1) * SPORE.CHORUS.spread, n: C.croaks[0] + ((Math.random() * (C.croaks[1] - C.croaks[0] + 1)) | 0) });
+  }).then((pcm) => { Math.random = prev; return pcm; });
+};
+window.renderSporePlace = (id, muffled, dur, seed) => {
+  const prev = Math.random; Math.random = seeded(seed);
+  const V = SPORE.PLACE_VOICES[id], b = MOSS.bankVoice(!muffled);
+  return render(dur, (ac, eng, B) => {
+    if (V.hum) for (const H of V.hum) mossLoop(ac, eng, { src: 'osc', ...H, ff: b.muffle > 0 ? Math.min(H.ff, b.muffle * 0.3) : H.ff }, B.master, H.level * b.gain * SPORE.harpLight('night'), 0.05, dur);
+    if (V.sfx) for (const t of SPORE.voiceSchedule(V.every, dur - (id === 'mothers_cup' ? 6 : 1.5), Math.random, 0.3)) voice(eng, B, V.sfx, t, { volume: V.volume * b.gain, muffle: b.muffle || undefined });
+  }).then((pcm) => { Math.random = prev; return pcm; });
+};
+window.renderSeep = (dist, dur, seed) => {
+  const prev = Math.random; Math.random = seeded(seed);
+  const S = SPORE.SEEP, g = SPORE.seepAt(S.x + dist, S.z).gain * SPORE.seepLight('day');
+  return render(dur, (ac, eng, B) => {
+    mossLoop(ac, eng, S.fall, B.master, S.fall.level * g, 0.05, dur);
+    for (const t of SPORE.voiceSchedule(S.drop.every, dur - 1, Math.random, 0.3)) voice(eng, B, S.drop.sfx, t, { volume: S.drop.volume * g });
+  }).then((pcm) => { Math.random = prev; return pcm; });
+};
+window.sporeBackMuffle = SPORE.BACK_MUFFLE;
 // ---- the catch show's film (--set=show): one take of a film run's sound log through the game's own audio module.
 // The module is given an OfflineAudioContext (behind a face that always reads 'running' and cannot be resumed or suspended by
 // the module) and a ctx whose every read answers from the log's snapshot of that step; the context is suspended at each step's
@@ -601,6 +644,26 @@ if (set === 'mossmere') {
   if (want('mist_lift')) jobs.push({ name: 'mist_lift', moss: true, run: () => page.evaluate(() => window.renderOne('mist_lift', { dur: window.mossLiftDur }, window.mossLiftDur + 3)) });
   if (want('seal_press')) jobs.push({ name: 'seal_press', moss: true, run: () => page.evaluate(() => window.renderOne('seal_press', {}, 3.2)) });
 }
+if (set === 'sporewood') {
+  // the bed by light (dusk early and late in its chorus), each place clear and through its bank, the Seep near and far, the backs,
+  // the frogs and the bed's one-shots alone; then the Mossmere's beds on the same seeds (the level gate)
+  for (const [i, [name, light, k]] of [['spore_day', 'day', 0], ['spore_dusk_early', 'dusk', 0.15], ['spore_dusk_late', 'dusk', 0.9], ['spore_night', 'night', 0.5]].entries()) {
+    if (want(name)) jobs.push({ name, moss: true, bed: light, run: () => page.evaluate(([l, k, s]) => window.renderSporeBed(l, k, 14, s), [light, k, 11 + i]) });
+  }
+  for (const [i, [id, short]] of [['lullaby', 'lullaby'], ['gill_harp', 'harp'], ['veilwater', 'veil'], ['mothers_cup', 'cup']].entries()) {
+    for (const muffled of [false, true]) {
+      const name = `${short}_${muffled ? 'muffled' : 'clear'}`;
+      if (want(name)) jobs.push({ name, moss: true, run: () => page.evaluate(([p, m, d, s]) => window.renderSporePlace(p, m, d, s), [id, muffled, id === 'mothers_cup' ? 24 : 12, 31 + i]) });
+    }
+  }
+  for (const [name, d] of [['seep_near', 4], ['seep_far', 28]]) if (want(name)) jobs.push({ name, moss: true, run: () => page.evaluate(([x, s]) => window.renderSeep(x, 8, s), [d, 41]) });
+  if (want('harp_swell')) jobs.push({ name: 'harp_swell', moss: true, run: () => page.evaluate(() => window.renderOne('harp_swell', { muffle: window.sporeBackMuffle }, 7.5)) });
+  if (want('puffer_rustle')) jobs.push({ name: 'puffer_rustle', moss: true, run: () => page.evaluate(() => window.renderOne('puffer_rustle', { muffle: window.sporeBackMuffle }, 3)) });
+  for (const [n, o, d] of [['frog_plop', {}, 1.6], ['frog_croak', { n: 3, pitch: 0.88 }, 2.4], ['frog_click', {}, 1.2], ['spore_drip', {}, 1.6], ['spore_pop', {}, 1.6]]) {
+    if (want(n)) jobs.push({ name: n, moss: true, run: () => page.evaluate(([a, b, c]) => window.renderOne(a, b, c), [n, o, d]) });
+  }
+  for (const [i, light] of ['day', 'dusk', 'night'].entries()) { const name = `moss_bed_${light}`; if (want(name)) jobs.push({ name, moss: true, mossBed: light, run: () => page.evaluate(([l, s]) => window.renderMossBed(l, 14, s), [light, 11 + i]) }); }
+}
 const summary = [];
 let over = 0;
 const peakDb = await page.evaluate(() => window.introPeakDb);
@@ -641,6 +704,18 @@ for (const j of jobs) {
     summary.at(-1).skip = { tail: +(tail / 32767).toFixed(5), step: +(step / 32767).toFixed(4), before: +(before / 32767).toFixed(4) };
     if (tail / 32767 > 0.002) { over++; console.log('    FAIL: the cue still sounds 0.3 s after the skip'); }
     if (step > before * 1.5 + 40) { over++; console.log('    FAIL: a click in the fade'); }
+  }
+}
+if (set === 'sporewood') {
+  // the waters' beds keep one level: each Sporewood bed's rms against the Mossmere's at its light (dusk: early and late)
+  const rmsOf = (n) => summary.find((x) => x.name === n)?.rmsDb;
+  console.log('\nthe beds against the Mossmere\'s (rms, dB):');
+  for (const [name, light] of [['spore_day', 'day'], ['spore_dusk_early', 'dusk'], ['spore_dusk_late', 'dusk'], ['spore_night', 'night']]) {
+    const a = rmsOf(name), b = rmsOf(`moss_bed_${light}`);
+    if (a === undefined || b === undefined) continue;
+    const d = a - b;
+    console.log(`  ${name.padEnd(18)} ${a.toFixed(1)}  the Mossmere's ${light} ${b.toFixed(1)}  (${d >= 0 ? '+' : ''}${d.toFixed(1)} dB)${Math.abs(d) > 4 ? '   FAIL: more than 4 dB off' : ''}`);
+    if (Math.abs(d) > 4) over++;
   }
 }
 writeFileSync(resolve(outDir, 'summary.json'), JSON.stringify(summary, null, 1));

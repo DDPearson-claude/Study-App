@@ -19,10 +19,11 @@ const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 /** The evening's light in the bed's words: the calm is late day, the gloomtide night (dawn and any other phase: day). */
 export function mossLight(phase) { return phase === 'dusk' ? 'dusk' : phase === 'gloomtide' || phase === 'night' ? 'night' : 'day'; }
 
-/** Does the Mossmere's sound run? Under the loop only: on a trip on the Mossmere, or at home (the Jetty is on the Mossmere). */
+/** Does the Mossmere's sound run? Under the loop only: on a trip on the Mossmere, or at home while home is on the Mossmere (the Jetty;
+ *  LAKE 2: after a tow home lies at the barge's water, and that water's own sound plays there: audio-sporewood.js). */
 export function mossOn({ loopOn = false, flow = null, zone = null, outing = null } = {}) {
   if (loopOn !== true) return false;
-  if (flow === 'home') return true;
+  if (flow === 'home') return zone == null || zone === 'mossmere';
   return flow === 'playing' && outing === 'trip' && (zone === 'mossmere' || zone == null);
 }
 /** The bed's level: 1 while the evening runs, softer under the pause or a screen (as the Stillnight bed), 0 when it is off. */

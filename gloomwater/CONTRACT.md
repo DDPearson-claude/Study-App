@@ -2539,3 +2539,28 @@ there and a third of it is kept for good; found things travel; each water's lure
   .raftGearParts({oars, keel, water})`, the raft gear's sync reading `meta.loop.gearWater`.
 - **Tests**: `tools/tests/lake2-s.test.mjs`; `tools/tests/lake2-s.scenario.mjs` (`--part=shop`).
 
+### 14.29 Sporewood's sound: its bed, the Seep, its places, its giants and its frogs (LAKE 2, lane A; `docs/loop/LAKE2.md` §3.7, §9.9)
+- **`src/audio-sporewood.js`** (pure, the pattern of `audio-mossmere.js`, CONTRACT §14 B's sound; no WebAudio of its own, no state):
+  `sporeLight(phase)`, `sporeOn({loopOn, flow, zone, outing})` (under the loop: a trip at Sporewood, or flow `home` with zone
+  `sporewood`), `sporeLevel(on, {paused, blocking})`; `BED_LAYERS` (`canopy`, `leaves`, `warm`, `warm2`, `deep`, `pulse`: a noise or a
+  tone through a filter, with `lfo` on the filter, `vib` on the pitch, `am` / `sway` {rate, depth} on the gain), `BED_LEVELS`,
+  `bedLevels(light)`; `BED_VOICES` / `bedVoices(light)` (day: drip, pop, click; dusk: drip; night: none); `CHORUS` / `chorus(light, k)`
+  → `{every, volume, croaks, pitch}` or null (k: the dusk's progress, survival's `getPhaseInfo().k`); `PLACE_VOICES` (lullaby,
+  veilwater, mothers_cup: a one-shot every [min, max] s, the Cup's own `earshot` 14 / 40; gill_harp: `hum`, two partials with a
+  `sway`), `harpLight(light)`, `placeVoiceAt(id, area, x, z, {lifted})`; `SEEP` (the fall's loop and its drops at (79.2, −27.6)),
+  `seepLight`, `seepAt(x, z)`; `BACKS`, `backOn(phase)`, `backVoice(placeId)` → `{sfx, swell}`, `BACK_EARSHOT`, `BACK_MUFFLE`; `PLOP`,
+  `plopGain(p, x, z)`; `SFX_SPORE` (11 voices: `spore_drip`, `spore_pop`, `frog_click`, `frog_croak` (o.n calls), `frog_plop`,
+  `lullaby_drip`, `veil_whisper`, `cup_breath`, `seep_drop`, `harp_swell`, `puffer_rustle`; each takes `o.muffle`), `SPORE_SFX`.
+- **audio.js**: imports it as `SPORE`. `sporeContinuous(dt, flow)` runs under the loop beside `mossContinuous`; Sporewood's voices
+  are added to `SFX` (with their own voice tags) the first time it sounds, never off the loop. `homeWater()` (the world's loop water,
+  else `meta.loop.barge.water`, else the Mossmere) gives home's water: `mossContinuous` passes it, so the Mossmere's bed plays at home
+  only while home is on the Mossmere; `zoneId()` at home under the loop returns a later water's key (the hub mood in its theme).
+  `mossPlaces(water)` lists one water's places (`LOOP.places[id].water`). `world:giantBack` also calls `sporeGiantBack` (night, a trip
+  at Sporewood); `wild:frogDive {x, z}` plays `frog_plop`; the stems tell's rustle plays at Sporewood too; the Stillnight bed's far frogs
+  are silent at Sporewood (its own chorus). Debug: `ctx.debug.audioSpore()` → `{level, light, k, layers: {key: gain}, hum: [{level,
+  lowpass}] | null, fall: {level} | null, swell, places: [{id, lifted, gain, muffle, dist}]}` (the loop only).
+- **audio-mossmere.js**: `mossOn` at home is true only for zone null or `mossmere` (as before for every save until a tow).
+- **actors-wildlife.js**: a lily frog's dive emits `wild:frogDive {x, z}` (Sporewood only; the lampbills emit nothing).
+- **Tools**: `tools/audio-render.mjs --set=sporewood` (the beds, the places clear and banked, the Seep near and far, the backs, the frogs;
+  the -1.0 dBFS gate and each bed within 4 dB of the Mossmere's at its light); `tools/tests/audio-sporewood.test.mjs`;
+  `tools/tests/lake2-a.scenario.mjs` (prints `LAKE2_A`).
