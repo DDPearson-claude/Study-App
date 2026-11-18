@@ -694,7 +694,7 @@ handle** (rare), **the Seed-Keeper's Casket** (the jackpot). Five small models (
 | Cloche Handle | "From a glass bell over seedlings." |
 | The Seed-Keeper's Casket | "Every seed the gardens ever kept." |
 
-*As built (lane S, §9.9): the five ship as above, selling at tier 12 for 24 · 72 · 180 · 600 · 3,000.*
+*As built (lane S, §9.8): the five ship as above, selling at tier 12 for 24 · 72 · 180 · 600 · 3,000.*
 
 **Later**: Sporewood's three barge parts (the Potted Amber Glowcap, a garden lantern, a trellis), its three looks, its well pieces,
 and a Sporewood lost-tackle set (a found rod, line, reel and a notebook). Until then a snag at Sporewood draws a treasure or nothing
@@ -1233,12 +1233,12 @@ scratch diff against gw-lake2).
 
 ---
 
-### 9.9 Lane S as built (gw-l2-s): the shop, orders and finds
+### 9.8 Lane S as built (gw-l2-s): the shop, orders and finds
 
 §7, §5.6–§5.7 and §6.5; `LOOP.shipped` stays `'mossmere'`, and nothing of it reaches the Mossmere before the tow: its shelf, book,
 plates, glyphs, finds, orders, guide boxes, rack and raft are as built (the Mossmere's plate keys and raft triangles are pinned in
-`lake2-s.test.mjs`; `homeVariants`' signature is its nine terms until a later water's rod is bought). The section is numbered 9.9 so lane
-A's own (9.8, the sound) keeps its number at the merge.
+`lake2-s.test.mjs`; `homeVariants`' signature is its nine terms until a later water's rod is bought). (Lane A's own section, the sound,
+is §9.9 on its branch: both sit before §10 at the merge.)
 
 - **The finds** (`data.js` block "LAKE 2, lane S"; FINDS §5.2): Sporewood's five treasures, one a grade: the **Seed Jar** (plain, pinch,
   0.15 m), the **Bee-Skep Lid** (fine, both, 0.34 m), the **Gardener's Trowel** (precious, pinch, 0.28 m), the **Cloche Handle** (rare,

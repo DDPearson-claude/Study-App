@@ -2520,7 +2520,7 @@ there and a third of it is kept for good; found things travel; each water's lure
 - **Tests**: `tools/tests/lake2-c.test.mjs`, `loop-tow.test.mjs` (Lake 2 sections), `ui-chart.test.mjs` (byte lines per sheet),
   `validate-data --loop` (the ahead sheet; each later leg from the water before it; each glide in); `tools/tests/lake2-c.scenario.mjs`.
 
-### 14.29 Murk at a later water: its make, its finds, its maps (LAKE 2, lane S; `docs/loop/LAKE2.md` §5.6–§5.7, §6.5, §7, §9.9)
+### 14.28 Murk at a later water: its make, its finds, its maps (LAKE 2, lane S; `docs/loop/LAKE2.md` §5.6–§5.7, §6.5, §7, §9.8)
 
 - **`murk-engrave.plateKey(card)`**: a card whose `itemId` is one of Sporewood's tiers or creels draws as `${slot}:${itemId}`; a raft part
   whose `gearWater` is `'sporewood'` as `${slot}:${level}:sporewood`; `lure:<id>`, `tin:<id>` and `bait:<id>` as before, Sporewood's ids

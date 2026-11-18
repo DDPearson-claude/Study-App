@@ -2,7 +2,9 @@
 // engraved hand: an ink line, parallel hatching for the half-tones, cross-hatching for the shadows, a little stipple, a hatched cast
 // shadow under each thing; no flat colour, no gradient. Pure strings (node: tools/tests/murk-catalogue.test.mjs), drawn from the game's
 // own items (the rod tiers, the line, the reel, the creel, the lures, the tins, the Heartmoss Ball, the raft's parts, the Order Board,
-// the Bait Bed, the Long Wall's wing, the barge lights, the three looks, the place maps) and Murk's barge for the frontispiece.
+// the Bait Bed, the Long Wall's wing, the barge lights, the three looks, the place maps) and Murk's barge for the frontispiece. LAKE 2,
+// lane S: a later water's shelf in its own make (Sporewood's: stalk, cap, root, moth silk, amber, spore), keyed by the card's itemId
+// and gearWater (plateKey), so no Sporewood item is drawn as a Mossmere one.
 // Ink is currentColor (the page's ink, set by the view's CSS); paper knock-outs are class "cat-pp" (the page's paper).
 //
 //   engrave(card, {uid})   an item plate (viewBox 200 × 150)
