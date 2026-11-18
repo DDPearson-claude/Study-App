@@ -453,17 +453,19 @@ export function create(ctx) {
     if (lure) { try { pp = lurePool(D(), pp, { lure, phase, wickId: wickId() }); } catch (e) { report(e); } }
     return pp;
   }
-  /** The area of an open-water point on the Mossmere (watercraft.areaAt, with the world's probe, arena, docks, hulls and this evening's
-   *  lane), or null (another water, no world, not water). */
+  /** The area of an open-water point (watercraft.areaAt, with the world's probe, arena, docks, hulls and this evening's lane, on the
+   *  water's own geometry), or null (a water whose areas are not authored and baked, no world, not water). */
   function castArea(x, z) {
-    if (!wcOn() || lakeId() !== 'mossmere') return null;   // (LAKE 2, lane D2: areaAt reads the Mossmere's geometry; another water has none yet)
+    if (!wcOn()) return null;
+    const wt = wcWater(), X = WATERCRAFT[wt];
+    if (!X?.geometry || !X.shares) return null;   // (LAKE 2: a water's areas are live once its geometry is authored and its shares baked)
     try {
       const w = ctx.world;
       if (typeof w?.getDepth !== 'function' || typeof w?.getShoreRadius !== 'function') return null;
       let hulls = null, docks = null;
       try { hulls = w.getMooring?.()?.circles ?? null; } catch { /* optional */ }
       try { docks = w.getDocks?.() ?? null; } catch { /* optional */ }
-      return areaAt(x, z, probeOf(w), { lane: laneFor(num(run()?.evening, 1), phaseNow()), arena: zoneData()?.arena || null, hulls, docks });
+      return areaAt(x, z, probeOf(w), { lane: laneFor(num(run()?.evening, 1), phaseNow(), wt), arena: zoneData()?.arena || null, hulls, docks, geo: X.geometry });
     } catch (e) { report(e); return null; }
   }
   // <<< WC-1
@@ -3642,7 +3644,9 @@ export function create(ctx) {
   // pool at that point (watercraft.hookWeights with hook: false); a rise's or a swirl's fish is pre-rolled from its form's makers,
   // never a giant. Silhouettes (§6): a few real fish seen in clear shallow water, pre-rolled through the built pre-roll path (S.prerolls,
   // S.prerollSp, S.prerollZ), drawn at their true length. Obeyed tells get the water's answer (§5.3); nothing glows, nothing is gold.
-  const mossLoop = () => signsOn() && LOOP() && lakeId() === 'mossmere';
+  // (LAKE 2, the integration's fix: every water under the loop with tells of its own, WATERCRAFT[water].tells, Sporewood's beside the
+  // Mossmere's: no water under the loop draws a pulse ring, a gold ring, a spot's disc, the legend pool's glimmer or a built sign)
+  const mossLoop = () => signsOn() && LOOP() && !!WCX.WATERCRAFT?.[lakeId()]?.tells;
   const wc2 = () => S.wc2 || (S.wc2 = { sights: [], next: 3, quiet: [], answers: [], cast: null, hooked: null, probe: null, probeW: null, lamps: null, silt: [] });
   // the haul of a find on the Mossmere (M1 step 5c; the integration's fix): the snag drags along the bed and the water behind it
   // clouds with mud, puff after puff (the mud cloud's instance in its silt form, kind 9.1: darker than the water, never gold, never a
@@ -3680,9 +3684,10 @@ export function create(ctx) {
     if (w.place?.id) return w.place.id;
     if (typeof ctx.world?.getShoreRadius !== 'function') return 'open';   // (a world with no shore to measure from: open water, §9.1's fallback)
     try {
-      const W2 = wc2(), ev = num(run()?.evening, 1), ph = phaseNow(), key = `${ev}|${SI.lightOf(ph)}`;
-      if (W2.laneKey !== key) { W2.laneKey = key; W2.lane = WCX.laneFor(ev, ph); W2.hulls = wcHulls(); }   // (once an evening and light)
-      return WCX.areaAt(x, z, wcProbe(), { lane: W2.lane, arena: zoneData()?.arena, hulls: W2.hulls }) || null;
+      const W2 = wc2(), ev = num(run()?.evening, 1), ph = phaseNow(), wt = lakeId(), key = `${wt}|${ev}|${SI.lightOf(ph)}`;
+      if (W2.laneKey !== key) { W2.laneKey = key; W2.lane = WCX.laneFor(ev, ph, wt); W2.hulls = wcHulls(); }   // (once a water, an evening and a light)
+      const geo = WCX.WATERCRAFT?.[wt]?.geometry || null;   // (LAKE 2: the water's own areas)
+      return WCX.areaAt(x, z, wcProbe(), { lane: W2.lane, arena: zoneData()?.arena, hulls: W2.hulls, geo }) || null;
     } catch (e) { report(e); return null; }
   }
   /** "Who is there" (§4 steps 3–5): data.placePool at that water, × the area's weight in open water or the hour's tilt in a place;
@@ -3694,7 +3699,7 @@ export function create(ctx) {
     let pp = null;
     try { pp = f(D().SPECIES || [], { placeId: placeId ?? null, phase, bait: legendBaitId(bait) ? null : (bait ?? null), wickId: wickId(), water: lakeId() }); } catch (e) { report(e); return null; }
     if (!pp) return null;
-    return { entries: WCX.hookWeights(pp.list, { area: placeId ? null : area, place: placeId ?? null, phase, hook: false }), giant: pp.giant || null };
+    return { entries: WCX.hookWeights(pp.list, { area: placeId ? null : area, place: placeId ?? null, phase, hook: false, water: wcWater() }), giant: pp.giant || null };
   }
   /** Each species' share of the who-is-there pool (the giant's share in), for honest spawning's makers. */
   function whoShare(who) {
@@ -3706,7 +3711,7 @@ export function create(ctx) {
     if (tot > 0) for (const [k, v] of m) m.set(k, v / tot);
     return m;
   }
-  const mossTells = () => WCX.WATERCRAFT?.mossmere?.tells || null;
+  const mossTells = () => WCX.WATERCRAFT?.[lakeId()]?.tells || null;   // (LAKE 2: the water's own tells; wcLoop holds that it has them)
   const SIGN_FORM_F = { sip: 0, splash: 0.1, roll: 0.2, spray: 0, ruffle: 0.1 };
   /** A placement as built: a water point 6 m to cast range + 15 m from the raft, depth ≥ 0.2, ≥ 7 m from the others, never in mist,
    *  nor by the legend's pool. */
@@ -3736,7 +3741,7 @@ export function create(ctx) {
       const a = wcAreaAt(p.x, p.z, w);
       if (!a) continue;
       const share = whoShare(whoPool(a, phase, w.place?.id ?? null));
-      let opts = tellOptions(a, light, share, { alive: o.force ? [] : alive, tells: mossTells() });
+      let opts = tellOptions(a, light, share, { alive: o.force ? [] : alive, tells: mossTells(), minnowRaw: mossTells()?.preyRaw });
       if (kind) opts = opts.filter((q) => q.kind === kind && (!o.form || q.form === o.form));
       if (kind && !opts.length && o.force) {   // debug: the kind asked for, here, with the makers its table names
         const T = normTells(mossTells())[kind], fname = o.form || Object.keys(T?.forms || {})[0];
@@ -3941,7 +3946,7 @@ export function create(ctx) {
       if (!c) continue;
       const placeId = c.w.place?.id ?? null;
       const who = whoPool(c.area, phase, placeId);
-      const sp = o.species || SI.pickSight((who?.entries || []).map((e) => ({ sp: e.sp, w: e.w })), { light, area: c.area }, srnd);
+      const sp = o.species || SI.pickSight((who?.entries || []).map((e) => ({ sp: e.sp, w: e.w })), { light, area: c.area, water: lakeId() }, srnd);
       if (!sp) continue;
       const info = { ...castInfo(c.x, c.z, c.depth, null, false), lure: null };
       const pre = preOf(sp, rollPreZ(sp, info, num(SZ.z.min, -2), o.z ?? null));

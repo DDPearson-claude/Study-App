@@ -291,6 +291,10 @@ export const tablesOf = (water) => (water && WATERCRAFT[water]?.hook ? WATERCRAF
 /** A fish's hook row at a water (the water's table, then its guests'), or undefined. */
 const rowAt = (fishId, water) => { const T = tablesOf(water).hook; return T.table[fishId] || T.guests?.[fishId]; };
 // <<< LAKE 2, lane D2
+// (LAKE 2, the integration's fix: a water's areas are live once its geometry is authored: laneFor, areaShares, fitFactors, openMix and
+// bitesTable take the water as the hook's readers do; left out, or a water with no geometry, the Mossmere's)
+/** A water's area tables (its geometry, lane, shares and factors): WATERCRAFT[water] once it has its own geometry, else the Mossmere's. */
+export const areasOf = (water) => (water && WATERCRAFT[water]?.geometry ? WATERCRAFT[water] : W);
 
 // >>> LAKE 2, lane W1 (LAKE2.md §1A, §3.1): Sporewood's areas on its outline shore (world metres; the reed beds are runs of the shore
 // curve, [u0, u1] in its control points, SPOREWOOD_ARENA.outline's: the Reed Flats from the Veil inlet's mouth to the neck's south bank,
@@ -313,6 +317,74 @@ WATERCRAFT.sporewood.geometry = {
 WATERCRAFT.sporewood.laneAvoid = [[-50, -6, 13], [-28, 14, 9.5], [-24, 19.5, 8.5], [-62, 22, 8.5], [0, 6.5, 10]];
 WATERCRAFT.sporewood.laneFallback = { x: -38, z: 12 };
 // <<< LAKE 2, lane W1
+
+// >>> LAKE 2, the integration's fix (LAKE2.md §2.4): Sporewood's areas made live (baked as the Mossmere's, on its own layout), its tells
+// (WATERCRAFT §5's kinds with Sporewood's makers: the sip for the Fry and the Barb, the splash for the Mackerel and the Cindertail, the
+// roll for the Downcast at dusk, the bow wave the swirl's and the strike's answer, in the giants' places too) and its silhouettes (§6's
+// rules, its own bodies). The game draws every water under the loop that has tells by these rules: no pulse ring, no gold, no built sign
+// baked by `node tools/tests/watercraft.test.mjs --bake=sporewood` (SPOREWOOD_ARENA's outline layout, its mooring's hulls, 100 seeded
+// evenings; the factors fitted on its plain bait, Spore Cake, so the Threadling's is fitted too)
+WATERCRAFT.sporewood.shares = {
+  day: { margin: 0.2207, reeds: 0.0418, pads: 0.0188, stones: 0.0662, dropoff: 0.1419, lane: 0.0155, open: 0.2339, deep: 0.2283, inflow: 0.0164, outflow: 0.0167 },
+  dusk: { margin: 0.2207, reeds: 0.0418, pads: 0.0188, stones: 0.0662, dropoff: 0.1419, lane: 0.0155, open: 0.2339, deep: 0.2283, inflow: 0.0164, outflow: 0.0167 },
+  night: { margin: 0.2207, reeds: 0.0418, pads: 0.0188, stones: 0.0662, dropoff: 0.1419, lane: 0, open: 0.2352, deep: 0.2424, inflow: 0.0164, outflow: 0.0167 },
+};
+WATERCRAFT.sporewood.factors = {
+  day: { capshell_crayfish: 1.5046, cindertail_catfish: 0.6009, downcast_catfish: 0.3716, falsesmile_barb: 1.1285, lostsea_mackerel: 0.4942, netcloud_fry: 0.9591, threadling_eel: 1.2231, velvet_ray: 0.6617 },
+  dusk: { capshell_crayfish: 1.5046, cindertail_catfish: 0.6009, downcast_catfish: 0.3716, falsesmile_barb: 1.1285, lostsea_mackerel: 0.4942, netcloud_fry: 0.9591, threadling_eel: 1.2231, velvet_ray: 0.6617 },
+  night: { capshell_crayfish: 1.5218, cindertail_catfish: 0.5863, mildew_angler: 0.7449, netcloud_fry: 0.95, threadling_eel: 1.2184, velvet_ray: 0.6395 },
+};
+// <<< baked
+{
+  const SW_PLACES = ['lullaby', 'gill_harp', 'veilwater', 'mothers_cup'];
+  WATERCRAFT.sporewood.tells = {
+    rise: {
+      hours: { day: 3, dusk: 3.2, night: 1.6 }, cap: 3, take: 'rise', waitMult: 0.5,
+      forms: {
+        sip: { makers: ['netcloud_fry', 'falsesmile_barb'], areas: ['margin', 'reeds', 'pads', 'lane', 'open', 'lullaby'], within: 2.5, after: 3, respond: 'riseAgain' },
+        splash: { makers: ['lostsea_mackerel', 'cindertail_catfish'], areas: ['stones', 'dropoff', 'lane', 'open', 'inflow', 'outflow'], within: 3, after: 2, respond: 'slapAgain' },
+        roll: { phases: ['dusk'], makers: ['downcast_catfish'], areas: ['dropoff', 'open', 'deep'], within: 2.5, after: 3, respond: 'riseAgain' },
+      },
+    },
+    boil: {   // the swirl: Prize+ only; its answer the bow wave, in the giants' places too (their own fish, never the giant: §5.5)
+      hours: { day: 1.3, dusk: 1.6, night: 1.1 }, cap: 2, take: 'swirl', waitMult: 0.65, prizePlus: true,
+      makers: ['cindertail_catfish', 'lostsea_mackerel', 'downcast_catfish', 'velvet_ray', 'falsesmile_barb'],
+      areas: ['reeds', 'pads', 'stones', 'dropoff', 'deep', ...SW_PLACES], within: 3, after: 8, respond: 'bowWave',
+    },
+    nervous: {
+      cap: 2, waitMult: 0.65, tilt: 3,
+      forms: {
+        ruffle: { hours: { day: 1.2, dusk: 1.4, night: 0.8 }, makers: { day: ['netcloud_fry'], dusk: ['netcloud_fry'], night: ['netcloud_fry'] },
+          areas: ['margin', 'reeds', 'pads', 'lane', 'open'], edge: true, after: 10, spookInside: true, respond: 'ruffleDrift' },
+        spray: { hours: { day: 1.8, dusk: 1.4, night: 0.4 }, makers: ['lostsea_mackerel', 'cindertail_catfish', 'mildew_angler'],
+          areas: ['margin', 'reeds', 'pads', 'lane', 'open', 'inflow', 'outflow'], minnowRaw: 1, ring: [0.55, 1.6], spookInside: true, favour: 0.3, respond: 'sprayAgain' },
+      },
+    },
+    strike: { hours: { day: 1, dusk: 1.2, night: 0.8 }, cap: 1, waitMult: 0.65, tilt: 3, favour: 0.6, makers: ['lostsea_mackerel', 'cindertail_catfish', 'mildew_angler'],
+      areas: ['reeds', 'pads', 'stones', 'dropoff', 'outflow'], within: 4, after: 10, respond: 'bowWave' },
+    bubbles: { hours: { day: 1.6, dusk: 1.2, night: 0.6 }, cap: 2, waitMult: 0.65, tilt: 3, favour: 0.2, makers: ['cindertail_catfish', 'downcast_catfish'],
+      areas: ['margin', 'reeds', 'pads', 'open', 'deep'], head: 2, respond: 'fizzTurn' },
+    cloud: { hours: { day: 1.2, dusk: 1, night: 0 }, cap: 2, waitMult: 0.65, tilt: 3, favour: 0.2, makers: ['velvet_ray', 'capshell_crayfish'],
+      areas: ['margin', 'open', 'inflow'], edge: 2, after: 15, spookInside: true, respond: 'puff' },
+    stems: { hours: { day: 1, dusk: 1.2, night: 0.3 }, cap: 2, waitMult: 0.65, tilt: 3, makers: ['falsesmile_barb'], byArea: {},
+      areas: ['pads', 'reeds', 'lullaby'], edge: 2.5, after: 8, spookInside: true, respond: 'knock' },
+    gas: { hours: { day: 0.5, dusk: 0.4, night: 0.3 }, cap: 1, makers: [], areas: ['margin', 'open', 'deep'], noRule: true },   // the false tell
+    glow: { retired: true },   // never spawned under the loop
+    alive: { day: [2, 4], dusk: [2, 4], night: [2, 3], max: 6 },
+    // the fry's raw weights: the spray (a hunter driving the fry) only where they are (≥ 1), as the Dusk Minnow's on the Mossmere
+    preyRaw: rowOf(SW_RAW_ROWS.netcloud_fry),
+  };
+  // the silhouettes (§6): the same rules (depth, counts, bands, lead, spook, lantern) and Sporewood's own bodies; fishing-sight's
+  // OUTLINE_AT.sporewood draws them (the test holds the two the same). The Lullaby's shallow lily water shows them too. Never the giants, the
+  // legend, the Jelly (the Lullaby's own) or the Threadling (bait-only), the Velvet Ray (no ray's outline), nor the deep Mackerel and Downcast
+  WATERCRAFT.sporewood.sight = {
+    ...W.sight, areas: ['margin', 'pads', 'inflow', 'stones', 'reeds', 'lullaby'],
+    bodies: { deep: ['falsesmile_barb', 'mildew_angler', 'nightbloom_carp'], torpedo: ['cindertail_catfish'], shoal: ['netcloud_fry'], claw: ['capshell_crayfish'] },
+    nightOnly: ['mildew_angler', 'nightbloom_carp', 'capshell_crayfish'],
+    exclude: ['harpstring_eel', 'festival_puffer', 'drifting_grove', 'sleepspore_jelly', 'threadling_eel', 'velvet_ray', 'lostsea_mackerel', 'downcast_catfish'],
+  };
+}
+// <<< LAKE 2, the integration's fix
 
 /** A game phase (calm, day, dawn, dusk, gloomtide, night) as the light the tables are keyed by. */
 export function lightOf(phase) {
@@ -401,15 +473,15 @@ const hash01 = (n, k) => {
 };
 /** This evening's wind lane (§2.1, §5.4): seeded by the evening's number, deterministic; a centre within 25 m of (0, −5), clear of the
  *  islands and the Bell Pool, a heading in [0, π), the strip 4 × 50 m. null at night (a phase whose light is night). */
-export function laneFor(evening, phase = null) {
-  const Lg = W.geometry.lane;
+export function laneFor(evening, phase = null, water = null) {
+  const X = areasOf(water), Lg = X.geometry.lane;   // (another water's lane: its own centre, reach, avoid list and fallback)
   if (phase != null && !Lg.phases.includes(lightOf(phase))) return null;
   const e = Math.trunc(num(evening, 1));
-  let x = W.laneFallback.x, z = W.laneFallback.z, h = Math.PI * hash01(e, 999);
+  let x = X.laneFallback.x, z = X.laneFallback.z, h = Math.PI * hash01(e, 999);
   for (let k = 0; k < 24; k++) {
     const r = Lg.within * Math.sqrt(hash01(e, 3 * k)), a = 2 * Math.PI * hash01(e, 3 * k + 1);
     const cx = Lg.cx + r * Math.cos(a), cz = Lg.cz + r * Math.sin(a);
-    if (W.laneAvoid.some(([ax, az, ar]) => hyp(cx - ax, cz - az) < ar)) continue;
+    if (X.laneAvoid.some(([ax, az, ar]) => hyp(cx - ax, cz - az) < ar)) continue;
     x = cx; z = cz; h = Math.PI * hash01(e, 3 * k + 2); break;
   }
   return { x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100, h: Math.round(h * 1e4) / 1e4, w: Lg.w, len: Lg.len, evening: e };
@@ -421,17 +493,18 @@ export function laneFor(evening, phase = null) {
  * seeded evenings (day and dusk; none at night). opts: areaAt's {arena, hulls, docks}, plus inPlace, step (1), evenings (100), R (62).
  * → {day: {area: share}, dusk: {…}, night: {…}} (each sums to 1).
  */
-export function areaShares(probe, { arena = null, hulls = null, docks = null, inPlace = null, step = 1, evenings = 100, R = 62 } = {}) {
-  const A = arena || {}, pts = [];
+export function areaShares(probe, { arena = null, hulls = null, docks = null, inPlace = null, step = 1, evenings = 100, R = 62, water = null, bounds = null } = {}) {
+  const A = arena || {}, pts = [], X = areasOf(water), geo = X === W ? null : X.geometry;   // (water: its geometry and lane; bounds [x0, x1, z0, z1])
   const counts = Object.fromEntries(AREAS.map((a) => [a, 0]));
   let n = 0;
-  for (let x = -R; x <= R; x += step) for (let z = -R; z <= R; z += step) {
+  const [bx0, bx1, bz0, bz1] = Array.isArray(bounds) && bounds.length === 4 ? bounds : [-R, R, -R, R];
+  for (let x = bx0; x <= bx1; x += step) for (let z = bz0; z <= bz1; z += step) {
     if (!(num(probe.fromShore(x, z), 0) > 0)) continue;
     if (arr(A.islands).some((o) => hyp(x - o.x, z - o.z) < o.r * 1.08 + 0.2)) continue;
     if (arr(A.pillars).some((p) => hyp(x - p.x, z - p.z) < p.r)) continue;
     if (arr(hulls).some((c) => hyp(x - c.x, z - c.z) < c.r)) continue;
     if (inPlace && inPlace(x, z)) continue;
-    const a = areaAt(x, z, probe, { lane: null, arena, hulls, docks });
+    const a = areaAt(x, z, probe, { lane: null, arena, hulls, docks, geo });
     if (!a) continue;
     n++; counts[a]++;
     if (a === 'deep' || a === 'open') pts.push([x, z, a]);   // the lane is tested after the margin: only these can become lane
@@ -441,7 +514,7 @@ export function areaShares(probe, { arena = null, hulls = null, docks = null, in
   if (evenings > 0 && n) {
     let inL = 0, fromDeep = 0, fromOpen = 0;
     for (let e = 1; e <= evenings; e++) {
-      const L = laneFor(e);
+      const L = laneFor(e, null, water);
       for (const [x, z, a] of pts) if (inLane(L, x, z)) { inL++; if (a === 'deep') fromDeep++; else fromOpen++; }
     }
     lit.lane = inL / evenings / n; lit.deep = (counts.deep - fromDeep / evenings) / n; lit.open = (counts.open - fromOpen / evenings) / n;
@@ -467,34 +540,37 @@ export function areaWeight(fishId, area, phase, water) {
 }
 
 /** The open-water pool of a light on the bare hook (the fit's and the blind mix's), data.placePool on the game's records. */
-function openPool(D, light, bait = null) {
-  return D.placePool(arr(D.SPECIES), { placeId: null, phase: light, bait, water: 'mossmere' });
+function openPool(D, light, bait = null, water = null) {
+  return D.placePool(arr(D.SPECIES), { placeId: null, phase: light, bait, water: water || 'mossmere' });
 }
 /** The blind caster's pre-hook mix in a light under these factors: {id: share}. */
-export function blindMix(D, shares, light, factors = W.factors[light], bait = null) {
-  const pool = openPool(D, light, bait), out = {};
+export function blindMix(D, shares, light, factors = undefined, bait = null, water = null) {
+  const X = tablesOf(water), pool = openPool(D, light, bait, water), out = {};
+  if (factors === undefined) factors = areasOf(water).factors?.[light];
   for (const a of AREAS) {
     const s = num(shares?.[light]?.[a], 0); if (!(s > 0)) continue;
-    let tot = 0; const ws = pool.list.map(([sp, w0]) => { const w = num(w0) * (W.raw[sp.id] ? num(factors?.[sp.id], 1) * rawWeight(sp.id, a, light) : 1); tot += w; return [sp.id, w]; });
+    let tot = 0; const ws = pool.list.map(([sp, w0]) => { const w = num(w0) * (X.raw?.[sp.id] ? num(factors?.[sp.id], 1) * rawWeight(sp.id, a, light, water) : 1); tot += w; return [sp.id, w]; });
     for (const [id, w] of ws) out[id] = (out[id] || 0) + s * w / tot;
   }
   return out;
 }
 /** The tilted target of a light: the built open-water mix × each fish's hour tilt, renormalised. */
-export function tiltedTarget(D, light, bait = null) {
-  const pool = openPool(D, light, bait); let tot = 0;
-  const ws = pool.list.map(([sp, w0]) => { const w = num(w0) * tilt(sp.id, light); tot += w; return [sp.id, w]; });
+export function tiltedTarget(D, light, bait = null, water = null) {
+  const pool = openPool(D, light, bait, water); let tot = 0;
+  const ws = pool.list.map(([sp, w0]) => { const w = num(w0) * tilt(sp.id, light, water); tot += w; return [sp.id, w]; });
   return Object.fromEntries(ws.map(([id, w]) => [id, w / tot]));
 }
 /** Offline: the per-light, per-fish factors (60 rounds of f ← f × target / blind), scaled so the blind caster's mean total weight is the
  *  built pool's. → {day: {id: f}, dusk: {…}, night: {…}} for every open-water fish with a raw row. */
-export function fitFactors(D, shares, rounds = 60) {
-  const out = {};
+export function fitFactors(D, shares, rounds = 60, water = null, bait = null) {
+  // (water: its open-water pool, raw rows and tilts; bait: the pool the fit is on, so a bait-only fish of the water's plain bait, as
+  // Sporewood's Threadling on Spore Cake, has its factor too; none: the bare hook's pool, as the Mossmere's)
+  const out = {}, X = tablesOf(water);
   for (const light of LIGHTS) {
-    const pool = openPool(D, light), tgt = tiltedTarget(D, light), f = {};
-    for (const [sp] of pool.list) if (W.raw[sp.id]) f[sp.id] = tilt(sp.id, light);
+    const pool = openPool(D, light, bait, water), tgt = tiltedTarget(D, light, bait, water), f = {};
+    for (const [sp] of pool.list) if (X.raw?.[sp.id]) f[sp.id] = tilt(sp.id, light, water);
     for (let i = 0; i < rounds; i++) {
-      const b = blindMix(D, shares, light, f);
+      const b = blindMix(D, shares, light, f, bait, water);
       for (const id of Object.keys(f)) if (b[id] > 0) f[id] *= tgt[id] / b[id];
     }
     // scale: the blind caster's mean total weight equals the built pool's (so a pool's size is as built)
@@ -502,7 +578,7 @@ export function fitFactors(D, shares, rounds = 60) {
     for (const [sp, w0] of pool.list) base += num(w0);
     for (const a of AREAS) {
       const s = num(shares?.[light]?.[a], 0); if (!(s > 0)) continue;
-      mean += s * pool.list.reduce((acc, [sp, w0]) => acc + num(w0) * (W.raw[sp.id] ? f[sp.id] * rawWeight(sp.id, a, light) : 1), 0);
+      mean += s * pool.list.reduce((acc, [sp, w0]) => acc + num(w0) * (X.raw?.[sp.id] ? f[sp.id] * rawWeight(sp.id, a, light, water) : 1), 0);
     }
     const k = mean > 0 ? base / mean : 1;
     out[light] = Object.fromEntries(Object.keys(f).sort().map((id) => [id, Math.round(f[id] * k * 1e4) / 1e4]));
@@ -723,17 +799,17 @@ export function castShare(odds, id) { return arr(odds?.entries).reduce((a, e) =>
 /** The blind caster's open-water mix at one hour (SHEET.md §7.3; WATERCRAFT §4 on the areas' shares at that light): each area's pool on
  *  this hook, castOdds' step 7 (the rarity bonus: uncommon ×(1 + 2rb), rare ×(1 + 4rb)) before finishPool, weighted by the area's share.
  *  `light` 'day' | 'dusk' | 'night' (or a game phase); a legend's bait is a bare hook here. → {id: share} (sums to 1; {} with no water). */
-export function openMix(D, { light = 'day', lure = null, bait = null, wickId = null, rb = 0, notes = null } = {}) {
-  const L = lightOf(light), b = num(rb, 0);
+export function openMix(D, { light = 'day', lure = null, bait = null, wickId = null, rb = 0, notes = null, water = null } = {}) {
+  const L = lightOf(light), b = num(rb, 0), X = areasOf(water), wt = X === W ? null : water;   // (water: its areas' shares, pool and table)
   const legend = !!bait && Object.values(D?.LOOP?.legendBait || {}).some((x) => x?.id === bait);
   const pb = legend ? null : bait, acc = {}; let wsum = 0;
-  const pool = openPool(D, L, pb);
+  const pool = openPool(D, L, pb, wt);
   for (const a of AREAS) {
-    const s = num(W.shares[L]?.[a], 0); if (!(s > 0)) continue;
+    const s = num(X.shares?.[L]?.[a], 0); if (!(s > 0)) continue;
     const NT = notes ? noteTerms(D, notes, { area: a, place: null, phase: L }) : null;
-    const ws = hookWeights(pool.list, { area: a, place: null, phase: L, lure, bait: pb, boost: NT?.boost });
+    const ws = hookWeights(pool.list, { area: a, place: null, phase: L, lure, bait: pb, boost: NT?.boost, water: wt });
     if (b) for (const e of ws) { if (e.sp?.rarity === 'uncommon') e.w *= 1 + 2 * b; else if (e.sp?.rarity === 'rare') e.w *= 1 + 4 * b; }
-    const es = finishPool(ws, { lure, bait: pb, phase: L, wickId, D, guests: NT?.guests });
+    const es = finishPool(ws, { lure, bait: pb, phase: L, wickId, D, guests: NT?.guests, water: wt });
     const tot = es.reduce((x, e) => x + e.w, 0); if (!(tot > 0)) continue;
     for (const e of es) acc[e.sp.id] = (acc[e.sp.id] || 0) + s * e.w / tot;
     wsum += s;
@@ -743,13 +819,13 @@ export function openMix(D, { light = 'day', lure = null, bait = null, wickId = n
 }
 /** The blind open-water mix on one hook over an evening (the lights weighted by LOOP.evening: day, dusk, night null → 0): {id: share}.
  *  openMix at rb 0, each light weighted by LOOP.evening × its summed area shares (WC-3's Who bites: no rarity bonus). */
-function eveningMix(D, { lure = null, bait = null, notes = null } = {}) {
+function eveningMix(D, { lure = null, bait = null, notes = null, water = null } = {}) {
   const E = D?.LOOP?.evening || {}, wts = { day: num(E.day, 1), dusk: num(E.dusk, 1), night: num(E.night, 0) };
-  const acc = {}; let wsum = 0;
+  const acc = {}; let wsum = 0; const X = areasOf(water);
   for (const light of LIGHTS) {
     const wt = wts[light]; if (!(wt > 0)) continue;
-    const s = AREAS.reduce((x, a) => x + num(W.shares[light]?.[a], 0), 0); if (!(s > 0)) continue;
-    const mix = openMix(D, { light, lure, bait, notes });
+    const s = AREAS.reduce((x, a) => x + num(X.shares?.[light]?.[a], 0), 0); if (!(s > 0)) continue;
+    const mix = openMix(D, { light, lure, bait, notes, water });
     if (!Object.keys(mix).length) continue;
     for (const [id, p] of Object.entries(mix)) acc[id] = (acc[id] || 0) + wt * s * p;
     wsum += wt * s;
@@ -759,8 +835,8 @@ function eveningMix(D, { lure = null, bait = null, notes = null } = {}) {
 }
 /** The gear log's Who bites (§3.9): each fish's share of open water's bites over an evening on this item alone ({lure} or {bait}), beside
  *  the bare hook's; `notes` the owned notebooks (their boosts and guests, LOST-TACKLE §4). → [{id, share, bare}], the item's largest first. */
-export function bitesTable(D, { lure = null, bait = null, notes = null } = {}) {
-  const on = eveningMix(D, { lure, bait, notes }), bare = eveningMix(D, { notes });
+export function bitesTable(D, { lure = null, bait = null, notes = null, water = null } = {}) {
+  const on = eveningMix(D, { lure, bait, notes, water }), bare = eveningMix(D, { notes, water });
   const ids = [...new Set([...Object.keys(on), ...Object.keys(bare)])];
   return ids.map((id) => ({ id, share: on[id] || 0, bare: bare[id] || 0 })).sort((a, b) => b.share - a.share || b.bare - a.bare || (a.id < b.id ? -1 : 1));
 }

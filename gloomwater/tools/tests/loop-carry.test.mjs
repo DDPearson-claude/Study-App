@@ -371,6 +371,23 @@ section('T104 on Sporewood\'s pools: the game\'s pool (castOdds on data.placePoo
     }
   }
   ok(!bad.length && n === 5 * 3 * 10 * 2, `T104 on Sporewood: ${n} pools, every share the same (worst ${worst.toExponential(1)})${bad.length ? ': ' + bad.slice(0, 3).join('; ') : ''}`);
+  // (LAKE 2, the integration's fix: its areas live) the same in each of its open water's areas, as fishing.js casts there
+  let na = 0, wa = 0; const badA = [];
+  for (const area of WC.AREAS) for (const [ph, gph] of Object.entries(LIGHTS)) for (const h of HOOKS) {
+    const pool = D.placePool(D.SPECIES, { placeId: null, phase: gph, bait: gb(h.bait), water: 'sporewood' });
+    const game = WC.castOdds(D, { pool, area, phase: gph, lure: h.lure ?? null, bait: gb(h.bait), water: 'sporewood' });
+    const sim = SIM.poolFor('sporewood', null, ph, h.lure ?? null, h.bait ?? null, null, 1, null, area);
+    const a = new Map(), b = new Map();
+    for (const [sp, w] of sim.list) a.set(sp.id, (a.get(sp.id) || 0) + w / sim.tot);
+    for (const e of game.entries) b.set(e.sp.id, (b.get(e.sp.id) || 0) + e.p);
+    for (const id of new Set([...a.keys(), ...b.keys()])) { const d = Math.abs((a.get(id) ?? 0) - (b.get(id) ?? 0)); wa = Math.max(wa, d); if (d > 1e-9) badA.push(`${area} ${ph} ${JSON.stringify(h)}: ${id} sim ${(a.get(id) ?? 0).toFixed(3)} game ${(b.get(id) ?? 0).toFixed(3)}`); }
+    na++;
+  }
+  ok(!badA.length && na === WC.AREAS.length * 3 * 10, `T104 on Sporewood's areas: ${na} pools, every share the same (worst ${wa.toExponential(1)})${badA.length ? ': ' + badA.slice(0, 3).join('; ') : ''}`);
+  const reeds = WC.castOdds(D, { pool: D.placePool(D.SPECIES, { placeId: null, phase: 'dusk', bait: 'spore_cake', water: 'sporewood' }), area: 'reeds', phase: 'dusk', bait: 'spore_cake', water: 'sporewood' });
+  const deep = WC.castOdds(D, { pool: D.placePool(D.SPECIES, { placeId: null, phase: 'dusk', bait: 'spore_cake', water: 'sporewood' }), area: 'deep', phase: 'dusk', bait: 'spore_cake', water: 'sporewood' });
+  ok(WC.castShare(reeds, 'threadling_eel') > 1.5 * WC.castShare(deep, 'threadling_eel') && WC.castShare(deep, 'downcast_catfish') > 5 * WC.castShare(reeds, 'downcast_catfish'),
+    `where you cast at Sporewood decides who is there: the Threadling ${(WC.castShare(reeds, 'threadling_eel') * 100).toFixed(1)}% in the reeds against ${(WC.castShare(deep, 'threadling_eel') * 100).toFixed(1)}% in the deep, the Downcast ${(WC.castShare(deep, 'downcast_catfish') * 100).toFixed(1)}% against ${(WC.castShare(reeds, 'downcast_catfish') * 100).toFixed(1)}%`);
   const bare = WC.castOdds(D, { pool: D.placePool(D.SPECIES, { placeId: null, phase: 'calm', bait: null, water: 'sporewood' }), area: null, phase: 'calm', water: 'sporewood' });
   const strays = bare.entries.filter((e) => e.g === 0), takers = bare.entries.filter((e) => e.g >= 1).map((e) => e.sp.id).sort();
   eq(takers, ['capshell_crayfish', 'falsesmile_barb', 'netcloud_fry'], 'the bare hook at Sporewood brings its three commons');

@@ -151,7 +151,7 @@ const landOf = (D, id, cls, kit) => { const p = D?.catchParts?.(id, cls, kit, { 
 export function whoBites(D, { place = null, area = null, light = 'dusk', lure = null, bait = null, wickId = null, rb = 0, water = 'mossmere', notes = null } = {}) {
   const phase = LIGHT_PHASE[light] || 'calm';
   const P = typeof place === 'string' ? placeRec(D, place) : place;
-  if (!P && !area) return WC.openMix(D, { light, lure, bait, wickId, rb, notes });
+  if (!P && !area) return WC.openMix(D, { light, lure, bait, wickId, rb, notes, water });   // (LAKE 2: the water's own areas)
   const pool = D.placePool(arr(D.SPECIES), { placeId: P?.id ?? null, phase, bait, wickId, water });
   const odds = WC.castOdds(D, { pool, area: P ? null : area, phase, lure, bait, wickId, rb, notes, water });
   const out = {};

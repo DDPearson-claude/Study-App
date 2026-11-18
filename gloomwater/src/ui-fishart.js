@@ -294,14 +294,16 @@ function drawGeneric(g, p, col, U, sil, rng, m) {
     const pv = new Path2D(); pv.moveTo(x + 0.06, y); pv.quadraticCurveTo(x - 0.02, y + h * 0.7, x - 0.1, y + h); pv.quadraticCurveTo(x - 0.04, y + h * 0.4, x - 0.06, y); pv.closePath();
     finFill(g, pv, col, U, sil, ghostA);
   }
-  bodyShade(g, body, col, bb, U, sil, p.ghost ? 0.62 : p.glass ? 0.62 : 1);
+  bodyShade(g, body, col, bb, U, sil, p.ghost ? 0.62 : p.glass ? 0.3 : 1);
   pattern(g, body, p.noPattern ? 'none' : m.pattern, col, bb, rng, U, sil);
   if (!sil) {
     g.save(); g.clip(body);
-    // lateral line
-    g.strokeStyle = col.glow ? rgba(col.glow, 0.5) : 'rgba(7,8,13,.25)'; g.lineWidth = 1 * U;
-    g.beginPath(); g.moveTo(0.68, -p.top * 0.15);
-    g.quadraticCurveTo(0.1, -p.top * 0.32, -0.62, -p.ped * 0.1); g.stroke();
+    // lateral line (none on a glass fish: its spine is the line through it)
+    if (!p.noLateral) {
+      g.strokeStyle = col.glow ? rgba(col.glow, 0.5) : 'rgba(7,8,13,.25)'; g.lineWidth = 1 * U;
+      g.beginPath(); g.moveTo(0.68, -p.top * 0.15);
+      g.quadraticCurveTo(0.1, -p.top * 0.32, -0.62, -p.ped * 0.1); g.stroke();
+    }
     if (p.scutes) {
       g.fillStyle = `rgba(${BONE},.22)`; g.strokeStyle = 'rgba(7,8,13,.45)'; g.lineWidth = 0.9 * U;
       for (let i = 0; i < 11; i++) { const x = 0.55 - i * 0.11, y = -p.top * 0.25 * (1 - i / 14); g.beginPath(); g.moveTo(x + 0.035, y); g.lineTo(x, y - 0.025); g.lineTo(x - 0.035, y); g.lineTo(x, y + 0.025); g.closePath(); g.fill(); g.stroke(); }
@@ -619,7 +621,11 @@ function loopProfile(shape, p, m) {
   if (shape === 'carp' && (m.head != null || m.back === 'arched' || m.scales === 'giant' || m.mouth === 'up')) return { top: 0.37, bot: 0.29, hx: 0.2, ped: 0.11, nose: 0.5,
     tail: 'fork', tailLen: 0.38, spread: 0.48, dorsal: { x0: -0.08, x1: 0.28, h: 0.21, type: 'soft' }, anal: { x0: -0.42, x1: -0.24, h: 0.13 }, pelvic: { x: 0.05, h: 0.12 },
     pect: { x: 0.44, len: 0.22 }, eye: { x: 0.8, y: 0.0, r: 0.05 }, gillX: 0.46, mouthUp: m.mouth === 'up', plan: 'nightbloom', noPattern: m.scales === 'giant', inner: true };
-  if (shape === 'minnow' && m.skin === 'glass') return { ...p, eye: { ...p.eye, r: p.eye.r * (Number(m.eye) || 1) }, plan: 'glass', glass: true, noPattern: true, inner: true, after: true };
+  // (the integration's fix: the Netcloud Fry's own profile, never the minnow's: a blunt round head, deepest just behind it, a thin stalk,
+  // a rounded fan of a tail, the dorsal set far back, a big eye; see-through, no lateral line)
+  if (shape === 'minnow' && m.skin === 'glass') return { top: 0.21, bot: 0.19, hx: 0.42, ped: 0.034, nose: 0.2, tail: 'fan', tailLen: 0.34, spread: 0.34,
+    dorsal: { x0: -0.42, x1: -0.08, h: 0.12, type: 'soft' }, anal: { x0: -0.44, x1: -0.14, h: 0.09 }, pelvic: { x: 0.12, h: 0.07 }, pect: { x: 0.6, len: 0.15 },
+    eye: { x: 0.78, y: -0.02, r: 0.058 * (Number(m.eye) || 1) }, plan: 'glass', glass: true, noPattern: true, noLateral: true, inner: true, after: true };
   return null;
 }
 function tailFill(g, tail, p, U) {   // a tail its own colour: ember at its root to amber at its tips
@@ -659,12 +665,15 @@ function loopInner(g, p, col, U, rng, m) {
   } else if (p.plan === 'catfish' && p.sideLine) {
     g.strokeStyle = rgba(p.sideLine, 0.9); g.lineWidth = 2.2 * U; g.lineCap = 'round';
     g.beginPath(); g.moveTo(0.62, 0.01); g.quadraticCurveTo(0.0, 0.0, -0.62, 0.0); g.stroke();
-  } else if (p.plan === 'glass') {
-    g.strokeStyle = 'rgba(32,26,40,.85)'; g.lineWidth = 2.2 * U; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(0.62, -0.02); g.quadraticCurveTo(0.0, -0.03, -0.64, -0.005); g.stroke();
-    g.lineWidth = 0.9 * U;
-    for (let i = 0; i < 12; i++) { const x = 0.42 - i * 0.085, y = -0.025 + (x < 0 ? 0.01 : 0); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 0.03, profile(p, x, -1) * 0.65); g.moveTo(x, y); g.lineTo(x - 0.03, profile(p, x, 1) * 0.6); g.stroke(); }
-    g.fillStyle = 'rgba(106,98,116,.75)'; g.beginPath(); g.ellipse(0.25, 0.05, 0.16, 0.06, -0.08, 0, 7); g.fill();
+  } else if (p.plan === 'glass') {   // seen through it: the spine and its comb, the silvered gut, and the light coming through its edges
+    g.strokeStyle = 'rgba(30,24,38,.9)'; g.lineWidth = 2.6 * U; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(0.6, -0.03); g.quadraticCurveTo(0.0, -0.035, -0.62, -0.004); g.stroke();
+    g.lineWidth = 1.0 * U;
+    for (let i = 0; i < 11; i++) { const x = 0.44 - i * 0.092, y = -0.03 + (x < 0 ? 0.012 : 0); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 0.035, profile(p, x, -1) * 0.7); g.moveTo(x, y); g.lineTo(x - 0.035, profile(p, x, 1) * 0.62); g.stroke(); }
+    const gut = g.createLinearGradient(0.1, 0.0, 0.1, 0.13);
+    gut.addColorStop(0, 'rgba(206,214,224,.9)'); gut.addColorStop(1, 'rgba(120,126,140,.8)');
+    g.fillStyle = gut; g.beginPath(); g.ellipse(0.3, 0.06, 0.15, 0.055, -0.08, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(232,240,246,.55)'; g.lineWidth = 2 * U; g.stroke(genericBody(p));   // (a pale fresnel edge inside the ink)
   } else if (p.plan === 'bream') {
     g.strokeStyle = 'rgba(7,8,13,.22)'; g.lineWidth = 0.9 * U;
     for (let y = -p.top, row = 0; y < p.bot; y += 0.055, row++) for (let x = -0.55 + (row % 2) * 0.04; x < 0.6; x += 0.08) { g.beginPath(); g.arc(x, y, 0.045, Math.PI * 0.6, Math.PI * 1.4); g.stroke(); }
@@ -693,8 +702,9 @@ function loopAfter(g, p, col, U, sil, rng, m) {
     }
   } else if (p.plan === 'catfish' && !sil) {   // the Downcast's wide mouth, set above its low eyes
     g.strokeStyle = INK; g.lineWidth = 1.5 * U; g.beginPath(); g.moveTo(0.99, -0.015); g.quadraticCurveTo(0.93, 0.012, 0.86, 0.0); g.stroke();
-  } else if (p.plan === 'glass' && !sil && m.tailSpot) {
-    g.save(); g.fillStyle = m.tailSpot === 'amber' ? '#e2a24e' : hex(m.tailSpot); g.beginPath(); g.arc(-0.56, 0, 0.032, 0, 7); g.fill(); g.restore();
+  } else if (p.plan === 'glass' && !sil) {   // the amber tail spot (its one warm mark) and the eye's dark ring
+    if (m.tailSpot) { g.save(); g.fillStyle = m.tailSpot === 'amber' ? '#e8a246' : hex(m.tailSpot); g.beginPath(); g.arc(-0.57, 0, 0.042, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = 1 * U; g.stroke(); g.restore(); }
+    g.strokeStyle = 'rgba(30,24,38,.95)'; g.lineWidth = 2.2 * U; g.beginPath(); g.arc(p.eye.x, p.eye.y, p.eye.r * 1.22, 0, 7); g.stroke();
   }
 }
 

@@ -570,7 +570,7 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
   if (wc) {   // WC-1: the area or the tilt, the hook (§4 steps 4–6), the pull on takers, the giant and the strays' cap (steps 10–11)
     // LOST-TACKLE §4: a notebook's boosts (hookWeights) and its guest in its area and light (finishPool), the game's own noteTerms on the sim's records
     const NT = NB ? WC.noteTerms(D, NB, { area: P ? null : area, place: P ? P.id : null, phase }) : null;
-    const es = WC.hookWeights(list, { area: P || WTR ? null : area, place: P ? P.id : null, phase, lure, bait, hook, boost: NT?.boost, ...(WTR ? { water: WTR } : {}) });
+    const es = WC.hookWeights(list, { area: P ? null : area, place: P ? P.id : null, phase, lure, bait, hook, boost: NT?.boost, ...(WTR ? { water: WTR } : {}) });   // (LAKE 2: a later water's casts in its own areas too)
     if (!hook) { const wl = es.map((e) => [e.sp, e.w]), pool = { list: wl, tot: wl.reduce((a, [, w]) => a + w, 0), sure: null }; cache.set(key, pool); return pool; }   // who is there
     if (miss) for (const e of es) if (miss.has(e.sp.id) && e.g !== 0) e.w *= pull;
     const fin = WC.finishPool(es, { giant: giant && others > 0 ? { sp: giant, share: null } : null, lure, bait, phase, wickId: wick, D: WCD,
@@ -593,22 +593,24 @@ function poolFor(water, placeId, phase, lure, bait, miss = null, pull = 1, wick 
 // the reader casts in the best area for its kit and light (the highest expected clams a bite there) and obeys a tell on a quarter of its
 // casts (wait ×0.65); the stalker-reader also leads a silhouette when one is in range (§6.3's rates × the area's visible share)
 const READ = { tellShare: 0.25 }, CAST_R = 16, CUT_FAVOUR = D.BALANCE_V3?.favour?.tackle?.cutStrip ?? 0.3;
-function blindArea(r, ph) { const sh = WCM.shares[ph]; let x = r(); for (const a of WC.AREAS) { x -= sh[a] || 0; if (x < 0) return a; } return 'open'; }
+function blindArea(r, ph, water = 'mossmere') { const sh = WC.areasOf(water).shares[ph]; let x = r(); for (const a of WC.AREAS) { x -= sh[a] || 0; if (x < 0) return a; } return 'open'; }
 const BEST_AREA = new Map();
 /** The reader's area for a kit in a light: the area whose bite is worth the most clams, on average (a Keeper's value × its land chance). */
-function bestArea(kit, ph) {
-  const key = `${kit.lure}|${kit.bait}|${ph}|${kit.rod}${kit.line}${kit.reel}`;
+function bestArea(kit, ph, water = 'mossmere') {
+  const key = `${water === 'mossmere' ? '' : water + '|'}${kit.lure}|${kit.bait}|${ph}|${kit.rod}${kit.line}${kit.reel}`;
   if (BEST_AREA.has(key)) return BEST_AREA.get(key);
   let best = 'open', bv = -1;
   for (const a of WC.AREAS) {
-    if (!(WCM.shares[ph]?.[a] > 0)) continue;
-    const pool = poolFor('mossmere', null, ph, kit.lure, kit.bait, null, 1, null, a);
+    if (!(WC.areasOf(water).shares[ph]?.[a] > 0)) continue;
+    const pool = poolFor(water, null, ph, kit.lure, kit.bait, null, 1, null, a);
     const v = pool.list.reduce((acc, [s, w]) => acc + (w / pool.tot) * clamsFor(s, 0.3) * landP(s, 'keeper', kit, 'struck', ph === 'night'), 0);
     if (v > bv) { bv = v; best = a; }
   }
   BEST_AREA.set(key, best); return best;
 }
-const castAreaSim = (r, kit, ph, who) => (who === 'reader' || who === 'stalker' ? bestArea(kit, ph) : blindArea(r, ph));
+// (LAKE 2, the integration's fix: a later water whose areas are baked (WATERCRAFT[water].shares) casts in them as the Mossmere does)
+const castAreaSim = (r, kit, ph, who, water = 'mossmere') => (who === 'reader' || who === 'stalker' ? bestArea(kit, ph, water) : blindArea(r, ph, water));
+const areasLive = (water) => water === 'mossmere' || (swOn(water) && !!WC.WATERCRAFT[water]?.shares);
 let VIS = null;
 /** Each area's visible water (the share of it shallower than WCM.sight.depth; 0 where silhouettes never show), on the layout's grid. */
 function visShare(area) {
@@ -744,7 +746,7 @@ export function trip(kit, policy, r, opts = {}) {
   // WC-1: the Mossmere's casts land in areas (the blind caster by the baked shares; --readers / --stalkers the best area for the kit);
   // Cut Strip is the trip's own (a Small or Keeper let go and cut into LOOP.cut.strips; with none left, the cast fishes the bare hook)
   const wcW = kit.water === 'mossmere', who = opts.player || 'blind', reads = wcW && (who === 'reader' || who === 'stalker');
-  const wcH = wcW || swOn(kit.water), GW = wcW ? undefined : kit.water;   // (LAKE 2, lane D2: a water with a hook table of its own; its areas wait for W1's geometry)
+  const wcH = wcW || swOn(kit.water), GW = wcW ? undefined : kit.water;   // (LAKE 2, lane D2: a water with a hook table of its own; its areas live once baked)
   const STRIP = kit.bait === 'cut_strip', CUT = D.LOOP.cut || { strips: 3, classes: ['small', 'keeper'] };
   let strips = 0;
   const baitFavOf = (b) => (b && L.bait[b] ? L.baitRule.favour : 0);
@@ -791,7 +793,7 @@ export function trip(kit, policy, r, opts = {}) {
       if (!cbHere && policy.leave(ctx)) { if (last) break outer; break; }
       const ph = phase(), night = ph === 'night';
       const castBait = STRIP ? (strips > 0 ? 'cut_strip' : null) : kit.bait, ckit = castBait === kit.bait ? kit : { ...kit, bait: castBait };
-      const area = wcW && W.id === null ? castAreaSim(r, ckit, ph, who) : null;
+      const area = (wcW || (wcH && areasLive(kit.water))) && W.id === null ? castAreaSim(r, ckit, ph, who, kit.water) : null;
       let sp, isCb = false, sight = null, waitK = 1;
       if (reads && r() < READ.tellShare) waitK *= WCM.waits.tell;       // an obeyed tell's quicker bite (§5.3), on a quarter of the casts
       if (cbHere) { sp = comeback.sp; isCb = true; out.comebacks++; }   // the same fish, the next bite at this water: served (and so spent) now
@@ -1283,8 +1285,9 @@ export function step2Pool(W = WATER.mossmere) { return W.species.filter((s) => s
  * LAKE 2, lane D2 (LAKE2.md §2, §3.2, §7.1, §9): Sporewood Pools as the game ships it under the loop (lane D1's data), in place of the
  * full road's draft water: its fish are the game's records (the three repeating kept species and the Emberbrood left out; the Sleepspore
  * Jelly the Lullaby's own on Amber Larvae), its four places with the game's prices, giants, own fish and draws (the Puffball Vent waits), its
- * lake map, legend bait and giants' lure as data.LOOP's; from here on its pools read its own hook table (watercraft.WATERCRAFT.sporewood: no
- * areas yet, the hour tilt alone), its items' Hold the fish they help, its caps the line's total Hold against lineAt. Once, for the run.
+ * lake map, legend bait and giants' lure as data.LOOP's; from here on its pools read its own hook table (watercraft.WATERCRAFT.sporewood:
+ * its open-water casts in its own baked areas, as the Mossmere's), its items' Hold the fish they help, its caps the line's total Hold
+ * against lineAt. Once, for the run.
  */
 export function shipSporewood() {
   const W = WATER.sporewood;

@@ -629,6 +629,11 @@ lures and tins stay at the Mossmere.
   (0.6 s) and the barge lies at that water's mooring. At the Mossmere, your current tackle (Sporewood's, plus the carry) is fitted,
   the Mossmere's own lures and tins are back in the tin, and its line cap reads the line's total Hold against the Mossmere's figures
   (so the Mossmere fishes easier; the Matriarch can still be finished, no way to fail).
+- **Murk's shelf on the way back** (ruled at the integration's fix, 18 November 2026, as built): there is one gear water at a time, the
+  last one towed to for the first time (`gearWater`), and its shelf travels with the barge. So at the Mossmere after the tow Murk sells
+  Sporewood's tackle tiers, creels and raft parts (the gear water's, in its own engravings) beside the Mossmere's own lures and tins (the
+  barge's water's). A Mossmere tier is never offered again after the tow, so nothing bought there is bought twice; the user's question
+  stays open in §11 should they want the Mossmere's shelf to show its own lures and tins only.
 
 ### 6.4 Murk's lines (few; each said once)
 
@@ -842,6 +847,15 @@ slow two; giving the mackerel Spore Cake at grade 1 makes it worse, since grade 
 pace within 6 trips** (trip 16: with the hold and the raft left behind too, the user's answer 1, it comes after Hold 5 and the Ember
 Minnow, by design).
 
+**Re-measured with Sporewood's areas live (the integration's fix, §9.10; 18 November 2026, full run):** its open-water casts land in its
+own baked areas (`WATERCRAFT.sporewood.shares` and `factors`, `watercraft.test.mjs --bake=sporewood`), the sim's casts as the game's
+(the blind caster by the baked shares). The first evening at Sporewood **loses 15% of hooked fish (0% over the cap) and earns 209 clams a
+trip, 64% of the Mossmere's last 325 (73.5 a minute, 101%)**; evenings 2 and 3: 207 (64%, 19% lost) and 203 (62%, 22% lost); from
+evening 4: 176 (54%, 43% lost, 23% over the cap). The walk: the first buy after trip 3 (0.15 h), the longest wait **21 min** (the Mother's
+Cup), the empty shelf at Sporewood **3.28 h** (49 trips; the whole arc 9.12 h), back to the Mossmere's clams a trip at trip 16 (0.95 h),
+the first giant at hour 1.57; the list p95 108 min, p99 137 (the same warning). §8.1's targets pass; the user's answer 2 holds; no knob
+moved. The Mossmere's run is byte-identical.
+
 ```
 node tools/sim/clams.mjs --shipped=sporewood [--quick]              # the shipped figures (about 25 s; --quick about 15)
 node tools/sim/clams.mjs --shipped=sporewood --quick --walk=0 --tier=11 | --ease=-14,-8,-4 | --lt=2 | --share=0.5 …   # the rows
@@ -858,8 +872,8 @@ look-and-fix rounds.
 
 | lane | what | data keys and values | words | tests and scenarios | art | size | needs |
 |---|---|---|---|---|---|---|---|
-| **D1 · the data shape** | Sporewood under the loop, as data | `LOOP.waters.sporewood = { order: 2, tier: 11, prices: { night: 1200, crown: 2200 }, lake: 1400 }`; `LOOP.places` (the four of §3.2 with `out`, `card`, `giant`, `own`, `draws`, `legend`); `LOOP.species.sporewood` (the nine open-water fish); `LOOP.kept` += capshell_crayfish, mildew_angler, sleepspore_jelly; `LOOP.legendBait.sporewood = { id: 'glowcap_bulb', price: 250 }`; `LOOP.gear = { mossmere: TACKLE T0–T2, sporewood: [ +0, +3, +6/+7/+6, cast +2/+4, names ] }`; `LOOP.lures` the Sporewood five (`water: 'sporewood'`, `start` for the Twirl, `giants` for the Spore-Lamp Fly); `LOOP.tins.sporewood = ['spore_cake', 'amber_grubs']`; `LOOP.start.sporewood = { lures: ['seedpod_twirl'], bait: { spore_cake: 10 } }`; `LOOP.carry = { share: 1/3, round: 'up', castFrom: 16 }`; `LOOP.gearCap.lineAt = { mossmere: {trophy: 2, elder: 5}, sporewood: {trophy: 4, elder: 7} }`, `item` += seedpod_twirl keeper; `LOOP.hold.shelfMax` 7 with Sporewood; `LOOP.mooring.sporewood`; `LOOP.shipped` stays 'mossmere' until the gate; roster.json: the eleven fish's `favours` re-written to the new items, `roster-export` grows `src/roster-shipped.js`; `ROSTER_ART` the fourteen looks' keys (parameters filled by F); `watercraft.js` per-water `hookItems` and Sporewood's `HOOK_ROWS`, `RAW_ROWS`, geometry stub | `TEXT_LOOP.gearItems` (13 names), `shelf` (12 lines), `places` (4 card lines), `murk` (3 lines), `carry` ("Carried {r} · {l} · {c}"), `leave` (the card's 5 lines and 2 buttons), `mapLeaves` ("Moving on leaves your tackle."), `guide.newWater`; `textAllowed` | validate-data: every key, every item a water, no lure in two waters, hook rows complete (1% rule exact), `lineAt` reproduces GEAR-GATES' Mossmere caps, the list rule; existing tests unchanged with `LOOP.shipped = 'mossmere'` | — | **M** | — |
-| **D2 · the logic and the sim** | the carry, the reset at the tow, per-water gear, the way back's gear, the save | `progression-loop`: `towTo(water)` (the carry: ceil(H/3) per slot from the best bought at the water left, the cast; `tackle` reset to 0, `gearWater`, `fitted` to the new start kit, `bait[water]` the start tin once, `startKit` per water), the shelf per water (`shelfItems` reads `LOOP.gear[water]`, `LOOP.lures` by water), `holdOf(slot)` = start + carry + the fitted piece, `gearCap` by `lineAt`, the tin and sheet filter lures by water (found ones always), orders keyed by water, `migrateLoop` (additive: `carry {0,0,0,0}`, `gearWater 'mossmere'`, `fit` from `found`; LOOP_SCHEMA stays 3); `clams.mjs --shipped=sporewood` (the scratch's hooks made real, the hook table of §2.4, the per-water caps, the arc from the Mossmere's end through the map and the tow, §8.1's checks) | — | `loop-carry.test.mjs` (the carry's arithmetic, stacking over two waters, nothing owned lost without the card, a reload mid-tow, the found pieces kept, lures back on the way back, the Mossmere caps unchanged), T104 on Sporewood's pools (the game's pool is the sim's), the save fixture (an M1-end save → the tow → +2/+2/+2) | — | **L** | D1 |
+| **D1 · the data shape** | Sporewood under the loop, as data | `LOOP.waters.sporewood = { order: 2, tier: 11, prices: { night: 1200, crown: 2200 }, lake: 1400 }`; `LOOP.places` (the four of §3.2 with `out`, `card`, `giant`, `own`, `draws`, `legend`); `LOOP.species.sporewood` (the nine open-water fish); `LOOP.kept` += capshell_crayfish, mildew_angler, sleepspore_jelly; `LOOP.legendBait.sporewood = { id: 'glowcap_bulb', price: 250 }`; `LOOP.gear = { mossmere: TACKLE T0–T2, sporewood: [ +0, +3, +6/+7/+6, cast +2/+4, names ] }`; `LOOP.lures` the Sporewood five (`water: 'sporewood'`, `start` for the Twirl, `giants` for the Spore-Lamp Fly); `LOOP.tins.sporewood = ['spore_cake', 'amber_grubs']`; `LOOP.start.sporewood = { lures: ['seedpod_twirl'], bait: { spore_cake: 10 } }`; `LOOP.carry = { share: 1/3, round: 'up', castFrom: 16 }`; `LOOP.gearCap.lineAt = { mossmere: {trophy: 2, elder: 5}, sporewood: {trophy: 4, elder: 7} }`, `item` += seedpod_twirl keeper; `LOOP.hold.shelfMax` 7 with Sporewood; `LOOP.mooring.sporewood`; `LOOP.shipped` stays 'mossmere' until the gate; roster.json: the eleven fish's `favours` re-written to the new items, `roster-export` grows `src/roster-shipped.js`; `ROSTER_ART` the fourteen looks' keys (parameters filled by F); `watercraft.js` per-water `hookItems` and Sporewood's `HOOK_ROWS`, `RAW_ROWS`, geometry stub | `TEXT_LOOP.gearItems` (13 names), `shelf` (12 lines), `places` (4 card lines), `murk` (3 lines), `carry` ("Carried {r} · {l} · {c}"), `leave` (the card's 5 lines and 2 buttons), `mapLeaves` ("Moving on leaves bought gear behind.", as shipped: §5.2), `guide.newWater`; `textAllowed` | validate-data: every key, every item a water, no lure in two waters, hook rows complete (1% rule exact), `lineAt` reproduces GEAR-GATES' Mossmere caps, the list rule; existing tests unchanged with `LOOP.shipped = 'mossmere'` | — | **M** | — |
+| **D2 · the logic and the sim** | the carry, the reset at the tow, per-water gear, the way back's gear, the save | `progression-loop`: `towTo(water)` (the carry: ceil(H/3) per slot from the best bought at the water left, the cast; `tackle` reset to 0, `gearWater`, `fitted` to the new start kit, `bait[water]` the start tin once, `startKit` per water), the shelf per water (`shelfItems` reads `LOOP.gear[water]`, `LOOP.lures` by water), `holdOf(slot)` = start + carry + the fitted piece, `gearCap` by `lineAt`, the tin and sheet filter lures by water (found ones always), orders keyed by water, `migrateLoop` (additive: `carry {0,0,0,0}`, `gearWater 'mossmere'`, `fit` from `found`; LOOP_SCHEMA stays 4, as built: §9.2); `clams.mjs --shipped=sporewood` (the scratch's hooks made real, the hook table of §2.4, the per-water caps, the arc from the Mossmere's end through the map and the tow, §8.1's checks) | — | `loop-carry.test.mjs` (the carry's arithmetic, stacking over two waters, nothing owned lost without the card, a reload mid-tow, the found pieces kept, lures back on the way back, the Mossmere caps unchanged), T104 on Sporewood's pools (the game's pool is the sim's), the save fixture (an M1-end save → the tow → +2/+2/+2) | — | **L** | D1 |
 | **W1 · the outline shore** | the natural basin's engine | `arena.outline`, `arena.islands[].outline`, `arena.banks` (the height profile), `layout: 'outline'`; `buildLayout` builds the SDF grid; `shoreDist` everywhere §3.1 lists; `shoreR` kept for the Mossmere; the bank and cliff strip by outline offset; the water's foam bake from the SDF; collision; depth (two bowls, the neck, the Cup); `watercraft` reed runs by arc length; `mooringChecks` on the SDF; `ui-chart.waterGeometry` returns the polygon | — | the Mossmere's geometry hash unchanged (first commit, before any builder moves); `world-layout` tests on the outline (inside/outside, the neck's 11 m, islands, depth monotone to the Cup); `validate-data` world checks (places, docks, mooring clear; open water ≥ 70% of the basin); a top-down debug render of the shore and depth | grey-box only | **L** | — |
 | **W2 · the world's art** | the ember garden made green, its landmarks and life | `ZONE_LOOKS.sporewood` (§3.3), the vegetation kit's six archetypes (prototypes, cells, sway, translucency, night emitters; behind `lush > 0`), the Mother Cap, the Gill Harp strands, the Veil (strands parting round the raft), the Seep (a falls card), the Lantern Stalks, the willow arch and root jetty, the cap-rim sky window, the dapple, the spore-haze and the banks' tint, the camera profile (`LOOP.camera.sporewood: { eye: 0.8, fov: +4, neck: lower }`), `LOOP.wildlife.sporewood` (moth colours, the lily frog model on the lampbill behaviour), `LOOP.ambient.sporewood` (gill-flakes) | — | `loop-colour-script.py` (its first commit: the Sporewood frame and targets), `hue-report` at three poses × three lights (§1A's targets, no cast, sky ≥ 12%, never neon), `clarity-perf --loop` on Sporewood (calls, triangles, phone cpuMs ≤ the Mossmere's banks-standing line), the arena build ≤ 250 ms desktop / 900 ms phone | the look: ≥ 3 look-and-fix rounds; a day/dusk/night sheet beside the Mossmere's for the user | **L** | W1 |
 | **F · the fish** | the fourteen looks | new plans `disc`, `bream`, `tuna` in `LOOP_SHAPES`; parameters on eel, catfish, carp, minnow, crayfish, puffer (§2.3); the Grove's meadow extras; the Fry's cloud of five; `ROSTER_ART` values; body keys where a plan is off ±30% (`LOOP_BODY_K`: `bream`, `tuna`, `disc` from their cousins, by `roster-check.mjs`) | — | `models-plans.test.mjs` (every plan builds, tri budget per fish, no NaN), `roster-check.mjs` (weights ±30%), a look sheet of each Sporewood fish beside its Mossmere relative (`show-sheet.mjs`), the guest Nightbloom re-checked at the Mossmere | the looks: two look-and-fix rounds on the show's close-up and the catch card | **L** (M + M) | D1 (ids) |
@@ -1361,6 +1375,46 @@ of it runs off the loop, and Sporewood's voices join the sound table only the fi
   Mossmere (the back only picks among the current water's places). Also the user's listen: a short render of the three lights and each
   place is in `tools/out/l2a/render` after `--set=sporewood`.
 
+### 9.10 The integration's fixes (gw-lake2, after the review of 7811584)
+
+The reviews of the merged lanes found Sporewood's fishing not ready: its water fell back to the pre-watercraft visuals and its areas
+were dead data. Fixed as follows; the Mossmere plays exactly as before (its sim byte-identical, its watercraft, WC-2 and outline-shore
+part-1 tests unchanged and green).
+
+- **Every water under the loop draws as the Mossmere does** (`fishing.js`'s gate is now any water with tells of its own,
+  `WATERCRAFT[water].tells`, not the Mossmere's name): no pulse ring at the landing, the bite, the strike or a fight's phase, no gold or
+  orange ring, no spot disc, no built sign (`pickKind`), the legend pool's glimmer off (`uGlim` 0), the water's own white marks, the
+  silhouettes and the water's answers. The WC-2 readers take the water: honest spawning reads `WATERCRAFT[water].tells` (and the fry's
+  raw row for the spray), the who-is-there pool its hook table, the silhouettes its own bodies (`fishing-sight.OUTLINE_AT` /
+  `NEVER_AT`, the same as `WATERCRAFT.sporewood.sight`).
+- **Sporewood's tells and silhouettes** (`WATERCRAFT.sporewood.tells`, `.sight`): §2.4's — the sip for the Fry and the Barb, the splash
+  for the Mackerel and the Cindertail, the roll for the Downcast at dusk, the swirl and the strike answered by the bow wave (in the
+  giants' places too, their own fish), the ruffle and the spray by the fry, the fizz by the catfish, the mud cloud by the Ray and the
+  Capshell, the stems by the Barb, the bed gas. Silhouettes: the Barb, the Angler (night) and the Nightbloom deep-bodied, the Cindertail
+  a torpedo, the Fry a shoal, the Capshell a claw (night, on the roots); never the giants, the legend, the Jelly, the Threadling, the Ray
+  or the deep Mackerel and Downcast. The Lullaby's shallow lily water shows them.
+- **Sporewood's areas are live**: `laneFor`, `areaShares`, `fitFactors`, `blindMix`, `tiltedTarget`, `openMix`, `bitesTable` take the
+  water (`areasOf(water)`); `fishing.castArea`'s guard is lifted for any water whose geometry is authored and shares baked;
+  `WATERCRAFT.sporewood.shares` and `factors` are baked by `watercraft.test.mjs --bake=sporewood` on its outline layout (margin 22%,
+  reeds 4%, pads 2%, roots 7%, drop-off 14%, lane 2%, open 23%, deep 23%, inflow 2%, outflow 2%; the factors fitted on Spore Cake so the
+  Threadling's is fitted too). The tests: baked = recompute, the blind pre-hook mix = the built mix within ±0.5 points, its lane in the
+  West Pool, the user's 1% stray rule over every area and place, light, hook and tell (every grade-0 fish ≤ 1.00%), every pool bites,
+  and T104 on its areas (the game's castOdds = the sim's poolFor in every area). The sim's casts land in its areas (§8.4 re-measured).
+- **Sporewood's places fish as places**: its four records are in its loop arena (they were only the world's banks), so a cast in one is
+  that place (its pool, its giant, its mist while not owned or not lifted).
+- **The Netcloud Fry** has its own build: a blunt round head, a big eye ringed dark, a short body deepest behind the head, a thin stalk
+  and a rounded fan of a tail (the Dusk Minnow's is a fork); cool milky glass (opacity 0.3, a fresnel edge, no scales or lateral line)
+  with the spine, its comb, the silvered gut and the amber tail spot drawn after the glass so they read crisp; its card ink the same
+  profile, see-through. The four of its cloud sit above and toward the lens, clear of the fist.
+- **The leaving card fails closed**: a first tow never goes on unless the card has shown and Tow was pressed; a card that cannot show
+  falls back to the plain question; with no answer nothing moves (`loop-tow.test.mjs`).
+- Left for the gate or later, recorded here: the tests that pin the sealed state flip with `LOOP.shipped = 'sporewood'` (the gate's
+  rewrite); the lures differ in play only by their engraving and glyph (no lure is drawn on the line and none of §7.1's motions is built:
+  **a decision for the user**, §11); the Lostsea Mackerel and the Downcast still read alike in the show's warm light (a colour-only change
+  of their backs was tried and shows no difference: the held flank is the belly's colour, so it needs a skin pass that moves the counter-
+  shade line); the Gill Harp's dark silhouette, the banks' large-scale tint, the Veil's near stalk, the isles' near circles, the Skep
+  Lid's hold and the Nightbloom's head are art passes not yet made.
+
 ## 10. Left for later (named, not built)
 
 The Puffball Vent (fifth place, the Emberbrood Snakehead) and the Drowned Greenhouse (night, the Remembered Sun) as later sheets;
@@ -1383,6 +1437,8 @@ ships); WATERS' re-stepping of waters 3–16 after Sporewood's new figure.
 | 6 | The carried portion: a third (rounded up)? | **A third** (measured: a quarter or none punishing, a half or all trivial) |
 | 7 | The Sporewood map at 2,800 (it was planned at 5,200 after the doubling) so it comes about 37 minutes after the Mossmere's shelf is empty? | **Yes** |
 | 8 | Hold 7 (4,000) on Sporewood's shelf as its long goal? | **Yes** |
+| 9 | (the integration's fix, 18 Nov 2026) The new lures differ in play only by their engraving, glyph and the fish they bring: no lure is drawn on the line and §7.1's motions (the Twirl's spin, the Moth's skate, the Jig's silt puffs…) are not built. Build a small mark and a retrieve of its own for each lure before Sporewood ships? | **Not built yet** (the gear does a similar job by its hook table; the look of each lure on the line is the next art pass if you want it) |
+| 10 | (the integration's fix) At the Mossmere after the tow, Murk's shelf shows the gear water's tackle, creels and raft parts (Sporewood's) beside the Mossmere's own lures and tins? | **Yes, as built** (one gear water; its shelf follows the barge; §6.3) |
 
 ---
 

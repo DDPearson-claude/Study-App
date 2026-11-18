@@ -964,27 +964,39 @@ function loopCarp(M) {
   return r;
 }
 
-// ---- the minnow's `skin: 'glass'`: a clear, slightly milky body through which the dark spine, its gut and the eye show; eye (×); a
-// tailSpot (an amber spot at the tail's root). The Netcloud Fry; `cloud` (5: the show holds one, four more of the same mesh beside it)
+// ---- the minnow's `skin: 'glass'`: the Netcloud Fry (the integration's fix: it read as a small Dusk Minnow). Its own build, never the
+// minnow's: a blunt round head with a big eye ringed dark, a short body deepest just behind the head, a thin stalk and a rounded fan of a
+// tail (the minnow's is a fork); a clear, cool, milky body (low opacity, a fresnel edge, no scales, no lateral line) through which the dark
+// spine and its comb, the silvered gut and the eye show crisp (drawn after the glass: `glass`), and one warm accent, the amber tail spot.
+// eye (×); `cloud` (5: the show holds one, four more of the same mesh beside it)
 function loopFry(M) {
-  const r = SHAPES.minnow(M);
+  const r = standard({
+    w: [[0, 0.026], [0.03, 0.05], [0.1, 0.062], [0.26, 0.06], [0.5, 0.044], [0.74, 0.022], [0.86, 0.011], [1, 0.008]],
+    ht: [[0, 0.03], [0.03, 0.06], [0.12, 0.088], [0.28, 0.094], [0.52, 0.07], [0.74, 0.034], [0.86, 0.016], [1, 0.014]],
+    hb: [[0, 0.03], [0.03, 0.056], [0.14, 0.082], [0.32, 0.086], [0.56, 0.058], [0.76, 0.024], [1, 0.012]],
+    fins: [['tail', 'round', { s: 0.95, len: 0.2, h: 0.3 }], ['dorsal', 'soft', { a: 0.44, b: 0.7, h: 0.07 }],
+      ['ventral', 'soft', { a: 0.48, b: 0.74, h: 0.05 }], ['pect', 'pect', { s: 0.17, len: 0.11, h: 0.06 }]],
+    eye: { s: 0.1, r: 0.03, up: 0.22, out: 0.86 }, anim: { waveK: 5, amp: 0.1, freq: 10 },
+  }, M);
   const f = r.f, k = nf(M.eye, 1);
   r.eyes.r *= k;
-  const ink = C(0x2a2232), bones = [], spine = [];
-  for (let i = 0; i <= 16; i++) { const s = 0.09 + (i / 16) * 0.86; spine.push(new THREE.Vector3(0, f.yc(s) + f.ht(s) * 0.12, 0.5 - s)); }
-  bones.push(tube(spine, (u) => 0.0058 * (1 - u * 0.55), 5));
-  for (let i = 0; i < 11; i++) {   // short spines up and down off it, a glass fish's comb
-    const s = 0.24 + i * 0.058, y = f.yc(s) + f.ht(s) * 0.12;
-    bones.push(spike([0, y, 0.5 - s], [0, 1, -0.45], 0.0016, f.ht(s) * 0.55, 3), spike([0, y, 0.5 - s], [0, -1, -0.45], 0.0016, f.hb(s) * 0.5, 3));
+  const ink = C(0x221a2a), bones = [], spine = [];
+  for (let i = 0; i <= 16; i++) { const s = 0.16 + (i / 16) * 0.78; spine.push(new THREE.Vector3(0, f.yc(s) + f.ht(s) * 0.1, 0.5 - s)); }
+  bones.push(tube(spine, (u) => 0.0075 * (1 - u * 0.5), 5));
+  for (let i = 0; i < 10; i++) {   // short spines up and down off it, a glass fish's comb
+    const s = 0.24 + i * 0.056, y = f.yc(s) + f.ht(s) * 0.1;
+    bones.push(spike([0, y, 0.5 - s], [0, 1, -0.45], 0.0019, f.ht(s) * 0.55, 3), spike([0, y, 0.5 - s], [0, -1, -0.45], 0.0019, f.hb(s) * 0.5, 3));
   }
+  // the eye's dark ring (the iris's rim, a fry's huge eye), round each eye
+  for (const [x, y, z] of r.eyes.pos) bones.push(xf(new THREE.TorusGeometry(r.eyes.r * 1.18, r.eyes.r * 0.26, 5, 16), { p: [x, y, z], r: [0, Math.PI / 2, 0] }));
   r.extras.push(paint(mergeGeos(bones), ink));
-  r.extras.push(paint(blob(0.017, 0.024, 0.07, [0, f.yc(0.3) - f.hb(0.3) * 0.25, 0.5 - 0.3], 10, 7), 0x6a6274));   // (the silvered gut)
+  r.extras.push(paint(blob(0.02, 0.026, 0.07, [0, f.yc(0.3) - f.hb(0.3) * 0.3, 0.5 - 0.3], 10, 7), 0x9ea6b4));   // (the silvered gut)
   if (M.tailSpot) {
     const sp = [], s = 0.9;
-    for (const sd of [1, -1]) sp.push(blob(0.004, 0.011, 0.013, [sd * f.w(s) * 0.92, f.yc(s), 0.5 - s], 8, 6));
-    r.extras.push(paint(mergeGeos(sp), C(hexColor(M.tailSpot === 'amber' ? 0xe2a24e : M.tailSpot, 0xe2a24e))));
+    for (const sd of [1, -1]) sp.push(blob(0.006, 0.017, 0.019, [sd * f.w(s) * 0.95, f.yc(s), 0.5 - s], 8, 6));
+    r.extras.push(paint(mergeGeos(sp), C(hexColor(M.tailSpot === 'amber' ? 0xe8a246 : M.tailSpot, 0xe8a246))));
   }
-  Object.assign(r.opts, { translucent: true, opacity: 0.5, glowCol: 0xf2ece2, noPhotophores: true });
+  Object.assign(r.opts, { translucent: true, glass: true, opacity: 0.3, glowCol: 0xdce8f0, noPhotophores: true, noLateral: true });
   return r;
 }
 
@@ -1276,7 +1288,8 @@ const SIL_INK = new THREE.Color(0x0c0b14), SIL_RIM = new THREE.Color(0x6e7396);
 // LANTERN_SHOW_PUFF, short of the shader's full swell so the hands still hold it), and the Netcloud Fry's cloud: where the four beside the
 // held one sit (a handful, close round it), in its own lengths [x (toward the lens), y, z (toward its snout), scale, the turn about x, y, z]
 const LANTERN_GLOW = 0.95, LANTERN_SHOW_PUFF = 0.55;
-const FRY_CLOUD = [[0.08, 0.18, 0.26, 0.9, 0.2, 0.16, 0.26], [-0.08, 0.22, -0.28, 0.85, -0.2, -0.2, -0.3], [0.1, -0.16, 0.32, 0.92, 0.1, 0.24, -0.2], [-0.1, -0.2, -0.24, 0.88, 0, -0.16, 0.3]];
+// (the integration's fix: the four sit above the held one and out toward the lens, clear of the fist that pinches it, as a little cloud)
+const FRY_CLOUD = [[0.22, 0.34, 0.3, 0.92, 0.2, 0.16, 0.22], [0.16, 0.5, -0.18, 0.86, -0.2, -0.2, -0.26], [0.3, 0.2, 0.62, 0.9, 0.1, 0.24, -0.16], [0.26, 0.62, 0.36, 0.84, 0, -0.16, 0.28]];
 const DEFAULT_MODEL = { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6 };
 
 export function createFishFactory(ctx) {
@@ -1400,11 +1413,15 @@ export function createFishFactory(ctx) {
     // extras (teeth, barbels, spines, plates, lure stalk, tentacles…)
     let extrasMesh = null;
     if (E.extras) {
-      const xm = deformToon({ color: 0xffffff, vertexColors: true, rim: 0.4, transparent: !!P.opts.jelly, opacity: P.opts.jelly ? 0.7 : 1,
+      // (the integration's fix: a glass fish's spine, gut, eye rings and tail spot are drawn after its glass, so they show crisp through
+      // it rather than hazed by it: the transparent pass, after the body's renderOrder)
+      const glass = !!P.opts.glass;
+      const xm = deformToon({ color: 0xffffff, vertexColors: true, rim: 0.4, transparent: !!P.opts.jelly || glass, opacity: P.opts.jelly ? 0.7 : 1,
         emissive: P.opts.jelly ? E.glowCol : 0x000000, emissiveIntensity: P.opts.jelly ? 0.6 : 0 }, spec);
       if (P.opts.jelly) xm.depthWrite = false;
       mats.push(xm);
       const ex = new THREE.Mesh(E.extras, xm); ex.name = 'extras'; extrasMesh = ex;
+      if (glass) ex.renderOrder = 4;
       scaler.add(ex);
       if (!P.opts.jelly) ex.add(outlineMesh(E.extras, outline));
     }

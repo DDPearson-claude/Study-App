@@ -595,5 +595,42 @@ section('LAKE 2, lane C: a later water\'s first tow puts the world there under t
   ok(E.T.wayBack(7) === false && E.T.phase === null, 'no water, no dip');
 }
 
+section('LAKE 2 (the integration\'s fix): a first tow never goes on without the leaving card shown and Tow pressed (nothing owned lost without warning)');
+{
+  const E = towEnv({ flow: 'home' });
+  E.loop.s.tutorial = { done: true, step: null };
+  E.loop.s.barge = { water: 'mossmere', towed: ['mossmere'] };
+  E.loop.s.tackle = { rod: 2, line: 2, reel: 2 };
+  E.loop.s.maps = { lakes: ['mossmere', 'sporewood'], places: [] };   // (its map owned: the Sail is open)
+  const before = JSON.stringify(E.loop.s);
+  // the view has no leaving card (it cannot show): the Sail asks, and with no answer nothing moves
+  E.ctx.ui.loop.tow = { ...E.view, leave: undefined };
+  const r = E.H.sail({ water: 'sporewood' });
+  ok(r === false && E.T.phase === null, 'no card: the Sail does not tow', { r, phase: E.T.phase });
+  ok(JSON.stringify(E.loop.s) === before, 'meta.loop untouched (the barge, the tackle, the carry)');
+  ok(E.calls.some((c) => c.startsWith('report:loop.leave')), 'the card that could not show is reported');
+  // a card that throws: the same
+  E.ctx.ui.loop.tow = { ...E.view, leave() { throw new Error('no panel'); } };
+  ok(E.H.sail({ water: 'sporewood' }) === false && E.T.phase === null && JSON.stringify(E.loop.s) === before, 'a card that throws: no tow, nothing written');
+  // the plain question: No keeps everything; Yes tows
+  const c0 = globalThis.confirm;
+  globalThis.confirm = () => false;
+  ok(E.H.sail({ water: 'sporewood' }) === false && E.T.phase === null && JSON.stringify(E.loop.s) === before, 'the plain question answered No: nothing moves');
+  globalThis.confirm = () => true;
+  E.H.sail({ water: 'sporewood' });
+  ok(E.T.phase === 'leg' && E.loop.s.barge.towed.includes('sporewood'), 'answered Yes: the tow begins', { phase: E.T.phase });
+  globalThis.confirm = c0;
+  // the card shown: nothing moves until Tow
+  const F = towEnv({ flow: 'home' });
+  F.loop.s.tutorial = { done: true, step: null };
+  F.loop.s.barge = { water: 'mossmere', towed: ['mossmere'] };
+  F.loop.s.maps = { lakes: ['mossmere', 'sporewood'], places: [] };
+  let onTow = null;
+  F.ctx.ui.loop.tow = { ...F.view, leave(o) { onTow = o.onTow; return true; } };
+  ok(F.H.sail({ water: 'sporewood' }) === false && F.T.phase === null && !F.loop.s.barge.towed.includes('sporewood'), 'the card shown: nothing moves while it waits');
+  onTow?.();
+  ok(F.T.phase === 'leg' && F.loop.s.barge.towed.includes('sporewood'), 'Tow pressed: the tow begins');
+}
+
 console.log(`\nloop-tow: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

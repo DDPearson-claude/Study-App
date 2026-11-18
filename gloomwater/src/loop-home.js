@@ -361,10 +361,17 @@ export function createLoopHome(deps) {
     const go = { ...plan, water, leave: undefined };
     const then = () => { S.sailing = false; sail(go); };
     if (!(at.towed || []).includes(water)) {
-      const card = ctx.ui?.loop?.tow;
-      if (plan?.leave !== true && typeof card?.leave === 'function') {
+      // (the integration's fix: a first tow leaves bought gear behind, so it never goes on unless the leaving card has shown and Tow
+      // was pressed (`leave: true`); a card that cannot show falls back to the plain question, and with no answer nothing moves)
+      if (plan?.leave !== true) {
+        const card = ctx.ui?.loop?.tow, onTow = () => sail({ ...go, leave: true });
         const terms = safe(() => L.leaveTerms?.(water), null);
-        if (terms && safe(() => card.leave({ water, terms, onTow: () => sail({ ...go, leave: true }) }), false) === true) return false;
+        if (terms && typeof card?.leave === 'function' && safe(() => card.leave({ water, terms, onTow }), false) === true) return false;
+        report('loop.leave', new Error(`the leaving card for ${water} could not show`));
+        const W = data?.TEXT_LOOP?.leave || {}, name = data?.ZONE_BY_ID?.[water]?.name || water;
+        const ask = [String(W.title || 'To {water}').replace('{water}', name), W.stays, W.keeps].filter((x) => typeof x === 'string' && x).join('\n');
+        if (typeof globalThis.confirm === 'function' && safe(() => globalThis.confirm(ask), false) === true) return onTow();
+        return false;
       }
       if (L?.tutorial?.()?.done !== true) { try { L?.tutorialDone?.(); } catch (e) { report('loop.tutorialDone', e); } }
       closeScreens();

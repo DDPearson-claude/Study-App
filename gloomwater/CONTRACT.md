@@ -2564,3 +2564,23 @@ there and a third of it is kept for good; found things travel; each water's lure
 - **Tools**: `tools/audio-render.mjs --set=sporewood` (the beds, the places clear and banked, the Seep near and far, the backs, the frogs;
   the -1.0 dBFS gate and each bed within 4 dB of the Mossmere's at its light); `tools/tests/audio-sporewood.test.mjs`;
   `tools/tests/lake2-a.scenario.mjs` (prints `LAKE2_A`).
+
+### 14.30 Every water's watercraft: its areas, its tells and its silhouettes (LAKE 2, the integration's fix; `docs/loop/LAKE2.md` §9.10)
+
+- **watercraft.js**: `areasOf(water)` → `WATERCRAFT[water]` once it has its own geometry, else the Mossmere's. `laneFor(evening, phase,
+  water)`, `areaShares(probe, {…, water, bounds: [x0, x1, z0, z1]})`, `fitFactors(D, shares, rounds, water, bait)`, `blindMix(D, shares,
+  light, factors, bait, water)`, `tiltedTarget(D, light, bait, water)`, `openMix(D, {…, water})` and `bitesTable(D, {…, water})` take
+  the water (left out, or a water without geometry: the Mossmere's, so every Mossmere call reads what it read before).
+  `WATERCRAFT.sporewood.shares` and `factors` are baked by `node tools/tests/watercraft.test.mjs --bake=sporewood`; its `tells` (the
+  Mossmere's shape, Sporewood's makers, `preyRaw` the fry's raw row for the spray) and `sight` (the Mossmere's rules, its own bodies).
+- **fishing.js**: the WC-2 gate is any water under the loop with tells of its own (`WATERCRAFT[lakeId()].tells`): there the water-white
+  marks, no `fx.pulse` ring outside the wait's nibbles, no built sign (`pickKind`), `uGlim` 0, the honest tells and the silhouettes, all by
+  that water's tables. `castArea` reads the water's geometry and lane once its shares are baked (null before).
+- **fishing-sight.js**: `outlineOf(id, light, area, water)`, `pickSight(entries, {light, area, water})`; `OUTLINE_AT[water]` and
+  `NEVER_AT[water]` (the Mossmere's are `OUTLINE_OF` and `NEVER`); `SIGHT_AREAS` adds `lullaby`. `createSight` reads the fish's water.
+- **data.js**: under the loop Sporewood's arena carries its four `places` (the loop's records), as the Mossmere's does.
+- **loop-home.js**: a first tow's Sail never tows without the leaving card shown and Tow pressed; a card that cannot show reports
+  `loop.leave` and asks the plain question (`confirm`), and with no yes nothing is written.
+- **Tests**: `tools/tests/lake2-fishing.test.mjs` (a Sporewood trip through the real fishing.js: no ring, gold or built sign in a whole
+  catch; its tells, silhouettes, areas and places), `watercraft.test.mjs`'s Sporewood section, `loop-carry.test.mjs`'s T104 on its
+  areas, `loop-tow.test.mjs`'s leaving-card section.

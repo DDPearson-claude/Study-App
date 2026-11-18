@@ -3210,7 +3210,8 @@ export const ROSTER_ART = {
   // the Grove) has it merged over its built model under the loop (an empty model: as built). The Nightbloom Carp's is its key above
   // (lane F: each look built and painted. Plum, amber, rose and cream; the Threadling's bark and the Grove's meadow the brief's own; glow
   // only on the Harpstring's strings, the Puffer's lantern, the Grove's gills and the Nightbloom's petal edges)
-  netcloud_fry:       { model: { shape: 'minnow', body: 0xe6ded2, belly: 0xf4eee6, fin: 0xd6cabc, glow: null, pattern: 'none', eyes: 'normal', scale: 0.25,
+  // (the integration's fix: the Fry's glass cool and milky, so the lantern's warm light does not turn it a small tan minnow; its own build)
+  netcloud_fry:       { model: { shape: 'minnow', body: 0xb4c2cc, belly: 0xe0e8ec, fin: 0xc6d4dc, glow: null, pattern: 'none', eyes: 'normal', scale: 0.25,
     skin: 'glass', spine: true, eye: 1.6, tailSpot: 'amber', cloud: 5 } },
   falsesmile_barb:    { model: { shape: 'bream', body: 0x9a6450, belly: 0xeadcc6, fin: 0x4e2e48, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6,
     depth: 0.95, jaw: 'square_teeth', tail: 'scythe' } },
@@ -6625,6 +6626,9 @@ if (V3_ENABLED) {
   // LAKE 2, lane W1 (LAKE2 §3.1): under the loop Sporewood is its natural basin (SPOREWOOD_ARENA, the outline shore), a fresh arena: no
   // stopgap giant water, no raft watch-lamps (its places hold its giants); its name, palette, grade and words as built
   if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena = v3clone(SPOREWOOD_ARENA); }
+  // (LAKE 2, the integration's fix: its four places in the arena, as the Mossmere's above, so a cast in one is that place: its pool, its
+  // giant, its mist while not owned or not lifted. The world builds their banks from LOOP.places; fishing reads the arena's records)
+  if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena.places = loopPlaceIds('sporewood').map(loopPlaceRecord).filter(Boolean); }
   // §24's lakes (walking builds): place sync ▲, watch lamps, renames
   for (const [zid, a] of Object.entries(ARENA_V2)) {
     for (const p of a.places || []) v3syncPlace(p);

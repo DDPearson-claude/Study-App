@@ -41,9 +41,23 @@ export const OUTLINE_OF = {
 };
 /** Never seen (§6.2): too deep, a place's own, or a bait-only fish (its outline is after the MVP). Giants and legends by flag too. */
 export const NEVER = new Set(['kissmark_trout', 'bridgechain_sturgeon', 'gloam_eel', 'belled_matriarch', 'thousandcast_pike', 'hullkiss_lamprey']);
+/** Each water's outlines and its never-seen (LAKE 2, the integration's fix: Sporewood's own bodies, watercraft's WATERCRAFT.sporewood.sight;
+ *  the Mossmere's are the tables above). The deep-bodied Barb and the Angler, the Cindertail's torpedo, the Fry's shoal, the Capshell's
+ *  claw; never its giants, its legend, the Jelly, the bait-only Threadling, the Velvet Ray (no ray's outline) or the deep Mackerel and
+ *  Downcast. */
+export const OUTLINE_AT = Object.freeze({
+  mossmere: OUTLINE_OF,
+  sporewood: Object.freeze({ falsesmile_barb: 'deep', mildew_angler: 'deep', nightbloom_carp: 'deep', cindertail_catfish: 'torpedo', netcloud_fry: 'shoal', capshell_crayfish: 'claw' }),
+});
+export const NEVER_AT = Object.freeze({
+  mossmere: NEVER,
+  sporewood: new Set(['harpstring_eel', 'festival_puffer', 'drifting_grove', 'sleepspore_jelly', 'threadling_eel', 'velvet_ray', 'lostsea_mackerel', 'downcast_catfish']),
+});
+/** The fish seen only at night, by water (the Mossmere's in outlineOf's own rules below). */
+const NIGHT_ONLY_AT = { sporewood: new Set(['mildew_angler', 'nightbloom_carp', 'capshell_crayfish']) };
 /** Where a shape can be seen (§6.1): the margins, the lily beds' gaps, shallow stone and timber, the inflow's fan, a reed line's
  *  outer edge, the Lily Maze's shallow half; the Buoy Lights only at night, over its lamps. Never deep, open, drop-off, lane, the Span. */
-export const SIGHT_AREAS = new Set(['margin', 'pads', 'stones', 'inflow', 'reeds', 'lily_maze']);
+export const SIGHT_AREAS = new Set(['margin', 'pads', 'stones', 'inflow', 'reeds', 'lily_maze', 'lullaby']);   // (the Lullaby: Sporewood's shallow lily water)
 export const lightOf = (phase) => (phase === 'dusk' ? 'dusk' : phase === 'gloomtide' || phase === 'night' ? 'night' : 'day');
 
 /** The lantern's reach on the water (m): the raft's light 8 m, Stub ×1.5, +15% a Lantern level. */
@@ -91,7 +105,16 @@ export function canSpawnAt(p = {}, S = SIGHT) {
 
 /** The outline a species shows at this light and area (null: never seen here). The crayfish only at night on the stones; the Milkeye Perch
  *  only at night (in the lantern's light); the Lampsipper (a night fish) as a shoal. */
-export function outlineOf(id, light = 'day', area = null) {
+export function outlineOf(id, light = 'day', area = null, water = null) {
+  if (water && water !== 'mossmere') {   // (another water's own bodies; its crayfish, as the Mossmere's, only at night on the roots)
+    const O = OUTLINE_AT[water], N = NEVER_AT[water];
+    if (!id || !O || (N && N.has(id))) return null;
+    const ow = O[id] || null;
+    if (!ow) return null;
+    if (NIGHT_ONLY_AT[water]?.has(id) && light !== 'night') return null;
+    if (ow === 'claw' && area && area !== 'stones') return null;
+    return ow;
+  }
   if (!id || NEVER.has(id)) return null;
   const o = OUTLINE_OF[id] || null;
   if (!o) return null;
@@ -101,13 +124,13 @@ export function outlineOf(id, light = 'day', area = null) {
 }
 /** Which fish is seen (§6.2): drawn from the who-is-there pool's entries ([{sp, w}] or [[sp, w]]) by weight, deep-bodied and long
  *  shapes ×1.5, never a giant, a legend, a bait-only fish or one of NEVER. null when none can be seen there. */
-export function pickSight(entries, { light = 'day', area = null } = {}, rng = Math.random) {
+export function pickSight(entries, { light = 'day', area = null, water = null } = {}, rng = Math.random) {
   const opts = [];
   let tot = 0;
   for (const e of entries || []) {
     const sp = Array.isArray(e) ? e[0] : e.sp, w0 = Array.isArray(e) ? e[1] : e.w;
     if (!sp || sp.giant || sp.rarity === 'legendary' || sp.bait || sp.place) continue;
-    const o = outlineOf(sp.id, light, area);
+    const o = outlineOf(sp.id, light, area, water);
     if (!o) continue;
     const w = num(w0, 0) * (o === 'deep' || o === 'long' ? 1.5 : 1);
     if (!(w > 0)) continue;
@@ -363,7 +386,7 @@ let SEQ = 0;
  */
 export function createSight(o = {}) {
   const rng = o.rng || Math.random;
-  const outline = o.outline || outlineOf(o.sp?.id, o.light, o.area) || 'torpedo';
+  const outline = o.outline || outlineOf(o.sp?.id, o.light, o.area, o.water ?? o.sp?.zone ?? null) || 'torpedo';
   const L = Math.max(0.05, num(o.length, 0.3));
   const seed = rng();
   return {

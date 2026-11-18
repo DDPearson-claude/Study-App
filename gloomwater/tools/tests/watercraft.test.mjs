@@ -27,7 +27,28 @@ const docks = L.docks.map((d) => ({ x: d.x, z: d.z, yaw: d.yaw }));
 const inPlace = (x, z) => !!D.placeAtV3('mossmere', x, z);
 const geo = { arena: A, hulls, docks };
 
+// LAKE 2 (the integration's fix): Sporewood's areas on its outline layout (SPOREWOOD_ARENA, the loop's), its mooring's hulls, its places
+const SZ = D.ZONES.find((z) => z.id === 'sporewood'), SL = WL.buildLayout(SZ), SA = SZ.arena, SWC = WC.WATERCRAFT.sporewood;
+const sProbe = { depth: (x, z) => WL.depthAt(SL, x, z), fromShore: (x, z) => WL.fromShore(SL, x, z), along: (x, z) => WL.shoreAlong(SL, x, z) };
+const sGeo = { arena: SA, hulls: D.loopMooring('sporewood', SL.docks).circles, docks: SL.docks.map((d) => ({ x: d.x, z: d.z, yaw: d.yaw })) };
+const sInPlace = (x, z) => !!D.placeAtV3('sporewood', x, z);
+const sBounds = [Math.floor(SL.outline.bbox.x0) - 1, Math.ceil(SL.outline.bbox.x1) + 1, Math.floor(SL.outline.bbox.z0) - 1, Math.ceil(SL.outline.bbox.z1) + 1];
+const sShares = () => WC.areaShares(sProbe, { ...sGeo, inPlace: sInPlace, water: 'sporewood', bounds: sBounds });
+
 // ---------------------------------------------------------------- --bake: print the block and stop
+if (process.argv.includes('--bake=sporewood')) {
+  const shares = sShares(), factors = WC.fitFactors(D, shares, 60, 'sporewood', D.LOOP.waters.sporewood.plainBait);
+  const line = (o) => `{ ${Object.entries(o).map(([k, v]) => `${k}: ${v}`).join(', ')} }`;
+  console.log('// >>> baked by `node tools/tests/watercraft.test.mjs --bake=sporewood` (SPOREWOOD_ARENA\'s outline layout, its mooring\'s hulls, 100 seeded evenings)');
+  console.log('WATERCRAFT.sporewood.shares = {');
+  for (const l of ['day', 'dusk', 'night']) console.log(`  ${l}: ${line(shares[l])},`);
+  console.log('};');
+  console.log('WATERCRAFT.sporewood.factors = {');
+  for (const l of ['day', 'dusk', 'night']) console.log(`  ${l}: ${line(factors[l])},`);
+  console.log('};');
+  console.log('// <<< baked');
+  process.exit(0);
+}
 if (BAKE) {
   const shares = WC.areaShares(probe, { ...geo, inPlace });
   const factors = WC.fitFactors(D, shares);
@@ -311,6 +332,79 @@ section('bitesTable, gradeTargets, hookWeights\' who-is-there, lightOf');
   ok(WC.castShare(os, 'thousandcast_pike') <= 0.12 + 1e-9 && WC.castShare(os, 'thousandcast_pike') > 0.06, `the Thousandcast at Under the Span at dusk on the spinner with Taper: ${pc(WC.castShare(os, 'thousandcast_pike'))} (≤ 12%)`);
   const ow = WC.castOdds(D, { pool: poolAt('under_the_span', 'dusk', 'mireworm'), phase: 'dusk', bait: 'mireworm' });
   ok(WC.castShare(ow, 'thousandcast_pike') <= 0.01, `the Thousandcast on worms: a stray (${pc(WC.castShare(ow, 'thousandcast_pike'))})`);
+}
+
+// =====================================================================================
+section('LAKE 2 (the integration\'s fix): Sporewood\'s areas live: baked = recompute, the fit, its lane, the user\'s rule and every pool bites there');
+{
+  const S = SWC.shares, R = sShares(), SPL = D.loopPlaceIds('sporewood'), PB = D.LOOP.waters.sporewood.plainBait;
+  ok(!!SWC.geometry && !!S && !!SWC.factors && WC.areasOf('sporewood') === SWC && WC.areasOf('mossmere') === M && WC.areasOf(null) === M, 'Sporewood has its geometry, shares and factors; areasOf reads them (the Mossmere\'s by default)');
+  for (const l of ['day', 'dusk', 'night']) {
+    const sum = WC.AREAS.reduce((a, k) => a + S[l][k], 0);
+    ok(Math.abs(sum - 1) < 1e-3, `Sporewood ${l}: the baked shares sum to 1 (${sum.toFixed(4)})`);
+    for (const a of WC.AREAS) {
+      ok(Math.abs(S[l][a] - R[l][a]) * 100 <= 0.2, `Sporewood ${l} ${a}: baked ${pc(S[l][a])} = the recompute ${pc(R[l][a])} within ±0.2`);
+      if (!(l === 'night' && a === 'lane')) ok(S[l][a] > 0.005, `Sporewood ${l} ${a}: every area is on the water (${pc(S[l][a])})`);
+    }
+  }
+  eq(S.night.lane, 0, 'Sporewood: no lane at night');
+  const F = WC.fitFactors(D, S, 60, 'sporewood', PB);
+  for (const l of ['day', 'dusk', 'night']) {
+    const b = WC.blindMix(D, S, l, undefined, PB, 'sporewood'), t = WC.tiltedTarget(D, l, PB, 'sporewood');
+    let worst = 0, at = '';
+    for (const id of Object.keys(t)) { const d = Math.abs((b[id] || 0) - t[id]) * 100; if (d > worst) { worst = d; at = id; } }
+    ok(worst <= 0.5, `Sporewood ${l}: on Spore Cake the blind pre-hook mix is the built mix within ±0.5 points (worst ${worst.toFixed(3)} on ${at})`);
+    let fw = 0;
+    for (const id of Object.keys(F[l])) fw = Math.max(fw, Math.abs(F[l][id] - (SWC.factors[l][id] ?? NaN)) / F[l][id]);
+    ok(fw < 0.01, `Sporewood ${l}: the baked factors are the recompute's within 1% (worst ${(fw * 100).toFixed(2)}%)`);
+    ok(Object.keys(F[l]).every((id) => SWC.raw[id]) && Object.keys(SWC.raw).filter((id) => D.loopHours(SPC(id)).includes(l)).every((id) => id in F[l]), `Sporewood ${l}: a factor for every open-water fish of the hour, the Threadling too`);
+  }
+  // its lane: the West Pool's open water, deterministic; the Mossmere's lane unchanged by the water's argument
+  let laneOk = true; const lanes = {};
+  const Lg = SWC.geometry.lane;
+  for (let e = 1; e <= 300; e++) {
+    const l = WC.laneFor(e, null, 'sporewood'), a = D.placeAtV3('sporewood', l.x, l.z)?.id || WC.areaAt(l.x, l.z, sProbe, { ...sGeo, geo: SWC.geometry });
+    lanes[a] = (lanes[a] || 0) + 1;
+    if (Math.hypot(l.x - Lg.cx, l.z - Lg.cz) > Lg.within + 0.01 && !(l.x === SWC.laneFallback.x && l.z === SWC.laneFallback.z)) laneOk = false;
+    if (a !== 'deep' && a !== 'open') laneOk = false;
+  }
+  ok(laneOk, `Sporewood's lane over 300 evenings: each centre within ${Lg.within} m of (${Lg.cx}, ${Lg.cz}) and in deep or open water (${JSON.stringify(lanes)})`);
+  ok(WC.laneFor(1, 'gloomtide', 'sporewood') === null && JSON.stringify(WC.laneFor(4, 'dusk', 'sporewood')) === JSON.stringify(WC.laneFor(4, null, 'sporewood')), 'Sporewood\'s lane: none at night, the same by day and dusk');
+  let same = true; for (let e = 1; e <= 60; e++) if (JSON.stringify(WC.laneFor(e)) !== JSON.stringify(WC.laneFor(e, null, 'mossmere'))) same = false;
+  ok(same, 'the Mossmere\'s lane is the same with or without its water named');
+  // a cast's area on the game's probe: the reeds on the Reed Flats run, the pads on a lily raft, the roots by Rootknot, the inflow at the Seep
+  const sArea = (x, z) => WC.areaAt(x, z, sProbe, { ...sGeo, lane: WC.laneFor(2, 'dusk', 'sporewood'), geo: SWC.geometry });
+  eq([sArea(-54, 32), sArea(74.5, -24), sArea(22, -16.8), sArea(-66, 37)], ['pads', 'inflow', 'stones', 'outflow'], 'Sporewood\'s areas at a lily raft, the Seep, by Rootknot and at the Root Weir');
+  ok(WC.areaAt(-50, -6, sProbe, { ...sGeo, geo: SWC.geometry }) === null && WC.areaAt(-120, 0, sProbe, { ...sGeo, geo: SWC.geometry }) === null, 'Sporewood: inside Mossback Isle and past the shore are not water (null)');
+  // the user's rule at every area and place, every light, every hook of Sporewood's, with and without its tells' tilts
+  const SWF = D.SPECIES.filter((x) => x.zone === 'sporewood').map((x) => x.id);
+  const SH = [{}, ...WC.BAIT_IDS_AT.sporewood.map((b) => ({ bait: b })), { bait: D.LOOP.legendBait.sporewood.id }, ...WC.LURE_IDS_AT.sporewood.map((l) => ({ lure: l }))];
+  const rules = [null, ...Object.entries(SWC.tells).flatMap(([kind, T]) => {
+    if (!T || T.retired || T.noRule || !(T.forms || T.makers)) return [];
+    return (T.forms ? Object.entries(T.forms) : [[null, T]]).map(([form, f]) => ({ kind, form, id: 1, inSign: true, makers: Array.isArray(f.makers) ? f.makers : [...new Set(Object.values(f.makers || {}).flat())], tilt: 3 }));
+  })];
+  const legendB = (b) => b === D.LOOP.legendBait.sporewood.id;
+  let n = 0, worst = 0, worstAt = '', minS = Infinity, minSAt = '', bad = [];
+  for (const w of [...WC.AREAS.map((a) => ({ area: a, place: null })), ...SPL.map((p) => ({ area: null, place: p }))]) for (const phase of PHASES) for (const h of SH) for (const rule of rules) {
+    const pool = D.placePool(D.SPECIES, { placeId: w.place, phase, bait: legendB(h.bait) ? null : h.bait ?? null, water: 'sporewood' });
+    const odds = WC.castOdds(D, { pool, area: pool.place ? null : w.area, phase, lure: h.lure ?? null, bait: h.bait ?? null, rule, water: 'sporewood' });
+    n++;
+    if (odds.S < minS) { minS = odds.S; minSAt = `${w.place ?? w.area} ${phase} ${hookName(h)}`; }
+    for (const id of SWF) {
+      if (WC.gradeOf(id, { ...h, water: 'sporewood' }) !== 0) continue;
+      const p = WC.castShare(odds, id);
+      if (p > worst) { worst = p; worstAt = `${id} at ${w.place ?? w.area}, ${phase}, ${hookName(h)}${rule ? `, ${rule.kind}` : ''}`; }
+      if (p > 0.01 + 1e-12) bad.push(`${id} ${pc(p)} at ${w.place ?? w.area} ${phase} ${hookName(h)}`);
+    }
+  }
+  ok(!bad.length, `Sporewood, ${n} casts over its areas and places: every grade-0 fish ≤ 1.00% (worst ${pc(worst)}: ${worstAt})${bad.length ? ' — ' + bad.slice(0, 4).join('; ') : ''}`);
+  ok(minS > 0, `Sporewood: every pool bites, S > 0 (smallest ${minS.toFixed(2)} at ${minSAt})`);
+  // the sheet's and the gear log's readers on its areas
+  const mix = WC.openMix(D, { light: 'dusk', bait: PB, water: 'sporewood' }), ms = Object.values(mix).reduce((a, b) => a + b, 0);
+  ok(Math.abs(ms - 1) < 1e-9 && Object.keys(mix).every((id) => SPC(id)?.zone === 'sporewood') && mix.threadling_eel > 0, `openMix at Sporewood is its own fish on its areas (sums to 1, the Threadling ${pc(mix.threadling_eel || 0)})`);
+  const bt = WC.bitesTable(D, { bait: PB, water: 'sporewood' });
+  ok(bt.length > 4 && bt.every((r) => SPC(r.id)?.zone === 'sporewood'), 'bitesTable at Sporewood reads its own pool');
+  eq(JSON.stringify(WC.openMix(D, { light: 'dusk', bait: 'mireworm' })), JSON.stringify(WC.openMix(D, { light: 'dusk', bait: 'mireworm', water: 'mossmere' })), 'the Mossmere\'s openMix is the same with or without its water named');
 }
 
 console.log(`\nwatercraft: ${pass} passed, ${fail} failed`);
