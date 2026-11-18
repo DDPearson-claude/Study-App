@@ -114,7 +114,12 @@ export const ROUGH = [[480, 330, 0.7], [560, 420, 0.7], [420, 420, 0.75], [600, 
 // ---- lakes [id, level in metres, blobs [x, y, rx, ry, rot]]. kind: 'lake' | 'pan' (seasonal) | 'tarn' | 'mere'
 export const LAKES = [
   { id: 'mossmere', level: 300, blobs: [[585, 251, 17, 11.5, -8], [574, 256, 8, 6, 0], [597, 247, 7, 6, 0]] },
-  { id: 'sporewood', level: 420, blobs: [[520, 305, 10.5, 7.5, -25], [509, 312.5, 6, 4.6, 10], [531, 298.5, 5.6, 4.4, 0], [524, 314, 4, 3, 0]] },
+  // (LAKE2.md §6.2, lane C: the game's own outline's two pools and the bent neck between them, fitted to its proportions, so the
+  // overview and the water's sheet are one shape: the West Pool the larger, the East Pool a little north of it)
+  { id: 'sporewood', level: 420, blobs: [[511, 308, 6.6, 5.6, -10], [529, 300, 5.6, 5, 15], [520, 304, 2.4, 1, -25]],
+    // (the ground's height guides stay at the first sketch's blobs: the land round the lake as it was, so the Mossmere's own sheet,
+    // whose streams the guides' far pull reaches, bakes to the same pixels)
+    heights: [[520, 305, 10.5, 7.5, -25], [509, 312.5, 6, 4.6, 10], [531, 298.5, 5.6, 4.4, 0], [524, 314, 4, 3, 0]] },
   { id: 'glasswater', level: 500, blobs: [[457, 366, 19, 10.5, -18], [444, 356, 8, 6, -30]] },
   { id: 'pallid', level: 520, blobs: [[377, 427, 27, 15, -8], [376, 442, 10, 12, 0], [393, 420, 11, 9, 0]] },
   { id: 'icelake', level: 120, blobs: [[214, 218, 6.5, 12, 15]] },

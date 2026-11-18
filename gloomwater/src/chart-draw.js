@@ -656,7 +656,9 @@ export function placeVignette(ctx, id, kind, x, y, s, { wounds = 0, alpha = 1 } 
   X = null; vg.halo = false;
   ctx.restore();
 }
-const PLACE_LOOK = { lily_maze: 'pads', under_the_span: 'span', buoy_lights: 'buoys', bell_pool: 'bell', veilback_brook: 'brook' };
+const PLACE_LOOK = { lily_maze: 'pads', under_the_span: 'span', buoy_lights: 'buoys', bell_pool: 'bell', veilback_brook: 'brook',
+  // LAKE2 §3.2 (lane C): Sporewood's four, living things and no stone (§3.4)
+  lullaby: 'rafts', gill_harp: 'harp', veilwater: 'veil', mothers_cup: 'cup' };
 const KIND_LOOK = { day: 'pads', old: 'span', night: 'buoys', crown: 'bell' };
 const PLACE_DRAW = {
   pads() { // notched lily pads, a koi glowing under them
@@ -699,6 +701,35 @@ const PLACE_DRAW = {
     P(wave(-7, 7, 4.6, 0.6), null, 0.8, `rgb(${C.water})`); P(wave(-5.6, 5.6, 7.4, 0.5), null, 0.7, `rgb(${C.water})`);
   },
   dot() { dot(0, 0, 2.2, INK); },
+  rafts() { // the Lullaby: round lily rafts, unnotched, a sleeping jelly's soft glow under the biggest, its threads hanging
+    if (!vg.halo) { const g = X.createRadialGradient(-1, 2.6, 0, -1, 2.6, 6.4); g.addColorStop(0, 'rgba(255,214,150,.8)'); g.addColorStop(1, 'rgba(255,214,150,0)'); X.fillStyle = g; X.beginPath(); X.arc(-1, 2.6, 6.4, 0, 6.3); X.fill(); }
+    P(() => { X.moveTo(-3.6, 2); X.quadraticCurveTo(-1, -1.4, 1.6, 2); X.closePath(); }, 'rgba(250,236,214,.9)', 0.7);
+    P(poly([-2.4, 2.2, -2.8, 5.6, -0.9, 2.2, -0.6, 6.2, 0.6, 2.2, 1.2, 5.2], false), null, 0.5);
+    P(() => X.ellipse(-4.4, -3.6, 4.6, 2.6, -0.2, 0, 6.3), LEAF(5), 0.9); P(() => X.ellipse(4.8, -1.4, 3.4, 2, 0.3, 0, 6.3), LEAF(4), 0.9);
+    P(() => X.ellipse(5.6, 5.4, 2.4, 1.4, 0, 0, 6.3), LEAF(5), 0.8);
+    dot(-3.2, -4.6, 0.8, '#f0e0d0'); dot(5.4, -2, 0.7, '#eeb0c8');
+  },
+  harp() { // the Gill Harp: two caps leaning over the neck from both banks, their gills' strands hanging to the water, one lit
+    P(() => { X.moveTo(-9.4, 8); X.quadraticCurveTo(-8.4, 0, -3.4, -5.4); }, null, 1.6); P(() => { X.moveTo(9.4, 8); X.quadraticCurveTo(8.2, 0.6, 3.6, -4.6); }, null, 1.6);
+    P(() => { X.ellipse(-2.4, -6.2, 5.2, 2.4, 0.25, Math.PI, 0); X.closePath(); }, '#c79ab8'); P(() => { X.ellipse(2.8, -5.4, 4.8, 2.2, -0.25, Math.PI, 0); X.closePath(); }, '#b98cc0');
+    for (const sx of [-5.6, -3.6, -1.6, 0.6, 2.6, 4.8]) P(poly([sx, -5, sx + 0.3, 3.4 + Math.abs(sx) * 0.3], false), null, 0.5);
+    if (!vg.halo) { X.beginPath(); X.moveTo(0.6, -5); X.lineTo(0.9, 4.6); X.strokeStyle = 'rgba(244,170,70,.95)'; X.lineWidth = 0.9; X.stroke(); }
+    P(wave(-7, 7, 7.6, 0.6), null, 0.7, `rgb(${C.water})`);
+  },
+  veil() { // the Veilwater: a curtain of moss hanging from a fallen stalk, parted, an amber lantern floating behind it
+    if (!vg.halo) { const g = X.createRadialGradient(1.6, 3, 0, 1.6, 3, 5.6); g.addColorStop(0, 'rgba(255,186,90,.9)'); g.addColorStop(1, 'rgba(255,186,90,0)'); X.fillStyle = g; X.beginPath(); X.arc(1.6, 3, 5.6, 0, 6.3); X.fill(); }
+    P(() => X.arc(1.6, 3, 2.4, 0, 6.3), 'rgb(244,170,76)', 0.8); P(poly([0.2, 3, 3, 3], false), null, 0.5);
+    P(poly([-9.4, -6.2, 9.4, -7.4, 9.4, -5.6, -9.4, -4.4]), 'rgb(176,146,128)', 0.9);
+    for (const sx of [-8, -6.4, -4.8, -3.2, 5.8, 7.2, 8.6]) P(() => { X.moveTo(sx, -4.8); X.quadraticCurveTo(sx + (sx < 0 ? 0.8 : -0.8), 1, sx + (sx < 0 ? 1.6 : -1.4), 6.2); }, null, 0.65, LEAF(6));
+    P(wave(-8, 8, 8.2, 0.5), null, 0.7, `rgb(${C.water})`);
+  },
+  cup() { // the Mother's Cup: the great cap over its round well, its gills lit amber from beneath
+    if (!vg.halo) { const g = X.createRadialGradient(0, 4.6, 0, 0, 4.6, 7.4); g.addColorStop(0, 'rgba(36,30,88,.85)'); g.addColorStop(0.6, 'rgba(58,52,118,.45)'); g.addColorStop(1, 'rgba(58,52,118,0)'); X.fillStyle = g; X.beginPath(); X.ellipse(0, 4.6, 7.4, 3.4, 0, 0, 6.3); X.fill(); }
+    P(() => { X.moveTo(-0.9, 4); X.quadraticCurveTo(-1.6, -1, -0.8, -4.6); X.lineTo(0.9, -4.6); X.quadraticCurveTo(1.4, -1, 0.9, 4); }, 'rgb(214,200,188)', 0.8);
+    P(() => { X.ellipse(0, -5, 9.2, 4.2, 0, Math.PI, 0); X.closePath(); }, '#c48cbc', 1);
+    if (!vg.halo) { X.beginPath(); X.ellipse(0, -5, 8.4, 1.2, 0, 0, Math.PI); X.fillStyle = 'rgba(250,184,90,.92)'; X.fill(); }
+    for (const sx of [-7.6, 7.4]) P(poly([sx, -4.6, sx + (sx < 0 ? 0.4 : -0.4), 1.6], false), null, 0.5, LEAF(6));
+  },
 };
 /** The rolled, sealed sheet of the next water (SPEC §5.4): a sheet rolled at both ends, tied, its legend's wax on the tie. */
 export function rolledSheet(ctx, x, y, w, h, { alpha = 1 } = {}) {
@@ -724,6 +755,24 @@ export function rolledSheet(ctx, x, y, w, h, { alpha = 1 } = {}) {
 }
 
 // ------------------------------------------------------------------ the game's layout (pure: no canvas)
+/**
+ * LAKE2 §6.2 (lane C): what the Chart shows of the world map with the waters owned: the road only goes forward, so the owned sheets are
+ * always the first n (n the highest owned water's order, among the sheets the art carries; an ahead sheet waits unseen). → {n, sheets
+ * (art's, n or less), box (their window: the boxes' union, [x, y, w, h] in Chart units), edges and wisp (with n owned), pieces (legs n or
+ * less), waters (n or less)}. One sheet owned: the first sheet's own, exactly as M1 drew it. Pure.
+ */
+export function chartReach(model, art) {
+  const live = art?.live || {}, W = live.waters || [], all = art?.sheets || [];
+  const ns = (model?.sheets || []).map((s) => W.find((w) => w.water === s.waterId)?.n).filter((v) => Number.isFinite(v));
+  const n0 = all[0]?.n ?? 1, n = Math.max(n0, ns.length ? Math.max(...ns) : n0);
+  const sheets = all.filter((s) => s.n <= n);
+  const bs = sheets.map((s) => s.box).filter((b) => Array.isArray(b) && b.length === 4);
+  const x0 = bs.length ? Math.min(...bs.map((b) => b[0])) : 496, y0 = bs.length ? Math.min(...bs.map((b) => b[1])) : 151;
+  const box = bs.length ? [x0, y0, Math.max(...bs.map((b) => b[0] + b[2])) - x0, Math.max(...bs.map((b) => b[1] + b[3])) - y0] : [496, 151, 214, 129];
+  const more = n > n0 ? live.more?.[n] || null : null;
+  return { n, sheets, box, edges: more ? more.edges : live.edges, wisp: more ? more.wisp : live.wisp,
+    pieces: (live.pieces || []).filter((p) => !(p.leg > n)), waters: W.filter((w) => !(w.n > n)) };
+}
 const rectsMeet = (a, b, g = 0) => a[0] < b[0] + b[2] + g && a[0] + a[2] + g > b[0] && a[1] < b[1] + b[3] + g && a[1] + a[3] + g > b[1];
 const around = (x, y, w, h) => [x - w / 2, y - h / 2, w, h];
 /** The size of a tap target (CSS px): never under 44 (M1.md §3.4, SPEC §5.5 (f)). */
@@ -752,14 +801,19 @@ export function layoutChart(model, art, view) {
   const measure = view.measure || ((t, f) => String(t).length * (parseFloat(/(\d+(?:\.\d+)?)px/.exec(f)?.[1] || 13) * 0.5));
   const LS = phone ? LETTER.phone : LETTER.desk;
   const pad = phone ? 4 : 10, gap = phone ? 12 : 22;
-  const first = (art?.sheets || [])[0] || { box: [496, 151, 214, 129] };
-  const box = first.box, aspect = box[2] / box[3];
+  // (LAKE2 lane C: the first window is every owned water's sheet, their boxes' union; one water owned, the first sheet's box as built)
+  const reach = chartReach(model, art);
+  const box = reach.box, aspect = box[2] / box[3];
   const tutorial = model?.tutorial === true;
   const next = tutorial ? null : model?.next || null;
-  const sealedOn = !!(next && next.shipped === false);
-  const sheet = (model?.sheets || [])[0] || null;
+  // (LAKE 2, lane C: a shipped next water is the rolled sheet too: its map's price where "Coming soon" stood, until it is bought; then
+  // its seals alone, until its gear and catch keys are held and it opens)
+  const sealedOn = !!(next && (next.shipped === false || next.shipped === true));
+  // (LAKE2 lane C: the water's sheet laid beside the window is the chosen water's; its mark on the window chooses another owned one)
+  const owned = model?.sheets || [];
+  const sheet = owned.find((s) => s.waterId === model?.pick?.water) || owned[0] || null;
   const geo = sheet ? view.water?.[sheet.waterId] || null : null;
-  const out = { phone, short: false, w: Wd, h: Ht, targets: [], places: [], cards: [], sealed: null, fonts: [] };
+  const out = { phone, short: false, w: Wd, h: Ht, targets: [], places: [], cards: [], sealed: null, fonts: [], reach: reach.n };
   const font = (f) => { if (!out.fonts.includes(f)) out.fonts.push(f); return f; };
   const sealR = phone ? 12 : 13, strip = phone ? { w: 206, h: 64 } : { w: 206, h: 90 };
   const head = LS.name + 16;
@@ -792,9 +846,13 @@ export function layoutChart(model, art, view) {
     // (a tall phone keeps a strip under the water's sheet for the sealed sheet, at its lower left)
     card.h = Ht - card.y - pad - 2 - (phone && sealedOn && !side ? strip.h + 6 : 0);
     const nameFont = font(`italic 400 ${LS.name}px ${F.chart}`);
-    const lake = { rect: [card.x + 6, card.y + head, card.w - 12, card.h - head - 8] };
-    const R = Math.max(10, geo?.Rmax || geo?.R || 60);
-    lake.s = Math.min(lake.rect[2], lake.rect[3]) / (2 * R * 1.06);
+    const lake = { rect: [card.x + 6, card.y + head, card.w - 12, card.h - head - 8], ox: 0, oz: 0 };
+    const R = Math.max(10, geo?.Rmax || geo?.R || 60), bb = geo?.outline ? geo.bbox : null;
+    // (LAKE2 §6.2: an outline water's sheet is fitted to its own shape, its hachures' room kept round it; a round one to its radius)
+    if (bb && bb.x1 > bb.x0 && bb.z1 > bb.z0) {
+      lake.s = Math.min((lake.rect[2] - 16) / (bb.x1 - bb.x0), (lake.rect[3] - 14) / (bb.z1 - bb.z0));
+      lake.ox = (bb.x0 + bb.x1) / 2; lake.oz = (bb.z0 + bb.z1) / 2;
+    } else lake.s = Math.min(lake.rect[2], lake.rect[3]) / (2 * R * 1.06);
     lake.cx = lake.rect[0] + lake.rect[2] / 2; lake.cy = lake.rect[1] + lake.rect[3] / 2;
     card.lake = lake;
     const nameW = measure(sheet.name, nameFont);
@@ -820,7 +878,7 @@ export function layoutChart(model, art, view) {
     for (const p of sheet.places || []) {
       const site = view.sites?.[p.id];
       if (!site) continue;
-      const sx = lake.cx + site.x * lake.s, sy = lake.cy + site.z * lake.s;
+      const sx = lake.cx + (site.x - lake.ox) * lake.s, sy = lake.cy + (site.z - lake.oz) * lake.s;
       items.push({ id: p.id, kind: p.kind || null, owned: p.owned === true, price: !tutorial && p.owned !== true && Number.isFinite(p.price) ? p.price : null, p, site: [sx, sy], at: [sx, sy], size: sizeV, T });
     }
     const inner = [card.x + T / 2 + 4, card.y + head + T / 2, card.x + card.w - T / 2 - 4, card.y + card.h - T / 2 - 6];
@@ -861,7 +919,7 @@ export function layoutChart(model, art, view) {
       base.push([lake.cx + a * NC.ca * S, Math.min(y0, y1) - hh, (b - a) * NC.ca * S, Math.abs(y1 - y0) + 2 * hh]);
     }
     let placed = base.slice();
-    const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + q.x * lake.s - r, lake.cy + q.z * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
+    const isles = (geo?.islands || []).map((q) => { const r = Math.max(3, q.r * lake.s) * 1.1; return [lake.cx + (q.x - lake.ox) * lake.s - r, lake.cy + (q.z - lake.oz) * lake.s - r * 0.9, 2 * r, 1.8 * r]; });
     const inCard = (q) => q[0] >= card.x + 8 && q[0] + q[2] <= card.x + card.w - 8 && q[1] >= card.y + head - 6 && q[1] + q[3] <= card.y + card.h - 8;
     // the shore's pen: a place's words stand wholly on the water or wholly on the paper, 3 px clear of the line (the brook behind the
     // Veil lies on the sheet's east edge, where its name once ran across the shore). → 'wet', 'dry' or 'cross'
@@ -871,7 +929,7 @@ export function layoutChart(model, art, view) {
       const m = 3 / Math.max(1e-3, lake.s);
       for (let i = 0; i <= 6; i++) for (let j = 0; j <= 2; j++) {
         // (LAKE2 §3.1: an outline water's sheet asks its own shore's distance, + in the water; a polar one the radius along the bearing)
-        const x = (q[0] + (q[2] * i) / 6 - lake.cx) / lake.s, z = (q[1] + (q[3] * j) / 2 - lake.cy) / lake.s, d = geo?.shoreDist ? -geo.shoreDist(x, z) : Math.hypot(x, z) - shoreR(Math.atan2(z, x));
+        const x = (q[0] + (q[2] * i) / 6 - lake.cx) / lake.s + lake.ox, z = (q[1] + (q[3] * j) / 2 - lake.cy) / lake.s + lake.oz, d = geo?.shoreDist ? -geo.shoreDist(x, z) : Math.hypot(x, z) - shoreR(Math.atan2(z, x));
         if (d < m) wet++;
         if (d > -m) dry++;
       }
@@ -931,7 +989,8 @@ export function layoutChart(model, art, view) {
         } else if (A.price != null) { const pr = { text: String(A.price), font: font(`400 ${LS.price}px ${fig}`), px: LS.price, price: true }; pr.w = measure(pr.text, pr.font) + Math.round(LS.price * 0.78) + 5; sets.push(Object.assign([pr], { cost: 0 })); }
         if (!sets.length) { done.push(A); continue; }
         const [x, y] = A.at, r = A.size / 2;
-        shoreKeep = sideOf([A.site[0] - 1, A.site[1] - 1, 2, 2]) !== 'wet';
+        // (LAKE2 §6.2: on an outline water every place keeps its words off the pen: no word crosses the shore)
+        shoreKeep = geo?.outline === true || sideOf([A.site[0] - 1, A.site[1] - 1, 2, 2]) !== 'wet';
         // (a place by the west or east shore letters out on the paper first, as a surveyor would, clear of the water)
         const sd = A.site[0] < lake.cx - lake.rect[2] * 0.18 ? -1 : A.site[0] > lake.cx + lake.rect[2] * 0.18 ? 1 : 0;
         const spotsFor = (bw, bh) => [...(sd && !phone ? [[x + sd * (r + 4 + bw / 2), y]] : []), ...ring(x, y, r, bw, bh),
@@ -978,11 +1037,17 @@ export function layoutChart(model, art, view) {
       if (A.owned) out.targets.push({ id: `place:${A.id}`, kind: 'place', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: A.p.name || A.id });
       else if (A.price != null) out.targets.push({ id: `buy:${A.id}`, kind: 'buy', water: sheet.waterId, place: A.id, rect: around(A.at[0], A.at[1], A.T, A.T), label: String(A.price) });
     }
+    // LAKE2 lane C: each other owned water's mark on the window lays its own sheet beside it (its open water chosen)
+    for (const s of owned) {
+      if (s === sheet) continue;
+      const w = reach.waters.find((q) => q.water === s.waterId);
+      if (w) out.targets.push({ id: `sheet:${s.waterId}`, kind: 'sheet', water: s.waterId, rect: around(cx(w.at[0]), cy(w.at[1]), TARGET, TARGET), label: s.name || s.waterId });
+    }
   }
   // ---- the sealed sheet: under the first sheet on a wide screen; at the water's sheet's lower left on a tall phone, at its left on a
   // short one; the wisp's trail runs on from the first sheet's edge under the owned road's end (never across another sheet's ground)
   if (sealedOn) {
-    const r = sealR, wispAt = art?.live?.wisp ? [cx(art.live.wisp[0]), cont.y + cont.h] : null;
+    const r = sealR, wispAt = reach.wisp ? [cx(reach.wisp[0]), cont.y + cont.h] : null;
     let x, y, w, h, roll, seals, soon;
     const countFont = font(`400 ${LS.count}px ${fig}`), soonFont = font(`400 ${LS.soon}px ${F.hand}`);
     if (side && card) {
@@ -1001,7 +1066,9 @@ export function layoutChart(model, art, view) {
     // the trail: from the first sheet's edge to the rolled sheet's end; on a tall phone it runs on under the water's sheet laid over it
     const trail = wispAt ? { from: wispAt, to: phone ? [roll.x + roll.w / 2 + 3, roll.y] : [roll.x - roll.w / 2 - 4, roll.y], under: phone && !side && card ? card.y + card.h - 3 : null } : null;
     out.sealed = { water: next.waterId, x, y, w, h, roll, seals, soon, countFont, trail, side, wispFrom: wispAt };
-    out.targets.push({ id: `sealed:${next.waterId}`, kind: 'sealed', water: next.waterId, rect: [x, y, w, h], label: 'Coming soon' });
+    const priced = next.shipped === true && !next.seals?.map?.held && Number.isFinite(next.seals?.map?.price) ? next.seals.map.price : null;
+    if (next.shipped === true) out.sealed.price = priced;
+    out.targets.push({ id: `sealed:${next.waterId}`, kind: 'sealed', water: next.waterId, rect: [x, y, w, h], label: priced != null ? String(priced) : next.shipped === true ? next.waterId : 'Coming soon' });
   }
   return out;
 }
@@ -1067,7 +1134,8 @@ function baseKey(L, model, art, view, dpr) {
   const r = (v) => Math.round(v * 10) / 10, c = L.cont;
   return JSON.stringify([dpr, L.w, L.h, [c.x, c.y, c.w, c.h].map(r), L.cards.map((k) => [k.waterId, k.x, k.y, k.w, k.h, k.lake.s].map((v) => (typeof v === 'number' ? r(v) : v))),
     L.sealed?.trail ? [L.sealed.trail.from, L.sealed.trail.to, L.sealed.trail.under].flat().map((v) => (v == null ? null : r(v))) : null,
-    !!(model?.tutorial || !model?.next), (model?.sheets || []).map((s) => [s.waterId, s.gilded === true]), (art?.sheets || []).map((s) => s.hash || s.n), !!art?.paper?.image, !!view.paperImage]);
+    !!(model?.tutorial || !model?.next), (model?.sheets || []).map((s) => [s.waterId, s.gilded === true]), (art?.sheets || []).map((s) => (s.image === null ? 0 : s.hash || s.n)), !!art?.paper?.image, !!view.paperImage,
+    view.barge || null]);
 }
 
 /** The still part of the Chart: the vellum, the first sheet with its road, marks and stones, the wisp's trail under the water's sheet,
@@ -1092,23 +1160,25 @@ function drawBase(ctx, L, model, art, view, dpr, F, inkSheet, t) {
   ctx.restore();
 
   // ---- the first sheet (view.layers.first false: the paper alone, for the bare-paper test)
-  const cont = L.cont, first = view.layers?.first === false ? null : (art?.sheets || [])[0];
+  const cont = L.cont, off = view.layers?.first === false;
   const V = chartView({ ...cont.view, vw: Wd, vh: Ht, dpr });
-  const live = view.layers?.first === false ? {} : art?.live || {};
+  const live = off ? {} : art?.live || {};
+  // (LAKE2 lane C: every owned water's sheet in the window, each at its own box, the road's legs to the last owned, its edge and wisp)
+  const R = off ? { sheets: [], pieces: [], waters: [] } : chartReach(model, art);
   ctx.save();
   ctx.beginPath(); ctx.rect(cont.x, cont.y, cont.w, cont.h); ctx.clip();
   ctx.globalAlpha = inkSheet;
-  if (first?.image) { ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(first.image, cont.x, cont.y, cont.w, cont.h); }
-  if (live.edges) { sheetEdge(ctx, V, live.edges); V.screenSpace(ctx); }
+  for (const sh of R.sheets) if (sh?.image) { ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(sh.image, cont.x + (sh.box[0] - cont.view.x) * cont.k, cont.y + (sh.box[1] - cont.view.y) * cont.k, sh.box[2] * cont.k, sh.box[3] * cont.k); }
+  if (R.edges) { sheetEdge(ctx, V, R.edges); V.screenSpace(ctx); }
   if (live.pieces) {
     if (!live.pieces[0]?.pts) prepPieces(live.pieces);
-    road(ctx, V, live.pieces, { own: live.pieces.map((_, i) => i), wisp: model?.tutorial || !model?.next ? null : live.wisp, alpha: 1 });
+    road(ctx, V, R.pieces, { own: R.pieces.map((_, i) => i), wisp: model?.tutorial || !model?.next ? null : R.wisp, alpha: 1 });
   }
   V.screenSpace(ctx);
   const k = cont.k, vs = clamp(k * 13, 18, 36), u = clamp(4.2 + 1.2 * k, 5.2, 8.5);
   const marks = [];
   if (live.home) marks.push({ n: 0, at: live.home.at, vg: live.home.vg });
-  for (const w of live.waters || []) marks.push({ n: w.n, at: w.at, vg: w.vg });
+  for (const w of R.waters) marks.push({ n: w.n, at: w.at, vg: w.vg });
   layoutMarks(V, marks, { fitK: k * 0.6, small: L.phone });
   for (const m of marks) { m.u = u; m.vs = vs; inkVignette(ctx, view.vignettes?.[m.n], m.vx, m.vy, vs); }
   for (const m of marks) { if (m.n === 0) hearth(ctx, m.lx, m.ly, u * 1.15, false); else lantern(ctx, m.lx, m.ly, u, true, false); }
@@ -1146,7 +1216,7 @@ function drawCardBase(ctx, L, card, view, a, t) {
   if (paper) { ctx.globalAlpha = a * 0.55; ctx.drawImage(paper, card.x, card.y, card.w, card.h); ctx.globalAlpha = a; }
   ctx.strokeStyle = ink(0.45); ctx.lineWidth = 0.8; ctx.strokeRect(card.x + 5.5, card.y + 5.5, card.w - 11, card.h - 11); // the surveyors' fine neatline
   if (card.pin) { const q = card.pin.to; ctx.beginPath(); ctx.arc(q[0], q[1], 2.6, 0, 6.3); ctx.fillStyle = 'rgb(150,108,60)'; ctx.fill(); ctx.strokeStyle = ink(0.8); ctx.lineWidth = 0.8; ctx.stroke(); }
-  if (geo) drawLake(ctx, card.lake, geo, t);
+  if (geo) { if (geo.outline) drawOutlineLake(ctx, card.lake, geo, view); else drawLake(ctx, card.lake, geo, t); }
   ctx.restore();
   ctx.restore();
 }
@@ -1267,6 +1337,167 @@ function drawLake(ctx, lake, geo, t) {
   }
 }
 
+/**
+ * LAKE2 §6.2 (lane C): an outline water's sheet, drawn from the world's own outline (ui-chart.waterGeometry: its shore every 2 m with
+ * each sample's bank height and its normal into the land, its isles' own outlines, its reed runs by arc length, its in and out, its
+ * mooring). The coast is one closed path in the pen; hachures fall away from the water only where its banks stand high (the Fern
+ * Bluff, the East Pool's north shore), in broken clusters, longer where higher; the reed runs are reed hatching on the water's edge;
+ * the Seep comes in down its ravine and the Root Weir lets the water out; the isles are their own small coasts (the Mother Cap on her
+ * foot); the one round thing is the Mother's Cup, a deep well under the cap, never a ring; the jetty, the home barge where it lies
+ * and Murk's barge at their moorings.
+ */
+function drawOutlineLake(ctx, lake, geo, view) {
+  const S = lake.s, at = (x, z) => [lake.cx + (x - lake.ox) * S, lake.cy + (z - lake.oz) * S];
+  const shore = geo.shore || [], banks = geo.banks || [], n = shore.length;
+  if (n < 3) return;
+  const h1 = (q) => { const v = Math.sin(q * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+  const bank = (i) => banks[((i % n) + n) % n] || { nx: 0, nz: 0, h: 0 };
+  // the shore, or the shore moved `d` px into the water along each sample's normal
+  const pathOf = (d = 0) => {
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) { const b = bank(i), q = at(shore[i][0] - (b.nx * d) / S, shore[i][1] - (b.nz * d) / S); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }
+    ctx.closePath();
+  };
+  const isleOf = (q) => { const P0 = q.outline; ctx.beginPath(); P0.forEach((p, i) => { const c = at(p[0], p[1]); i ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); }); ctx.closePath(); };
+  const isles = (geo.islands || []).filter((q) => Array.isArray(q.outline) && q.outline.length > 2);
+  // ---- the banks' hachures, falling away from the water where the bank stands high: none on the Reed Flats or the landing's low bank
+  ctx.save(); ctx.strokeStyle = ink(0.46); ctx.lineCap = 'round';
+  const fine = [], bold = [];
+  for (let i = 0; i < n * 2; i++) {
+    const f = i / 2, i0 = Math.floor(f) % n, i1 = (i0 + 1) % n, u = f - Math.floor(f), b0 = bank(i0), b1 = bank(i1);
+    const hh = lerp(b0.h, b1.h, u), st = clamp((hh - 1.6) / 4.2, 0, 1);
+    if (st < 0.06 || h1(i) > 0.22 + st * 0.66) continue;   // a low bank bare; gaps inside each cluster
+    const px = lerp(shore[i0][0], shore[i1][0], u), pz = lerp(shore[i0][1], shore[i1][1], u), nx = lerp(b0.nx, b1.nx, u), nz = lerp(b0.nz, b1.nz, u), nl = Math.hypot(nx, nz) || 1;
+    const sl = (h1(i + 13) - 0.5) * 0.7, dx = nx / nl - (nz / nl) * sl, dz = nz / nl + (nx / nl) * sl;
+    const len = (2.2 + st * 6.5) * (0.5 + h1(i + 7) * 0.85), a = at(px, pz), o = 1.3;
+    (h1(i + 21) > 0.6 ? bold : fine).push(a[0] + dx * o, a[1] + dz * o, a[0] + dx * (o + len), a[1] + dz * (o + len));
+  }
+  for (const [P0, lw] of [[fine, 0.6], [bold, 0.95]]) { ctx.lineWidth = lw; ctx.beginPath(); for (let q = 0; q < P0.length; q += 4) { ctx.moveTo(P0[q], P0[q + 1]); ctx.lineTo(P0[q + 2], P0[q + 3]); } ctx.stroke(); }
+  ctx.restore();
+  // ---- the in and the out: the Seep's ravine coming down to the water, the Root Weir's stream leaving it (drawn before the water,
+  // so the shore's pen closes over their mouths)
+  const nearest = (p) => { let bi = 0, bd = Infinity; for (let i = 0; i < n; i++) { const d = (shore[i][0] - p.x) ** 2 + (shore[i][1] - p.z) ** 2; if (d < bd) { bd = d; bi = i; } } return bi; };
+  const stream = (p, len, weir) => {
+    const i = nearest(p), b = bank(i), m = at(shore[i][0], shore[i][1]), tx = -b.nz, tz = b.nx, pts = [];
+    for (let q = 0; q <= 8; q++) { const d = -2 + (q / 8) * (len + 2), w = Math.sin(q * 1.3 + i) * 1.6 * (q / 8); pts.push([m[0] + b.nx * d + tx * w, m[1] + b.nz * d + tz * w]); }
+    const line = () => { ctx.beginPath(); pts.forEach((c, k) => (k ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]))); };
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    line(); ctx.strokeStyle = ink(0.85); ctx.lineWidth = 3.6; ctx.stroke();
+    line(); ctx.strokeStyle = 'rgb(124,120,196)'; ctx.lineWidth = 2.1; ctx.stroke();
+    if (weir) { // the Root Weir: a low bar of roots across the stream at the water's edge
+      ctx.strokeStyle = ink(0.9); ctx.lineWidth = 1.2; ctx.beginPath();
+      for (const o of [3.2, 5]) { const c = [m[0] + b.nx * o, m[1] + b.nz * o]; ctx.moveTo(c[0] - tx * 3.4, c[1] - tz * 3.4); ctx.lineTo(c[0] + tx * 3.4, c[1] + tz * 3.4); }
+      ctx.stroke();
+    } else { // the Seep: its ravine's two walls hachured, and the fall's short bars where it drops to the water
+      ctx.strokeStyle = ink(0.5); ctx.lineWidth = 0.7; ctx.beginPath();
+      for (let q = 2; q < 9; q++) for (const sd of [-1, 1]) { const d = 1 + q * (len / 9), c = [m[0] + b.nx * d + tx * sd * 3, m[1] + b.nz * d + tz * sd * 3]; ctx.moveTo(c[0], c[1]); ctx.lineTo(c[0] + tx * sd * 3.2, c[1] + tz * sd * 3.2); }
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(244,240,252,.95)'; ctx.lineWidth = 1; ctx.beginPath();
+      for (const o of [1.6, 3, 4.4]) { const c = [m[0] + b.nx * o, m[1] + b.nz * o]; ctx.moveTo(c[0] - tx * 1.4, c[1] - tz * 1.4); ctx.lineTo(c[0] + tx * 1.4, c[1] + tz * 1.4); }
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+  if (geo.inflow) stream(geo.inflow, 15, false);
+  if (geo.outflow) stream(geo.outflow, 18, true);
+  // ---- the water: the flat violet wash, paler in a band along the shore, a slow mottle; the Mother's Cup its one deep well
+  pathOf(); ctx.fillStyle = 'rgb(124,120,196)'; ctx.fill();
+  ctx.save(); pathOf(); ctx.clip();
+  const band = Math.max(6, Math.min(lake.rect[2], lake.rect[3]) * 0.09);
+  ctx.strokeStyle = 'rgba(194,190,240,.075)'; ctx.lineJoin = 'round';
+  for (let q = 0; q < 14; q++) { ctx.lineWidth = band * 2 * Math.pow(1 - q / 14, 1.4); pathOf(); ctx.stroke(); }
+  const bb = geo.bbox || { x0: -60, x1: 60, z0: -60, z1: 60 };
+  for (let q = 0; q < 9; q++) { // the mottle: broad soft patches over the whole basin, lighter and darker
+    const c = at(lerp(bb.x0, bb.x1, h1(q + 40)), lerp(bb.z0, bb.z1, h1(q + 50))), rr = (bb.z1 - bb.z0) * S * (0.16 + 0.14 * h1(q + 60));
+    const gg = ctx.createRadialGradient(c[0], c[1], 0, c[0], c[1], rr), col = q % 2 ? '84,78,156' : '176,172,232';
+    gg.addColorStop(0, `rgba(${col},.16)`); gg.addColorStop(1, `rgba(${col},0)`);
+    ctx.fillStyle = gg; ctx.beginPath(); ctx.ellipse(c[0], c[1], rr * 1.3, rr * 0.8, h1(q + 70) * 3, 0, 6.3); ctx.fill();
+  }
+  for (const d of geo.deep || []) { // a deep well: its dark heart and a soft fall into it, never a drawn ring
+    const c = at(d.x, d.z), r = d.r * S, gg = ctx.createRadialGradient(c[0], c[1], 0, c[0], c[1], r * 1.25);
+    gg.addColorStop(0, 'rgba(46,40,104,.62)'); gg.addColorStop(0.55, 'rgba(58,52,118,.34)'); gg.addColorStop(1, 'rgba(58,52,118,0)');
+    ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(c[0], c[1], r * 1.25, 0, 6.3); ctx.fill();
+  }
+  ctx.restore();
+  // the broken pale lining a little inside the shore, as the Mossmere's
+  ctx.save(); ctx.strokeStyle = 'rgba(234,230,252,.55)'; ctx.lineWidth = 0.8; ctx.lineCap = 'round';
+  const per = Math.max(40, (geo.len || n * 2) * S);
+  ctx.setLineDash([per * 0.05, 5, per * 0.02, 9, per * 0.035, 4, per * 0.012, 12]);
+  pathOf(3.2); ctx.stroke();
+  ctx.restore();
+  // ---- the reeds: reed hatching on the water's edge along each run, and round the reedy isles
+  ctx.save(); ctx.strokeStyle = 'rgba(70,74,52,.82)'; ctx.lineCap = 'round'; ctx.lineWidth = 0.75;
+  ctx.beginPath();
+  const tuft = (x, y, s) => { ctx.moveTo(x - s * 0.9, y); ctx.lineTo(x + s * 0.9, y); for (const k of [-0.55, 0, 0.6]) { ctx.moveTo(x + k * s * 0.6, y); ctx.lineTo(x + k * s * 1.05, y - s * (1.25 + 0.4 * (k === 0))); } };
+  const len = geo.len || n * 2;
+  for (const [s0, s1] of geo.reeds || []) {
+    const span = ((s1 - s0) % len + len) % len;
+    for (let d = 1; d < span; d += 2.6) {
+      const f = (((s0 + d) % len) / len) * n, i0 = Math.floor(f) % n, i1 = (i0 + 1) % n, u = f - Math.floor(f), b = bank(i0);
+      const px = lerp(shore[i0][0], shore[i1][0], u), pz = lerp(shore[i0][1], shore[i1][1], u), k = h1(d * 3.1 + s0);
+      const off = 1.6 + k * 3.4, c = at(px - b.nx * off, pz - b.nz * off);
+      tuft(c[0], c[1], 2.4 + 1.2 * h1(d + 9));
+    }
+  }
+  for (const q of isles) if (q.kind === 'tussock' || q.kind === 'stool') {
+    const c = at(q.x, q.z), r = Math.max(3, q.r * S);
+    for (let k = 0; k < 4; k++) { const a = (k / 4) * 6.283 + q.x, rr = r + 2.4; tuft(c[0] + Math.cos(a) * rr, c[1] + Math.sin(a) * rr * 0.8 + 1, 2.2); }
+  }
+  ctx.stroke(); ctx.restore();
+  // ---- the shore: a feathered under-line, then the pen; the isles their own small coasts
+  ctx.save(); pathOf(); ctx.strokeStyle = ink(0.3); ctx.lineWidth = 2.6; ctx.filter = 'blur(1.6px)'; ctx.stroke(); ctx.restore();
+  pathOf(); ctx.strokeStyle = ink(0.92); ctx.lineWidth = 1.25; ctx.lineJoin = 'round'; ctx.stroke();
+  for (const q of isles) {
+    isleOf(q); ctx.fillStyle = 'rgb(232,226,222)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke();
+    const c = at(q.x, q.z), r = Math.max(2.4, q.r * S);
+    ctx.save(); isleOf(q); ctx.clip(); ctx.strokeStyle = ink(0.4); ctx.lineWidth = 0.7; ctx.beginPath();
+    if (q.kind === 'roots') for (let k = 0; k < 3; k++) { const a = k * 2.1 + 0.4; ctx.moveTo(c[0], c[1]); ctx.quadraticCurveTo(c[0] + Math.cos(a) * r * 0.5, c[1] + Math.sin(a + 0.6) * r * 0.5, c[0] + Math.cos(a) * r, c[1] + Math.sin(a) * r); }
+    else for (let k = 0; k < 5; k++) { const ox = c[0] - r * 0.6 + k * r * 0.3, oy = c[1] + r * 0.2 * Math.sin(k * 1.7); ctx.moveTo(ox - 1, oy + 1); ctx.lineTo(ox, oy - 1.2); ctx.lineTo(ox + 1, oy + 1); }
+    ctx.stroke(); ctx.restore();
+    if (q.kind === 'cap' || q.kind === 'moss') { // the Mother Cap on her foot; Mossback's leaning cap tree
+      const big = q.kind === 'cap', w = big ? Math.max(7, r * 1.25) : Math.max(4.5, r * 0.62), hgt = big ? w * 1.15 : w * 1.25, lean = big ? 0 : w * 0.25;
+      const fx = c[0] + (big ? 0 : r * 0.2), fy = c[1] + (big ? r * 0.15 : 0);
+      ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(fx - w * 0.07, fy); ctx.quadraticCurveTo(fx + lean * 0.3, fy - hgt * 0.5, fx + lean, fy - hgt * 0.78); ctx.lineTo(fx + lean + w * 0.12, fy - hgt * 0.78); ctx.quadraticCurveTo(fx + lean * 0.3 + w * 0.12, fy - hgt * 0.45, fx + w * 0.1, fy); ctx.closePath();
+      ctx.fillStyle = 'rgb(214,200,188)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(fx + lean + w * 0.06, fy - hgt * 0.78, w * 0.5, w * 0.24, 0, Math.PI, 0); ctx.closePath();
+      ctx.fillStyle = big ? 'rgb(190,140,184)' : 'rgb(176,146,182)'; ctx.fill(); ctx.stroke();
+      if (big) { const gg = ctx.createRadialGradient(fx, fy - hgt * 0.7, 0, fx, fy - hgt * 0.7, w * 0.55); gg.addColorStop(0, 'rgba(255,196,110,.7)'); gg.addColorStop(1, 'rgba(255,196,110,0)'); ctx.fillStyle = gg; ctx.beginPath(); ctx.ellipse(fx, fy - hgt * 0.68, w * 0.5, w * 0.16, 0, 0, 6.3); ctx.fill(); }
+      ctx.restore();
+    }
+  }
+  // ---- the jetty: the root-post landing from the bank out to its end, its posts in ink
+  for (const d of geo.docks || []) {
+    const i = nearest(d), e = at(shore[i][0], shore[i][1]), c = at(d.x, d.z), dx = c[0] - e[0], dy = c[1] - e[1], dl = Math.hypot(dx, dy) || 1, px = -dy / dl, py = dx / dl, wd = Math.max(1.1, 0.55 * S);
+    ctx.beginPath(); ctx.moveTo(e[0] + px * wd, e[1] + py * wd); ctx.lineTo(c[0] + px * wd, c[1] + py * wd); ctx.lineTo(c[0] - px * wd, c[1] - py * wd); ctx.lineTo(e[0] - px * wd, e[1] - py * wd); ctx.closePath();
+    ctx.fillStyle = 'rgba(214,196,176,.55)'; ctx.fill();
+    ctx.strokeStyle = ink(0.8); ctx.lineWidth = 0.7; ctx.lineCap = 'round'; ctx.beginPath();
+    for (const o of [-1, 1]) { ctx.moveTo(e[0] + px * wd * o, e[1] + py * wd * o); ctx.lineTo(c[0] + px * wd * o, c[1] + py * wd * o); }
+    for (const q of [0.3, 0.62, 0.9]) { const m = [lerp(e[0], c[0], q), lerp(e[1], c[1], q)]; ctx.moveTo(m[0] + px * wd, m[1] + py * wd); ctx.lineTo(m[0] - px * wd, m[1] - py * wd); }
+    ctx.stroke();
+    ctx.fillStyle = ink(0.9); for (const q of [0.35, 0.95]) for (const o of [-1, 1]) { ctx.beginPath(); ctx.arc(lerp(e[0], c[0], q) + px * wd * o * 1.2, lerp(e[1], c[1], q) + py * wd * o * 1.2, Math.max(0.8, 0.3 * S), 0, 6.3); ctx.fill(); }
+  }
+  // ---- the moorings: the Slow Hearth where it lies (its windows' banked glow), Murk's lily-pad barge with his pack and green lamp
+  const M = geo.mooring;
+  if (M?.hull && view?.barge === geo.id) {
+    const c = at(M.hull.x, M.hull.z), L2 = Math.max(9, 12 * S), B2 = Math.max(3, 3.6 * S);
+    ctx.save(); ctx.translate(c[0], c[1]); ctx.rotate(-M.hull.yaw - Math.PI / 2);
+    ctx.beginPath(); ctx.moveTo(-L2 / 2, -B2 / 2); ctx.lineTo(L2 * 0.36, -B2 / 2); ctx.quadraticCurveTo(L2 / 2 + 1, 0, L2 * 0.36, B2 / 2); ctx.lineTo(-L2 / 2, B2 / 2); ctx.closePath();
+    ctx.fillStyle = 'rgb(104,78,64)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.9; ctx.stroke();
+    ctx.fillStyle = 'rgba(250,182,86,.9)'; for (const wx of [-0.3, -0.05, 0.2]) ctx.fillRect(wx * L2 - 0.9, -0.9, 1.8, 1.8);
+    ctx.restore();
+  }
+  if (M?.murk) {
+    const c = at(M.murk.x, M.murk.z);
+    ctx.save(); ctx.translate(c[0], c[1]);
+    ctx.beginPath(); ctx.ellipse(0, 2.4, 7, 2.2, 0, 0, 6.3); ctx.fillStyle = 'rgb(120,134,104)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.9; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-1, 2); ctx.lineTo(-1.4, -6.4); ctx.lineTo(1.2, -8); ctx.lineTo(3.2, -6.2); ctx.lineTo(3, 2); ctx.closePath(); ctx.fillStyle = 'rgb(196,176,150)'; ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(4.6, 2); ctx.lineTo(5.4, -3.2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(5.5, -4.2, 1.25, 0, 6.3); ctx.fillStyle = `rgb(${C.sage})`; ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawPlace(ctx, L, A, pick, view, dpr, F, a) {
   const [x, y] = A.at, s = A.size, inkIn = view.ink?.places?.[A.id];
   const k = inkIn == null ? 1 : ease(clamp(inkIn, 0, 1));
@@ -1363,6 +1594,13 @@ function drawSealed(ctx, L, model, view, dpr, F, a) {
     seal(ctx, sl.key, sl.x, sl.y, sl.r, { held: st.held === true, tier: st.tier || 1, count, font: S.countFont });
     if (count) L.texts.push(count);
   }
-  letter(ctx, L, view.words?.soon || 'Coming soon', S.soon.x, S.soon.y, S.soon.font, { dpr, alpha: 0.9, reserve: 0.6, align: S.soon.align || 'center' });
+  if (next.shipped !== true) letter(ctx, L, view.words?.soon || 'Coming soon', S.soon.x, S.soon.y, S.soon.font, { dpr, alpha: 0.9, reserve: 0.6, align: S.soon.align || 'center' });
+  else if (S.price != null) {   // (LAKE 2, lane C: the shipped map's price, the clam before it, where "Coming soon" stood)
+    const p = String(S.price), g = 12, left = S.soon.align === 'left';
+    ctx.save(); ctx.font = S.countFont; const tw = ctx.measureText(p).width; ctx.restore();
+    const tx = left ? S.soon.x + g + 4 : S.soon.x + (g + 4) / 2;   // (the figure's left edge on a phone, its centre on a wide screen)
+    clamGlyph(ctx, left ? S.soon.x + g / 2 : tx - tw / 2 - 4 - g / 2, S.soon.y - 1, g);
+    letter(ctx, L, p, tx, S.soon.y, S.countFont, { dpr, alpha: 0.95, reserve: 0.6, align: left ? 'left' : 'center' });
+  }
   ctx.restore();
 }

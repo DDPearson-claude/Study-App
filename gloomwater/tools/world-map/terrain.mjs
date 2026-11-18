@@ -317,7 +317,7 @@ export function buildTerrain(log = () => {}) {
     const dense = resample(spline(r.pts, 2), 16);
     for (const p of dense) if (p[2] < 1300) autoHeights.push([p[0], p[1], p[2] + 8 + 0.07 * p[2], 11]);
   }
-  for (const l of LAKES) if (l.level != null) for (const b of l.blobs) autoHeights.push([b[0], b[1], l.level + 6, Math.max(9, b[2] * 0.8)]);
+  for (const l of LAKES) if (l.level != null) for (const b of l.heights || l.blobs) autoHeights.push([b[0], b[1], l.level + 6, Math.max(9, b[2] * 0.8)]);
   const baseAt = shepard([...HEIGHTS, ...autoHeights], 3, 22);
   const roughAt = shepard(ROUGH, 3, 40);
   const rainAt = shepard(RAIN, 3, 30);

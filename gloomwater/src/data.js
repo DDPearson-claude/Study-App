@@ -5959,6 +5959,14 @@ LOOP.ambient.sporewood = {
 };
 // <<< LAKE 2, lane W2
 
+// >>> LAKE 2, lane C (docs/loop/LAKE2.md §6.2, §6.3; SPEC §6.5): the road in. Sporewood's leg of the Lamp Road (the Chart's live piece
+// 'lockwaterA', sailed against the Lockwater's flow, up from the Mossmere's south end through a short reach of rapids, then one kingdom
+// lock: 4 s + 2 × 0.5 s), and its glide in to Rootfoot Landing: the Slow Hearth lies bow out into the East Pool, so it comes in `astern`,
+// the raft towing it in by its stern on the line from the pool, Murk's barge alongside, and the raft ends at the stern's tie-up
+LOOP.tow.legs.sporewood = { from: 'mossmere', piece: 'lockwaterA', reverse: true, crossings: [{ kind: 'fall', at: 0.24 }, { kind: 'locks', at: 0.51 }] };
+LOOP.tow.glideIn.sporewood = { d: 14, line: 3, astern: true };
+// <<< LAKE 2, lane C
+
 // ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
 const SZB = BALANCE_V3.size;
 /** L50 (cm) of a species in a lake (the Pilgrim Salmon grows each lake down). */

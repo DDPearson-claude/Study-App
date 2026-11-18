@@ -12,10 +12,12 @@
 // ([data-water]), each owned or priced place ([data-place]), the catalogue's book ([data-action=catalogue]), the sealed sheet
 // ([data-sealed]); the hold's slots (.gw-slot) and Sail ([data-action=sail]) sit under the sheet, as on 1a's list. The Chart
 // writes nothing but the chosen place (meta.loop.chartPick). Never a ring or a disc round the raft or the player.
-import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere } from './chart-draw.js';
+import { drawChart, seal, rolledSheet, deckle, ease, vignetteLanding, vignetteMossmere, vignetteSporewood, chartReach } from './chart-draw.js';
 import { CHART_ART } from './chart-art.js';
 import { gildStep, gildCard, brookStep, brookCard } from './chart-gild.js';   // M1 step 5b (lane 5b-home); the brook behind the Veil (LOST-TACKLE §5.2)
 import { buildLayout, sheetOf } from './world-layout.js';
+import { shoreAt as outlineShoreAt, arcAt as outlineArcAt } from './world-outline.js';   // LAKE2 lane C: an outline water's banks and reed runs
+import { WATERCRAFT } from './watercraft.js';
 import { drawFishInk } from './ui-fishart.js';
 
 const fin = Number.isFinite;   // (one name for it: the Chart's code line, M1.md §3.2)
@@ -37,7 +39,7 @@ export const FONT_FACES = Object.freeze(['italic 16px "IM Fell English"', '16px 
 const INK_SHEET = 1.2, INK_PLACE = 0.8;   // s: the first sheet's ink-in (WORLD.md §10's reveal), a bought place's (M1.md §3.4)
 /** The landmark vignettes of the shipped sheets' marks (n: chart-art.js's live marks), the only ones the game bundles (M1.md §3.2):
  *  each slice adds its waters' (the node test checks every mark the art carries has its vignette here). */
-export const SHIPPED_VIGNETTES = Object.freeze({ 0: vignetteLanding, 1: vignetteMossmere });
+export const SHIPPED_VIGNETTES = Object.freeze({ 0: vignetteLanding, 1: vignetteMossmere, 2: vignetteSporewood });   // (LAKE2 lane C: Sporewood's caps)
 
 /**
  * A water's own sheet as the Chart draws it, from the game's arena data (M1.md §3.1 item 3): its shore (world-layout's shore
@@ -64,8 +66,20 @@ export function waterGeometry(D, waterId) {
   }
   const pts = (list) => arr(list).filter((p) => isObj(p) && fin(p.x) && fin(p.z));
   const docks = pts(A.docks).map((d) => ({ x: d.x, z: d.z }));
+  // LAKE2 §6.2 (lane C): an outline water's sheet also carries each shore sample's bank (its height, its normal into the land: the
+  // hachures fall that way where it stands high), its reed runs as arc lengths, its in and out (WATERCRAFT's), and its mooring
+  let more = null;
+  const O = S && Ly?.outline;
+  if (O) {
+    const n = S.shore.length, q = {}, banks = [];
+    for (let i = 0; i < n; i++) { outlineShoreAt(O, (i / n) * O.len, q); banks.push({ nx: Math.round(q.nx * 1000) / 1000, nz: Math.round(q.nz * 1000) / 1000, h: Math.round(q.h * 100) / 100 }); }
+    const G = WATERCRAFT?.[waterId]?.geometry || {}, M = D?.LOOP?.mooring?.[waterId];
+    const pt = (p) => (isObj(p) && fin(p.x) && fin(p.z) ? { x: p.x, z: p.z } : null);
+    more = { banks, len: O.len, reeds: arr(G.reedRuns).filter((r) => Array.isArray(r) && r.length === 2).map(([u0, u1]) => [outlineArcAt(O, u0), outlineArcAt(O, u1)]),
+      inflow: pt(G.inflow), outflow: pt(G.outflow), mooring: isObj(M) && isObj(M.hull) ? { hull: { ...M.hull }, murk: isObj(M.murk) ? { ...M.murk } : null } : null };
+  }
   return {
-    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N, ...(S && S.extra),
+    id: waterId, name: zone.name, R, Rmax, shore, shoreAt: shoreR || null, notch: N, ...(S && S.extra), ...(more || {}),
     islands: pts(A.islands).map((q) => ({ x: q.x, z: q.z, r: num(q.r, 4), kind: q.kind || 'rock', ...(S && S.isle(q)) })),
     piers: pts(A.pillars).filter((p) => p.kind === 'pier').map((p) => ({ x: p.x, z: p.z, r: num(p.r, 1.4) })),
     deep: pts(A.deepPools).map((p) => ({ x: p.x, z: p.z, r: num(p.r, 10) })),
@@ -173,7 +187,10 @@ export function createChartView(deps) {
       const fonts = typeof document !== 'undefined' && document.fonts?.load
         ? Promise.race([Promise.all(FONT_FACES.map((f) => document.fonts.load(f))), new Promise((r) => setTimeout(r, 6000))]).catch(() => {})
         : Promise.resolve();
-      const [sheets, paper] = await Promise.all([Promise.all(A.sheets.map(async (s) => ({ ...s, image: await decode(s.uri) }))), A.paper ? decode(A.paper.uri) : null, fonts]);
+      // (LAKE 2, lane C: the first sheet now; a later one only once its water is owned and drawn (sheetsFor): a sheet baked ahead of its
+      // gate is never decoded, and costs a phone nothing until its map is bought)
+      const [first, paper] = await Promise.all([decode(A.sheets[0].uri), A.paper ? decode(A.paper.uri) : null, fonts]);
+      const sheets = A.sheets.map((s, i) => ({ ...s, image: i === 0 ? first : null }));
       S.fonts = typeof document !== 'undefined' && document.fonts?.check ? FONT_FACES.every((f) => document.fonts.check(f)) : true;
       S.art = { sheets, paper: paper ? { ...A.paper, image: softPaper(paper) } : null, live: A.live };
       S.status = 'ready';
@@ -185,6 +202,16 @@ export function createChartView(deps) {
     return S.status;
   }
 
+  /** LAKE 2, lane C: the sheets the model draws (chartReach's n) decoded, each once; the Chart repaints as each comes in. */
+  function sheetsFor(m) {
+    if (S.status !== 'ready' || !S.art) return;
+    const n = chartReach(m, S.art).n;
+    for (const q of S.art.sheets) {
+      if (q.n > n || q.image || q.loading) continue;
+      q.loading = true;
+      decode(q.uri).then((img) => { q.image = img; q.loading = false; S.repaint?.(); }).catch((e) => { q.loading = false; report('chart.decode', e); });
+    }
+  }
   // ---- the model as the drawing reads it
   const meta = () => ctx.state?.meta || null;
   /** A chosen place the Chart can still choose: its water drawn and, for a place, that place owned there. */
@@ -234,6 +261,7 @@ export function createChartView(deps) {
     const st = entry.state;
     S.renders = (S.renders || 0) + 1;
     const m = drawModel(model);
+    sheetsFor(m);
     const { panel: pn, content, foot } = panel(entry, body, { cls: `gw-p-chart gw-p-chart--drawn${line ? ' gw-p-chart--line' : ''}${opts.reduced ? ' gw-rm' : ''}` });
     pn.dataset.loop = 'chart';
     content.innerHTML = `${line ? '<p class="gw-murk-line gw-in"></p>' : ''}<div class="gw-chart gw-chart--drawn"><div class="gw-chart-sheet"><canvas class="gw-chart-cv" aria-hidden="true"></canvas><div class="gw-chart-hits"></div></div></div>`;
@@ -296,7 +324,7 @@ export function createChartView(deps) {
       const view = {
         gild: (c, d, mm, a, v) => { brookCard(c, d, mm, a * B5.k, v); return gildCard(c, d, mm, a * G5.k, v); },
         w, h: hh, dpr, phone: w < 560, F: CHART_FONTS, reduced: !!opts.reduced,
-        water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])),
+        water: Object.fromEntries(m.sheets.map((s) => [s.waterId, geometry(s.waterId)])), barge: ml?.barge?.water || null,
         sites: Object.assign({}, ...m.sheets.map((s) => placeSites(D(), s.waterId))),
         ink: { sheet: sheetK, places: placeK }, fmtWeight: (w) => (typeof D()?.fmtWeight === 'function' ? D().fmtWeight(w) : ''),   // (pounds: data.fmtWeight, never a bare figure)
         fishGlyph, vignettes: SHIPPED_VIGNETTES, cache: baseCache, words: { soon: D()?.TEXT_LOOP?.comingSoon || 'Coming soon', book: D()?.TEXT_LOOP?.jetty?.journal || 'Journal' }, paperImage: S.art?.paper?.image || null,
@@ -344,10 +372,11 @@ export function createChartView(deps) {
         if (t.kind === 'place' || t.kind === 'buy') { b.dataset.place = t.place; if (t.kind === 'buy') b.dataset.buy = '1'; else b.setAttribute('aria-pressed', String(pressed(t))); }
         if (t.kind === 'book') { b.dataset.action = 'catalogue'; b.dataset.water = t.water; b.removeAttribute('data-water'); b.dataset.book = t.water; }
         if (t.kind === 'sealed') b.dataset.sealed = t.water;
+        if (t.kind === 'sheet') b.dataset.sheet = t.water;   // (LAKE2 lane C: another owned water's mark on the window: its sheet laid beside it)
         b.addEventListener('click', (e) => {
           e.stopPropagation();
           K.sfx?.('ui_click');
-          if (t.kind === 'water' || t.kind === 'place') {
+          if (t.kind === 'water' || t.kind === 'place' || t.kind === 'sheet') {
             S.pick = { water: t.water, place: t.kind === 'place' ? t.place : null };
             m.pick = S.pick;
             const l = meta()?.loop; if (l) l.chartPick = { ...S.pick };
@@ -376,12 +405,14 @@ export function createChartView(deps) {
    *  the Journal at the current water's list), and "Coming soon" where the price button would be. No fish, no line, no button. */
   function openSealed(next, { panel, onGear, onCatch }) {
     if (!next) return;
+    // (LAKE 2, lane C: a shipped water's map not yet bought: Murk's shelf opens at its lake card, SPEC §5.4)
+    if (next.shipped === true && !next.seals?.map?.held && typeof K.loop?.openShelf === 'function') { K.loop.openShelf({ tab: 'maps', focus: `lake:${next.waterId}` }); return; }
     K.openModal('chartsealed', (entry, body) => {
       const { panel: pn, content, foot } = panel(entry, body, { cls: 'gw-p-chartsealed' });
       pn.dataset.loop = 'sealed';
       pn.dataset.sealed = next.waterId;
       content.innerHTML = '<div class="gw-chart-sealed-art"><canvas aria-hidden="true"></canvas><div class="gw-chart-sealed-seals"></div></div><p class="gw-chart-sealed-soon"></p>';
-      content.querySelector('.gw-chart-sealed-soon').textContent = D()?.TEXT_LOOP?.comingSoon || 'Coming soon';
+      content.querySelector('.gw-chart-sealed-soon').textContent = next.shipped === true ? '' : D()?.TEXT_LOOP?.comingSoon || 'Coming soon';
       foot.remove();
       const cv = content.querySelector('canvas'), row = content.querySelector('.gw-chart-sealed-seals');
       const seals = next.seals || {};
@@ -423,7 +454,7 @@ export function createChartView(deps) {
   function veilCheck({ veil, margin = 3, tol = 6 } = {}) {
     const cv = S.lastCanvas, L = S.lastLayout, st = K.entry?.('chart')?.state;
     if (!cv || !L || !veil) return null;
-    const v = arr(veil).find((q) => q.sheet === 1) || arr(veil)[0];
+    const v = arr(veil).find((q) => q.sheet === (L.reach || 1)) || arr(veil)[0];   // (LAKE2 lane C: the grid for the sheets owned now)
     const grid = v.rows.map((r) => r.split(',').map((t) => t[0].repeat(Number(t.slice(1)))).join(''));
     const on = (i, j) => j >= 0 && j < grid.length && i >= 0 && i < grid[j].length && grid[j][i] === '1';
     const off = document.createElement('canvas'); off.width = cv.width; off.height = cv.height;

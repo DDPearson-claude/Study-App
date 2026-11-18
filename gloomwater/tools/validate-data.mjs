@@ -861,15 +861,19 @@ if (process.argv.includes('--loop')) {
     const sh = LP.shipped;
     const shipped = Object.keys(LP.waters || {}).filter((id) => ord(id) > 0 && (typeof sh === 'string' ? ord(id) <= ord(sh) : Array.isArray(sh) ? sh.includes(id) : true)).sort((a, b) => ord(a) - ord(b));
     const art = Array.isArray(CA?.sheets) ? CA.sheets : [];
-    ok4(same(art.map((q) => q.water), shipped), `chart-art.js: its sheets are exactly the shipped waters' (${art.map((q) => q.water).join(', ')} against ${shipped.join(', ')})`);
+    // (LAKE 2, lane C: the next water LOOP.waters already holds is baked ahead of its gate, unseen: the Chart draws a sheet only once its
+    // water is owned and open, so the art is the shipped waters' sheets and at most that one more)
+    const aheadId = Object.keys(LP.waters || {}).find((id) => ord(id) === Math.max(0, ...shipped.map(ord)) + 1) || null;
+    const baked = art.map((q) => q.water), drawable = aheadId && baked.includes(aheadId) ? [...shipped, aheadId] : shipped;
+    ok4(same(baked, drawable), `chart-art.js: its sheets are exactly the shipped waters' and the next one's, baked ahead (${baked.join(', ')} against ${drawable.join(', ')})`);
     ok4(art.every((q) => q.n === ord(q.water) && Array.isArray(q.box) && q.box.length === 4 && typeof q.uri === 'string' && q.uri.startsWith('data:image/webp;base64,') && /^[0-9a-f]{8}$/.test(q.hash)), 'chart-art.js: each sheet is its water\'s (n = LOOP.waters order), a box, a WebP crop and its decoded pixels\' hash');
     const LPL = LP.places, placeIds = new Set(Array.isArray(LPL) ? LPL.map((q) => q?.id) : LPL && typeof LPL === 'object' ? Object.keys(LPL) : []);
     const named = art.flatMap((q) => Array.isArray(q.places) ? q.places : []).concat(Array.isArray(CA?.live?.places) ? CA.live.places : []);
     ok4(named.every((id) => placeIds.has(typeof id === 'string' ? id : id?.id)), `chart-art.js: every place on a sheet exists in LOOP.places (${named.length} named)`);
     const text = JSON.stringify(CA?.live || {});
-    const later = L4.ZONES.filter((z) => !shipped.includes(z.id)).map((z) => z.name.replace(/^The /, ''));
+    const later = L4.ZONES.filter((z) => !drawable.includes(z.id)).map((z) => z.name.replace(/^The /, ''));
     ok4(![...later, 'Eastern Downs', 'Morning Gulf', 'Morning Isle', 'Low Horn'].some((nm) => text.includes(nm)), 'chart-art.js: no name of an unshipped water, and none of WORLD §10\'s never list');
-    ok4((CA?.live?.waters || []).every((w) => shipped.includes(w.water)) && (CA?.live?.pieces || []).every((pc) => pc.leg <= Math.max(...art.map((q) => q.n))), 'chart-art.js: no lamp, vignette or road leg of an unshipped sheet');
+    ok4((CA?.live?.waters || []).every((w) => drawable.includes(w.water)) && (CA?.live?.pieces || []).every((pc) => pc.leg <= Math.max(...art.map((q) => q.n))), 'chart-art.js: no lamp, vignette or road leg of a sheet past the next one');
     ok4(typeof TL.comingSoon === 'string' && TL.comingSoon === 'Coming soon', 'TEXT_LOOP.comingSoon: "Coming soon" (SPEC §5.4)');
   }
   // Murk's catalogue (16 November 2026): its two words, the name on the running head and the cover, the order line round the price
@@ -897,6 +901,15 @@ if (process.argv.includes('--loop')) {
     for (const [water, leg] of Object.entries(TW.legs || {})) {
       ok4(pieces.has(leg.piece) && (leg.crossings || []).every((c) => ['locks', 'fall', 'sea'].includes(c.kind) && c.at > 0 && c.at < 1), `LOOP.tow.legs.${water}: its piece (${leg.piece}) on the Chart's live layer, each crossing a lock flight, fall or sea passage on the way`);
       ok4(L4.towLegSeconds(leg) <= TW.leg.max && L4.towPlan(water).total <= 10, `LOOP.tow.legs.${water}: the leg ${L4.towLegSeconds(leg)} s, the tow ${L4.towPlan(water).total.toFixed(1)} s ≤ 10 s`);
+      // (LAKE 2, lane C: every water's tow has its glide in, and a later water's leg starts at the water before it, on the live layer)
+      const gi = TW.glideIn?.[water];
+      ok4(gi && num4(gi.d) && gi.d > 0 && num4(gi.line) && gi.line > 0, `LOOP.tow.glideIn.${water}: its glide in (d ${gi?.d} m, line ${gi?.line} m${gi?.astern ? ', astern' : ''})`);
+      if (water !== 'mossmere') {
+        const pc = (CA?.live?.pieces || []).find((p) => p.id === leg.piece), W2 = (CA?.live?.waters || []).find((w) => w.water === water), W1 = (CA?.live?.waters || []).find((w) => w.water === leg.from);
+        const a = pc ? [pc.p[0], pc.p[1]] : null, b = pc ? [pc.p[pc.p.length - 2], pc.p[pc.p.length - 1]] : null, [s0, s1] = leg.reverse ? [b, a] : [a, b];
+        const near = (p, w) => !!p && !!w && Math.hypot(p[0] - w.at[0], p[1] - w.at[1]) < 4;
+        ok4(LP.waters?.[leg.from] && near(s0, W1) && near(s1, W2), `LOOP.tow.legs.${water}: from ${leg.from}'s lamp to its own along ${leg.piece}${leg.reverse ? ' (against its flow)' : ''}`);
+      }
     }
     if (TW.opening === true && TW.legs?.mossmere) {
       const P = L4.towPlan('mossmere'), Ld = TW.landing || {};

@@ -55,14 +55,14 @@ section('the data: LOOP.tow (SPEC §6.5, OPENING §6.2)');
   eq([P.legS, P.dip, P.glide], [5, 0.6, 3], 'towPlan(mossmere): 5 s, 0.6 s, 3 s');
   ok(P.total <= 10, 'a tow is never more than 10 s', P.total);
   eq(D.towPlan('mossmere', { reduced: true }).glide, 0, 'reduced motion cuts the glide in');
-  eq(D.towPlan('sporewood'), null, 'no leg for a water M1 does not ship');
+  eq(D.towPlan('glasswater'), null, 'no leg for a water with none yet (LAKE 2, lane C: Sporewood has its own, up the Lockwater)');
   const piece = CHART_ART.live.pieces.find((p) => p.id === leg.piece);
   ok(!!piece, 'the leg\'s piece is the Chart\'s live layer\'s (CHART_ART.live.pieces)');
   const fresh = freshLoopMeta(D).loop;
   ok(D.towOpeningDue(fresh), 'a fresh loop block: the opening\'s tow is due');
   ok(!D.towOpeningDue({ ...fresh, barge: { water: 'mossmere', towed: ['mossmere'] } }), 'once towed: never again');
   ok(!D.towOpeningDue({ ...fresh, tutorial: { done: true, step: null } }), 'a done tutorial: never');
-  ok(!D.towOpeningDue(null) && !D.towOpeningDue({}, 'sporewood'), 'nothing for no block or a water with no leg');
+  ok(!D.towOpeningDue(null) && !D.towOpeningDue({}, 'glasswater'), 'nothing for no block or a water with no leg');
 }
 
 section('the glide in\'s poses (towGlidePose) and their paths (T72)');
@@ -399,7 +399,7 @@ section('playTow(water): the same component for a later water (no Landing beats)
   await E.until(() => done > 0, 15);
   eq(done, 1, 'onDone once, after the glide in');
   ok(E.ev.filter((x) => x.e === 'loop:tow').map((x) => x.p.phase).join() === 'leg,dip,dipHold,dipClear,glide,done', 'leg → dip → glide in', E.ev.filter((x) => x.e === 'loop:tow').map((x) => x.p.phase));
-  ok(E.T.playTow('sporewood') === false, 'no leg, no tow');
+  ok(E.T.playTow('glasswater') === false, 'no leg, no tow');
 }
 
 section('never stranded: the flow leaving home drops the tow; the tutorial done or its screen closed cuts it to the mooring');
