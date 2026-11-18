@@ -94,7 +94,11 @@ export function placeSites(D, waterId) {
   const out = {};
   const put = (p) => { if (isObj(p) && typeof p.id === 'string' && fin(p.x) && fin(p.z) && !out[p.id]) out[p.id] = { x: p.x, z: p.z }; };
   const LP = D?.LOOP?.places;
-  for (const p of Array.isArray(LP) ? LP : isObj(LP) ? Object.entries(LP).map(([id, v]) => ({ id, ...v })) : []) if (!p.zone || p.zone === waterId || p.water === waterId) put(p);
+  // (LAKE 2, lane C: a later water's place keeps its geometry beside it, read through loopPlace: SPOREWOOD_LOOP.places)
+  for (const p of Array.isArray(LP) ? LP : isObj(LP) ? Object.entries(LP).map(([id, v]) => ({ id, ...v })) : []) {
+    if (!p.zone || p.zone === waterId || p.water === waterId) put(p);
+    if (!fin(p.x) && typeof D?.loopPlace === 'function') { const q = D.loopPlace(p.id); if (isObj(q) && (q.zone === waterId || q.water === waterId) && waterId !== 'mossmere') put({ ...q, id: p.id }); }
+  }
   if (waterId === 'mossmere') arr(D?.MOSSMERE_V3?.places).forEach(put);
   arr(D?.PLACES).filter((p) => p?.zone === waterId).forEach(put);
   return out;
@@ -187,10 +191,10 @@ export function createChartView(deps) {
       const fonts = typeof document !== 'undefined' && document.fonts?.load
         ? Promise.race([Promise.all(FONT_FACES.map((f) => document.fonts.load(f))), new Promise((r) => setTimeout(r, 6000))]).catch(() => {})
         : Promise.resolve();
-      // (LAKE 2, lane C: the first sheet now; a later one only once its water is owned and drawn (sheetsFor): a sheet baked ahead of its
-      // gate is never decoded, and costs a phone nothing until its map is bought)
-      const [first, paper] = await Promise.all([decode(A.sheets[0].uri), A.paper ? decode(A.paper.uri) : null, fonts]);
-      const sheets = A.sheets.map((s, i) => ({ ...s, image: i === 0 ? first : null }));
+      // (LAKE 2, lane C: the first sheet and every sheet whose water's map the save owns now; another only once its map is bought and
+      // the Chart draws it (sheetsFor): a sheet baked ahead of its gate is never decoded, and costs a phone nothing until then)
+      const lakes = arr(ctx.state?.meta?.loop?.maps?.lakes);
+      const [sheets, paper] = await Promise.all([Promise.all(A.sheets.map(async (s, i) => ({ ...s, image: i === 0 || lakes.includes(s.water) ? await decode(s.uri) : null }))), A.paper ? decode(A.paper.uri) : null, fonts]);
       S.fonts = typeof document !== 'undefined' && document.fonts?.check ? FONT_FACES.every((f) => document.fonts.check(f)) : true;
       S.art = { sheets, paper: paper ? { ...A.paper, image: softPaper(paper) } : null, live: A.live };
       S.status = 'ready';

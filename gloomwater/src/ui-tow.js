@@ -96,9 +96,10 @@ export function createTowView(K) {
 .gw-tow-say .gw-murk-line { max-width: min(76ch, 92vw); }
 .gw-tow-dip { position: fixed; inset: 0; background: rgb(${INK_RGB}); opacity: 0; pointer-events: none; z-index: 60; }
 .gw-tow .gw-loop-pauseglyph { z-index: 3; }
-.gw-p-leave { width: min(460px, 92vw); text-align: center; }
+.gw-p-leave { width: min(520px, 92vw); text-align: center; }
+.gw-p-leave .gw-ph h2 { font-size: var(--t-h2); }
 .gw-p-leave .gw-leave-art { display: block; width: min(300px, 70vw); height: 64px; margin: 2px auto 8px; }
-.gw-p-leave .gw-leave-line { margin: 6px auto; max-width: 34ch; font-size: 17px; line-height: 1.35; }
+.gw-p-leave .gw-leave-line { margin: 6px auto; max-width: 40ch; font-size: 17px; line-height: 1.35; text-wrap: balance; }
 .gw-p-leave .gw-leave-keeps { margin-top: 12px; }
 .gw-p-leave .gw-leave-carry { display: flex; justify-content: center; gap: 18px; margin: 4px 0 12px; font-size: 19px; }
 .gw-p-leave .gw-leave-fig { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
@@ -364,10 +365,11 @@ export function createTowView(K) {
     g.save(); g.strokeStyle = `rgba(${C.water},.55)`; g.lineWidth = 1; g.lineCap = 'round';
     for (const [x0, x1, dy] of [[0.08, 0.42, 6], [0.5, 0.92, 7], [0.2, 0.7, 12]]) { g.beginPath(); g.moveTo(w * x0, y + dy * z); g.quadraticCurveTo(w * (x0 + x1) / 2, y + (dy - 2) * z, w * x1, y + dy * z); g.stroke(); }
     g.restore();
-    const bx = w * 0.4, rx = w * 0.4 + 46 * z;
-    g.save(); g.strokeStyle = `rgba(${C.ink},.85)`; g.lineWidth = Math.max(1, 1.1 * z);
+    const bx = w * 0.47, rx = bx + 46 * z;
+    // (the line pale on the card's dark, as the tow's own line reads on the water; Murk's barge alongside, astern of the Hearth)
+    g.save(); g.strokeStyle = 'rgba(226,218,236,.75)'; g.lineWidth = Math.max(1, 0.9 * z);
     g.beginPath(); g.moveTo(bx + 21 * z, y); g.quadraticCurveTo((bx + rx) / 2, y + 3 * z, rx - 8 * z, y); g.stroke(); g.restore();
-    murkMark(g, bx - 2 * z, y - 7 * z, 0, z * 0.8);
+    murkMark(g, bx - 32 * z, y + 1 * z, 0, z * 0.8);
     bargeMark(g, bx, y, 0, z, 0, true);
     raftMark(g, rx, y, 0, z, 1, 0, true);
   }
