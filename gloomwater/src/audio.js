@@ -1,0 +1,2064 @@
+// audio.js — GLOOMWATER procedural WebAudio: generative score + synthesised SFX.
+// CONTRACT §7 audio: unlock(); play(name, {volume, pitch, pan}); setMood(mood); applySettings().
+//
+// Graph:  music layers ─┬─ dry → muffle(LPF) → musicVol ─┐
+//                       ├─ wet → musicWetVol ──→ Convolver (3.5 s cavern IR) → verbReturn ─┤
+//                       └─ dly → musicDlyVol ──→ Delay ⟲ feedback(LP/HP) → delayReturn ───┤
+//         sfx voices ───┬─ dry → sfxVol ────────────────────────────────────────────────┤
+//                       ├─ wet → sfxWetVol → Convolver                                   │
+//                       └─ dly → sfxDlyVol → Delay                                       ▼
+//                                                     master → DynamicsCompressor → Analyser → destination
+// Nothing is created before unlock() (first user gesture); every API is a safe no-op until then.
+// The context suspends while the tab is hidden and resumes when visible (and on any later gesture).
+//
+// Moods are auto-picked every ~0.5 s (audio clock) from ctx.flow, survival.getPhaseInfo(),
+// fishing.state and a boss in combat.enemies; the zone colour comes from run.zone (title: deepest zone).
+// setMood(mood, {zone, fade, lock}) forces a mood until the auto-picked mood next changes ('auto' clears;
+// lock:true keeps it). Continuous layers: water bed + paddle strokes (player.speed), reel ratchet / drag
+// scream / line-strain whine (fishing.view), cast-charge creak + clean-cast ping, last-Ember heartbeat,
+// lantern-aura crackle loop scaled by shades inside survival.lightRadius.
+// Extras: getMood(), isUnlocked(), duck(amount, s), names, extraNames, moods, rms(), note(midi).
+// Debug: ctx.debug.audio() → {state, mood, zone, voices, musicVoices, layers, rms, played, last, loops, …};
+// ctx.debug.audioMood(m); ctx.debug.audioParams({intensity, tension, danger, legend, solo}|null);
+// ctx.debug.audioRecord(seconds) → Promise<{sampleRate, channels, b64}> (post-compressor capture);
+// ctx.debug.audioLog(n) → the last n sounds issued [{name, at, t, pan, why}] (at = audio time issued, t = scheduled start).
+//
+// v3 (DESIGN §25.14.2 Au1, CONTRACT §13.7 audio), reached only by v3 events / payload fields (audio-v3.js holds the rules):
+//   fishing:tell {biteTell, lead}  → the class bite tell (bite_doublepop / _plunge / _dragunder / _flat / _dome) on the
+//                                   float, timed to the tell's float animation on the game clock; the "!" (fishing:bite)
+//                                   then rings only the alert. A bite with a biteTell but no tell event voices it at once.
+//   sign:spawn {kind:'rise', sizeClass, x, z} (and a per-ring sign:rise, deduped by id) → rise_plip (Small, Keeper) or
+//                                   rise_gulp (Prize+), placed on the ring.
+//   the show (docs/v3/show/SPEC.md §2.8; the measuring ceremony's sounds re-timed):
+//   fishing:show {phase:'lift'}   → show_lift (a wet haul by class; from Trophy a creak of rope and deck)
+//   fishing:show {phase:'hold'}   → show_present (the present's flourish, by class; the catch's fanfare) and, for a personal
+//                                   best or a class first, record_chime just behind it
+//   fishing:show {phase:'pause'}  → nothing new: the score sits back for the still (the hush)
+//   show:beat {kind:'flap'|'drip'} → show_flap (a wet slap, by weight) / show_drip (actors emits them)
+//   card:count {length, dur}      → the knotted cord's ticks (cord_tick, rising an octave) and a class_chime as the count
+//                                   passes each Prize / Trophy / Elder threshold of that species, under the card's count
+//   card:stamp {seal, records}    → seal_stamp (ink stamp / oxblood wax / black wax and ribbon; an Ancient's gold thread) as
+//                                   the card's stamp presses; Murk's far bell for an Old Ledger record
+//   fish:measured                 → (silent: the records are written; the card sounds them)
+//   phase:change gloomtide (v3 run) → night_rise (the Night Rise motif) in every mode; Gloomtide keeps gloom_rise first.
+//   swarm:window open / close     → gloom_rise when a Lantern swarm comes; night_rise again when its window closes.
+//   a Stillnight (any quiet night: Still, Lantern's quiet nights and tail, a lamp-watch) plays the `stillnight` mood
+//                                   and the Stillnight bed (night air + stillnight_bed breaths) instead of the gloom mood.
+//
+// v3 automatic fishing (DESIGN §25.6, §25.14.2a Au2; audio-v3.js beatSounds, audio-af.js voices). The play's sound comes only
+// from the payloads (class, `ancient`, class length, mean fitted tier, beat), never a species:
+//   fishing:strike {grade}        → strike_clean / _struck / _early / _late, weighted by the class; the play begins
+//                                   (fishing:hook with a grade then rings nothing more)
+//   fishing:reel {phase, …}       → take: reel_take · gain / lift: reel_ratchet (fast and light → slow and heavy) · run:
+//                                   line_hiss (the drag rising; a Trophy+ tows the raft) · hold: line_hold (one low note) ·
+//                                   surge: surge_splash + strain_whine (one semitone lower per mean tier) · glimpse: fish_roll
+//                                   / fish_skitter / fish_pass · leap: leap_slap · scare: scare_splash, the line's hum stops for
+//                                   its slack moment · lastStand: reel_scream + the strain + the drone swelling · still: silence
+//                                   (hum, drone and score), then still_crash · place (P2): line_grind / foul_clank
+//   the line's hum (a loop, by class length) under the whole play; the Elder / Ancient drone on the music bus
+//   music by class (AUTOFISH.play[class].music): Small the day's bed · Keeper + a soft pulse · Prize / Trophy / Elder `reel`
+//                                   low / mid / full · Ancient + the heartbeat · a legend the boss mood; a Small never starts `reel`
+//   fishing:escaped {reason}      → loss_snap (snapped; staggered with the hit first) / loss_thrown / loss_spat / loss_spooled /
+//                                   loss_fouled; the score drops for the quiet beat; fish:escaped (the note) → gotaway (Trophy+)
+//   fishing:caught                → the species' voice, if it has one (the reveal: never before)
+//   fishing:miss {passed}         → bite_pass; {spooked} → as v1's early tap
+// The Landing and the First Evening (DESIGN §25.4.8, FE-Au1):
+//   zone:change {hub: true}       → the cove bed (the hearth, the water at the quay, a far bell) and the `hub` mood; no descend;
+//                                   from a snuff, the snuff motif under the hearth
+//   zone:change {prev: 'cove'}    → `setout` instead of `descend` on every departure (a Continue rings nothing)
+//   firstEvening:step framing     → the bed rises; ember_swell at FIRST_EVENING.ember.at (or on firstEvening:beat {id: 'ember'})
+//   firstEvening:step wake        → flame_catch (after the framing) · setout → the lantern flaring (flame_catch {flare})
+//   firstEvening:line {kind: 'murk'} → murk_grumble, as many syllables as the line, from Murk's barge
+// The Mossmere under the loop (M1 step 3a, docs/loop/m1-step3a/PLAN.md §2.2 item 7; the rules in audio-mossmere.js), on a trip
+// there or at home only (never off the loop: the v3 beds are unchanged):
+//   the bed by light (late day's air and reeds, dusk thinner with a low tone, night's low tones) and its breaths; each place in
+//   earshot (moss_lily, moss_chain, the Buoy Lights' hum and moss_buoy, moss_toll), low-passed and quieter through a standing bank;
+//   world:giantBack {placeId, x, z} → giant_roll (at night only) · place:lift {phase: 'start'} → mist_lift · loop:seal → seal_press
+// Sporewood under the loop (LAKE 2, lane A, docs/loop/LAKE2.md §3.7; the rules in audio-sporewood.js), on a trip there or at home while
+// the barge lies there (the Mossmere's sound stays the Mossmere's): its bed by light (the air under the caps, drips, spore pops, the frog
+// chorus building over the dusk, the night's insect pulse and deeper drone), the Seep's fall, each place in earshot (the Lullaby's
+// music-box drip, the Gill Harp's hum, the Veil's whisper, the Mother's Cup's breath), world:giantBack → harp_swell / puffer_rustle (at
+// night), wild:frogDive {x, z} → frog_plop
+import { createEngine, clamp, lerp, mtof } from './audio-dsp.js';
+import { createMusic, ZONE_MUSIC } from './audio-music.js';
+import { SFX, CONTRACT_SFX, V3_SFX } from './audio-sfx.js';
+import * as V3 from './audio-v3.js';
+import * as MOSS from './audio-mossmere.js';   // M1 step 3a: the Mossmere's own sound under the loop (pure rules)
+import * as HOME from './audio-home.js';   // M1 step 5b (lane 5b-home): home's bed on the barge (pure rules and recipes)
+import * as SPORE from './audio-sporewood.js';   // LAKE 2, lane A: Sporewood's own sound under the loop (pure rules and recipes)
+// >>> INTRO LANE B: import (the opening cut scene's sound cue; docs/v3/intro/SPEC.md section 7.7)
+import { createIntroCue } from './audio-intro.js';
+import { soundEvents, soundEventsBetween } from './intro.js';
+// <<< INTRO LANE B
+
+const ZONE_KEYS = Object.keys(ZONE_MUSIC);
+const PENTA = [0, 2, 4, 7, 9];
+const TAGS = Object.fromEntries(Object.keys(SFX).map((k) => [k, 's:' + k]));
+const EMPTY = Object.freeze({});
+const num = (v, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+const curve = (v) => Math.pow(clamp(num(v, 0.8), 0, 1), 1.6);
+const MUSIC_LEVEL = 0.9;
+const MOODS = ['title', 'calm', 'dusk', 'gloom', 'reel', 'boss', 'death', 'victory'];
+const V3_MOODS = ['stillnight', 'hub'];
+const ALL_MOODS = [...MOODS, ...V3_MOODS];
+const LOG_MAX = 240;
+const SFX_LEVEL = 0.85;
+const STILL_DUCK = 0.02;      // v3: the score in the Ancient's still (1.5 s of silence, DESIGN §25.6.5)
+const AF_MUSIC = 0.8;         // v3: the score sits back a little under an automatic play, so the reel's own sounds lead
+
+export function create(ctx) {
+  let ac = null, eng = null, music = null, N = null;
+  let unlocked = false, timer = null, errCount = 0;
+  const lastPlay = Object.create(null);
+  const set = { master: -1, music: -1, sfx: -1 };
+  const raw = { master: undefined, music: undefined, sfx: undefined };
+  let musicGainApplied = -1, muffleApplied = -1;
+  let duckUntil = 0, duckAmt = 1;
+
+  // mood state
+  let lastAt = 0, played = 0, lastName = null;
+  let forcedZone = null;
+  let moodTimer = 0, forced = null, forcedAuto = null, forcedLock = false, leaveReelT = 0, victoryHold = 0;
+  // continuous layers state
+  let tickAcc = 0, hbTimer = 0, paddleTimer = 0, paddleSide = 1, auraTimer = 0, auraTarget = 0, auraPulse = 0, auraIdle = 0;
+  let lastProgress = 0, wasDanger = false, wasSurgeWarn = false, wasClean = false, statsT = 99, statsCache = null, fishIdle = 0;
+  let strain = null, charge = null, aura = null, water = null;
+  const scratch = { volume: 1, pitch: 1, pan: 0, delay: 0, crit: false, big: false, elite: false, perfect: false, dying: false, force: false, rarity: undefined, power: undefined, anchored: undefined, resource: undefined,
+    cls: undefined, seal: undefined, ancient: false, root: undefined, alertOnly: false, why: undefined, at: undefined, dur: undefined, voicing: undefined, k: undefined, creak: undefined,
+    muffle: undefined, frogs: undefined };
+  let inPointer = false, zapFrame = -1;
+  let rmsBuf = null;
+  let override = null;          // debug: force score params, e.g. {intensity: 0.8, tension: 0.6}
+  let xpCombo = 0, xpLast = -9;
+  const log = [];               // the last LOG_MAX sounds issued (debug.audioLog)
+  // v3 (Au1)
+  const night = { day: -1, windowOpen: false, windowClosed: false };   // tonight's swarm window, from swarm:window
+  let tell = null;              // {name, at (game s), played}: the class bite tell of the bite in progress
+  let catchInfo = null;         // the v3 fishing:caught payload (the Fish's final length for the cord)
+  let cord = null;              // {voices: [handle], end, key}: the knot ticks and chimes scheduled for this measuring
+  let measurePhase = null, stampAt = -9;
+  let bed = null, bedTimer = 0.6, bedIdle = 0;
+  const signHeard = new Map();  // sign id → audio time of its last rise sound
+  // v3 automatic fishing (Au2): the play in progress, from the strike to the card or the loss
+  const af = { active: false, cls: null, legend: false, tier: 0, len: 0.4, music: null, held: [], hum: null, humTarget: 0, humMuteUntil: 0,
+    humIdle: 0, drone: null, droneTarget: 0, droneIdle: 0, afterStill: false, stillUntil: 0, beats: [] };
+  // v3 the Landing (FE-Au1): the cove bed and the First Evening's cues
+  const cove = { active: false, from: null, fire: null, roar: null, lap: null, pan: null, idle: 0, breathT: 1.5, bellT: 7, flickT: 0, risenAt: -9 };
+  const fe = { emberDue: null, emberDone: true, step: null };
+  // M1 step 3a: the Mossmere's layers (audio-mossmere.js): the bed's loops, its breath timer, each place's voice timer and the hum
+  const moss = { layers: {}, idle: 0, breathT: 2, places: [], placesT: 0, timers: {}, hum: null, humPan: null, light: null, level: 0 };
+  const handlers = Object.create(null);   // event → [fn]: audio's own listeners (debug.audioEvent drives them without the bus)
+  // >>> INTRO LANE B: state (the opening cut scene's cue: one bus into the music gain, played by the film's clock)
+  const intro = { cue: null, events: null, t: -1, hold: false, skipped: false, water: false, releaseAt: 0, sfx: [], started: 0 };
+  // <<< INTRO LANE B
+
+  function report(where, e) {
+    if (errCount++ > 6) return;
+    try { console.warn(`[audio] ${where}:`, e); } catch { /* ignore */ }
+  }
+
+  // ---------------------------------------------------------------- graph
+  function buildGraph() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    try { ac = new AC({ latencyHint: 'interactive' }); } catch { try { ac = new AC(); } catch { ac = null; return false; } }
+    eng = createEngine(ac, { mobile: !!ctx.isMobile });
+    const g = (v = 1) => { const n = ac.createGain(); n.gain.value = v; return n; };
+    const comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
+    const analyser = ac.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.5;
+    const master = g(0);
+    const hpf = ac.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = 32; hpf.Q.value = 0.7;
+    master.connect(hpf); hpf.connect(comp); comp.connect(analyser); analyser.connect(ac.destination);
+
+    const conv = ac.createConvolver();
+    conv.buffer = eng.impulse(ctx.isMobile ? 2.4 : 3.5);
+    const verbReturn = g(0.85); conv.connect(verbReturn); verbReturn.connect(master);
+
+    const delay = ac.createDelay(2); delay.delayTime.value = 0.43;
+    const fb = g(0.36);
+    const dlp = ac.createBiquadFilter(); dlp.type = 'lowpass'; dlp.frequency.value = 2400;
+    const dhp = ac.createBiquadFilter(); dhp.type = 'highpass'; dhp.frequency.value = 260;
+    delay.connect(dlp); dlp.connect(dhp); dhp.connect(fb); fb.connect(delay);
+    const dReturn = g(0.5); dhp.connect(dReturn); dReturn.connect(master);
+    const dVerb = g(0.3); dhp.connect(dVerb); dVerb.connect(conv);
+
+    const musicDry = g(1), musicWet = g(1), musicDly = g(1);
+    const muffle = ac.createBiquadFilter(); muffle.type = 'lowpass'; muffle.frequency.value = 18000; muffle.Q.value = 0.5;
+    const musicVol = g(0), musicWetVol = g(0), musicDlyVol = g(0);
+    const lowShelf = ac.createBiquadFilter(); lowShelf.type = 'lowshelf'; lowShelf.frequency.value = 170; lowShelf.gain.value = -5;
+    const air = ac.createBiquadFilter(); air.type = 'highshelf'; air.frequency.value = 4500; air.gain.value = 3;
+    musicDry.connect(lowShelf); lowShelf.connect(air); air.connect(muffle); muffle.connect(musicVol); musicVol.connect(master);
+    musicWet.connect(musicWetVol); musicWetVol.connect(conv);
+    musicDly.connect(musicDlyVol); musicDlyVol.connect(delay);
+
+    const sfxDry = g(1), sfxWet = g(1), sfxDly = g(1);
+    const sfxVol = g(0), sfxWetVol = g(0), sfxDlyVol = g(0);
+    sfxDry.connect(sfxVol); sfxVol.connect(master);
+    sfxWet.connect(sfxWetVol); sfxWetVol.connect(conv);
+    sfxDly.connect(sfxDlyVol); sfxDlyVol.connect(delay);
+
+    N = { master, comp, analyser, conv, delay, muffle, musicDry, musicWet, musicDly, musicVol, musicWetVol, musicDlyVol, sfxDry, sfxWet, sfxDly, sfxVol, sfxWetVol, sfxDlyVol, verbReturn, dReturn };
+    music = createMusic(eng, { dry: musicDry, wet: musicWet, dly: musicDly, onError: (e) => report('music', e) });
+    rmsBuf = new Float32Array(analyser.fftSize);
+    return true;
+  }
+
+  // ---------------------------------------------------------------- settings
+  function readSettings() {
+    const s = ctx.state?.meta?.settings || EMPTY;
+    return { master: clamp(num(s.master, 0.8), 0, 1), music: clamp(num(s.music, 0.6), 0, 1), sfx: clamp(num(s.sfx, 0.9), 0, 1) };
+  }
+  function applySettings() {
+    const ms = ctx.state?.meta?.settings;
+    raw.master = ms?.master; raw.music = ms?.music; raw.sfx = ms?.sfx;
+    const s = readSettings();
+    set.master = s.master; set.music = s.music; set.sfx = s.sfx;
+    if (!ac || !N) return;
+    const now = ac.currentTime;
+    N.master.gain.setTargetAtTime(curve(s.master), now, 0.05);
+    const sv = curve(s.sfx) * SFX_LEVEL;
+    N.sfxVol.gain.setTargetAtTime(sv, now, 0.05);
+    N.sfxWetVol.gain.setTargetAtTime(sv, now, 0.05);
+    N.sfxDlyVol.gain.setTargetAtTime(sv, now, 0.05);
+    musicGainApplied = -1;
+  }
+  function pollSettings() {
+    const s = ctx.state?.meta?.settings;
+    if (!s) return;
+    if (s.master !== raw.master || s.music !== raw.music || s.sfx !== raw.sfx) applySettings();
+  }
+  function duck(amount = 0.5, seconds = 1) {
+    if (!ac) return;
+    const now = ac.currentTime, a = clamp(num(amount, 0.5), 0.05, 1);
+    duckAmt = now < duckUntil ? Math.min(duckAmt, a) : a;
+    duckUntil = Math.max(duckUntil, now + Math.max(0.05, num(seconds, 1)));
+  }
+  function busGains() {
+    const now = ac.currentTime;
+    if (now >= duckUntil) duckAmt = 1;
+    const pausedish = ctx.flow === 'playing' && music.mood !== 'victory' && (ctx.paused === true || isBlocking());
+    // v3: the Ancient's still holds the score near silence (STILL_DUCK), an automatic play sits it back (AF_MUSIC); 1 otherwise (v1)
+    const want = curve(set.music) * MUSIC_LEVEL * (pausedish ? 0.6 : 1) * duckAmt * (now < af.stillUntil ? STILL_DUCK : af.active ? AF_MUSIC : 1);
+    if (Math.abs(want - musicGainApplied) > 0.001) {
+      const tc = want < musicGainApplied ? 0.06 : 0.5;
+      N.musicVol.gain.setTargetAtTime(want, now, tc);
+      N.musicWetVol.gain.setTargetAtTime(want, now, tc);
+      N.musicDlyVol.gain.setTargetAtTime(want * (pausedish ? 0.5 : 1), now, tc);
+      musicGainApplied = want;
+    }
+    const mf = pausedish ? 1100 : Math.min(18000, ac.sampleRate * 0.45);
+    if (mf !== muffleApplied) { N.muffle.frequency.setTargetAtTime(mf, now, pausedish ? 0.12 : 0.35); muffleApplied = mf; }
+  }
+  function isBlocking() {
+    try { const b = ctx.ui?.isBlocking?.(); return b === true; } catch { return false; }
+  }
+
+  // ---------------------------------------------------------------- play
+  function play(name, opts) { return !!playV(name, opts); }
+  /** play() that hands back {out, at, name}: out is the voice's level, so a scheduled sound can be silenced (silence()). */
+  function playV(name, opts) {
+    if (!ac || !unlocked || !N || ac.state === 'closed') return null;
+    const def = SFX[name];
+    if (!def) return null;
+    const o = opts || EMPTY;
+    const now = ac.currentTime;
+    const last = lastPlay[name];
+    if (last !== undefined && now - last < (def.gap || 0) && !o.force) return null;
+    const tag = TAGS[name];
+    if ((eng.tags[tag] || 0) >= (def.max || 4)) return null;
+    const pri = def.pri ?? 1;
+    const sfxVoices = eng.active - (eng.tags.m || 0);
+    if (sfxVoices >= (pri >= 3 ? 110 : pri === 2 ? 72 : pri === 1 ? 48 : 34)) return null;
+    lastPlay[name] = now;
+    const vol = clamp(num(o.volume, 1), 0, 2) * (def.gain ?? 1) * (1 + (Math.random() * 2 - 1) * (def.vj ?? 0.1));
+    const pitch = clamp(num(o.pitch, 1), 0.25, 4) * (1 + (Math.random() * 2 - 1) * (def.pj ?? 0.04));
+    if (vol <= 0.0005) return null;
+    // o.at (v3): an absolute start on the audio clock, so a run of scheduled sounds (the cord's knots) keeps its spacing
+    // even when the clock moves while they are being built
+    const t = typeof o.at === 'number' && o.at > now + 0.005 ? o.at : now + 0.005 + Math.max(0, num(o.delay, 0));
+    const v = eng.voice(tag);
+    let out = null;
+    try {
+      out = v.gain(vol);
+      let head = out;
+      const pan = clamp(num(o.pan, 0), -1, 1);
+      if (pan && ac.createStereoPanner) { const pn = v.n(ac.createStereoPanner()); pn.pan.value = pan; out.connect(pn); head = pn; }
+      head.connect(N.sfxDry);
+      if (def.wet) { const w = v.gain(def.wet); head.connect(w); w.connect(N.sfxWet); }
+      if (def.dly) { const d = v.gain(def.dly); head.connect(d); d.connect(N.sfxDly); }
+      def.fn(v, out, t, pitch, o, eng);
+    } catch (e) { report('sfx ' + name, e); }
+    v.done();
+    played++; lastName = name;
+    log.push({ name, at: Math.round(now * 1000) / 1000, t: Math.round(t * 1000) / 1000, pan: Math.round(num(o.pan, 0) * 100) / 100, why: o.why ?? o.cls ?? o.seal ?? undefined });
+    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);
+    if (def.duck) duck(def.duck[0], def.duck[1]);
+    return { out, at: t, name };
+  }
+  /** Silence a sound handed back by playV: only one still to start (future), or any (a short fade). */
+  function silence(h, futureOnly = true) {
+    if (!h || !h.out || !ac) return false;
+    const now = ac.currentTime;
+    if (futureOnly && h.at <= now) return false;
+    try { h.out.gain.cancelScheduledValues(now); h.out.gain.setValueAtTime(h.out.gain.value, now); h.out.gain.linearRampToValueAtTime(0, now + 0.03); } catch { return false; }
+    return true;
+  }
+
+  // ---------------------------------------------------------------- helpers
+  function camYaw() { try { const y = ctx.render?.getYaw?.(); return num(y, 0); } catch { return 0; } }
+  /** pan & distance gain for a world position (camera-relative). Writes o.pan, returns gain. */
+  function spatial(pos, o) {
+    const p = ctx.player?.position;
+    o.pan = 0;
+    if (!pos || !p || typeof pos.x !== 'number' || typeof p.x !== 'number') return 1;
+    const yaw = camYaw();
+    const dx = pos.x - p.x, dz = (num(pos.z) - num(p.z));
+    const rx = dx * Math.cos(yaw) - dz * Math.sin(yaw);
+    o.pan = clamp(rx / 16, -0.85, 0.85);
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    return clamp(1.15 - dist / 42, 0.18, 1);
+  }
+  function resetScratch() {
+    const s = scratch;
+    s.volume = 1; s.pitch = 1; s.pan = 0; s.delay = 0; s.crit = false; s.big = false; s.elite = false; s.perfect = false;
+    s.dying = false; s.force = false; s.rarity = undefined; s.power = undefined; s.anchored = undefined; s.resource = undefined;
+    s.cls = undefined; s.seal = undefined; s.ancient = false; s.root = undefined; s.alertOnly = false; s.why = undefined; s.at = undefined;
+    s.dur = undefined; s.voicing = undefined; s.k = undefined; s.creak = undefined; s.muffle = undefined; s.frogs = undefined;
+    return s;
+  }
+  function phaseInfo() {
+    try { const pi = ctx.survival?.getPhaseInfo?.(); if (pi && typeof pi.phase === 'string') return pi; } catch { /* stub */ }
+    return null;
+  }
+  function phaseName() { return phaseInfo()?.phase || (typeof ctx.state?.run?.phase === 'string' ? ctx.state.run.phase : 'calm'); }
+  function enemyList() { const e = ctx.combat?.enemies; return Array.isArray(e) ? e : null; }
+  function bossPresent() {
+    const es = enemyList(); if (!es) return false;
+    for (let i = 0; i < es.length; i++) { const e = es[i]; if (e && e.boss && (e.hp === undefined || e.hp > 0)) return true; }
+    return false;
+  }
+  function fishState() { const s = ctx.fishing?.state; return typeof s === 'string' ? s : 'idle'; }
+  function fishView() { const v = ctx.fishing?.view; return v && typeof v === 'object' && !v.isStub ? v : null; }
+  function zoneId() {
+    if (ctx.flow === 'hub' && cove.active) return 'cove';
+    // (LAKE 2, lane A: home at a later water plays its hub mood in that water's key; on the Mossmere as built)
+    if (ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true) { const w = homeWater(); if (w !== 'mossmere' && ZONE_MUSIC[w]) return w; }
+    const zones = ctx.data?.ZONES;
+    const run = ctx.state?.run;
+    let id = run && typeof run.zone === 'string' ? run.zone : null;
+    if (!id) { const idx = num(ctx.state?.meta?.deepestZone, 0) | 0; id = Array.isArray(zones) ? zones[clamp(idx, 0, zones.length - 1)]?.id : null; }
+    if (id && ZONE_MUSIC[id]) return id;
+    if (id && Array.isArray(zones)) { const z = zones.find((zz) => zz.id === id); if (z && ZONE_KEYS[z.index]) return ZONE_KEYS[z.index]; }
+    return 'mossmere';
+  }
+  function stats() {
+    if (statsT > 1 || !statsCache) {
+      statsT = 0;
+      try { const s = ctx.progression?.getStats?.(); if (s && typeof s === 'object' && !s.isStub) statsCache = s; } catch { /* ignore */ }
+    }
+    return statsCache;
+  }
+
+  // ---------------------------------------------------------------- moods
+  function autoMood() {
+    const flow = ctx.flow;
+    if (flow === 'dead') return 'death';
+    if (flow === 'hub') return afPlayMood(fishState()) || 'hub';   // v3: the Landing (the First Evening's play is Small / Keeper)
+    const hm = V3.loopHomeMood(flow, ctx.data?.LOOP_ENABLED === true);   // the loop's Jetty: the built hub mood
+    if (hm) return hm;
+    const run = ctx.state?.run;
+    if (flow !== 'playing' || !run) return 'title';
+    if (victoryHold > 0) return 'victory';
+    if (bossPresent()) return 'boss';
+    const fs = fishState();
+    const am = afPlayMood(fs);                 // v3 automatic play: the score by class (undefined otherwise)
+    if (am !== undefined) return am || dayMood();
+    if (fs === 'reeling' || fs === 'landing') return 'reel';
+    return dayMood();
+  }
+  function dayMood() {
+    const ph = phaseName();
+    if (ph === 'gloomtide') return nightMoodNow();
+    if (ph === 'dusk') return 'dusk';
+    return 'calm';
+  }
+  /** The automatic play's mood (null = the day's own), or undefined when no automatic play is on (v1, P1's manual reel). */
+  function afPlayMood(fs) {
+    if (!af.cls || !af.music) return undefined;
+    if (!af.active && fs !== 'reeling' && fs !== 'landing') return undefined;
+    return af.music.mood;
+  }
+  function pickMood(dt) {
+    if (!music) return;
+    if (intro.hold) return;   // INTRO LANE B: the cut scene's cue has the score; the title music stays out until the film ends
+    const auto = autoMood();
+    if (forced && !forcedLock && auto !== forcedAuto) { forced = null; forcedZone = null; }
+    let mood = forced || auto;
+    // hysteresis: leaving the reel waits ~1 s so quick state blips don't flap the score
+    if (!forced && music.mood === 'reel' && mood !== 'reel' && mood !== 'death' && mood !== 'boss') {
+      leaveReelT += dt;
+      if (leaveReelT < 1.0) mood = 'reel';
+    } else leaveReelT = 0;
+    music.setMood(mood, (forced && forcedZone) || zoneId());
+  }
+  function setMood(mood, opts = {}) {
+    if (mood && mood !== 'auto' && !ALL_MOODS.includes(mood)) return forced || 'auto';
+    if (!mood || mood === 'auto') { forced = null; forcedZone = null; forcedLock = false; }
+    else {
+      forced = String(mood); forcedLock = !!opts?.lock; forcedAuto = autoMood();
+      forcedZone = opts?.zone && ZONE_MUSIC[opts.zone] ? opts.zone : null;
+    }
+    if (music && unlocked && !intro.hold) {   // (INTRO LANE B: not under the cut scene's cue)
+      const m = forced || autoMood();
+      music.setMood(m, (forced && forcedZone) || zoneId(), opts?.fade !== undefined ? { fade: opts.fade } : {});
+    }
+    return forced || 'auto';
+  }
+
+  // ---------------------------------------------------------------- v3 night (DESIGN §25.5): Stillnight vs the gloom mood
+  const real = (m) => !!m && !m.isStub;
+  /** The run's night mode, or null for a v1 run (no BALANCE.nightModes, or The Long Descent). */
+  function nightMode(eventMode) {
+    const nightModes = ctx.data?.BALANCE?.nightModes;
+    if (!nightModes) return null;
+    let combatMode, survivalMode;
+    try { if (real(ctx.combat)) combatMode = ctx.combat.nightMode; } catch { combatMode = undefined; }
+    try { if (real(ctx.survival)) survivalMode = ctx.survival.nightMode; } catch { survivalMode = undefined; }
+    return V3.nightModeFrom({ eventMode, combatMode, survivalMode, run: ctx.state?.run, nightModes });
+  }
+  /** combat.swarmActive (a window open, a Gloomtide night, any gloomling up), or null when combat predates it. */
+  function swarmActiveNow() {
+    if (!real(ctx.combat)) return null;
+    try { const v = ctx.combat.swarmActive; return typeof v === 'boolean' ? v : null; } catch { return null; }
+  }
+  /** Tonight's swarm: survival's phase info (minus a lamp-watch or a Scorched), else data's swarmTonight for the run. */
+  function swarmTonightNow(mode) {
+    const pi = phaseInfo();
+    if (typeof pi?.swarm === 'boolean') return pi.swarm;
+    const run = ctx.state?.run;
+    try {
+      const f = ctx.data?.swarmTonight;
+      if (typeof f === 'function' && run) return f(mode, Math.max(1, run.day | 0), run.outing || 'normal') === true && !run.scorched && !run.lampWatch;
+    } catch { /* fall through */ }
+    return null;
+  }
+  function syncNight() {
+    const d = ctx.state?.run?.day ?? -1;
+    if (night.day !== d) { night.day = d; night.windowOpen = false; night.windowClosed = false; }
+  }
+  /** The night's score: 'gloom' (v1, Gloomtide, a swarm out or due) or 'stillnight' (a quiet night). */
+  function nightMoodNow() {
+    const mode = nightMode();
+    if (!mode) return 'gloom';
+    syncNight();
+    return V3.nightMood({ mode, swarmActive: swarmActiveNow(), swarmTonight: swarmTonightNow(mode), windowOpen: night.windowOpen, windowClosed: night.windowClosed });
+  }
+  function zoneRoot() { return ZONE_MUSIC[zoneId()]?.root ?? 50; }
+
+  // ---------------------------------------------------------------- v3 fishing: bite tells, the cord and the seal
+  function gameT() { return num(ctx.time?.gameT, ac ? ac.currentTime : 0); }
+  function playTell(name, why) {
+    resetScratch(); scratch.pan = bobberPan(); scratch.why = why; scratch.force = true;
+    return playV(name, scratch);
+  }
+  /** The bite tell due on the game clock (fishing's own clock), voiced when its float animation starts. */
+  function tellTick() {
+    if (!tell) return;
+    const fs = fishState();
+    if (fs !== 'waiting' && fs !== 'bite') { dropTell(); return; }
+    if (!tell.played && gameT() >= tell.at) { tell.played = true; tell.h = playTell(tell.name, tell.why); }
+  }
+  /** The bite never came (an early tap spooked it, the line was pulled in): a tell still due stays silent, one under way fades. */
+  function dropTell() {
+    if (tell?.h) silence(tell.h, false);
+    tell = null;
+  }
+  function cancelCord() {
+    if (!cord) return;
+    for (const h of cord.voices) silence(h, true);
+    cord = null;
+  }
+  /**
+   * Schedule one measuring cord from now (+ t0): a knot tick per step of the count and a class chime at each threshold
+   * the fish passes (audio-v3 cordPlan). info = {speciesId, sizeClass, length (cm), zone, key}. Returns the plan.
+   */
+  function startCord(info, dur, t0 = 0) {
+    cancelCord();
+    const data = ctx.data;
+    const sp = data?.SPECIES_BY_ID?.[info.speciesId] || null;
+    const chimes = sp?.rarity === 'legendary' ? [] : V3.chimeClasses(info.sizeClass, data);
+    const plan = V3.cordPlan({ length: info.length, dur, chimes, thresholds: V3.cordThresholds(data, sp, info.zone ?? null) });
+    const voices = [];
+    const n = plan.ticks.length;
+    const base = ac.currentTime + 0.01 + Math.max(0, t0);   // one clock for the whole cord
+    const card = info.card === true && ctx.data?.V3_ENABLED === true;   // (item 25's mix: the card's cord, under its show's present)
+    for (const tk of plan.ticks) {
+      resetScratch(); scratch.at = base + tk.t; scratch.pitch = tk.pitch; scratch.volume = (0.8 + 0.2 * (tk.i / n)) * (card ? V3.SHOW_MIX.cordTick : 1); scratch.force = true;
+      const h = playV('cord_tick', scratch); if (h) voices.push(h);
+    }
+    for (const ch of plan.chimes) {
+      resetScratch(); scratch.at = base + ch.t; scratch.cls = ch.cls; scratch.force = true; if (card) scratch.volume = V3.SHOW_MIX.classChime;
+      const h = playV('class_chime', scratch); if (h) voices.push(h);
+    }
+    cord = { voices, key: info.key ?? null, start: base, end: base + plan.dur, ticks: n, chimes: plan.chimes.map((c) => c.cls) };
+    return plan;
+  }
+  /** fishing.view.measure: the cord beat of the ceremony starts the knot ticks (CONTRACT §13.7 fishing view.measure). */
+  function measureTick() {
+    const m = fishView()?.measure;
+    const ph = m && typeof m === 'object' && typeof m.phase === 'string' ? m.phase : null;
+    if (ph === measurePhase) return;
+    measurePhase = ph;
+    if (ph === 'cord') {
+      const ci = catchInfo && ac.currentTime - catchInfo.at < 30 ? catchInfo : null;
+      const sizeClass = typeof m.sizeClass === 'string' ? m.sizeClass : ci?.sizeClass;
+      const length = num(ci?.length, num(m.length, 0));
+      if (!sizeClass || !(length > 0)) return;
+      const speciesId = ci?.speciesId ?? fishView()?.speciesId ?? null;
+      const dur = num(m.cordDur, num(m.dur, V3.cordDuration(ctx.data, sizeClass, { short: swarmActiveNow() === true })));
+      startCord({ speciesId, sizeClass, length, zone: ci?.zone ?? ctx.state?.run?.zone ?? null, key: ci?.key ?? null }, dur);
+    } else if (ph === null && cord && ac.currentTime < cord.end) cancelCord();   // the ceremony ended early
+  }
+  function riseSound(p) {
+    // the show's hush holds the lake's rises until the card has gone (slice-1a PLAN §2.2 item 25: a rise's gulp on the card's
+    // first frame broke the still; the signs' clocks run again on the frame the show ends)
+    if (ctx.data?.V3_ENABLED === true && (ctx.cinematic === true || !!fishView()?.show)) return;
+    const now = ac.currentTime;
+    if (p.id !== undefined && p.id !== null) {
+      const last = signHeard.get(p.id);
+      if (last !== undefined && now - last < 0.5) return;
+      signHeard.set(p.id, now);
+      if (signHeard.size > 32) signHeard.delete(signHeard.keys().next().value);
+    }
+    const pos = { x: num(p.x, num(p.position?.x, NaN)), z: num(p.z, num(p.position?.z, NaN)) };
+    const rp = V3.riseParams(p.sizeClass);
+    resetScratch();
+    const g = Number.isFinite(pos.x) && Number.isFinite(pos.z) ? spatial(pos, scratch) : 1;
+    scratch.volume = rp.volume * g; scratch.pitch = rp.pitch; scratch.why = p.sizeClass || null;
+    play(V3.riseSfx(p.sizeClass), scratch);
+  }
+  function v3Tick() {
+    tellTick();
+    measureTick();
+    feTick();
+  }
+
+  // ---------------------------------------------------------------- v3 automatic fishing (DESIGN §25.6.5, Au2)
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const HUM_BY_PHASE = { take: 0.6, gain: 0.5, lift: 0.45, run: 0.75, hold: 1, surge: 0.9, lastStand: 1, place: 0.55 };
+  /** The lake the line is in (the class ladder's lake multiplier): the cove at the Landing, else the run's lake. */
+  function afLake() {
+    if (cove.active) return 'cove';
+    const r = ctx.state?.run;
+    if (r && typeof r.zone === 'string') return r.zone;
+    try { const z = ctx.world?.getZone?.(); if (z && typeof z.id === 'string') return z.id; } catch { /* optional */ }
+    return null;
+  }
+  /** The play's speed: × AUTOFISH.play.inputs.hurry.mult while a Small / Keeper play is hurried (fishing.view.play.hurry). */
+  function afRate() {
+    const pl = fishView()?.play;
+    return pl && pl.hurry === true ? Math.max(1, num(ctx.data?.AUTOFISH?.play?.inputs?.hurry?.mult, 2.5)) : 1;
+  }
+  function afNote(phase, kind, dur) {
+    af.beats.push({ phase, kind: kind ?? null, at: r3(ac.currentTime), dur: r3(num(dur, 0)) });
+    if (af.beats.length > 64) af.beats.splice(0, af.beats.length - 64);
+  }
+  /** The strike (or a reel beat with no strike before it): the play begins, at its class. */
+  function afBegin(p) {
+    af.active = true;
+    af.cls = V3.playClass(p);
+    af.legend = af.cls === 'legend';
+    af.tier = num(p.tier, 0);
+    af.len = num(p.length, 0) > 0 ? num(p.length) : V3.classLength(ctx.data, af.cls, afLake());
+    af.music = V3.playMusic(af.cls, ctx.data);
+    af.afterStill = false; af.stillUntil = 0; af.humMuteUntil = 0; af.humTarget = 0.6;
+    af.droneTarget = af.music.drone;
+    af.held.length = 0; af.beats.length = 0; af.strain = null;
+    moodTimer = 0.5;   // the score follows on the next update
+  }
+  /** Fade the sustained sounds of the beat before (a ratchet never runs under a run). */
+  function afFadeHeld() {
+    for (const h of af.held) silence(h, false);
+    af.held.length = 0;
+  }
+  /** The play is over (the card, the next cast, idle): forget it. */
+  function afReset() {
+    if (!af.cls && !af.active) return;
+    afFadeHeld();
+    af.active = false; af.cls = null; af.music = null; af.legend = false;
+    af.humTarget = 0; af.droneTarget = 0; af.afterStill = false;
+    moodTimer = 0.5;
+  }
+  function afStrike(p) {
+    const name = V3.strikeSfx(p.grade);
+    if (!name) return;
+    afBegin(p);
+    afNote('strike', p.grade, 0);
+    play(name, { k: V3.lengthK(af.len), cls: af.cls, why: af.cls, pan: bobberPan(), force: true });
+  }
+  /** One fishing:reel beat: its sounds (audio-v3 beatSounds, from the payload alone), the hum, the drone, the still. */
+  function afBeat(p) {
+    if (typeof p.phase !== 'string') return;
+    if (!af.active) afBegin(p);
+    if (p.tier !== undefined) af.tier = num(p.tier, af.tier);
+    if (num(p.length, 0) > 0) af.len = num(p.length);
+    const now = ac.currentTime, rate = afRate();
+    const overlay = p.phase === 'glimpse' || p.phase === 'leap' || p.phase === 'scare';   // these ride on the beat under them
+    const dur = Math.max(0.05, num(p.dur, 0.6) / rate);
+    afNote(p.phase, p.kind, dur);
+    if (!overlay) afFadeHeld();
+    if (p.phase === 'still') {
+      // the still (Ancient): everything stops — the hum, the drone, the score — then it thunders off on the next beat. Gated on
+      // the audio clock at once (a slow frame must not let the line hum on into the silence), and brought back at its end.
+      af.humMuteUntil = now + dur; af.stillUntil = now + dur; af.afterStill = true; af.droneTarget = 0;
+      afHumGate(now + dur);
+      afDroneGate(now + dur);
+      afScoreGate(now + dur);
+      return;
+    }
+    if (p.phase === 'loss') { af.humTarget = 0; return; }   // fishing:escaped carries the cause and its sound
+    if (af.afterStill && !overlay) {
+      af.afterStill = false;
+      play('still_crash', { k: V3.lengthK(af.len), cls: af.cls, why: af.cls, pan: bobberPan(), force: true });
+    }
+    const pan = bobberPan();
+    for (const snd of V3.beatSounds(p, ctx.data, { lake: afLake(), rate })) {
+      const h = playV(snd.name, { ...snd.opts, dur: snd.dur, delay: snd.delay, pan, why: snd.opts.cls, force: true });
+      if (h && V3.SUSTAINED.has(snd.name)) af.held.push(h);
+      if (h && snd.name === 'strain_whine') af.strain = r3(snd.opts.freq);
+    }
+    if (p.phase === 'scare') { af.humMuteUntil = now + clamp(dur * 0.45, 0.2, 0.6); afHumGate(af.humMuteUntil); }   // the hum stops; then it returns
+    else if (!overlay) af.humTarget = HUM_BY_PHASE[p.phase] ?? 0.6;
+    if (p.phase === 'lastStand') af.droneTarget = Math.min(1.5, (af.music?.drone || 0) * 1.6);   // the drone swells
+    else if (!overlay) af.droneTarget = af.music?.drone || 0;
+  }
+  /** fishing:escaped with a v3 cause: the loss's own sound, then quiet (the hum and drone stop, the score drops for the beat). */
+  function afLoss(p, name) {
+    afFadeHeld();
+    const cls = af.cls || V3.playClass(p);
+    const k = V3.lengthK(af.cls ? af.len : V3.classLength(ctx.data, cls, afLake()));
+    af.humTarget = 0; af.humMuteUntil = ac.currentTime + 30; af.droneTarget = 0;
+    afHumGate(af.humMuteUntil);
+    afNote('lost', p.reason, 0);
+    play(name, { k, cls, staggered: p.reason === 'staggered', why: p.reason, pan: bobberPan(), force: true });
+    af.active = false;
+    moodTimer = 0.5;
+  }
+  /** fishing:landing — the swell rises into the reveal (class only: the species is still hidden). Its length follows the wipe and
+   *  the slow-motion beat (AUTOFISH.landing); the chime that resolves it plays on fishing:caught. */
+  let land = null;
+  function landSwell(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    const cls = V3.landingClass(p);
+    const V = V3.landingVoicing(cls);
+    const LF = ctx.data?.AUTOFISH?.landing?.[cls] || null;
+    const wipe = num(p.dur, num(LF?.wipe, 0.4));
+    const sm = Array.isArray(LF?.slowmo) ? LF.slowmo : [0, 1];
+    const ss = num(sm[0], 0), sc = clamp(num(sm[1], 1), 0.05, 1);
+    const real = ss > 0 ? (wipe <= ss * sc ? wipe / sc : ss + (wipe - ss * sc)) : wipe;
+    resetScratch(); scratch.dur = Math.max(0.3, real + 0.05); scratch.root = V.root; scratch.force = true; scratch.why = cls;
+    land = { cls, at: ac.currentTime, swell: playV('land_swell', scratch) };
+  }
+  /** The reveal resolves: the class chime (a new species or a legend adds a shimmer); the swell lets go. */
+  function landChime(p) {
+    const l = land;
+    land = null;
+    if (!l || ac.currentTime - l.at > 6) return;
+    if (l.swell) silence(l.swell, false);
+    let special = p.legendary === true;
+    try { special = special || !(num(ctx.state?.meta?.journal?.[p.speciesId]?.caught) > 0); } catch { /* ignore */ }
+    resetScratch(); scratch.voicing = V3.landingVoicing(l.cls, { special }); scratch.force = true; scratch.why = l.cls + (special ? '+' : '');
+    if (ctx.data?.AUTOFISH?.show) scratch.volume = V3.SHOW_MIX.landChime;   // (item 25: under the present)
+    play('land_chime', scratch);
+  }
+  // ---- the show (SPEC §2.8): the lift, the present, each flap and drip, the hush of the pause. By class only.
+  let recordRung = null;        // the uid whose record figure rang at the present (so the card's stamp does not ring it again)
+  const showLive = () => { const v = fishView()?.show; return ctx.data?.V3_ENABLED === true && !!v && typeof v === 'object' && v.phase !== 'card'; };
+  // ---- a trial completed on a catch (slice-1a PLAN §2.2 item 25): its chimes are held with their toasts from T0 until the card has
+  // gone, then rung in the order they came (v3; the loop parks the trials)
+  const heldChimes = [];
+  /** The show holds the screen: the landing (T0), ctx.cinematic (the lift to the card), the show's view, or the catch card itself (its
+   *  chimes wait until the card has gone: the show's view can clear as the card opens, which rang them on the card's first frame).
+   *  (…and fishing.inShow, true from T0 with the reveal included: an Elder's leap reveal runs before the lift's cinematic and the
+   *  show's view, so a trial completed by a first catch that was an Elder rang in the reveal; show-seq --only=elder on a phone) */
+  function showHolds() {
+    if (ctx.data?.V3_ENABLED !== true) return false;
+    return ctx.cinematic === true || fishState() === 'landing' || !!fishView()?.show || ctx.fishing?.inShow === true || ctx.ui?.isCatchOpen?.() === true;
+  }
+  function releaseChimes() {
+    if (!heldChimes.length || showHolds()) return;
+    let d = 0;
+    for (const n of heldChimes.splice(0)) { resetScratch(); scratch.delay = d; play(n, scratch); d += n === 'challenge_complete' ? 1.1 : 0.6; }
+  }
+  function showSound(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    const cls = V3.showClass(p);
+    if (p.phase === 'lift') {
+      const L = V3.showLiftParams(cls, num(p.dur?.lift, 0.5) / (p.hurried ? num(ctx.data?.AUTOFISH?.show?.hurry?.liftRate, 2.5) : 1));
+      resetScratch(); scratch.k = L.k; scratch.dur = L.dur; scratch.creak = L.creak; scratch.force = true; scratch.why = cls; scratch.volume = V3.SHOW_MIX.lift;
+      play('show_lift', scratch);
+    } else if (p.phase === 'hold') {
+      // the present: the flourish (a new species, a legend or a record shimmers), and a record's own figure just behind it
+      const recs = Array.isArray(p.records) ? p.records : [];
+      resetScratch(); scratch.voicing = V3.showPresentVoicing(cls, { special: p.special === true || p.isNew === true }); scratch.force = true; scratch.why = cls + (p.isNew ? '+' : '');
+      scratch.volume = V3.SHOW_MIX.present;   // (item 25: the present is the loudest beat of every show)
+      play('show_present', scratch);
+      if (!p.isNew && recs.some((r) => r === 'pb' || r === 'classFirst' || r?.kind === 'pb' || r?.kind === 'classFirst')) {
+        resetScratch(); scratch.delay = 0.32; scratch.force = true; play('record_chime', scratch);
+        recordRung = p.uid ?? null;
+      }
+    } else if (p.phase === 'pause') {
+      const v = fishView()?.show;
+      const [amt, secs] = V3.showHush(num(v?.dur?.pause, 0.7));
+      duck(amt, secs);   // the hush: the score sits back for the still; nothing new sounds
+    }
+  }
+  function showBeat(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    const cls = V3.showClass(p);
+    if (p.kind === 'flap') {
+      const F = V3.showFlapParams(cls, num(p.strength, 0.6));
+      resetScratch(); scratch.pitch = F.pitch; scratch.volume = F.volume; scratch.k = F.k; scratch.why = cls;
+      play('show_flap', scratch);
+    } else if (p.kind === 'drip') {
+      resetScratch(); scratch.volume = 0.5 + 0.5 * clamp(num(p.strength, 0.5)); play('show_drip', scratch);
+    }
+  }
+  /** fishing:caught — the reveal: the species' voice, if it has one (never before); the play's hum and drone end. */
+  function afCaught(p) {
+    if (ctx.data?.V3_ENABLED !== true) return;
+    landChime(p);
+    const voice = V3.speciesVoice(p.speciesId);
+    if (voice) play(voice, { why: p.speciesId, pan: bobberPan(), delay: 0.05, force: true });
+    if (!af.cls) return;
+    afFadeHeld();
+    afNote('caught', null, 0);
+    af.humTarget = 0; af.droneTarget = 0; af.active = false;
+  }
+  /** Silence the line's hum now, on the audio clock, and bring it back at `until` (a scare's slack moment, the still, a loss). */
+  function afHumGate(until) {
+    const l = af.hum;
+    if (!l || l.dead) return;
+    const now = ac.currentTime, g = l.g.gain;
+    try {
+      g.cancelScheduledValues(now); g.setTargetAtTime(0, now, 0.015);
+      if (until - now < 20) g.setTargetAtTime(af.humTarget * 0.045 * 0.95, until, 0.12);
+    } catch { /* ignore */ }
+    l._g = 0;   // the per-frame update keeps off the gain until the gate ends
+  }
+  /** The drone falls silent for the still and comes back with the crash (tc 0.9). */
+  function afDroneGate(until) {
+    const l = af.drone;
+    if (!l || l.dead) return;
+    const now = ac.currentTime, g = l.g.gain;
+    try { g.cancelScheduledValues(now); g.setTargetAtTime(0, now, 0.03); g.setTargetAtTime((af.music?.drone || 0) * 0.06, until, 0.9); } catch { /* ignore */ }
+    l._g = 0;
+  }
+  /** The score holds its breath through the still (busGains applies it now) and returns at its end on the audio clock; the
+   *  cavern's tail and echoes and the water under the raft hush with it, so the silence is a silence. */
+  function afScoreGate(until) {
+    if (!N) return;
+    busGains();
+    const now = ac.currentTime;
+    const back = curve(set.music) * MUSIC_LEVEL * AF_MUSIC;
+    try {
+      for (const g of [N.musicVol.gain, N.musicWetVol.gain, N.musicDlyVol.gain]) g.setTargetAtTime(back, until, 0.5);
+      for (const [g, v] of [[N.verbReturn.gain, 0.85], [N.dReturn.gain, 0.5]]) { g.cancelScheduledValues(now); g.setTargetAtTime(v * 0.08, now, 0.08); g.setTargetAtTime(v, until, 0.35); }
+      if (water && !water.dead) { const wg = water.g.gain; wg.cancelScheduledValues(now); wg.setTargetAtTime(0.004, now, 0.1); water._g = 0.004; }
+    } catch { /* ignore */ }
+  }
+  function makeHum(f) {
+    const l = makeOscLoop('triangle', f, 'bandpass', f * 2, 4, N.sfxDry);
+    l.lg.gain.value = f * 0.006;
+    return l;
+  }
+  function makeDrone() {
+    const t = ac.currentTime, r = zoneRoot() - 24;
+    const g = ac.createGain(); g.gain.value = 0;
+    const flt = ac.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 240; flt.Q.value = 0.9;
+    const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = mtof(r); o.detune.value = -7;
+    const o2 = ac.createOscillator(); o2.type = 'sawtooth'; o2.frequency.value = mtof(r + 7); o2.detune.value = 6;
+    const lfo = ac.createOscillator(); lfo.frequency.value = 0.11;
+    const lg = ac.createGain(); lg.gain.value = 90;
+    lfo.connect(lg); lg.connect(flt.frequency);
+    o.connect(flt); o2.connect(flt); flt.connect(g); g.connect(N.musicDry);
+    o.start(t); o2.start(t); lfo.start(t);
+    return { o, o2, flt, g, lfo, lg, dead: false, idle: 0 };
+  }
+  /** The play's continuous layers: the line's hum (stops for a scare's slack and the still) and the Elder / Ancient drone. */
+  function afContinuous(dt, flow, fs, fv) {
+    const now = ac.currentTime;
+    const inWorld = (flow === 'playing' || flow === 'hub') && ctx.paused !== true;
+    if (af.active && inWorld) {
+      const k = V3.lengthK(af.len), f = V3.humFreq(k);
+      if (!af.hum || af.hum.dead) af.hum = makeHum(f);
+      const line = clamp(num(fv?.play?.line, 0.5), 0, 1);
+      const muted = now < af.humMuteUntil;
+      if (!muted) setT(af.hum, 'g', af.hum.g.gain, af.humTarget * 0.045 * (0.7 + 0.5 * line), 0.12);   // muted: afHumGate holds it
+      setT(af.hum, 'o', af.hum.o.frequency, f * (1 + 0.1 * line), 0.25, 0.004);
+      setT(af.hum, 'f', af.hum.flt.frequency, f * 2 * (1 + 0.1 * line), 0.25, 0.004);
+      af.humIdle = 0;
+    } else if (af.hum) {
+      setT(af.hum, 'g', af.hum.g.gain, 0, 0.04);
+      af.humIdle += dt;
+      if (af.humIdle > 0.8) af.hum = killLoop(af.hum);
+    }
+    const droning = !!af.cls && (af.music?.drone || 0) > 0 && (af.active || fs === 'landing') && (flow === 'playing' || flow === 'hub');
+    if (droning) {
+      if (!af.drone || af.drone.dead) af.drone = makeDrone();
+      const still = now < af.stillUntil;
+      if (!still) setT(af.drone, 'g', af.drone.g.gain, af.droneTarget * 0.06 * (ctx.paused === true ? 0.5 : 1), 0.9);   // still: afDroneGate holds it
+      setT(af.drone, 'c', af.drone.flt.frequency, 200 + 240 * clamp(af.droneTarget, 0, 1.5), 0.8, 0.01);
+      af.droneIdle = 0;
+    } else if (af.drone) {
+      setT(af.drone, 'g', af.drone.g.gain, 0, 0.5);
+      af.droneIdle += dt;
+      if (af.droneIdle > 2.5) af.drone = killLoop(af.drone);
+    }
+  }
+
+  // ---------------------------------------------------------------- v3 the Landing and the First Evening (FE-Au1)
+  const HEARTH = { x: -18, z: -4.5 };
+  function coveEnter(p) {
+    cove.active = true; cove.from = p.from || null;
+    cove.breathT = 1.2; cove.bellT = 6 + Math.random() * 4;
+    if (p.from === 'snuffed') { resetScratch(); scratch.volume = 0.5; scratch.pitch = 0.85; play('snuff', scratch); }
+    moodTimer = 0.5;
+  }
+  function coveLeave() {
+    cove.active = false; cove.from = null;
+    fe.emberDue = null; fe.emberDone = true; fe.step = null;
+    coveKill();
+  }
+  function coveKill() {
+    cove.fire = killLoop(cove.fire); cove.roar = killLoop(cove.roar); cove.lap = killLoop(cove.lap);
+    if (cove.pan) { const pn = cove.pan; cove.pan = null; setTimeout(() => { try { pn.disconnect(); } catch { /* ignore */ } }, 500); }
+  }
+  /** The cove bed: the hearth (crackle and a low roar, placed at the hearth), the water at the quay, its breaths, a far bell. */
+  function coveContinuous(dt, flow) {
+    const lvl = cove.active ? V3.coveBedLevel(flow, { paused: ctx.paused === true || isBlocking() }) : 0;
+    if (lvl <= 0) {
+      if (cove.fire || cove.lap || cove.roar) {
+        for (const l of [cove.fire, cove.roar, cove.lap]) if (l) setT(l, 'g', l.g.gain, 0, 0.6);
+        cove.idle += dt;
+        if (cove.idle > 2.5) coveKill();
+      }
+      return;
+    }
+    cove.idle = 0;
+    if (!cove.pan) {
+      cove.pan = ac.createStereoPanner ? ac.createStereoPanner() : ac.createGain();
+      cove.pan.connect(N.sfxDry);
+    }
+    if (!cove.fire) cove.fire = makeNoiseLoop('crackle', 'bandpass', 2100, 0.6, cove.pan);
+    if (!cove.roar) cove.roar = makeNoiseLoop('brown', 'lowpass', 260, 0.7, cove.pan);
+    if (!cove.lap) {
+      cove.lap = makeNoiseLoop('pink', 'bandpass', 430, 1.1, N.sfxDry);
+      cove.lap.lfo = ac.createOscillator(); cove.lap.lfo.frequency.value = 0.21;
+      cove.lap.lg = ac.createGain(); cove.lap.lg.gain.value = 140;
+      cove.lap.lfo.connect(cove.lap.lg); cove.lap.lg.connect(cove.lap.flt.frequency); cove.lap.lfo.start();
+    }
+    // the bed rises under the first lore line (FIRST_EVENING framing) and settles
+    const rise = clamp((ac.currentTime - cove.risenAt) / 3, 0, 1);
+    const k = lvl * (fe.step === 'framing' ? 0.45 + 0.55 * rise : 1);
+    const o = { pan: 0 };
+    const hg = spatial(HEARTH, o);
+    if (cove.pan.pan) setT(cove, 'pan', cove.pan.pan, o.pan, 0.4, 0.01);
+    cove.flickT -= dt;
+    if (cove.flickT <= 0) { cove.flickT = 0.18 + Math.random() * 0.35; cove.flick = 0.75 + Math.random() * 0.5; }
+    setT(cove.fire, 'g', cove.fire.g.gain, 0.09 * k * hg * (cove.flick || 1), 0.15, 0.01);
+    setT(cove.roar, 'g', cove.roar.g.gain, 0.05 * k * hg * (0.8 + 0.2 * (cove.flick || 1)), 0.3, 0.01);
+    setT(cove.lap, 'g', cove.lap.g.gain, 0.04 * k, 0.8);
+    cove.breathT -= dt;
+    if (cove.breathT <= 0) {
+      resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.5; scratch.volume = (0.55 + 0.45 * Math.random()) * k;
+      play('cove_ambience', scratch);
+      cove.breathT = 2.8 + Math.random() * 3.6;
+    }
+    cove.bellT -= dt;
+    if (cove.bellT <= 0) {
+      resetScratch(); scratch.pan = 0.25; scratch.volume = 0.8 * k;
+      play('cove_bell_far', scratch);
+      cove.bellT = 26 + Math.random() * 18;
+    }
+  }
+  // ---------------------------------------------------------------- the Mossmere under the loop (M1 step 3a; audio-mossmere.js)
+  const LOOP_ON = () => ctx.data?.LOOP_ENABLED === true;
+  /** A water's places (the loop's, LOOP.places[id].water) with their water, centre and whether their mist has lifted (re-read
+   *  every 0.5 s). */
+  function mossPlaces(water = 'mossmere') {
+    const P = ctx.data?.LOOP?.places || {}, lp = ctx.data?.loopPlace;
+    let lifted = [];
+    try { const l = ctx.progression?.loop; const v = l && !l.isStub ? l.lifted?.() : null; lifted = Array.isArray(v) ? v : []; } catch { lifted = []; }
+    const out = [];
+    for (const id of Object.keys(P)) {
+      if (typeof P[id]?.water === 'string' && P[id].water !== water) continue;
+      let p = null;
+      try { p = typeof lp === 'function' ? lp(id) : null; } catch { p = null; }
+      if (p?.area) out.push({ id, area: p.area, x: num(p.x), z: num(p.z), lifted: lifted.includes(id) });
+    }
+    return out;
+  }
+  function mossKill() {
+    for (const k of Object.keys(moss.layers)) moss.layers[k] = killLoop(moss.layers[k]);
+    moss.layers = {};
+    moss.hum = killLoop(moss.hum);
+    if (moss.humPan) { const pn = moss.humPan; moss.humPan = null; setTimeout(() => { try { pn.disconnect(); } catch { /* ignore */ } }, 500); }
+  }
+  function mossLayer(def) {
+    if (def.src === 'osc') {
+      const l = makeOscLoop(def.type, def.f, def.ft, def.ff, def.q, N.sfxDry);
+      l.lfo.frequency.value = 0.13; l.lg.gain.value = num(def.vib, 0);
+      return l;
+    }
+    const l = makeNoiseLoop(def.kind, def.ft, def.f, def.q, N.sfxDry);
+    if (def.lfo) {
+      l.lfo = ac.createOscillator(); l.lfo.frequency.value = def.lfo.rate;
+      l.lg = ac.createGain(); l.lg.gain.value = def.lfo.depth;
+      l.lfo.connect(l.lg); l.lg.connect(l.flt.frequency); l.lfo.start();
+    }
+    return l;
+  }
+  /** The bed by light, its breaths, and each place's voice by distance (clear when lifted, through its bank when not). */
+  function mossContinuous(dt, flow) {
+    const run = ctx.state?.run;
+    const on = MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? (flow === 'home' ? homeWater() : null), outing: run?.outing ?? null });
+    const k = MOSS.mossLevel(on, { paused: ctx.paused === true, blocking: isBlocking() }) * (now0() < af.stillUntil ? 0.2 : 1);
+    moss.level = k;
+    if (k <= 0) {
+      if (Object.keys(moss.layers).length || moss.hum) {
+        for (const l of Object.values(moss.layers)) if (l && !l.dead) setT(l, 'g', l.g.gain, 0, 0.8);
+        if (moss.hum && !moss.hum.dead) setT(moss.hum, 'g', moss.hum.g.gain, 0, 0.8);
+        moss.idle += dt;
+        if (moss.idle > 3) mossKill();
+      }
+      return;
+    }
+    moss.idle = 0;
+    const light = MOSS.mossLight(phaseName());
+    moss.light = light;
+    const L = MOSS.bedLevels(light);
+    for (const [key, def] of Object.entries(MOSS.BED_LAYERS)) {
+      if (!moss.layers[key] && L[key] > 0) moss.layers[key] = mossLayer(def);
+      const l = moss.layers[key];
+      if (l) setT(l, 'g', l.g.gain, L[key] * k, 2.5);
+    }
+    const live = k >= 1;
+    if (live) {
+      moss.breathT -= dt;
+      if (moss.breathT <= 0) {
+        const B = MOSS.bedBreath(light);
+        resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.55; scratch.volume = B.volume * (0.7 + 0.3 * Math.random()); scratch.why = `bed:${light}`;
+        play(B.sfx, scratch);
+        moss.breathT = B.every[0] + (B.every[1] - B.every[0]) * Math.random();
+      }
+    }
+    // the places: their voices at the raft (re-read every 0.5 s: what is lifted changes at a lift's end)
+    moss.placesT -= dt;
+    if (moss.placesT <= 0 || !moss.places.length) { moss.placesT = 0.5; moss.places = mossPlaces('mossmere'); }
+    const p = ctx.player?.position, px = num(p?.x, NaN), pz = num(p?.z, NaN);
+    let hum = null;
+    for (const pl of moss.places) {
+      const V = MOSS.PLACE_VOICES[pl.id];
+      if (!V) continue;
+      const at = MOSS.placeVoiceAt(pl.area, px, pz, { lifted: pl.lifted });
+      pl.gain = at.gain; pl.muffle = at.muffle; pl.dist = at.dist;
+      if (V.hum) hum = { V, pl, at };
+      if (!live || at.gain <= 0.01) { moss.timers[pl.id] = Math.min(num(moss.timers[pl.id], 0.5), 0.5); continue; }
+      moss.timers[pl.id] = num(moss.timers[pl.id], 0.5) - dt;
+      if (moss.timers[pl.id] > 0) continue;
+      moss.timers[pl.id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch(); spatial({ x: pl.x, z: pl.z }, scratch);
+      scratch.volume = V.volume * at.gain * k; scratch.muffle = at.muffle; scratch.why = `${pl.id}${at.muffle ? ':bank' : ''}`;
+      play(V.sfx, scratch);
+    }
+    mossWaterVoices(dt, k, light, px, pz, live);   // WC-3: the inflow's trickle
+    // the Buoy Lights' low hum: a loop through its own panner, by distance, louder once its lamps are lit at night
+    const hg = hum ? hum.at.gain * MOSS.humLight(light) * k * hum.V.hum.level : 0;
+    if (hg > 0.0005 && !moss.hum) {
+      moss.humPan = ac.createStereoPanner ? ac.createStereoPanner() : ac.createGain();
+      moss.humPan.connect(N.sfxDry);
+      const H = hum.V.hum;
+      moss.hum = makeOscLoop(H.type, H.f, H.ft, H.ff, H.q, moss.humPan);
+      moss.hum.lfo.frequency.value = 0.21; moss.hum.lg.gain.value = num(H.vib, 0);
+    }
+    if (moss.hum && !moss.hum.dead) {
+      setT(moss.hum, 'g', moss.hum.g.gain, hg, 0.8);
+      if (hum) {
+        setT(moss.hum, 'f', moss.hum.flt.frequency, hum.at.muffle > 0 ? Math.min(hum.V.hum.ff, hum.at.muffle * 0.3) : hum.V.hum.ff, 0.8, 0.01);
+        const o = { pan: 0 }; spatial({ x: hum.pl.x, z: hum.pl.z }, o);
+        if (moss.humPan?.pan) setT(moss, 'hp', moss.humPan.pan, o.pan * 0.8, 0.5, 0.01);
+      }
+    }
+  }
+  // >>> WC-3 (WATERCRAFT §5.4, §5.6): the water's own voices on the Mossmere under the loop (audio-mossmere.js's SFX_WC)
+  const wcS = { reg: false, timers: {} };
+  function wcReg() { if (!wcS.reg) { wcS.reg = true; Object.assign(SFX, MOSS.SFX_WC); } }
+  function mossWaterVoices(dt, k, light, px, pz, live) {
+    wcReg();
+    for (const [id, V] of Object.entries(MOSS.WATER_VOICES)) {
+      const at = MOSS.waterVoiceAt(V, px, pz);
+      if (!live || at.gain <= 0.01) { wcS.timers[id] = Math.min(num(wcS.timers[id], 0.4), 0.4); continue; }
+      wcS.timers[id] = num(wcS.timers[id], 0.4) - dt;
+      if (wcS.timers[id] > 0) continue;
+      wcS.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch(); spatial({ x: V.x, z: V.z }, scratch);
+      scratch.volume = V.volume * at.gain * k * MOSS.trickleLight(light); scratch.why = id;
+      play(V.sfx, scratch);
+    }
+  }
+  function mossTrip() { const r = ctx.state?.run; return LOOP_ON() && MOSS.mossOn({ loopOn: true, flow: ctx.flow, zone: r?.zone ?? null, outing: r?.outing ?? null }); }
+  function wcStems(p) {
+    if (!mossTrip() && !sporeTrip()) return;   // (LAKE 2, lane A: Sporewood's reeds knock too)
+    const pl = ctx.player?.position, g = MOSS.stemsRustle(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.STEMS.volume * g; scratch.why = 'stems'; play(MOSS.STEMS.sfx, scratch);
+  }
+  function wcToll(p) {
+    if (!mossTrip() || !MOSS.tollOn(p)) return;
+    let at = null;
+    try { const lp = ctx.data?.loopPlace?.(MOSS.TOLL.place); if (lp && Number.isFinite(lp.x)) at = { x: lp.x, z: lp.z }; } catch { at = null; }
+    resetScratch(); if (at) spatial(at, scratch);
+    scratch.pitch = MOSS.TOLL.pitch; scratch.volume = MOSS.TOLL.volume; scratch.why = 'toll'; scratch.force = true;
+    play(MOSS.TOLL.sfx, scratch);
+  }
+  function wcCroak(p) {
+    if (!LOOP_ON()) return;
+    const pl = ctx.player?.position, g = MOSS.croakGain(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    wcReg(); resetScratch(); if (Number.isFinite(p?.x)) spatial({ x: p.x, z: p.z }, scratch);
+    scratch.volume = MOSS.CROAK.volume * g; scratch.why = 'heron'; play(MOSS.CROAK.sfx, scratch);
+  }
+  // <<< WC-3
+  // >>> LAKE 2, lane A (docs/loop/LAKE2.md §3.7): Sporewood's own sound under the loop (audio-sporewood.js): its bed by light and the
+  // frog chorus, the Seep's fall, each place in earshot (the Gill Harp a hum of partials), the giants' backs, the lily frogs' plops.
+  // Its voices are added to SFX the first time Sporewood sounds (under the loop only: the flag-off tables are untouched).
+  const spore = { layers: {}, zero: {}, idle: 0, timers: {}, chorusT: null, places: [], placesT: 0, ptimers: {}, hum: null, humPan: null, humIdle: 0,
+    fall: null, fallPan: null, fallIdle: 0, dropT: 0.5, light: null, k: 0, level: 0, swellUntil: 0, swellGain: 1, reg: false,
+    o: { volume: 1, pitch: 1, pan: 0, delay: 0, force: false, why: undefined, muffle: undefined, n: undefined, at: undefined } };
+  // (each its own voice tag: TAGS is built when the module loads, so a voice added later has none and would share one count with
+  // every other late voice, its `max` refusing it while any of them sounds)
+  function sporeReg() { if (!spore.reg) { spore.reg = true; Object.assign(SFX, SPORE.SFX_SPORE); for (const k of SPORE.SPORE_SFX) TAGS[k] = 's:' + k; } }
+  /** The one options object Sporewood's voices are played with (reset each time: no allocation per sound). */
+  function sporeO() { const o = spore.o; o.volume = 1; o.pitch = 1; o.pan = 0; o.delay = 0; o.force = false; o.why = undefined; o.muffle = undefined; o.n = undefined; o.at = undefined; return o; }
+  /** The water home lies on: the world's (a loop water), else where the barge lies, else the Mossmere (the Mossmere until a tow). */
+  function homeWater() {
+    const W = ctx.data?.LOOP?.waters || {};
+    let id = null;
+    try { const z = ctx.world && !ctx.world.isStub ? ctx.world.getZone?.() : null; id = typeof z?.id === 'string' && W[z.id] ? z.id : null; } catch { id = null; }
+    if (!id) { const b = ctx.state?.meta?.loop?.barge?.water; id = typeof b === 'string' && W[b] ? b : null; }
+    return id || 'mossmere';
+  }
+  function sporeTrip() { const r = ctx.state?.run; return LOOP_ON() && SPORE.sporeOn({ loopOn: true, flow: ctx.flow, zone: r?.zone ?? null, outing: r?.outing ?? null }); }
+  /** A loop of the bed (a tone or a noise through its filter; `vib` the pitch, `lfo` the filter, `am` / `sway` the gain), shaped for killLoop. */
+  function sporeLoop(def, dest) {
+    const t = ac.currentTime, l = { dead: false, idle: 0 };
+    l.flt = ac.createBiquadFilter(); l.flt.type = def.ft; l.flt.frequency.value = def.src === 'osc' ? num(def.ff, def.f) : def.f; l.flt.Q.value = num(def.q, 0.7);
+    l.g = ac.createGain(); l.g.gain.value = 0;
+    let head = l.flt;
+    const A = def.am || def.sway;
+    if (A) {   // (the gain swings between 1 − depth and 1 at `rate`: the insects' pulse, the strings' sway)
+      l.hp = ac.createGain(); l.hp.gain.value = 1 - num(A.depth, 0) / 2;
+      l.o2 = ac.createOscillator(); l.o2.frequency.value = num(A.rate, 1);
+      l.hg = ac.createGain(); l.hg.gain.value = num(A.depth, 0) / 2;
+      l.o2.connect(l.hg); l.hg.connect(l.hp.gain); l.o2.start(t);
+      l.flt.connect(l.hp); head = l.hp;
+    }
+    head.connect(l.g); l.g.connect(dest);
+    if (def.src === 'osc') {
+      l.o = ac.createOscillator(); l.o.type = def.type; l.o.frequency.value = def.f;
+      l.lfo = ac.createOscillator(); l.lfo.frequency.value = 0.13; l.lg = ac.createGain(); l.lg.gain.value = num(def.vib, 0);
+      l.lfo.connect(l.lg); l.lg.connect(l.o.frequency); l.o.connect(l.flt); l.o.start(t); l.lfo.start(t);
+    } else {
+      l.s = ac.createBufferSource(); l.s.buffer = eng.buf(def.kind); l.s.loop = true; l.s.connect(l.flt); l.s.start(t, Math.random() * 1.5);
+      if (def.lfo) { l.lfo = ac.createOscillator(); l.lfo.frequency.value = def.lfo.rate; l.lg = ac.createGain(); l.lg.gain.value = def.lfo.depth; l.lfo.connect(l.lg); l.lg.connect(l.flt.frequency); l.lfo.start(t); }
+    }
+    return l;
+  }
+  function sporePanner() { const pn = ac.createStereoPanner ? ac.createStereoPanner() : ac.createGain(); pn.connect(N.sfxDry); return pn; }
+  function dropPan(pn) { if (pn) setTimeout(() => { try { pn.disconnect(); } catch { /* ignore */ } }, 500); }
+  function sporeKillHum() { if (spore.hum) for (const h of spore.hum) killLoop(h); spore.hum = null; dropPan(spore.humPan); spore.humPan = null; spore.humIdle = 0; spore._hp = undefined; }
+  function sporeKillFall() { spore.fall = killLoop(spore.fall); dropPan(spore.fallPan); spore.fallPan = null; spore.fallIdle = 0; spore._fp = undefined; }
+  function sporeKill() {
+    for (const k of Object.keys(spore.layers)) killLoop(spore.layers[k]);
+    spore.layers = {}; spore.zero = {}; sporeKillHum(); sporeKillFall(); spore.timers = {}; spore.ptimers = {}; spore.chorusT = null;
+  }
+  function sporeFade() {
+    for (const l of Object.values(spore.layers)) if (l && !l.dead) setT(l, 'g', l.g.gain, 0, 0.8);
+    if (spore.hum) for (const h of spore.hum) if (!h.dead) setT(h, 'g', h.g.gain, 0, 0.8);
+    if (spore.fall && !spore.fall.dead) setT(spore.fall, 'g', spore.fall.g.gain, 0, 0.8);
+  }
+  /** The bed by light, its one-shots and the chorus, the Seep, and each place's voice by distance (clear when lifted, else through
+   *  its bank): on a trip at Sporewood, or at home while it lies there. */
+  function sporeContinuous(dt, flow) {
+    const run = ctx.state?.run;
+    const on = SPORE.sporeOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? (flow === 'home' ? homeWater() : null), outing: run?.outing ?? null });
+    const k = SPORE.sporeLevel(on, { paused: ctx.paused === true, blocking: isBlocking() }) * (now0() < af.stillUntil ? 0.2 : 1);
+    spore.level = k;
+    if (k <= 0) {
+      if (Object.keys(spore.layers).length || spore.hum || spore.fall) { sporeFade(); spore.idle += dt; if (spore.idle > 3) sporeKill(); }
+      return;
+    }
+    sporeReg();
+    spore.idle = 0;
+    const light = SPORE.sporeLight(phaseName()), pk = num(phaseInfo()?.k, 0);
+    spore.light = light; spore.k = pk;
+    const L = SPORE.bedLevels(light);
+    for (const [key, def] of Object.entries(SPORE.BED_LAYERS)) {
+      let l = spore.layers[key];
+      if (!l && L[key] > 0) { l = spore.layers[key] = sporeLoop(def, N.sfxDry); spore.zero[key] = 0; }
+      if (!l) continue;
+      setT(l, 'g', l.g.gain, L[key] * k, 2.5);
+      // (a layer silent at this light for 6 s is let go: a phone keeps only the loops it hears)
+      spore.zero[key] = L[key] > 0 ? 0 : num(spore.zero[key], 0) + dt;
+      if (spore.zero[key] > 6) { killLoop(l); delete spore.layers[key]; delete spore.zero[key]; }
+    }
+    const live = k >= 1, rnd = Math.random;
+    if (live) {
+      for (const [id, V] of SPORE.bedVoices(light)) {
+        spore.timers[id] = num(spore.timers[id], V.every[0] * rnd()) - dt;
+        if (spore.timers[id] > 0) continue;
+        spore.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * rnd();
+        const o = sporeO(); o.pan = (rnd() * 2 - 1) * V.spread; o.volume = V.volume * (0.7 + 0.3 * rnd()); o.why = `bed:${light}`;
+        play(V.sfx, o);
+      }
+      const C = SPORE.chorus(light, pk);
+      if (C) {
+        spore.chorusT = num(spore.chorusT, C.every[0] * rnd()) - dt;
+        if (spore.chorusT <= 0) {
+          spore.chorusT = C.every[0] + (C.every[1] - C.every[0]) * rnd();
+          const o = sporeO(); o.pan = (rnd() * 2 - 1) * SPORE.CHORUS.spread; o.volume = C.volume * (0.5 + 0.5 * rnd()); o.pitch = C.pitch;
+          o.n = C.croaks[0] + ((rnd() * (C.croaks[1] - C.croaks[0] + 1)) | 0); o.why = `frogs:${light}`;
+          play(SPORE.CHORUS.sfx, o);
+        }
+      } else spore.chorusT = null;
+    }
+    const p = ctx.player?.position, px = num(p?.x, NaN), pz = num(p?.z, NaN);
+    // the Seep: its fall a loop by distance, the drops at its foot
+    const S = SPORE.SEEP, sa = SPORE.seepAt(px, pz), sl = SPORE.seepLight(light), fg = sa.gain * k * sl * S.fall.level;
+    if (fg > 0.0005 && (!spore.fall || spore.fall.dead)) { spore.fallPan = sporePanner(); spore.fall = sporeLoop(S.fall, spore.fallPan); }
+    if (spore.fall && !spore.fall.dead) {
+      setT(spore.fall, 'g', spore.fall.g.gain, fg, 0.6);
+      const o = sporeO(); spatial({ x: S.x, z: S.z }, o); if (spore.fallPan?.pan) setT(spore, 'fp', spore.fallPan.pan, o.pan * 0.8, 0.5, 0.01);
+      spore.fallIdle = fg > 0.0005 ? 0 : spore.fallIdle + dt;
+      if (spore.fallIdle > 3) sporeKillFall();
+    }
+    if (live && sa.gain > 0.01) {
+      spore.dropT -= dt;
+      if (spore.dropT <= 0) {
+        spore.dropT = S.drop.every[0] + (S.drop.every[1] - S.drop.every[0]) * rnd();
+        const o = sporeO(); spatial({ x: S.x, z: S.z }, o); o.volume = S.drop.volume * sa.gain * k * sl; o.why = 'seep';
+        play(S.drop.sfx, o);
+      }
+    } else spore.dropT = Math.min(spore.dropT, 0.4);
+    // the places: their voices at the raft (re-read every 0.5 s: what is lifted changes at a lift's end)
+    spore.placesT -= dt;
+    if (spore.placesT <= 0 || !spore.places.length) { spore.placesT = 0.5; spore.places = mossPlaces(SPORE.WATER); }
+    let harp = null;
+    for (const pl of spore.places) {
+      const V = SPORE.PLACE_VOICES[pl.id];
+      if (!V) continue;
+      const at = SPORE.placeVoiceAt(pl.id, pl.area, px, pz, { lifted: pl.lifted });
+      pl.gain = at.gain; pl.muffle = at.muffle; pl.dist = at.dist;
+      if (V.hum) harp = { V, pl, at };
+      if (!V.sfx) continue;
+      if (!live || at.gain <= 0.01) { spore.ptimers[pl.id] = Math.min(num(spore.ptimers[pl.id], 0.5), 0.5); continue; }
+      spore.ptimers[pl.id] = num(spore.ptimers[pl.id], 0.5) - dt;
+      if (spore.ptimers[pl.id] > 0) continue;
+      spore.ptimers[pl.id] = V.every[0] + (V.every[1] - V.every[0]) * rnd();
+      const o = sporeO(); spatial({ x: pl.x, z: pl.z }, o);
+      o.volume = V.volume * at.gain * k; o.muffle = at.muffle || undefined; o.why = `${pl.id}${at.muffle ? ':bank' : ''}`;
+      play(V.sfx, o);
+    }
+    // the Gill Harp's one note: its partials as loops through one panner, by distance, swelling while the Harpstring's back turns
+    const swelling = now0() < spore.swellUntil;
+    const hg = harp ? harp.at.gain * SPORE.harpLight(light) * k * (swelling ? spore.swellGain : 1) : 0;
+    if (hg > 0.0005 && !spore.hum) { spore.humPan = sporePanner(); spore.hum = harp.V.hum.map((H) => sporeLoop({ src: 'osc', ...H }, spore.humPan)); }
+    if (spore.hum) {
+      const H = harp ? harp.V.hum : SPORE.PLACE_VOICES.gill_harp.hum;
+      spore.hum.forEach((h, i) => {
+        if (h.dead) return;
+        setT(h, 'g', h.g.gain, hg * H[i].level, swelling ? 0.5 : 0.8);
+        if (harp) setT(h, 'f', h.flt.frequency, harp.at.muffle > 0 ? Math.min(H[i].ff, harp.at.muffle * 0.3) : H[i].ff, 0.8, 0.01);
+      });
+      if (harp) { const o = sporeO(); spatial({ x: harp.pl.x, z: harp.pl.z }, o); if (spore.humPan?.pan) setT(spore, 'hp', spore.humPan.pan, o.pan * 0.8, 0.5, 0.01); }
+      spore.humIdle = hg > 0.0005 ? 0 : spore.humIdle + dt;
+      if (spore.humIdle > 3) sporeKillHum();
+    }
+  }
+  /** world:giantBack {placeId, x, z} at Sporewood: at night, the Harpstring's hum swells, the Puffer's globe rustles (through its bank). */
+  function sporeGiantBack(p = {}) {
+    if (!LOOP_ON() || !SPORE.backOn(phaseName()) || !sporeTrip()) return;
+    sporeReg();
+    const B = SPORE.backVoice(p.placeId);
+    const pos = Number.isFinite(p.x) ? { x: p.x, z: p.z } : null, pp = ctx.player?.position;
+    const d = pos && pp ? Math.hypot(pos.x - num(pp.x), pos.z - num(pp.z)) : 30;
+    const o = sporeO(); spatial(pos, o);
+    o.volume = Math.max(0.3, MOSS.voiceGain(d, SPORE.BACK_EARSHOT)); o.muffle = SPORE.BACK_MUFFLE; o.why = p.placeId || 'giant';
+    play(B.sfx, o);
+    if (B.swell) { spore.swellUntil = now0() + B.swell.hold; spore.swellGain = B.swell.gain; }
+  }
+  /** wild:frogDive {x, z}: a lily frog off its raft, by distance (on a trip at Sporewood or at home there). */
+  function sporePlop(p = {}) {
+    if (!(spore.level > 0)) return;
+    const pl = ctx.player?.position, g = SPORE.plopGain(p, num(pl?.x, NaN), num(pl?.z, NaN));
+    if (g <= 0.01) return;
+    sporeReg();
+    const o = sporeO(); spatial({ x: p.x, z: p.z }, o); o.volume = SPORE.PLOP.volume * g * spore.level; o.why = 'frog';
+    play(SPORE.PLOP.sfx, o);
+  }
+  // <<< LAKE 2, lane A
+  // ---------------------------------------------------------------- M1 step 5b (lane 5b-home): home's bed (audio-home.js)
+  const homeS = { stove: null, idle: 0, timers: {}, reg: false };
+  /** Where a home voice sounds: the cabin door (the stove), the barge's side, Murk's barge, or nowhere (far: unpanned). */
+  function homeAt(at) {
+    let M = null;
+    try { M = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { M = null; }
+    if (!M?.hull) return null;
+    if (at === 'murk' && M.murk) return { x: M.murk.x, z: M.murk.z };
+    if (at === 'stove') return { x: M.hull.x - Math.sin(M.hull.yaw) * -2.3, z: M.hull.z - Math.cos(M.hull.yaw) * -2.3 };
+    if (at === 'hull') return { x: M.hull.x, z: M.hull.z };
+    return null;
+  }
+  function homeContinuous(dt, flow) {
+    if (!homeS.reg) { homeS.reg = true; Object.assign(SFX, HOME.SFX_HOME); }   // (registered under the loop only, the first time)
+    const on = HOME.homeOn({ loopOn: true, flow });
+    const k = HOME.homeLevel(on, { blocking: isBlocking(), paused: ctx.paused === true });
+    if (k <= 0) {
+      if (homeS.stove && !homeS.stove.dead) { setT(homeS.stove, 'g', homeS.stove.g.gain, 0, 0.8); homeS.idle += dt; if (homeS.idle > 3) homeS.stove = killLoop(homeS.stove); }
+      homeS.timers = {};
+      return;
+    }
+    homeS.idle = 0;
+    const B = HOME.HOME_BED.stove;
+    if (!homeS.stove || homeS.stove.dead) homeS.stove = makeNoiseLoop(B.kind, B.ft, B.f, B.q, N.sfxDry);
+    setT(homeS.stove, 'g', homeS.stove.g.gain, B.level * k, 2);
+    for (const [id, V] of Object.entries(HOME.HOME_VOICES)) {
+      if (homeS.timers[id] == null) homeS.timers[id] = V.first ?? V.every[0] * Math.random();
+      homeS.timers[id] -= dt;
+      if (homeS.timers[id] > 0) continue;
+      homeS.timers[id] = V.every[0] + (V.every[1] - V.every[0]) * Math.random();
+      resetScratch();
+      const pos = homeAt(V.at), g = pos ? spatial(pos, scratch) : 1;
+      scratch.volume = V.volume * k * Math.max(0.5, g); scratch.why = `home:${id}`;
+      play(V.sfx, scratch);
+    }
+  }
+  const now0 = () => (ac ? ac.currentTime : 0);
+  /** world:giantBack {placeId, x, z}: the deep roll at night, through the bank it turns in. */
+  function mossGiantBack(p = {}) {
+    if (!LOOP_ON() || !MOSS.giantRollOn(phaseName())) return;
+    if (!MOSS.mossOn({ loopOn: true, flow: ctx.flow, zone: ctx.state?.run?.zone, outing: ctx.state?.run?.outing })) return;
+    resetScratch();
+    const pos = Number.isFinite(p.x) ? { x: p.x, z: p.z } : null, pp = ctx.player?.position;
+    const d = pos && pp ? Math.hypot(pos.x - num(pp.x), pos.z - num(pp.z)) : 30;
+    spatial(pos, scratch);
+    scratch.volume = Math.max(0.3, MOSS.voiceGain(d, MOSS.ROLL_EARSHOT)); scratch.muffle = MOSS.ROLL_MUFFLE; scratch.why = p.placeId || 'giant';
+    play(MOSS.MOSS_EVENTS.giantBack, scratch);
+  }
+  /** place:lift {placeId, phase: 'start'}: the mist drawing up off its water. */
+  function mossLift(p = {}) {
+    if (!LOOP_ON() || p.phase !== 'start') return;
+    resetScratch();
+    let c = null; try { c = ctx.data?.loopPlace?.(p.placeId); } catch { c = null; }
+    if (c && Number.isFinite(c.x)) spatial({ x: c.x, z: c.z }, scratch);
+    scratch.pan *= 0.6; scratch.volume = 0.9; scratch.dur = num(ctx.data?.LOOP?.lift?.thin, 3); scratch.why = p.placeId || 'lift'; scratch.force = true;
+    play(MOSS.MOSS_EVENTS.liftStart, scratch);
+  }
+  function murkPan(o) {
+    const m = ctx.actors?.merchant?.position;
+    if (m && typeof m.x === 'number') return spatial(m, o);
+    if (cove.active) return spatial({ x: 4, z: -6.5 }, o);
+    o.pan = 0; return 1;
+  }
+  function playEmber() {
+    if (fe.emberDone) return;
+    fe.emberDone = true; fe.emberDue = null;
+    resetScratch(); scratch.volume = 0.9; scratch.pan = 0; scratch.why = 'ember';
+    play('ember_swell', scratch);
+  }
+  function feTick() {
+    if (fe.emberDue !== null && !fe.emberDone && gameT() >= fe.emberDue) playEmber();
+  }
+  function feStep(p) {
+    fe.step = p.id || null;
+    if (p.id === 'framing') { fe.emberDue = gameT() + V3.emberAt(ctx.data); fe.emberDone = false; cove.risenAt = ac.currentTime; }
+    else if (p.id === 'wake' && p.prev === 'framing') { resetScratch(); scratch.why = 'wake'; scratch.volume = 0.9; play('flame_catch', scratch); }
+    else if (p.id === 'setout') { resetScratch(); scratch.why = 'flare'; scratch.volume = 0.7; play('flame_catch', { ...scratch, flare: true }); }
+    if (p.id !== 'framing' && fe.emberDue !== null) { fe.emberDue = null; fe.emberDone = true; }
+  }
+  function feLine(p) {
+    if (p.kind !== 'murk' || typeof p.text !== 'string' || !p.text) return;
+    const o = { pan: 0 };
+    const g = murkPan(o);
+    play('murk_grumble', { plan: V3.grumblePlan(p.text, p.key || ''), why: p.key || 'murk', pan: o.pan * 0.6, volume: 0.75 + 0.25 * g, force: true });
+  }
+
+  // ---------------------------------------------------------------- continuous layers
+  function makeOscLoop(type, f, ft, ff, q, dest) {
+    const t = ac.currentTime;
+    const o = ac.createOscillator(); o.type = type; o.frequency.value = f;
+    const flt = ac.createBiquadFilter(); flt.type = ft; flt.frequency.value = ff; flt.Q.value = q;
+    const g = ac.createGain(); g.gain.value = 0;
+    const lfo = ac.createOscillator(); lfo.frequency.value = 7.5;
+    const lg = ac.createGain(); lg.gain.value = 0;
+    lfo.connect(lg); lg.connect(o.frequency);
+    o.connect(flt); flt.connect(g); g.connect(dest);
+    o.start(t); lfo.start(t);
+    return { o, flt, g, lfo, lg, dead: false, idle: 0 };
+  }
+  function makeNoiseLoop(kind, ft, ff, q, dest) {
+    const t = ac.currentTime;
+    const s = ac.createBufferSource(); s.buffer = eng.buf(kind); s.loop = true;
+    const flt = ac.createBiquadFilter(); flt.type = ft; flt.frequency.value = ff; flt.Q.value = q;
+    const g = ac.createGain(); g.gain.value = 0;
+    s.connect(flt); flt.connect(g); g.connect(dest);
+    s.start(t, Math.random() * 1.5);
+    return { s, flt, g, dead: false, idle: 0 };
+  }
+  /** setTargetAtTime only when the target moved (avoids flooding the automation timeline every frame). */
+  function setT(l, key, param, value, tc, eps = 0.002) {
+    const k = '_' + key;
+    if (l[k] !== undefined && Math.abs(l[k] - value) <= eps * Math.max(1, Math.abs(value))) return;
+    l[k] = value;
+    param.setTargetAtTime(value, ac.currentTime, tc);
+  }
+  function killLoop(l) {
+    if (!l || l.dead) return null;
+    l.dead = true;
+    const now = ac.currentTime;
+    try { l.g.gain.cancelScheduledValues(now); l.g.gain.setTargetAtTime(0, now, 0.05); } catch { /* ignore */ }
+    const stopAt = now + 0.35;
+    for (const k of ['o', 'lfo', 's', 'o2']) { try { l[k]?.stop(stopAt); } catch { /* ignore */ } }
+    const src = l.o || l.s;
+    if (src) src.onended = () => { for (const k of ['o', 'flt', 'g', 'lfo', 'lg', 's', 'hp', 'hg', 'o2']) { try { l[k]?.disconnect(); } catch { /* ignore */ } } };
+    return null;
+  }
+  function stopContinuous() {
+    strain = killLoop(strain); charge = killLoop(charge); aura = killLoop(aura); bed = killLoop(bed);
+    af.hum = killLoop(af.hum); af.drone = killLoop(af.drone);
+    tickAcc = 0; auraTarget = 0; auraPulse = 0; wasDanger = false; wasSurgeWarn = false; wasClean = false;
+  }
+
+  function continuous(dt) {
+    const now = ac.currentTime;
+    const flow = ctx.flow;
+    const run = ctx.state?.run;
+    const live = flow === 'playing' && !!run && ctx.paused !== true && num(ctx.time?.gameDt) > 0;
+    statsT += dt;
+    const st = stats();
+
+    // --- water bed under the raft (always some lapping; louder when sailing)
+    // v3: the Landing (flow hub) is a live world too: sailing, casting and the First Evening's play (no run there)
+    const homeW = flow === 'home' && ctx.data?.LOOP_ENABLED === true;   // the loop's Jetty: the water bed under the raft at its dock
+    const liveW = live || ((flow === 'hub' || homeW) && ctx.paused !== true && num(ctx.time?.gameDt) > 0);
+    const sp = liveW ? num(ctx.player?.speed) : 0;
+    const maxSp = Math.max(1, num(st?.moveSpeed, 6));
+    const spFrac = clamp(sp / maxSp, 0, 1.2);
+    const introWater = flow === 'intro' && intro.water;   // INTRO LANE B: the lake's water returns with the Wick's spark
+    if (!water && (flow === 'playing' || flow === 'title' || flow === 'hub' || introWater || homeW)) {
+      water = makeNoiseLoop('pink', 'bandpass', 620, 0.9, N.sfxDry);
+      water.lfo = ac.createOscillator(); water.lfo.frequency.value = 0.13;
+      water.lg = ac.createGain(); water.lg.gain.value = 240;
+      water.lfo.connect(water.lg); water.lg.connect(water.flt.frequency); water.lfo.start();
+    }
+    if (water) {
+      const tgt = ((flow === 'playing' || flow === 'title' || flow === 'hub' || introWater || homeW) ? 0.022 + 0.09 * Math.min(1, spFrac) : 0.0) * (now < af.stillUntil ? 0.18 : 1);   // v3: hushed in the still
+      setT(water, 'g', water.g.gain, tgt, 0.4);
+      setT(water, 'f', water.flt.frequency, 560 + 600 * Math.min(1, spFrac), 0.3, 0.01);
+    }
+
+    // --- paddle splashes when sailing fast
+    const anchored = ctx.player?.anchored === true;
+    if (liveW && spFrac > 0.45 && !anchored) {
+      paddleTimer -= dt;
+      if (paddleTimer <= 0) {
+        resetScratch(); scratch.pan = paddleSide * 0.35; scratch.volume = 0.45 + 0.5 * Math.min(1, spFrac);
+        play('paddle', scratch);
+        paddleSide = -paddleSide;
+        paddleTimer = lerp(0.9, 0.5, clamp((spFrac - 0.45) / 0.55));
+      }
+    } else paddleTimer = Math.min(paddleTimer, 0.15);
+
+    // --- fishing: reel ratchet, drag scream, line strain whine, charge creak
+    const fs = fishState();
+    const fv = fishView();
+    const tension = clamp(num(fv?.tension), 0, 1.2);
+    const progress = num(fv?.progress);
+    const reeling = live && (fs === 'reeling' || fs === 'landing') && !af.cls;   // v3: an automatic play has its own layers
+    if (reeling) {
+      fishIdle = 0;
+      const holding = ctx.input?.down === true;
+      const surge = fv?.surge === true;
+      const dp = progress - lastProgress;
+      let rate = 0, pitch = 1, vol = 0.6;
+      if (fs === 'landing') { rate = 16; pitch = 1.15; }
+      else if (surge && !holding) { rate = 24; pitch = 0.72; vol = 0.75; }
+      else if (holding) { rate = 7 + 15 * clamp(tension); pitch = 0.92 + 0.3 * clamp(progress); }
+      else if (dp > 0.0005) rate = 4;
+      tickAcc += dt * rate;
+      if (tickAcc >= 1) {
+        tickAcc = Math.min(tickAcc - 1, 1);
+        resetScratch(); scratch.pitch = pitch; scratch.volume = vol;
+        play('reel_tick', scratch);
+      }
+      // strain whine
+      // fishing.view.danger is a 0..1 number (DESIGN §5.10); a boolean is still honoured
+      const dangerK = typeof fv?.danger === 'boolean' ? (fv.danger ? 1 : 0) : clamp(num(fv?.danger));
+      const danger = dangerK > 0.5;
+      if (!strain) strain = makeOscLoop('sawtooth', 600, 'bandpass', 1400, 7, N.sfxDry);
+      const lvl = danger ? (0.035 + 0.11 * Math.max(clamp((tension - 0.7) / 0.3), (dangerK - 0.5) * 2)) : (tension > 0.6 ? 0.012 * (tension - 0.6) / 0.4 : 0);
+      setT(strain, 'g', strain.g.gain, lvl * 0.9, 0.06);
+      setT(strain, 'o', strain.o.frequency, 480 + 900 * clamp(tension), 0.05, 0.004);
+      setT(strain, 'f', strain.flt.frequency, 1100 + 1500 * clamp(tension), 0.05, 0.004);
+      setT(strain, 'v', strain.lg.gain, danger ? 22 : 6, 0.1);
+      if (danger && !wasDanger) { resetScratch(); scratch.volume = 0.8; play('line_strain', scratch); }
+      wasDanger = danger;
+      const sw = num(fv?.surgeWarn) > 0;
+      if (sw && !wasSurgeWarn) play('surge_warn');
+      wasSurgeWarn = sw;
+    } else {
+      wasDanger = false; wasSurgeWarn = false;
+      if (strain) { fishIdle += dt; setT(strain, 'g', strain.g.gain, 0, 0.05); if (fishIdle > 0.6) strain = killLoop(strain); }
+    }
+    lastProgress = progress;
+
+    if (liveW && fs === 'charging' && fv) {
+      const c = clamp(num(fv.charge));
+      if (!charge) { charge = makeOscLoop('triangle', 220, 'lowpass', 900, 0.7, N.sfxDry); charge.lg.gain.value = 3; }
+      setT(charge, 'g', charge.g.gain, 0.025 + 0.03 * c, 0.03);
+      setT(charge, 'o', charge.o.frequency, 170 + 420 * c, 0.025, 0.003);
+      const cleanAt = num(fv.cleanAt, num(ctx.data?.BALANCE?.cast?.cleanAt, 0.92));   // v3: fishing's view (Quiet Hands)
+      const clean = c >= cleanAt;
+      if (clean && !wasClean) play('charge_ping');
+      wasClean = clean;
+    } else if (charge) { charge = killLoop(charge); wasClean = false; }
+
+    // --- v3: the Stillnight bed (night air, far frogs, reed crickets) under the stillnight score; like the water bed the
+    // air keeps on under a modal or the pause (softer), the frogs and crickets only while the night runs
+    if (flow === 'playing' && !!run && music.mood === 'stillnight') {
+      if (!bed) bed = makeNoiseLoop('brown', 'lowpass', 340, 0.6, N.sfxDry);
+      setT(bed, 'g', bed.g.gain, live ? 0.035 : 0.018, 1.2);
+      bedIdle = 0;
+      if (live) bedTimer -= dt;
+      if (bedTimer <= 0) {
+        resetScratch(); scratch.pan = (Math.random() * 2 - 1) * 0.6; scratch.volume = 0.7 + Math.random() * 0.3;
+        // (wave 2: the Mossmere under the loop keeps the crickets and the drip, never the frogs: no frogs in the stone north)
+        if (MOSS.mossOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? null, outing: run?.outing ?? null })) scratch.frogs = false;
+        // (LAKE 2, lane A: on Sporewood its own lily frogs' chorus takes the far frogs' place; the crickets and the drip kept)
+        else if (SPORE.sporeOn({ loopOn: LOOP_ON(), flow, zone: run?.zone ?? null, outing: run?.outing ?? null })) scratch.frogs = false;
+        play('stillnight_bed', scratch);
+        bedTimer = 2.6 + Math.random() * 2.8;
+      }
+    } else if (bed) {
+      setT(bed, 'g', bed.g.gain, 0, 0.6);
+      bedTimer = 0.6; bedIdle += dt;
+      if (bedIdle > 3) bed = killLoop(bed);
+    }
+
+    // --- v3: the automatic play's hum and drone, the Landing's bed
+    afContinuous(dt, flow, fs, fv);
+    coveContinuous(dt, flow);
+    if (LOOP_ON()) mossContinuous(dt, flow);   // M1 step 3a: the Mossmere's bed and its places (never off the loop)
+    if (LOOP_ON()) sporeContinuous(dt, flow);  // LAKE 2, lane A: Sporewood's bed, the Seep and its places (never off the loop)
+    if (LOOP_ON()) homeContinuous(dt, flow);   // M1 step 5b: home's bed on the barge (the stove, the hulls, a far bell, Murk's hand bell)
+
+    // --- heartbeat at hp ≤ 2 (DESIGN §6.6), quicker on the last Ember
+    const hp = num(run?.hp, 99);
+    if (live && hp > 0 && hp <= 2) {
+      hbTimer -= dt;
+      if (hbTimer <= 0) { play('heartbeat', hp <= 1 ? undefined : { volume: 0.7 }); hbTimer = 60 / ((phaseInfo()?.isNight ? 104 : 78) * (hp <= 1 ? 1 : 0.8)); }
+    } else hbTimer = 0.4;
+
+    // --- lantern aura crackle (scaled by shades inside the light)
+    auraTimer -= dt;
+    if (auraTimer <= 0) {
+      auraTimer = 0.1;
+      let near = 0;
+      const es = live ? enemyList() : null;
+      const p = ctx.player?.position;
+      if (es && p) {
+        const lr = Math.max(1, num(ctx.survival?.lightRadius, num(st?.lightRadius, 8)));
+        const r2 = lr * lr;
+        for (let i = 0; i < es.length; i++) {
+          const ep = es[i]?.position;
+          if (!ep) continue;
+          const dx = ep.x - p.x, dz = ep.z - p.z;
+          if (dx * dx + dz * dz < r2) near++;
+        }
+      }
+      const lit = num(run?.oil, 1) > 0 ? 1 : 0;
+      auraTarget = clamp(near / 7, 0, 1) * lit;
+    }
+    auraPulse = Math.max(0, auraPulse - dt * 1.5);
+    const aLvl = live ? clamp(auraTarget * 0.8 + auraPulse, 0, 1) : 0;
+    if (aLvl > 0.02 && !aura) {
+      aura = makeNoiseLoop('crackle', 'bandpass', 2600, 0.6, N.sfxDry);
+      aura.hp = ac.createBiquadFilter(); aura.hp.type = 'highpass'; aura.hp.frequency.value = 3800;
+      aura.hg = ac.createGain(); aura.hg.gain.value = 0.25;
+      aura.s.connect(aura.hp); aura.hp.connect(aura.hg); aura.hg.connect(aura.g);
+    }
+    if (aura) {
+      setT(aura, 'g', aura.g.gain, aLvl * 0.42, 0.15, 0.01);
+      setT(aura, 'r', aura.s.playbackRate, 0.85 + 0.5 * aLvl, 0.3, 0.01);
+      if (aLvl <= 0.02) { auraIdle += dt; if (auraIdle > 3) aura = killLoop(aura); } else auraIdle = 0;
+    }
+  }
+
+  // ---------------------------------------------------------------- params for the score
+  function updateParams(dt) {
+    const P = music.params;
+    const fv = fishView();
+    P.tension = clamp(num(fv?.tension), 0, 1);
+    P.danger = typeof fv?.danger === 'boolean' ? fv.danger : num(fv?.danger) > 0.5;
+    P.legend = fv?.rarity === 'legendary';
+    // v3 automatic play: the score by class (null / 0 / false outside one, so v1's reel is untouched)
+    const am = af.cls && af.music && (af.active || fishState() === 'reeling' || fishState() === 'landing') ? af.music : null;
+    P.reelLevel = am && am.mood === 'reel' ? am.level : null;
+    P.pulse = am ? am.pulse : 0;
+    P.heart = !!(am && am.heart);
+    const es = enemyList();
+    P.enemies = es ? es.length : 0;
+    const pi = phaseInfo();
+    P.nightK = pi?.isNight ? clamp(num(pi.k)) : 0;
+    const hp = num(ctx.state?.run?.hp, 9);
+    const target = clamp(0.18 + 0.5 * P.nightK + P.enemies / 45 + (hp <= 1 ? 0.15 : 0), 0, 1);
+    P.intensity += (target - P.intensity) * Math.min(1, dt * 0.8);
+    if (override) for (const k in override) if (k in P) P[k] = override[k];
+  }
+
+  // >>> INTRO LANE B: cue (SPEC section 7.7). One cue on its own bus into the music gain, so the master and music sliders apply.
+  // Its sections start when the film's clock (ctx.intro.state.t) crosses their mark: a paused film pauses the score, a slow
+  // machine stays in step, and a sought (held) film plays nothing. Locked audio: `on()` never runs these, so nothing is scheduled.
+  function introLog(why, t) {
+    const now = ac.currentTime;
+    log.push({ name: 'intro_cue', at: Math.round(now * 1000) / 1000, t: Math.round((t ?? now) * 1000) / 1000, pan: 0, why });
+    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);
+  }
+  function introStart() {
+    const S = ctx.data?.INTRO?.sound;
+    if (!S || !N || !eng) return;
+    introKill();
+    try { music.stopAll(num(S.titleFade, 0.3)); } catch (e) { report('intro title fade', e); }   // the title's harp goes, and stays out
+    intro.hold = true; intro.skipped = false; intro.water = false; intro.t = -1; intro.releaseAt = 0; intro.sfx.length = 0; intro.started = ac.currentTime;
+    intro.events = soundEvents(ctx.data.INTRO);
+    intro.cue = createIntroCue(eng, { dry: N.musicVol, wet: N.musicWetVol }, S, { onError: (e) => report('intro cue', e) });
+    introLog('start');
+    introTick();
+  }
+  function introFire(e, filmT) {
+    const c = intro.cue;
+    if (!c || c.dead) return;
+    // suspended (no gesture reached the context, or it is not running): silent, and nothing queues up to play later. The press
+    // that starts the film is itself resuming the context, so the film's first half second is scheduled all the same
+    if (ac.state !== 'running' && filmT > 0.5) return;
+    const m = e.mark || EMPTY;
+    if (m.sfx) {
+      if (e.kind !== 'on') return;
+      resetScratch(); scratch.volume = num(m.volume, 1); scratch.why = 'intro'; scratch.force = true;
+      const h = playV(m.sfx, scratch);
+      if (h) intro.sfx.push(h);
+    } else if (!c.play(e)) return;
+    if (e.id === 'spark' && e.kind === 'on') intro.water = true;
+    introLog(e.kind === 'on' ? e.id : `${e.id}:${e.kind}${e.kind === 'note' ? e.i : ''}`);
+  }
+  function introTick() {
+    const c = intro.cue;
+    if (!c) return;
+    const now = ac.currentTime;
+    if (intro.releaseAt) { if (now >= intro.releaseAt) introKill(); return; }
+    const d = ctx.intro;
+    if (!d || d.isStub || typeof d.isActive !== 'function' || !d.isActive()) { introEnd({ stopped: true }); return; }   // stopped with no event
+    const s = d.state, t = num(s.t, 0);
+    if (intro.skipped) return;
+    // a sought film, or a jump (the valve): move with it and play nothing
+    if (!s.hold && t > intro.t && t - intro.t <= 1) { for (const e of soundEventsBetween(intro.events, intro.t, t)) introFire(e, t); }
+    intro.t = t;
+  }
+  /** A skip (or a stop): the cue's bus to 0 in INTRO.skip.soundFade, the SFX it started with it; then its nodes are released. */
+  function introFade() {
+    const c = intro.cue;
+    if (!c || intro.releaseAt) return;
+    const S = ctx.data?.INTRO?.sound || EMPTY, f = Math.min(0.3, Math.max(0.02, num(S.skipFade, 0.25))), now = ac.currentTime;
+    intro.skipped = true;
+    intro.releaseAt = c.fade(f) + 0.05;
+    for (const h of intro.sfx) { try { h.out.gain.cancelScheduledValues(now); h.out.gain.setValueAtTime(h.out.gain.value, now); h.out.gain.linearRampToValueAtTime(0, now + f); } catch { /* ended */ } }
+    intro.sfx.length = 0;
+    introLog('fade', now + f);
+  }
+  /** The film is over: the game's own score takes over (the lake's calm bed after the hand-off, the title's after a replay). */
+  function introEnd(p) {
+    if (!intro.cue) { intro.hold = false; return; }
+    if (p.stopped || p.error) introFade();
+    else if (!intro.skipped && !intro.releaseAt) { intro.releaseAt = intro.cue.end(); introLog('end'); }
+    intro.hold = false; intro.water = false;
+    moodTimer = 0.5;   // the next update picks the mood by the flow
+  }
+  function introKill() {
+    if (intro.cue) { try { intro.cue.release(); } catch (e) { report('intro release', e); } }
+    intro.cue = null; intro.events = null; intro.releaseAt = 0; intro.sfx.length = 0; intro.hold = false; intro.water = false;
+  }
+  // <<< INTRO LANE B
+
+  // ---------------------------------------------------------------- bus wiring
+  function on(evt, fn) {
+    const h = (p) => { if (!unlocked || !ac) return; try { fn(p || EMPTY); } catch (e) { report(evt, e); } };
+    (handlers[evt] || (handlers[evt] = [])).push(h);
+    ctx.bus?.on?.(evt, h);
+  }
+  function wire() {
+    // fishing
+    on('fishing:cast', (p) => { afReset(); resetScratch(); scratch.power = num(p.power, 0.7); play('cast_whoosh', scratch); });
+    on('fishing:land', (p) => { resetScratch(); scratch.volume = spatial(p.position, scratch) * 0.6 + 0.4; play('bobber_plop', scratch); });
+    on('fishing:nibble', () => { resetScratch(); scratch.pan = bobberPan(); play('nibble', scratch); });
+    on('fishing:bite', (p) => {
+      const tellName = V3.tellSfx(p.biteTell);
+      if (tellName) {
+        // v3: the class tell voices the water (scheduled by fishing:tell, or now when it never came); the "!" rings the alert
+        if (!tell || !tell.played) playTell(tellName, p.biteTell);
+        tell = null;
+        resetScratch(); scratch.pan = bobberPan(); scratch.alertOnly = true; play('bite', scratch);
+        return;
+      }
+      resetScratch(); scratch.pan = bobberPan(); play('bite', scratch);
+    });
+    on('fishing:hook', (p) => {
+      if (typeof p.grade === 'string') return;   // v3: fishing:strike already rang the strike
+      resetScratch(); scratch.perfect = !!p.perfect; play('hook', scratch);
+    });
+    on('fishing:miss', (p) => {
+      resetScratch(); scratch.pan = bobberPan();
+      if (p.reason === 'passed') { scratch.volume = 0.8; play('bite_pass', scratch); return; }   // v3: let it pass
+      if (p.reason === 'early' || p.reason === 'spooked') { scratch.volume = 0.6; play('denied', scratch); } else { scratch.volume = 0.7; play('splash_small', scratch); }
+    });
+    on('fishing:surge', (p) => {
+      resetScratch(); scratch.pan = bobberPan(); scratch.volume = 0.5 + 0.4 * clamp(num(p.strength, 1) / 1.5);
+      play('splash_big', scratch); play('line_strain', scratch);
+    });
+    on('fishing:caught', (p) => {
+      afCaught(p);
+      // (item 25's mix: in a show the caught instant's splash sits under the present, the show's loudest beat)
+      resetScratch(); scratch.pan = bobberPan(); if (ctx.data?.V3_ENABLED === true && ctx.data?.AUTOFISH?.show) scratch.volume = V3.SHOW_MIX.splash; play('splash_big', scratch);
+      // v3: the Fish's final length for the measuring cord (fishing:caught + {fish, z, sizeClass, ancient, length, favours})
+      if (typeof p.sizeClass === 'string' && num(p.length) > 0) {
+        catchInfo = { speciesId: p.speciesId ?? null, sizeClass: p.sizeClass, ancient: !!p.ancient, length: num(p.length), zone: p.zone ?? ctx.state?.run?.zone ?? null,
+          key: p.fish?.uid ?? `${p.speciesId}:${p.length}`, at: ac.currentTime };
+      }
+    });
+    on('fishing:escaped', (p) => {
+      const lossName = V3.lossSfx(p.reason);
+      if (lossName) { afLoss(p, lossName); return; }   // v3 causes; v1's 'snap' / 'slack' below
+      resetScratch();
+      if (p.reason === 'snap') play('line_snap', scratch);
+      else { scratch.volume = 0.8; play('splash_small', scratch); scratch.volume = 0.5; scratch.pitch = 0.8; play('denied', scratch); }
+    });
+    on('fish:landed', (p) => {
+      // the show (SPEC §2.8): the records are written at the present, and the present's flourish (show_present, on
+      // fishing:show {hold}) is the catch's fanfare: nothing waits for a stamp any more. Without a show (v1, a debug catch
+      // measured at once) the fanfare plays here as it always did
+      const shown = showLive();
+      if (!shown) { resetScratch(); scratch.rarity = p.species?.rarity || 'common'; play('catch_fanfare', scratch); }
+      if (p.isNew) { resetScratch(); scratch.delay = shown ? 0.5 : 0.65; play('new_species', scratch); }
+    });
+    // ---- the show (docs/v3/show/SPEC.md §2.8; inert until fishing emits fishing:show)
+    on('fishing:show', (p) => showSound(p));
+    on('show:beat', (p) => showBeat(p));
+    // the card: the cord's ticks rise under the length as it counts up; the seal lands when the stamp presses
+    on('card:count', (p) => {
+      if (ctx.data?.V3_ENABLED !== true || !(num(p.length) > 0)) return;
+      if (ctx.flow !== 'playing' && !(ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true)) return;   // (item 25: never under the film)
+      startCord({ speciesId: p.speciesId ?? null, sizeClass: p.sizeClass, length: num(p.length), zone: ctx.state?.run?.zone ?? null, key: p.uid ?? `${p.speciesId}:${p.length}`, card: true }, clamp(num(p.dur, 0.5), 0.2, 2));
+      if (cord) cord.compact = true;
+    });
+    on('card:stamp', (p) => {
+      if (ctx.data?.V3_ENABLED !== true) return;
+      // (item 25: a card closed before its stamp still stamps a frame later; nothing of a card sounds under the film)
+      if (ctx.flow !== 'playing' && !(ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true)) return;
+      const legendary = p.legendary === true || ctx.data?.SPECIES_BY_ID?.[p.speciesId]?.rarity === 'legendary';
+      const seal = V3.sealOf(p.sizeClass, ctx.data, { legendary });
+      if (cord && ac.currentTime < cord.end) cancelCord();   // any knot still due is silenced: the stamp lands now
+      resetScratch(); scratch.seal = seal; scratch.ancient = V3.goldThread({ ancient: p.ancient, legendary }); scratch.force = true;
+      if (!seal) scratch.why = p.sizeClass || null;
+      scratch.volume = V3.stampVolume(seal);   // (item 25: the heaviest wax sits under its show's present)
+      play('seal_stamp', scratch);
+      if (seal === 'blackWaxRibbon') duck(0.6, 0.9);
+      stampAt = ac.currentTime;
+      const recs = Array.isArray(p.records) ? p.records : [];
+      if (recs.some((r) => r && r.kind === 'oldLedger')) { resetScratch(); scratch.delay = 0.9; play('murk_bell_far', scratch); }
+      // a personal best or a class first that no show has rung yet (a catch measured at once): the record's figure after the seal
+      if (recordRung !== (p.uid ?? null) && recs.some((r) => r && (r.kind === 'pb' || r.kind === 'classFirst'))) { resetScratch(); scratch.delay = 0.28; scratch.force = true; play('record_chime', scratch); }
+      recordRung = null;
+    });
+    on('fish:action', (p) => {
+      const a = p.action;
+      if (a === 'eat') play('eat');
+      else if (a === 'render') play('render_oil');
+      else if (a === 'sell') play('coin');
+      else if (a === 'release') { resetScratch(); scratch.volume = 0.7; play('splash_small', scratch); }
+      else if (a === 'keep') play('creel');
+    });
+    on('shells:change', (p) => { if (num(p.delta) > 0) { resetScratch(); scratch.pitch = 1 + Math.min(0.25, num(p.delta) / 400); play('coin', scratch); } });
+    on('shop:buy', () => play('buy'));
+    on('relic:buy', () => play('buy'));
+    on('merchant:arrive', () => { resetScratch(); scratch.volume = Math.max(0.5, spatial(ctx.actors?.merchant?.position, scratch)); play('merchant_bell', scratch); });
+    on('merchant:leave', () => { resetScratch(); scratch.volume = 0.4 * Math.max(0.5, spatial(ctx.actors?.merchant?.position, scratch)); scratch.pitch = 0.94; play('merchant_bell', scratch); });
+    on('phase:change', (p) => {
+      if (p.phase === 'gloomtide') {
+        const mode = nightMode(p.nightMode);
+        if (!mode) { play('gloom_rise'); return; }
+        // v3: Night Rise, the big-fish hour, opens every night in every mode (Gloomtide's swarm still rises first)
+        night.day = ctx.state?.run?.day ?? -1; night.windowOpen = false; night.windowClosed = false;
+        if (mode === 'gloomtide') play('gloom_rise');
+        resetScratch(); scratch.root = zoneRoot(); scratch.why = mode;
+        if (mode === 'gloomtide') { scratch.delay = 2.6; scratch.volume = 0.6; }
+        play('night_rise', scratch);
+        moodTimer = 0.5;
+      } else if (p.phase === 'dawn') play('dawn');
+      else if (p.phase === 'dusk') play('dusk_toll');
+    });
+    on('player:anchor', (p) => { resetScratch(); scratch.anchored = p.anchored !== false; play('anchor', scratch); });
+    on('interact:change', (p) => { if (p.id) { resetScratch(); scratch.volume = 0.7; scratch.pitch = 0.85; play('ui_hover', scratch); } });
+    // ---- v3 (DESIGN §25, Au1): only v3 events reach these
+    on('fishing:tell', (p) => {
+      const name = V3.tellSfx(p.biteTell);
+      if (!name) return;
+      tell = { name, why: p.biteTell, at: gameT() + V3.tellDelay(p.biteTell, p.lead, ctx.data, p.dur), played: false };
+      tellTick();
+    });
+    on('fishing:state', (p) => {
+      if (tell && p.state !== 'waiting' && p.state !== 'bite') dropTell();
+      if (p.state === 'idle' || p.state === 'charging' || p.state === 'casting') afReset();
+    });
+    // ---- v3 automatic fishing (Au2): the strike, the play's beats (no species on any of them before the reveal)
+    on('fishing:strike', (p) => afStrike(p));
+    on('fishing:landing', (p) => landSwell(p));
+    on('fishing:reel', (p) => afBeat(p));
+    on('fish:escaped', (p) => {
+      // the got-away note (after the quiet beat): the card (Trophy and bigger) gets two low ink notes
+      const big = p.legendary === true || p.ancient === true || p.sizeClass === 'trophy' || p.sizeClass === 'elder';
+      if (big && ctx.data?.V3_ENABLED === true) { resetScratch(); scratch.root = zoneRoot(); scratch.why = p.sizeClass || 'legend'; play('gotaway', scratch); }
+    });
+    // ---- v3 the First Evening (FE-Au1)
+    on('firstEvening:step', (p) => feStep(p));
+    on('firstEvening:beat', (p) => { if (p.id === 'ember') playEmber(); });
+    on('firstEvening:line', (p) => feLine(p));
+    // an Elder's old trick (fishing:surge {trick} already plays the splash and strain) gets a low warning swell
+    // the loop, Ashwick's comeback settling on the float (WICKS §2.5): a short ember hiss beside the bobber
+    on('fishing:comeback', () => { if (MOSS.comebackQuiet({ loopOn: LOOP_ON(), zone: ctx.state?.run?.zone ?? null })) return; resetScratch(); scratch.pan = bobberPan(); play('ember_hiss', scratch); });   // (WC-3: silent on the Mossmere under the loop)
+    // the loop, M1 step 3a: the giant's back, a place's lift, the catch seal's press (audio-mossmere.js)
+    on('world:giantBack', (p) => { mossGiantBack(p); sporeGiantBack(p); });   // (LAKE 2, lane A: Sporewood's giants their own)
+    on('wild:frogDive', (p) => sporePlop(p));   // LAKE 2, lane A: a lily frog plops off its raft
+    on('place:lift', (p) => mossLift(p));
+    // (LOST-TACKLE §5.2: the glide through the Sluice Veil: as the raft passes under it, a splash and the water's own voice, close)
+    on('place:veil', () => {
+      if (!LOOP_ON()) return;
+      const V = MOSS.VEIL_PASS;
+      setTimeout(() => {
+        resetScratch(); scratch.volume = V.volume; scratch.pitch = V.pitch; scratch.why = 'veil'; play(V.sfx, scratch);
+        wcReg(); for (let i = 0; i < V.trickles; i++) setTimeout(() => { resetScratch(); scratch.volume = 0.9; scratch.why = 'veil'; play(MOSS.WATER_VOICES.inflow.sfx, scratch); }, i * 260);
+      }, V.at * 1000);
+    });
+    on('loop:seal', (p) => { if (LOOP_ON() && (p?.seal ?? 'catch') === 'catch') { resetScratch(); scratch.volume = 0.95; scratch.why = 'catch'; scratch.force = true; play(MOSS.MOSS_EVENTS.seal, scratch); } });
+    on('fishing:oldTrick', () => { resetScratch(); scratch.pan = bobberPan(); scratch.pitch = 0.72; scratch.volume = 0.9; play('surge_warn', scratch); });
+    // a legend snag (Still / Lantern Grasping Dark): the 1 s telegraph, then the strain of the +0.2 spike
+    on('fishing:snag', (p) => {
+      resetScratch(); scratch.pan = bobberPan();
+      if (p.state === 'warn') { scratch.pitch = 0.6; play('surge_warn', scratch); } else { scratch.volume = 0.9; play('line_strain', scratch); }
+    });
+    on('sign:spawn', (p) => { if (p.kind === 'rise') riseSound(p); else if (p.kind === 'stems') wcStems(p); });   // (WC-3: the stems' rustle)
+    on('fishing:bite', (p) => wcToll(p));   // WC-3: the Matriarch takes: a low toll from the Bell Pool's floor
+    on('heron:lift', (p) => wcCroak(p));     // WC-3: the heron lifts off with a croak
+    on('sign:rise', (p) => riseSound(p));
+    on('sign:end', (p) => { if (p.id !== undefined) signHeard.delete(p.id); });
+    on('fish:measured', () => {
+      // the records are written (the show's present, or at once without a show): the cord's ticks and the seal's stamp no longer
+      // sound here: they are the card's (card:count, card:stamp). A cord left from an older measuring falls silent
+      if (cord && !cord.compact) cancelCord();
+      catchInfo = null;
+    });
+    on('swarm:window', (p) => {
+      syncNight();
+      const mode = typeof p.mode === 'string' ? p.mode : nightMode();
+      if (p.state === 'open') {
+        night.windowOpen = true;
+        if (mode !== 'gloomtide') play('gloom_rise');                  // a Lantern swarm comes (Gloomtide's rose with the night)
+      } else if (p.state === 'close') {
+        night.windowOpen = false; night.windowClosed = true;
+        if (p.reason === 'window' && phaseName() === 'gloomtide') {   // the quiet tail: the rise resumes, uninterrupted
+          resetScratch(); scratch.volume = 0.7; scratch.root = zoneRoot(); scratch.why = 'tail'; play('night_rise', scratch);
+        }
+      }
+      moodTimer = 0.5;
+    });
+    // combat
+    on('enemy:spawn', (p) => {
+      const e = p.enemy || EMPTY; resetScratch();
+      scratch.elite = !!e.elite;
+      const g = spatial(e.position, scratch);
+      if (e.boss) return;                       // boss:spawn handles it
+      scratch.volume = e.elite ? Math.max(0.6, g) : g * 0.8;
+      scratch.force = !!e.elite;
+      play('enemy_spawn', scratch);
+    });
+    on('enemy:hit', (p) => {
+      // a hit dispatched synchronously from a pointerdown is a tap-zap (combat.onPointerDown)
+      if (inPointer && zapFrame !== ctx.time?.frame) { zapFrame = ctx.time?.frame; resetScratch(); scratch.volume = 0.9; play('zap', scratch); }
+      resetScratch(); scratch.crit = !!p.crit;
+      const g = spatial(p.position || p.enemy?.position, scratch);
+      scratch.volume = g * (p.crit ? 1 : 0.75);
+      auraPulse = Math.min(0.6, auraPulse + 0.05);
+      play('enemy_hit', scratch);
+    });
+    on('enemy:slain', (p) => {
+      const e = p.enemy || EMPTY; resetScratch();
+      scratch.big = !!(e.elite || e.boss);
+      scratch.volume = spatial(p.position || e.position, scratch) * (scratch.big ? 1.1 : 0.85);
+      play('enemy_die', scratch);
+    });
+    on('enemy:steal', () => play('steal'));
+    on('boss:spawn', () => play('boss_roar'));
+    on('boss:slain', (p) => { resetScratch(); scratch.dying = true; scratch.pitch = 0.85; play('boss_roar', scratch); resetScratch(); scratch.big = true; play('enemy_die', scratch); });
+    on('flare', () => play('flare'));
+    on('levelup', () => play('levelup'));
+    on('boon:chosen', () => play('boon_pick'));
+    on('xp:gain', (p) => {
+      const now = ac.currentTime;
+      xpCombo = now - xpLast < 0.7 ? Math.min(xpCombo + 1, 10) : 0;
+      xpLast = now;
+      resetScratch();
+      const semis = PENTA[xpCombo % 5] + 12 * Math.floor(xpCombo / 5);
+      scratch.pitch = Math.pow(2, semis / 12);
+      scratch.volume = 0.75 + Math.min(10, num(p.amount, 1)) * 0.025;
+      play('xp_pickup', scratch);
+    });
+    on('player:damage', () => play('player_hurt'));
+    on('player:heal', () => play('heal'));
+    on('player:died', () => { stopContinuous(); play('death'); });
+    on('lantern:out', () => play('snuff'));
+    on('lantern:lit', () => play('ignite'));
+    on('resource:low', (p) => { if (p.resource === 'hp') return; resetScratch(); scratch.resource = p.resource; play('warn', scratch); });
+    // progression / meta
+    // (item 25: a trial completed by a catch is told with its toast, after the card: its chimes wait through the show, in order)
+    on('challenge:complete', () => { if (showHolds()) heldChimes.push('challenge_complete'); else play('challenge_complete'); });
+    on('unlock', () => { if (showHolds()) { heldChimes.push('unlock'); return; } resetScratch(); scratch.delay = lastPlay.challenge_complete !== undefined && ac.currentTime - lastPlay.challenge_complete < 0.5 ? 1.1 : 0; play('unlock', scratch); });
+    on('bounty:complete', () => { play('coin'); resetScratch(); scratch.volume = 0.6; scratch.delay = 0.1; play('challenge_complete', scratch); });
+    on('gate:open', () => play('gate_open'));
+    on('zone:change', (p) => {
+      // v3 (CONTRACT §13.3): the hub is entered with no sting (the cove bed starts); leaving the cove plays `setout`, never
+      // `descend`; a Continue rings nothing. v1 (no hub, no cove): `descend` whenever there is a prev, as before.
+      if (p.hub) { coveEnter(p); return; }
+      if (cove.active) coveLeave();
+      const sting = V3.zoneSting(p);
+      if (!sting) return;
+      stopContinuous();
+      if (sting === 'setout') { resetScratch(); scratch.root = ZONE_MUSIC[p.zone]?.root ?? zoneRoot(); scratch.why = p.zone || null; play('setout', scratch); }
+      else play('descend');
+    });
+    on('victory', () => { victoryHold = 40; play('victory'); });
+    // (item 25: the catch card unfolds from the fish with its own sound, in place of the generic open)
+    on('ui:modal', (p) => play(p.open ? (p.id === 'catch' && ctx.data?.V3_ENABLED === true && SFX.ui_unfold ? 'ui_unfold' : 'ui_open') : 'ui_close'));
+    on('run:start', () => { victoryHold = 0; stopContinuous(); });
+    on('run:end', () => { stopContinuous(); heldChimes.length = 0; });
+    on('flow:change', (p) => { if (p.flow !== 'playing') stopContinuous(); moodTimer = 0.5; });
+    // >>> INTRO LANE B: wire (v3 only: the director emits these; never with the flag off)
+    on('intro:start', () => introStart());
+    on('intro:skip', () => introFade());
+    on('intro:done', (p) => introEnd(p));
+    // <<< INTRO LANE B
+  }
+  function bobberPan() {
+    const b = ctx.fishing?.bobberPos;
+    if (!b || typeof b.x !== 'number') return 0;
+    const o = { pan: 0 };
+    spatial(b, o);
+    return o.pan * 0.7;
+  }
+
+  // ---------------------------------------------------------------- unlock / lifecycle
+  function tick() {
+    try { if (music && ac && ac.state === 'running') music.tick(); } catch (e) { report('tick', e); }
+  }
+  function unlock() {
+    try {
+      if (!ac && !buildGraph()) return false;
+      if (ac.state !== 'running' && !document.hidden) { const pr = ac.resume?.(); pr?.catch?.(() => {}); }
+      if (!unlocked) {
+        unlocked = true;
+        try {   // iOS: play a silent buffer inside the gesture
+          const b = ac.createBuffer(1, 1, 22050); const s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0);
+        } catch { /* ignore */ }
+        applySettings();
+        if (!timer) timer = setInterval(tick, 25);
+        pickMood(0);
+      }
+      return true;
+    } catch (e) { report('unlock', e); return false; }
+  }
+  function onVisibility() {
+    if (!ac) return;
+    try {
+      if (document.hidden) ac.suspend?.()?.catch?.(() => {});
+      else if (unlocked) ac.resume?.()?.catch?.(() => {});
+    } catch { /* ignore */ }
+  }
+  function onGesture() {
+    if (!ac) { unlock(); return; }
+    if (ac.state !== 'running' && !document.hidden) { try { ac.resume?.()?.catch?.(() => {}); } catch { /* ignore */ } }
+  }
+  function measureRms() {
+    if (!N || !rmsBuf) return 0;
+    try {
+      N.analyser.getFloatTimeDomainData(rmsBuf);
+      let s = 0;
+      for (let i = 0; i < rmsBuf.length; i++) s += rmsBuf[i] * rmsBuf[i];
+      return Math.sqrt(s / rmsBuf.length);
+    } catch { return 0; }
+  }
+
+  const api = {
+    init() {
+      wire();
+      document.addEventListener('visibilitychange', onVisibility);
+      window.addEventListener('pointerdown', onGesture, { capture: true, passive: true });
+      window.addEventListener('pointerdown', () => { inPointer = false; });          // bubble: after the canvas handler
+      window.addEventListener('pointerdown', () => { inPointer = true; queueMicrotask(() => { inPointer = false; }); }, { capture: true, passive: true });
+      window.addEventListener('keydown', onGesture, { capture: true, passive: true });
+      window.addEventListener('touchend', onGesture, { capture: true, passive: true });
+      ctx.debug.audio = () => ({
+        state: ac ? ac.state : 'locked',
+        time: ac ? ac.currentTime : 0,
+        mood: music?.mood || null,
+        zone: music?.zone || null,
+        voices: eng ? eng.active : 0,
+        musicVoices: eng ? (eng.tags.m || 0) : 0,
+        layers: music ? music.layers.length : 0,
+        rms: measureRms(),
+        forced,
+        intensity: music ? +music.params.intensity.toFixed(3) : 0,
+        played, last: lastName,
+        loops: { strain: !!strain && !strain.dead, charge: !!charge && !charge.dead, aura: !!aura && !aura.dead, water: !!water, bed: !!bed && !bed.dead && (bed._g ?? 0) > 0,
+          hum: !!af.hum && !af.hum.dead, drone: !!af.drone && !af.drone.dead, cove: !!cove.fire && !cove.fire.dead },
+        auto: unlocked ? autoMood() : null,
+        nightMode: nightMode(),
+        cord: cord ? { ticks: cord.ticks, chimes: cord.chimes.slice(), end: cord.end, compact: !!cord.compact, active: !!ac && ac.currentTime < cord.end } : null,
+        play: af.cls ? { active: af.active, cls: af.cls, mood: af.music?.mood ?? null } : null,
+        cove: { active: cove.active, from: cove.from, bed: !!(cove.fire && !cove.fire.dead && (cove.fire._g ?? 0) > 0), step: fe.step },
+      });
+      // M1 step 3a: the Mossmere's layers as audio has them (the loop only)
+      if (ctx.data?.LOOP_ENABLED === true) ctx.debug.audioMoss = () => ({
+        level: moss.level, light: moss.light,
+        layers: Object.fromEntries(Object.entries(moss.layers).map(([k, l]) => [k, r3(num(l?._g, 0))])),
+        hum: moss.hum && !moss.hum.dead ? { level: r3(num(moss.hum._g, 0)), lowpass: r3(num(moss.hum._f, 0)) } : null,
+        places: moss.places.map((p) => ({ id: p.id, lifted: p.lifted, gain: r3(num(p.gain, 0)), muffle: num(p.muffle, 0), dist: p.dist === undefined ? null : r3(p.dist) })),
+      });
+      // LAKE 2, lane A: Sporewood's layers as audio has them (the loop only)
+      if (ctx.data?.LOOP_ENABLED === true) ctx.debug.audioSpore = () => ({
+        level: spore.level, light: spore.light, k: r3(spore.k),
+        layers: Object.fromEntries(Object.entries(spore.layers).filter(([, l]) => l && !l.dead).map(([k, l]) => [k, r3(num(l?._g, 0))])),
+        hum: spore.hum ? spore.hum.map((h) => ({ level: r3(num(h._g, 0)), lowpass: r3(num(h._f, 0)) })) : null,
+        fall: spore.fall && !spore.fall.dead ? { level: r3(num(spore.fall._g, 0)) } : null,
+        swell: !!ac && ac.currentTime < spore.swellUntil,
+        places: spore.places.map((p) => ({ id: p.id, lifted: p.lifted, gain: r3(num(p.gain, 0)), muffle: num(p.muffle, 0), dist: p.dist === undefined ? null : r3(p.dist) })),
+      });
+      // v3 (Au2): the automatic play as audio hears it — class, class length, tier, the score, the hum and drone, the beats
+      ctx.debug.audioPlay = () => {
+        const now = ac ? ac.currentTime : 0;
+        return {
+          active: af.active, cls: af.cls, legend: af.legend, tier: af.tier, len: r3(af.len), k: r3(V3.lengthK(af.len)),
+          music: af.music ? { ...af.music } : null, mood: music?.mood || null,
+          params: music ? { reelLevel: music.params.reelLevel, pulse: music.params.pulse, heart: music.params.heart } : null,
+          hum: { on: !!af.hum && !af.hum.dead, level: r3(num(af.hum?._g, 0)), freq: r3(num(af.hum?._o, 0)), muted: now < af.humMuteUntil, target: af.humTarget },
+          drone: { on: !!af.drone && !af.drone.dead, level: r3(num(af.drone?._g, 0)), target: af.droneTarget },
+          still: now < af.stillUntil, duck: r3((now < duckUntil ? duckAmt : 1) * (now < af.stillUntil ? STILL_DUCK : 1)), held: af.held.length, strain: af.strain ?? null, beats: af.beats.map((b) => ({ ...b })),
+        };
+      };
+      // test tooling: drive audio's own listeners with an event, without the rest of the game hearing it
+      ctx.debug.audioEvent = (evt, payload = {}) => { const hs = handlers[evt] || []; for (const h of hs) h(payload); return hs.length; };
+      ctx.debug.audioLog = (n = 60) => log.slice(-Math.max(1, Math.min(LOG_MAX, num(n, 60) | 0))).map((e) => ({ ...e }));
+      // >>> INTRO LANE B: debug (the cue as audio has it: tests read the bus level and what was played; v3 builds only)
+      if (ctx.data?.V3_ENABLED === true && ctx.data?.INTRO) ctx.debug.audioIntro = () => ({
+        active: !!intro.cue && !intro.cue.dead, hold: intro.hold, skipped: intro.skipped, t: intro.t, water: intro.water, releasing: intro.releaseAt > 0,
+        level: intro.cue ? intro.cue.level.gain.value : null, lowpass: intro.cue ? intro.cue.lowpass.frequency.value : null,
+        voices: intro.cue ? intro.cue.voices() : 0, fired: intro.cue ? intro.cue.fired.slice() : [], layers: music ? music.layers.filter((l) => !l.stopAt).length : 0,
+        state: ac ? ac.state : 'locked', time: ac ? ac.currentTime : 0,
+      });
+      // <<< INTRO LANE B
+      ctx.debug.audioMood = (m) => setMood(m);
+      ctx.debug.audioParams = (o) => {
+        override = o && typeof o === 'object' ? { ...o } : null;
+        if (music) { if (override) Object.assign(music.params, override); else music.params.solo = null; }
+        return override;
+      };
+      // test tooling: capture the post-compressor mix → {sampleRate, channels:2, b64 (interleaved int16)}
+      ctx.debug.audioRecord = (seconds = 4) => new Promise((resolve) => {
+        if (!ac || !N || !ac.createScriptProcessor) { resolve(null); return; }
+        const sp = ac.createScriptProcessor(4096, 2, 2);
+        const total = Math.floor(clamp(num(seconds, 4), 0.1, 30) * ac.sampleRate);
+        const chunks = [];
+        let n = 0;
+        sp.onaudioprocess = (e) => {
+          if (n >= total) return;
+          const a = e.inputBuffer.getChannelData(0), b = e.inputBuffer.numberOfChannels > 1 ? e.inputBuffer.getChannelData(1) : a;
+          chunks.push([new Float32Array(a), new Float32Array(b)]);
+          n += a.length;
+          if (n < total) return;
+          try { N.comp.disconnect(sp); sp.disconnect(); } catch { /* ignore */ }
+          const out = new Int16Array(n * 2);
+          let k = 0;
+          for (const [l, r] of chunks) for (let i = 0; i < l.length; i++) { out[k++] = clamp(l[i], -1, 1) * 32767; out[k++] = clamp(r[i], -1, 1) * 32767; }
+          const bytes = new Uint8Array(out.buffer);
+          let bin = '';
+          for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+          resolve({ sampleRate: ac.sampleRate, channels: 2, b64: btoa(bin) });
+        };
+        N.comp.connect(sp); sp.connect(ac.destination);
+      });
+    },
+    update(dt) {
+      if (!ac || !unlocked || !N) return;
+      if (ac.state !== 'running') return;
+      try {
+        dt = Math.min(num(dt, 0.016), 0.1);
+        music.tick();
+        pollSettings();
+        updateParams(dt);
+        // mood polling runs on the audio clock (robust to frame-time clamping / slow frames)
+        const at = ac.currentTime, rdt = lastAt ? Math.min(1, Math.max(0, at - lastAt)) : dt;
+        lastAt = at;
+        moodTimer += rdt;
+        if (victoryHold > 0) victoryHold -= rdt;
+        if (moodTimer >= 0.5) { pickMood(moodTimer); moodTimer = 0; }
+        music.silent = curve(set.music) * curve(set.master) < 0.0005;
+        continuous(dt);
+        v3Tick();
+        releaseChimes();
+        busGains();
+      } catch (e) { report('update', e); }
+      // >>> INTRO LANE B: cue (the film's clock plays the cue; its own try, so a fault in it never stops the score)
+      if (intro.cue) { try { introTick(); } catch (e) { report('intro cue', e); introKill(); } }
+      // <<< INTRO LANE B
+    },
+    unlock,
+    play,
+    setMood,
+    applySettings,
+    // ---- optional extras
+    getMood: () => music?.mood || null,
+    isUnlocked: () => unlocked && !!ac && ac.state === 'running',
+    duck,
+    names: CONTRACT_SFX.slice(),
+    extraNames: Object.keys(SFX).filter((k) => !CONTRACT_SFX.includes(k) && !V3_SFX.includes(k)),
+    moods: MOODS.slice(),
+    v3Names: V3_SFX.slice(),            // CONTRACT §13.7 audio's v3 SFX that exist (Au1)
+    v3Moods: V3_MOODS.slice(),
+    rms: measureRms,
+    /** soft glass chime at a MIDI pitch — for UI flourishes (e.g. ascending notes on a reward list). */
+    note(midi, { volume = 0.5 } = {}) {
+      if (!ac || !unlocked) return false;
+      return play('charge_ping', { volume, pitch: mtof(clamp(num(midi, 93), 48, 108)) / mtof(93), force: true });
+    },
+  };
+  return api;
+}

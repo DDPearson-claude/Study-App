@@ -1,0 +1,551 @@
+// world-layout.js — deterministic lake layout per zone (world author).
+// Pure data: islands, pillars, docks, gate, spawn, basins, light-shaft cracks and the
+// queries that depend on them (shore radius, depth field, open water). No THREE objects.
+import { makeRng, clamp, smoothstep } from './core.js';
+import { makeRingNoise, ringNoise, TAU } from './world-geo.js';
+import { buildOutline, sdfAt, sdfGrad, bankAt, groundAt as outlineGround, shoreAt as outlineShoreAt, polarShore, arcAt, alongAt } from './world-outline.js';   // LAKE2 §3.1 (lane W1)
+
+/** Pillar/prop kinds per zone theme with weights. */
+const PILLAR_KINDS = {
+  mossmere: [['column', 4], ['pilings', 3], ['wreck', 1.2], ['lamp', 1.6]],
+  sporewood: [['stalk', 5], ['pod', 2.5], ['shelf', 1.5]],
+  glasswater: [['spire', 4], ['obelisk', 2.2], ['statue', 1.4]],
+  paleabyss: [['rib', 4], ['vertebra', 2.2], ['coral', 2]],
+};
+const THEMES = ['mossmere', 'sporewood', 'glasswater', 'paleabyss'];
+/** Authored pillar kinds (data.js arena.pillars[].kind) -> the art builder that draws them. */
+const PILLAR_ART = {
+  mossmere: { pier: 'column', pylon: 'lamp', statue: 'statue' },
+  sporewood: { stalk: 'stalk', pod: 'pod', shelf: 'shelf' },
+  glasswater: { reliquary: 'obelisk', shelf: 'spire', statue: 'statue' },
+  paleabyss: { rib: 'rib', vertebra: 'vertebra', coral: 'coral' },
+};
+const PILLAR_ART_ANY = { pier: 'column', pylon: 'column', reliquary: 'obelisk', rib: 'rib', stalk: 'stalk', statue: 'statue' };
+const isPt = (o) => !!o && typeof o === 'object' && Number.isFinite(o.x) && Number.isFinite(o.z);
+
+export function themeOf(zone) {
+  if (zone && THEMES.includes(zone.id)) return zone.id;
+  return THEMES[Math.max(0, Math.min(3, zone?.index | 0))];
+}
+
+export function buildLayout(zone) {
+  const A = zone?.arena || {};
+  // LAKE2 §3.1 (lane W1): an authored outline shore (layout 'outline'): its distance field is the shore every reader asks; R is the
+  // farthest of its water from the centre (the vault, the rings and the bake are sized by it); shoreR stays as a polar fallback only
+  const O = A.layout === 'outline' && Array.isArray(A.outline) ? buildOutline(A) : null;
+  const R = O ? Math.ceil(Math.max(...Array.from(O.shore.x, (x, k) => Math.hypot(x, O.shore.z[k])))) + 2 : A.radius || 60;
+  const seed = (A.seed || 1307) >>> 0;
+  const theme = themeOf(zone);
+  const rng = makeRng(seed);
+  const L = {
+    zone, theme, R, seed,
+    shore: makeRingNoise(rng, [2, 3, 5, 7, 11, 13], (k) => (k === 2 ? 0.028 : k === 3 ? 0.022 : 0.04 / k)),
+    islands: [], pillars: [], obstacles: [], docks: [], basins: [], cracks: [], spawn: null, gate: null,
+    shelf: R * 0.26,
+    np: [rng() * 10, rng() * 10, rng() * 10],
+  };
+  const shoreR = (a) => R * (1 + ringNoise(L.shore, a));
+  L.shoreR = shoreR;
+  if (O) {
+    L.outline = O;
+    const tab = polarShore(O, 0, 0, 360), n = tab.length;
+    L.shoreR = (a) => { const u = ((((a / TAU) % 1) + 1) % 1) * n, i = Math.floor(u) % n, k = u - Math.floor(u); return tab[i] + (tab[(i + 1) % n] - tab[i]) * k; };
+  }
+
+  // Authored arena data (data.js ZONES[].arena, DESIGN §4.4) wins; every field falls back to
+  // the procedural placement below when it is missing (a number count, null or absent).
+  L.authored = !!A.layout;
+
+  // spawn (south, facing north / -Z so the sail camera looks across the lake)
+  if (isPt(A.spawn)) L.spawn = { x: A.spawn.x, z: A.spawn.z, yaw: Number.isFinite(A.spawn.yaw) ? A.spawn.yaw : 0 };
+  else L.spawn = { x: rng.range(-3, 3), z: R * 0.42, yaw: 0 };
+
+  // Descent Gate: authored position, else northern half, deep open water. The final lake has
+  // no gate (arena.gate === null): the hidden gate sits on its legend pool so the hero
+  // landmarks still rise behind the finale.
+  if (isPt(A.gate)) L.gate = { x: A.gate.x, z: A.gate.z, radius: Number(A.gate.r) || 4.5, name: A.gate.name || null, stones: [] };
+  else if (A.gate === null && isPt(A.legendPool)) L.gate = { x: A.legendPool.x, z: A.legendPool.z, radius: 4.5, name: null, stones: [], none: true };
+  else {
+    const a = -Math.PI / 2 + rng.range(-0.75, 0.75);
+    const d = R * rng.range(0.52, 0.64);
+    L.gate = { x: Math.cos(a) * d, z: Math.sin(a) * d, radius: 4.5, stones: [] };
+  }
+
+  const dist = (ax, az, bx, bz) => Math.hypot(ax - bx, az - bz);
+  const insideShore = O ? (x, z, pad) => sdfAt(O, x, z) >= pad : (x, z, pad) => Math.hypot(x, z) + pad <= shoreR(Math.atan2(z, x));
+
+  // islands: authored circles {x, z, r, kind, name}, else procedural count
+  if (Array.isArray(A.islands)) {
+    const bigR = Math.max(0, ...A.islands.map((o) => Number(o.r) || 0));
+    for (const o of A.islands) {
+      if (!isPt(o) || !(o.r > 0)) continue;
+      const big = o.kind === 'tower' || o.kind === 'giant' || (o.r >= 7.5 && o.r >= bigR);
+      const flat = o.kind === 'wreck' || o.kind === 'cap' || o.kind === 'lily';
+      const h = (rng.range(1.6, 3.2) * (big ? 1.5 : 1) + o.r * 0.25) * (flat ? 0.6 : 1);
+      L.islands.push({ x: o.x, z: o.z, r: o.r, h, rot: rng() * TAU, shelf: 5, seed: rng() * 1000, big, kind: o.kind || null, name: o.name || null });
+      // (an outline island is land in the shore's own field: its top and shelf as authored, no circle in the collision)
+      if (O && Array.isArray(o.outline)) Object.assign(L.islands[L.islands.length - 1], { h: Number(o.h) || h, shelf: Number(o.shelf) || 3, outline: true });
+    }
+  }
+  const nIsl = Array.isArray(A.islands) ? 0 : (Number.isFinite(A.islands) ? A.islands : 6);
+  for (let i = 0; i < nIsl; i++) {
+    for (let tries = 0; tries < 300; tries++) {
+      const big = i === 0;
+      const r = big ? rng.range(6.5, 8.5) : rng.range(3.0, 6.0);
+      const a = rng() * TAU, d = rng.range(12, R - 10);
+      const x = Math.cos(a) * d, z = Math.sin(a) * d;
+      if (!insideShore(x, z, r + 7)) continue;
+      if (dist(x, z, L.spawn.x, L.spawn.z) < r + 10) continue;
+      if (dist(x, z, L.gate.x, L.gate.z) < r + L.gate.radius + 8) continue;
+      // keep the view straight ahead of the spawn mostly open
+      if (Math.abs(x - L.spawn.x) < r + 4 && z < L.spawn.z && z > L.spawn.z - 22) continue;
+      if (L.islands.some((o) => dist(x, z, o.x, o.z) < r + o.r + 7.5)) continue;
+      L.islands.push({ x, z, r, h: rng.range(1.6, 3.2) * (big ? 1.5 : 1) + r * 0.25, rot: rng() * TAU, shelf: rng.range(6, 9), seed: rng() * 1000, big });
+      break;
+    }
+  }
+
+  // merchant docks: authored (day 1 = docks[0]), else open water near an island or the shore,
+  // spaced apart; dock 0 nearest spawn
+  if (Array.isArray(A.docks) && A.docks.some(isPt)) {
+    // barge faces the lake centre (heading convention: yaw 0 faces -Z)
+    for (const d of A.docks) {
+      if (!isPt(d)) continue;
+      // keep the barge (and its posts) clear of the noisy cliff line
+      let x = d.x, z = d.z;
+      if (O) { const g = { x: 0, z: 0 }; for (let k = 0; k < 30 && !insideShore(x, z, d.pad ?? 5.5); k++) { sdfGrad(O, x, z, g); x += g.x * 0.25; z += g.z * 0.25; } }   // (up the field's slope)
+      else for (let k = 0; k < 30 && !insideShore(x, z, 5.5); k++) { x *= 0.97; z *= 0.97; }
+      L.docks.push({ x, z, yaw: Number.isFinite(d.yaw) ? d.yaw : Math.atan2(x, z) });
+    }
+  } else {
+    const want = 4, cands = [];
+    for (let tries = 0; tries < 400 && cands.length < 40; tries++) {
+      let x, z;
+      if (rng() < 0.55 && L.islands.length) {
+        const o = rng.pick(L.islands); const a = rng() * TAU; const d = o.r + rng.range(4.5, 6.5);
+        x = o.x + Math.cos(a) * d; z = o.z + Math.sin(a) * d;
+      } else {
+        const a = rng() * TAU; const d = shoreR(a) - rng.range(6, 9);
+        x = Math.cos(a) * d; z = Math.sin(a) * d;
+      }
+      if (!insideShore(x, z, 5)) continue;
+      if (L.islands.some((o) => dist(x, z, o.x, o.z) < o.r + 4.2)) continue;
+      if (dist(x, z, L.gate.x, L.gate.z) < 14) continue;
+      const ds = dist(x, z, L.spawn.x, L.spawn.z);
+      if (ds < 13) continue;
+      cands.push({ x, z, ds });
+    }
+    cands.sort((a, b) => Math.abs(a.ds - 22) - Math.abs(b.ds - 22));
+    for (const c of cands) {
+      if (L.docks.length >= want) break;
+      if (L.docks.some((d) => dist(c.x, c.z, d.x, d.z) < 20)) continue;
+      // barge faces the lake centre (heading convention: yaw 0 faces -Z)
+      const yaw = Math.atan2(c.x, c.z);
+      L.docks.push({ x: c.x, z: c.z, yaw });
+    }
+    if (!L.docks.length) L.docks.push({ x: L.spawn.x + 14, z: L.spawn.z - 6, yaw: 0 });
+  }
+  {
+    // posts beside each dock (mooring) — lateral to the barge
+    for (const d of L.docks) {
+      const fx = -Math.sin(d.yaw), fz = -Math.cos(d.yaw); // forward
+      const lx = -fz, lz = fx;                            // left
+      d.posts = [
+        { x: d.x + lx * 3.1 - fx * 1.2, z: d.z + lz * 3.1 - fz * 1.2, r: 0.35 },
+        { x: d.x + lx * 3.0 + fx * 1.6, z: d.z + lz * 3.0 + fz * 1.6, r: 0.35 },
+      ];
+      d.buoy = { x: d.x - lx * 3.4 + fx * 2.4, z: d.z - lz * 3.4 + fz * 2.4 };
+    }
+  }
+
+  // pillars / wrecks: authored circles {x, z, r, kind} (kind mapped onto the theme's art), else
+  // procedural count
+  const kinds = PILLAR_KINDS[theme];
+  if (Array.isArray(A.pillars)) {
+    for (const p of A.pillars) {
+      if (!isPt(p) || !(p.r > 0)) continue;
+      const kind = (PILLAR_ART[theme] && PILLAR_ART[theme][p.kind]) || PILLAR_ART_ANY[p.kind] || p.kind || 'column';
+      L.pillars.push({ x: p.x, z: p.z, r: p.r, kind, dataKind: p.kind || null, h: rng.range(0.7, 1.3), rot: rng() * TAU, lean: rng.range(-0.08, 0.08), seed: rng() * 1000 });
+    }
+  }
+  const nPil = Array.isArray(A.pillars) ? 0 : (Number.isFinite(A.pillars) ? A.pillars : 8);
+  for (let i = 0; i < nPil; i++) {
+    for (let tries = 0; tries < 300; tries++) {
+      const kind = rng.weighted(kinds, (k) => k[1])[0];
+      const r = kind === 'wreck' ? rng.range(2.0, 2.6) : kind === 'statue' ? rng.range(1.5, 2.0) : kind === 'pilings' ? rng.range(1.1, 1.5)
+        : kind === 'stalk' ? rng.range(0.9, 1.5) : kind === 'coral' ? rng.range(1.2, 1.8) : rng.range(0.7, 1.4);
+      let x, z;
+      if (rng() < 0.4 && L.islands.length) {
+        const o = rng.pick(L.islands); const a = rng() * TAU; const d = o.r * 1.1 + r + rng.range(4.6, 7.5);
+        x = o.x + Math.cos(a) * d; z = o.z + Math.sin(a) * d;
+      } else {
+        const a = rng() * TAU, d = Math.sqrt(rng()) * (R - 6);
+        x = Math.cos(a) * d; z = Math.sin(a) * d;
+      }
+      if (!insideShore(x, z, r + 4.5)) continue;
+      if (dist(x, z, L.spawn.x, L.spawn.z) < r + 8) continue;
+      if (dist(x, z, L.gate.x, L.gate.z) < r + L.gate.radius + 6.5) continue;
+      if (L.docks.some((d) => dist(x, z, d.x, d.z) < r + 6)) continue;
+      if (L.islands.some((o) => dist(x, z, o.x, o.z) < r + o.r * 1.1 + 4.6)) continue;
+      if (L.pillars.some((o) => dist(x, z, o.x, o.z) < r + o.r + 4.2)) continue;
+      L.pillars.push({ x, z, r, kind, h: rng.range(0.7, 1.3), rot: rng() * TAU, lean: rng.range(-0.08, 0.08), seed: rng() * 1000 });
+      break;
+    }
+  }
+
+  // collision circles (islands slightly inset so outlines/boulders overlap the raft a touch less)
+  // (an outline island's circle is its inscribed one, inside its own bank: the field does its collision; the circle keeps the glides'
+  // and the planners' circle checks off it)
+  for (const o of L.islands) L.obstacles.push(o.outline ? { x: o.x, z: o.z, r: Math.max(0.3, -sdfAt(O, o.x, o.z)), kind: 'island' } : { x: o.x, z: o.z, r: o.r * 1.08 + 0.2, kind: 'island' });
+  for (const p of L.pillars) L.obstacles.push({ x: p.x, z: p.z, r: p.r, kind: p.kind });
+  for (const d of L.docks) for (const p of d.posts) L.obstacles.push({ x: p.x, z: p.z, r: p.r, kind: 'post' });
+  if (O && L.gate.none) L.gate.stones = [];   // (an outline water with no gate: no standing stones round its legend's water)
+  else placeGateStones(L, rng);
+  L.gateObstacles = L.gate.stones.map((s) => ({ x: s.x, z: s.z, r: s.r, kind: 'gatestone' }));
+
+  if (L.authored) {
+    // DESIGN §4.3 depth recipe inputs (see depthAt)
+    L.layoutKind = A.layout;
+    L.shelf = Number(A.shelf) || L.shelf;
+    L.noiseAmp = Number.isFinite(A.noise) ? A.noise : 0.08;
+    L.pools = (Array.isArray(A.deepPools) ? A.deepPools : []).filter(isPt).map((p) => ({ x: p.x, z: p.z, r: Number(p.r) || 10, depth: Number(p.depth) || 0.9, name: p.name || null }));
+    L.reef = A.reef || null;
+    L.causeway = A.causeway || null;
+    L.plateau = A.plateau || null;
+    L.trench = A.trench || null;
+    L.legendPool = isPt(A.legendPool) ? { x: A.legendPool.x, z: A.legendPool.z, r: Number(A.legendPool.r) || 3.2 } : null;
+    L.bowls = (Array.isArray(A.bowls) ? A.bowls : []).filter(isPt).map((b) => ({ x: b.x, z: b.z, r: Number(b.r) || 20, depth: Number(b.depth) || 0.8 }));
+    L.baseDepth = Number.isFinite(A.baseDepth) ? A.baseDepth : 0.4;
+    L.depthScale = null;
+    calibrateDepth(L, Array.isArray(A.depthShare) ? A.depthShare : null);
+  } else {
+    // deep basins (one under the gate, one central, a few more)
+    L.basins.push({ x: L.gate.x, z: L.gate.z, r: R * 0.34, amp: 1.0 });
+    L.basins.push({ x: rng.range(-0.12, 0.12) * R, z: rng.range(-0.15, 0.05) * R, r: R * 0.4, amp: 0.9 });
+    for (let i = 0; i < 2; i++) {
+      const a = rng() * TAU, d = rng.range(0.3, 0.6) * R;
+      L.basins.push({ x: Math.cos(a) * d, z: Math.sin(a) * d, r: R * rng.range(0.22, 0.3), amp: rng.range(0.75, 1.0) });
+    }
+  }
+
+  // ceiling cracks -> light shafts. One lands just ahead of the spawn (title/sail framing).
+  {
+    const pts = [{ x: L.spawn.x + rng.range(-7, 7), z: L.spawn.z - rng.range(9, 15) }];
+    for (let tries = 0; tries < 200 && pts.length < 4; tries++) {
+      const a = rng() * TAU, d = Math.sqrt(rng()) * R * 0.8;
+      const x = Math.cos(a) * d, z = Math.sin(a) * d;
+      if (O && sdfAt(O, x, z) < 6) continue;   // (an outline water's shafts fall on its water, never its banks)
+      if (pts.some((p) => dist(x, z, p.x, p.z) < R * (O ? 0.3 : 0.45))) continue;
+      pts.push({ x, z });
+    }
+    const leanA = rng() * TAU;
+    L.lightDir = { x: Math.cos(leanA), z: Math.sin(leanA) };
+    for (const p of pts) L.cracks.push({ x: p.x, z: p.z, lean: rng.range(0.12, 0.22), width: rng.range(2.6, 4.2), phase: rng() * TAU, power: rng.range(0.7, 1) });
+  }
+
+  // derive a stable sub-seed for art
+  L.artSeed = (seed * 2654435761) >>> 0;
+  L.notch = makeNotch(A, L);   // (after every draw of the layout's stream: the lake is the same with or without its cut)
+  return L;
+}
+
+// ------------------------------------------------------------------ the shore notch (CONTRACT §13.8; LOST-TACKLE §5.3)
+// The arena's first shoreNotch: a cut that runs out of the lake along the bearing `a`, `w` m wide, to the arena's radius + `len`, widening
+// to `pool.w` over `pool.at` (fractions of its length past the shore) and narrowing to `end` m half-wide at its head. Its geometry is always
+// there (the water's bake and the art draw it); its water and collision count only while `open` (a notch for a place opens with that place:
+// world.setPlaces). Pure: every query below reads the notch record only.
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+function makeNotch(A, L) {
+  const n = Array.isArray(A.shoreNotch) ? A.shoreNotch[0] : null;
+  if (!n || !Number.isFinite(n.a) || !(Number(n.w) > 0) || !(Number(n.len) > 0)) return null;
+  const a = (n.a * Math.PI) / 180, r0 = L.shoreR(a);
+  const N = { a, ca: Math.cos(a), sa: Math.sin(a), hw: n.w / 2, r0, end: L.R + n.len, depth: Number.isFinite(n.depth) ? n.depth : 0.6,
+    pool: n.pool && Array.isArray(n.pool.at) ? { t0: n.pool.at[0], t1: n.pool.at[1], hw: (Number(n.pool.w) || n.w) / 2 } : null,
+    endHw: Number(n.end) > 0 ? Number(n.end) : n.w / 2, place: typeof n.place === 'string' ? n.place : null, open: typeof n.place !== 'string', ray: null };
+  // the shore radius along each bearing near the cut, the first way out of the water (a table: the radial readers ask often)
+  const span = Math.atan2(Math.max(N.hw, N.pool ? N.pool.hw : 0) + 1, r0 - 6), n2 = 96, ray = new Float32Array(n2 + 1);
+  for (let i = 0; i <= n2; i++) {
+    const da = -span + (2 * span * i) / n2, ca = Math.cos(a + da), sa = Math.sin(a + da);
+    let r = L.shoreR(a + da);
+    for (let q = r0 - 6; q <= N.end + 0.5; q += 0.25) { if (notchSdf(N, ca * q, sa * q) < 0) { if (q > r0 - 4) r = Math.max(r, q); break; } }
+    ray[i] = r;
+  }
+  N.ray = { span, n: n2, r: ray };
+  return N;
+}
+/** (x, z) in the cut's frame: `along` from the lake's centre down its bearing, `lat` across it (+ to the bearing's right, toward +z at
+ *  a = 0), `t` 0 at the shore to 1 at its head, `lc` across it from its own (gently bending) centre line. Written into `out` (a
+ *  shared scratch by default: read it before the next call). */
+const FRAME = { along: 0, lat: 0, t: 0, lc: 0 };   // (notchFrame's scratch: it runs several times a frame while the cut is open)
+export function notchFrame(N, x, z, out = FRAME) {
+  const along = x * N.ca + z * N.sa, lat = -x * N.sa + z * N.ca;
+  const t = clamp((along - N.r0) / Math.max(1, N.end - N.r0), 0, 1);
+  out.along = along; out.lat = lat; out.t = t; out.lc = lat - notchBend(N, t);
+  return out;
+}
+/** The centre line's offset at t (m): a slow bend, none at the mouth or the head. */
+export const notchBend = (N, t) => 0.7 * Math.sin(Math.PI * t) * (t > 0 ? 1 : 0);
+/** The cut's half-width at t: `hw`, the pool's where it widens, the culvert's at its head. */
+export function notchHalfW(N, t) {
+  let h = N.hw;
+  if (N.pool) h += (N.pool.hw - N.hw) * sstep(N.pool.t0 - 0.1, N.pool.t0 + 0.06, t) * (1 - sstep(N.pool.t1 - 0.06, N.pool.t1 + 0.1, t));
+  return h + (N.endHw - h) * sstep(0.84, 1, t);
+}
+/** Signed distance (m) to the cut's banks, positive in its water (its sides and its head; −Infinity well out in the lake). */
+export function notchSdf(N, x, z) {
+  if (!N) return -Infinity;
+  const f = notchFrame(N, x, z);
+  if (f.along < N.r0 - 6) return -Infinity;
+  return Math.min(notchHalfW(N, f.t) - Math.abs(f.lc), N.end - f.along);
+}
+/** The shore radius along a bearing with the cut open: the first way out of the water from the lake's centre. */
+export function notchShoreR(N, angle, base) {
+  if (!N?.ray) return base;
+  let d = angle - N.a; d = ((d + Math.PI) % TAU + TAU) % TAU - Math.PI;
+  const R = N.ray, u = ((d + R.span) / (2 * R.span)) * R.n;
+  if (u < 0 || u > R.n) return base;
+  const i = Math.min(R.n - 1, Math.floor(u)), k = u - i;
+  return Math.max(base, R.r[i] + (R.r[i + 1] - R.r[i]) * k);
+}
+/** The water's signed distance to its shore at (x, z), the cut drawn in (the water's bake: the shore foam and the cliff's mirror). On an
+ *  outline shore (LAKE2 §3.1) its distance field, islands and all: the one seam every shore reader asks (CONTRACT §14). */
+export function shoreDist(L, x, z) {
+  if (L.outline) return sdfAt(L.outline, x, z);
+  const b = L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+  return L.notch ? Math.max(b, notchSdf(L.notch, x, z)) : b;
+}
+/** The signed distance (m) to the lake's own shore, no cut: the outline's field, else the polar shore's radial distance (exactly as the
+ *  polar readers always measured it, so a water with a polar shore reads as built). */
+export function fromShore(L, x, z) {
+  return L.outline ? sdfAt(L.outline, x, z) : L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z);
+}
+/** The ground's height (m) at (x, z) on an outline water (its banks, the land behind them, its islands; below 0 in the water), else null. */
+export function groundAt(L, x, z) { return L.outline ? outlineGround(L.outline, x, z) : null; }
+/** The outline shore at arc length s (m, wrapping): {x, z, nx, nz (into the land), h, shelf}; null on a polar shore. */
+export function shoreAt(L, s, out) { return L.outline ? outlineShoreAt(L.outline, s, out) : null; }
+/** The outline shore's arc length (m) at a control parameter u; null on a polar shore. */
+export function shoreArc(L, u) { return L.outline ? arcAt(L.outline, u) : null; }
+/** The control parameter u of the nearest shore point (−1 nearer an island's bank); null on a polar shore. */
+export function shoreAlong(L, x, z) { return L.outline ? alongAt(L.outline, x, z) : null; }
+/** An outline water's sheet for the Chart (ui-chart.waterGeometry): {shore: its curve every `step` m, [[x, z]], Rmax, extra: {outline,
+ *  shoreDist (x, z) → m, bbox}, isle(q): {outline: [[x, z]]} for an authored island's {x, z}, else {}}; null on a polar shore. */
+export function sheetOf(L, step = 2) {
+  const O = L.outline;
+  if (!O) return null;
+  const r2 = (v) => Math.round(v * 100) / 100, q = {}, n = Math.max(60, Math.round(O.len / step)), shore = [];
+  let Rmax = 0;
+  for (let i = 0; i < n; i++) { outlineShoreAt(O, (i / n) * O.len, q); Rmax = Math.max(Rmax, Math.hypot(q.x, q.z)); shore.push([r2(q.x), r2(q.z)]); }
+  const isle = (p) => {
+    const C = O.curves[O.islands.find((o) => o.x === p.x && o.z === p.z)?.curve];
+    if (!C) return {};
+    const pts = [];
+    for (let k = 0; k < C.n; k += 2) pts.push([r2(C.x[k]), r2(C.z[k])]);
+    return { outline: pts };
+  };
+  return { shore, Rmax, isle, extra: { outline: true, shoreDist: (x, z) => sdfAt(O, x, z), bbox: { ...O.bbox } } };
+}
+/** The cut's depth beyond the lake's own shore (0 at that shore, its full depth 3 m in, falling to its banks); null elsewhere. */
+function notchDepth(L, x, z) {
+  const N = L.notch, s = notchSdf(N, x, z);
+  if (!(s > 0)) return null;
+  const f = notchFrame(N, x, z);
+  return clamp(N.depth * sstep(0, 1.8, s) * sstep(N.r0 - 0.5, N.r0 + 3, f.along) * (0.85 + 0.15 * Math.sin(f.along * 0.7)), 0, 1);
+}
+
+/**
+ * Six standing stones ring the gate. Their angle is chosen so that the gaps between them line
+ * up with open water (e.g. the reliquary ring around Glasswater's Vault Seal): each candidate
+ * ring is scored by how many gaps have a raft-wide radial lane from the whirlpool outward.
+ */
+function placeGateStones(L, rng) {
+  const G = L.gate, n = 6, sr = G.radius + 2.1;
+  const jit = [], hs = [], leans = [];
+  for (let i = 0; i < n; i++) { jit.push(rng.range(-0.08, 0.08)); hs.push(rng.range(2.4, 3.6)); leans.push(rng.range(-0.12, 0.12)); }
+  const obs = [];
+  for (const o of L.islands) obs.push({ x: o.x, z: o.z, r: o.r * 1.08 + 0.2 });
+  for (const p of L.pillars) obs.push({ x: p.x, z: p.z, r: p.r });
+  for (const d of L.docks) for (const p of d.posts || []) obs.push(p);
+  const near = obs.filter((o) => Math.hypot(o.x - G.x, o.z - G.z) < sr + o.r + 14);
+  const build = (a0) => {
+    const st = [];
+    for (let i = 0; i < n; i++) {
+      const aa = a0 + (i / n) * TAU + jit[i];
+      st.push({ x: G.x + Math.cos(aa) * sr, z: G.z + Math.sin(aa) * sr, r: 0.75, a: aa, h: hs[i], lean: leans[i] });
+    }
+    return st;
+  };
+  const clearAt = (x, z, st) => {
+    let m = fromShore(L, x, z);
+    for (const o of near) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
+    for (const o of st) m = Math.min(m, Math.hypot(x - o.x, z - o.z) - o.r);
+    return m;
+  };
+  const a00 = rng() * TAU;
+  let best = null, bestScore = -Infinity;
+  for (let c = 0; c < (near.length ? 24 : 1); c++) {
+    const a0 = a00 + (c / 24) * (TAU / n);
+    const st = build(a0);
+    let lanes = 0, sum = 0;
+    for (let i = 0; i < n; i++) {
+      const am = a0 + ((i + 0.5) / n) * TAU;
+      let lane = Infinity;
+      for (let r = G.radius; r <= sr + 9; r += 0.6) lane = Math.min(lane, clearAt(G.x + Math.cos(am) * r, G.z + Math.sin(am) * r, st));
+      if (lane >= 1.9) lanes++;
+      sum += Math.min(lane, 4);
+    }
+    const score = lanes * 100 + sum;
+    if (score > bestScore) { bestScore = score; best = st; }
+  }
+  G.stones = best;
+}
+
+/** Low-frequency seeded noise in [-1, 1]. */
+function lowNoise(L, x, z) {
+  const np = L.np;
+  return 0.6 * Math.sin(x * 0.11 + np[0]) * Math.cos(z * 0.13 + np[1]) + 0.4 * Math.sin((x + z) * 0.071 + np[2]);
+}
+/** 1 inside an axis strip along z (|x − cx| < width/2, zFrom..zTo), soft 3 m edges. */
+function strip(S, x, z) {
+  if (!S) return 0;
+  const w = (Number(S.width) || 6) / 2;
+  const along = smoothstep(S.zFrom - 4, S.zFrom, z) * (1 - smoothstep(S.zTo, S.zTo + 4, z));
+  return along * (1 - smoothstep(w, w + 3, Math.abs(x - (S.x || 0))));
+}
+/** LAKE2 §3.1: an outline water's depth: the shore's distance through its shelf (its width from the bank's profile: 14 m off the Reed
+ *  Flats, 3 m in the neck and round an island), a mid floor, the bowls (the two pools, the neck's channel) and the deep pools (the
+ *  Mother's Cup: a natural sinkhole, its lip under the water). */
+function outlineDepth(L, x, z) {
+  const O = L.outline, s = sdfAt(O, x, z);
+  if (s <= 0) return 0;
+  let base = L.baseDepth + 0.05 * lowNoise(L, x, z);
+  for (let i = 0; i < L.bowls.length; i++) {
+    const b = L.bowls[i], q = Math.hypot(x - b.x, z - b.z) / b.r;
+    if (q < 1 && b.depth > base) base += (b.depth - base) * (1 - smoothstep(0.15, 1, q));
+  }
+  let d = clamp(base * smoothstep(0, bankAt(O, x, z).shelf, s) + L.noiseAmp * lowNoise(L, x * 1.7, z * 1.7) * smoothstep(0, 4, s), 0, 1);
+  // (a deep pool blends the floor toward its own depth, so the water only deepens on the way in: monotone to its middle)
+  for (let i = 0; i < L.pools.length; i++) {
+    const p = L.pools[i], q = Math.hypot(x - p.x, z - p.z);
+    if (q < p.r + 3 && p.depth > d) d += (p.depth - d) * smoothstep(p.r + 3, p.r * 0.5, q);
+  }
+  return d;
+}
+/** DESIGN §4.3 depth recipe for an authored arena (before calibration). */
+function recipeDepth(L, x, z) {
+  if (L.outline) return outlineDepth(L, x, z);
+  const r = Math.hypot(x, z);
+  const fromShore = L.shoreR(Math.atan2(z, x)) - r;
+  if (fromShore <= 0) return 0;
+  const R = L.R;
+  let base;
+  switch (L.layoutKind) {
+    case 'twoBasins': {
+      base = 0.475 + 0.125 * lowNoise(L, x * 1.3, z * 1.3);                 // 0.35..0.6 between the basins
+      const k = strip(L.reef, x, z);
+      if (k > 0) base += ((L.reef.depth ?? 0.15) - base) * k;
+      break;
+    }
+    case 'ringTrench': {
+      const pr = L.plateau?.r ?? 22, pd = L.plateau?.depth ?? 0.2;
+      const ti = L.trench?.rInner ?? 26, to = L.trench?.rOuter ?? 48, td = L.trench?.depth ?? 0.92;
+      base = r < (ti + to) / 2 ? pd + (td - pd) * smoothstep(pr, ti, r) : td + (0.45 - td) * smoothstep(to, to + 4, r);
+      break;
+    }
+    case 'drop': {
+      base = 0.8;
+      const k = strip(L.causeway, x, z);
+      if (k > 0) base += ((L.causeway.depth ?? 0.2) - base) * k;
+      break;
+    }
+    default: { const q = 1 - Math.min(1, r / R); base = 0.15 + 0.6 * q * q; }   // 'bowl'
+  }
+  let isl = 1;
+  for (let i = 0; i < L.islands.length; i++) {
+    const o = L.islands[i];
+    const e = Math.hypot(x - o.x, z - o.z) - o.r;
+    if (e < 5) isl *= smoothstep(0, 5, e);
+  }
+  let d = clamp(base * smoothstep(0, L.shelf, fromShore) * isl + L.noiseAmp * lowNoise(L, x, z), 0, 1);
+  for (let i = 0; i < L.pools.length; i++) {
+    const p = L.pools[i];
+    const q = Math.hypot(x - p.x, z - p.z);
+    if (q < p.r) d = Math.max(d, p.depth * smoothstep(p.r, p.r * 0.6, q));
+  }
+  return d;
+}
+
+/**
+ * Measure the recipe's shallow/mid/deep share of open water (DEPTH_BANDS 0.35 / 0.75) and,
+ * when arena.depthShare is given, build a monotonic remap so the lake meets it. The remap
+ * keeps 0 → 0 and 1 → 1 and the order of every point, so the authored shapes (pools,
+ * reefs, trench, causeway) keep their relative depths.
+ */
+function calibrateDepth(L, share) {
+  const vals = [];
+  const step = Math.max(1.5, L.R / 40);
+  for (let x = -L.R; x <= L.R; x += step) for (let z = -L.R; z <= L.R; z += step) {
+    if (!isOpenWaterL(L, L.obstacles, x, z, 0.5)) continue;
+    vals.push(recipeDepth(L, x, z));
+  }
+  vals.sort((a, b) => a - b);
+  const q = (f) => vals[Math.min(vals.length - 1, Math.max(0, Math.round(f * (vals.length - 1))))];
+  const frac = (lo, hi) => vals.filter((v) => v >= lo && v < hi).length / Math.max(1, vals.length);
+  L.depthStats = { raw: [frac(0, 0.35), frac(0.35, 0.75), frac(0.75, 1.01)] };
+  if (!share || share.length < 3 || !vals.length) return;
+  const tot = share[0] + share[1] + share[2];
+  if (!(tot > 0)) return;
+  const t1 = q(share[0] / tot), t2 = q((share[0] + share[1]) / tot);
+  if (!(t1 > 0.02 && t2 > t1 + 0.02 && t2 < 0.98)) return;
+  L.depthScale = { t1, t2 };
+}
+
+/** Depth 0 (shore/islands) .. 1 (deep basins). Smooth and deterministic. */
+export function depthAt(L, x, z) {
+  // (the cut behind the shore: its own depth; inside the lake's shore every depth is as built)
+  if (L.notch && L.shoreR(Math.atan2(z, x)) - Math.hypot(x, z) <= 0) { const c = notchDepth(L, x, z); if (c !== null) return c; }
+  if (L.authored) {
+    const d = recipeDepth(L, x, z);
+    const S = L.depthScale;
+    if (!S) return d;
+    if (d <= S.t1) return 0.35 * d / S.t1;
+    if (d <= S.t2) return 0.35 + 0.4 * (d - S.t1) / (S.t2 - S.t1);
+    return 0.75 + 0.25 * (d - S.t2) / (1 - S.t2);
+  }
+  const d = Math.hypot(x, z);
+  const sr = L.shoreR(Math.atan2(z, x));
+  const fromShore = sr - d;
+  if (fromShore <= 0) return 0;
+  let k = smoothstep(0, L.shelf, fromShore);
+  for (let i = 0; i < L.islands.length; i++) {
+    const o = L.islands[i];
+    const e = Math.hypot(x - o.x, z - o.z) - o.r;
+    if (e < o.shelf) k *= smoothstep(-0.5, o.shelf, e);
+  }
+  for (let i = 0; i < L.pillars.length; i++) {
+    const p = L.pillars[i];
+    const e = Math.hypot(x - p.x, z - p.z) - p.r;
+    if (e < 3) k *= 0.45 + 0.55 * smoothstep(0, 3, e);
+  }
+  let keep = 1;
+  for (let i = 0; i < L.basins.length; i++) {
+    const B = L.basins[i];
+    const q = Math.hypot(x - B.x, z - B.z) / B.r;
+    if (q < 1) { const f = 1 - q * q; keep *= 1 - B.amp * f * (0.55 + 0.45 * f); }
+  }
+  const b = 1 - keep;
+  const np = L.np;
+  const n = 0.5 + 0.3 * Math.sin(x * 0.11 + np[0]) * Math.cos(z * 0.13 + np[1]) + 0.2 * Math.sin((x + z) * 0.071 + np[2]);
+  const base = 0.3 + 0.24 * n + 0.74 * b;
+  return clamp(base * k, 0, 1);
+}
+
+export function isOpenWaterL(L, obstacles, x, z, r = 1) {
+  if (L.outline) { if (sdfAt(L.outline, x, z) < r) return false; }   // (an outline shore: its field, the islands in it)
+  else if (Math.hypot(x, z) > L.shoreR(Math.atan2(z, x)) - r && !(L.notch?.open && notchSdf(L.notch, x, z) >= r)) return false;   // (an open cut is water)
+  for (let i = 0; i < obstacles.length; i++) {
+    const o = obstacles[i];
+    const m = o.r + r, dx = x - o.x, dz = z - o.z;
+    if (dx * dx + dz * dz < m * m) return false;
+  }
+  return true;
+}

@@ -1,0 +1,1163 @@
+// ui-fishart.js — hand-inked fish illustrations drawn on a 2D canvas from a species'
+// `model` {shape, body, belly, fin, glow, pattern, eyes}. Used by the catch card, the
+// journal, the creel and the shop. Undiscovered species render as ink silhouettes.
+// Imported only by the ui module.
+
+const INK = '#07080d';
+const BONE = '214,214,228';
+
+const hex = (n, d = '#7a808c') => (typeof n === 'number' && isFinite(n) ? '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6) : (typeof n === 'string' && n ? n : d));
+function rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const A = rgb(a), B = rgb(b); return '#' + [0, 1, 2].map((i) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0')).join(''); }
+function rgba(h, a) { const [r, g, b] = rgb(h); return `rgba(${r},${g},${b},${a})`; }
+function seedRng(str) {
+  let s = 2166136261;
+  for (let i = 0; i < str.length; i++) { s ^= str.charCodeAt(i); s = Math.imul(s, 16777619); }
+  return () => { s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+// ------------------------------------------------------------------ generic body profiles
+const SHAPES = {
+  minnow:   { top: 0.19, bot: 0.16, hx: 0.22, ped: 0.055, nose: 0.55, tail: 'fork', tailLen: 0.36, spread: 0.30, dorsal: { x0: -0.08, x1: 0.22, h: 0.15, type: 'soft' }, anal: { x0: -0.40, x1: -0.16, h: 0.09 }, pelvic: { x: 0.02, h: 0.09 }, pect: { x: 0.5, len: 0.2 }, eye: { x: 0.74, y: -0.02, r: 0.055 } },
+  perch:    { top: 0.29, bot: 0.22, hx: 0.12, ped: 0.07, nose: 0.5, tail: 'fork', tailLen: 0.33, spread: 0.33, dorsal: { x0: -0.28, x1: 0.46, h: 0.22, type: 'spiny' }, anal: { x0: -0.40, x1: -0.14, h: 0.12 }, pelvic: { x: 0.18, h: 0.12 }, pect: { x: 0.46, len: 0.22 }, eye: { x: 0.72, y: -0.05, r: 0.06 } },
+  carp:     { top: 0.31, bot: 0.26, hx: 0.04, ped: 0.09, nose: 0.42, tail: 'fork', tailLen: 0.36, spread: 0.40, dorsal: { x0: -0.38, x1: 0.32, h: 0.16, type: 'long' }, anal: { x0: -0.44, x1: -0.22, h: 0.12 }, pelvic: { x: 0.08, h: 0.12 }, pect: { x: 0.46, len: 0.24 }, eye: { x: 0.74, y: -0.06, r: 0.055 }, barbels: true },
+  koi:      { top: 0.28, bot: 0.24, hx: 0.05, ped: 0.08, nose: 0.42, tail: 'fan', tailLen: 0.5, spread: 0.46, dorsal: { x0: -0.40, x1: 0.30, h: 0.18, type: 'long' }, anal: { x0: -0.46, x1: -0.24, h: 0.13 }, pelvic: { x: 0.06, h: 0.16 }, pect: { x: 0.44, len: 0.36 }, eye: { x: 0.74, y: -0.06, r: 0.055 }, barbels: true },
+  pike:     { top: 0.13, bot: 0.12, hx: -0.05, ped: 0.06, nose: 1.6, snoutLen: 0.0, tail: 'fork', tailLen: 0.30, spread: 0.26, dorsal: { x0: -0.58, x1: -0.32, h: 0.15, type: 'soft' }, anal: { x0: -0.56, x1: -0.34, h: 0.13 }, pelvic: { x: -0.08, h: 0.08 }, pect: { x: 0.42, len: 0.16 }, eye: { x: 0.66, y: -0.04, r: 0.045 }, jaw: true },
+  ghost:    { top: 0.17, bot: 0.15, hx: 0.25, ped: 0.04, nose: 0.6, tail: 'ribbon', tailLen: 0.6, spread: 0.22, dorsal: { x0: -0.55, x1: 0.3, h: 0.18, type: 'ribbon' }, anal: { x0: -0.58, x1: 0.05, h: 0.16, type: 'ribbon' }, pelvic: { x: 0.2, h: 0.1 }, pect: { x: 0.5, len: 0.3 }, eye: { x: 0.74, y: -0.03, r: 0.06 }, ghost: true },
+  leviathan:{ top: 0.18, bot: 0.17, hx: 0.3, ped: 0.05, nose: 0.75, tail: 'crescent', tailLen: 0.42, spread: 0.42, dorsal: { x0: -0.5, x1: 0.42, h: 0.12, type: 'spines' }, anal: { x0: -0.5, x1: -0.2, h: 0.1 }, pelvic: { x: 0.12, h: 0.12 }, pect: { x: 0.5, len: 0.32 }, eye: { x: 0.76, y: -0.04, r: 0.07 }, scutes: true, ember: true },
+};
+const BOUNDS = {
+  eel: [-1.08, 1.06, -0.32, 0.32], angler: [-1.0, 1.25, -0.72, 0.52], puffer: [-0.9, 0.78, -0.64, 0.64],
+  ray: [-1.18, 0.66, -0.64, 0.64], jelly: [-0.58, 0.58, -0.58, 0.82], crayfish: [-0.98, 1.28, -0.66, 0.5],
+};
+// M1 step 3a (PLAN §2.3 item 4, PLAN CHOICE 14): the loop's three new plans, read only once setLoopArt(true) has been called (ui.js,
+// under data.LOOP_ENABLED): off the loop a trout, sturgeon or lamprey draws as today's fallback (the minnow in the eel's bounds).
+//   trout     the minnow's body, a fatty fin behind the dorsal, a plain jaw; ivory star-spots and one pale round scar (ROSTER §3.1)
+//   sturgeon  a long low body, a shovel snout with barbels under it, rows of rust scutes, the shark-like upper tail lobe
+//   lamprey   the eel's length, no jaw and no paired fins, a toothed disc for a mouth, seven gill holes lit lavender
+const SHAPES_LOOP = {
+  trout: { top: 0.21, bot: 0.18, hx: 0.16, ped: 0.06, nose: 0.62, tail: 'fork', tailLen: 0.3, spread: 0.26, dorsal: { x0: -0.06, x1: 0.26, h: 0.15, type: 'soft' }, anal: { x0: -0.42, x1: -0.2, h: 0.09 }, pelvic: { x: 0.0, h: 0.09 }, pect: { x: 0.5, len: 0.2 }, eye: { x: 0.76, y: -0.03, r: 0.05 }, jaw: true, adipose: { x: -0.44, h: 0.07 }, plan: 'trout' },
+  sturgeon: { top: 0.14, bot: 0.11, hx: 0.32, ped: 0.045, nose: 1.25, tail: 'hetero', tailLen: 0.36, spread: 0.3, dorsal: { x0: -0.56, x1: -0.4, h: 0.11, type: 'soft' }, anal: { x0: -0.54, x1: -0.42, h: 0.08 }, pelvic: { x: -0.2, h: 0.07 }, pect: { x: 0.52, len: 0.2 }, eye: { x: 0.72, y: -0.05, r: 0.032 }, plan: 'sturgeon' },
+};
+// M1 step 4 (lane 4): the catfish (the Belled Matriarch): a broad flat head, a low body to an eel's tail with a long belly fin and a
+// small round tail, a small dorsal, tiny eyes; two long whiskers and short chin barbels (planDetails 'catfish')
+SHAPES_LOOP.catfish = { top: 0.15, bot: 0.15, hx: 0.5, ped: 0.035, nose: 0.3, tail: 'round', tailLen: 0.14, spread: 0.13, dorsal: { x0: 0.26, x1: 0.38, h: 0.08, type: 'soft' }, anal: { x0: -0.6, x1: 0.14, h: 0.07 }, pelvic: { x: 0.08, h: 0.05 }, pect: { x: 0.72, len: 0.15 }, eye: { x: 0.86, y: -0.06, r: 0.022 }, plan: 'catfish' };
+const BOUNDS_LOOP = { lamprey: [-1.08, 1.12, -0.3, 0.3] };
+let LOOP_ART = false;
+/** ui.js calls it once under data.LOOP_ENABLED: the loop's plans (trout, sturgeon, lamprey) and the plan details of its roster fish
+ *  (the Thousandcast's amber eye rim) are drawn from then on. */
+export function setLoopArt(on) { LOOP_ART = on === true; }
+export const loopArt = () => LOOP_ART;
+const shapeOf = (shape) => SHAPES[shape] || (LOOP_ART ? SHAPES_LOOP[shape] : null) || null;
+// (LAKE 2, lane F: a loop build's own frame, and whether an eel carries the brief's words)
+const loopBounds = (shape, m) => (shape === 'disc' ? (m.meadow === true ? BOUNDS_LOOP.grove : BOUNDS_LOOP.disc) : shape === 'crayfish' && m.carapace === 'dome' ? BOUNDS_LOOP.capshell : null);
+const eelLoop = (m) => m.girth != null || !!m.strings || m.head === 'paddle' || m.dorsal === 'none' || !!m.ventral || m.pects === false || m.tail === 'point';
+
+function profile(p, x, side) {   // y of top (side −1) or bottom (side +1) body edge at x
+  const px = -0.62, sx = 1.0;
+  const t = (x - px) / (sx - px);
+  if (t <= 0) return side * p.ped;
+  if (t >= 1) return 0;
+  const hT = (p.hx - px) / (sx - px);
+  const H = side < 0 ? p.top : p.bot;
+  let b;
+  if (t < hT) b = Math.pow(Math.sin((Math.PI / 2) * (t / hT)), 0.9);
+  else b = Math.pow(Math.cos((Math.PI / 2) * ((t - hT) / (1 - hT))), p.nose);
+  const tailBlend = t < hT ? (1 - t / hT) : 0;
+  return side * (p.ped * tailBlend + H * b * (1 - tailBlend * 0.15) + (t >= hT ? 0 : 0));
+}
+
+function smoothPath(path, pts, close) {
+  path.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length - 1; i++) {
+    const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+    path.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
+  }
+  const l = pts[pts.length - 1];
+  path.lineTo(l[0], l[1]);
+  if (close) path.closePath();
+  return path;
+}
+
+function genericBody(p) {
+  const pts = [];
+  const N = 44, px = -0.62, tb = -0.68;
+  for (let i = 0; i <= N; i++) { const x = 1 - (i / N) * (1 - px); pts.push([x, profile(p, x, -1)]); }
+  pts.push([tb, -p.ped * 0.92]); pts.push([tb, p.ped * 0.92]);
+  for (let i = N; i >= 0; i--) { const x = 1 - (i / N) * (1 - px); pts.push([x, profile(p, x, 1)]); }
+  return smoothPath(new Path2D(), pts, true);
+}
+
+function tailPath(p) {
+  const tb = -0.68, L = p.tailLen, S = p.spread, ped = p.ped;
+  const t = new Path2D();
+  t.moveTo(tb + 0.04, -ped);
+  if (p.tail === 'fork') {
+    t.quadraticCurveTo(tb - L * 0.45, -S * 0.5, tb - L, -S);
+    t.quadraticCurveTo(tb - L * 0.62, -S * 0.32, tb - L * 0.52, 0);
+    t.quadraticCurveTo(tb - L * 0.62, S * 0.32, tb - L, S);
+    t.quadraticCurveTo(tb - L * 0.45, S * 0.5, tb + 0.04, ped);
+  } else if (p.tail === 'crescent') {
+    t.quadraticCurveTo(tb - L * 0.35, -S * 0.3, tb - L * 0.9, -S * 1.05);
+    t.quadraticCurveTo(tb - L * 0.55, -S * 0.2, tb - L * 0.62, 0);
+    t.quadraticCurveTo(tb - L * 0.55, S * 0.2, tb - L * 0.9, S * 1.05);
+    t.quadraticCurveTo(tb - L * 0.35, S * 0.3, tb + 0.04, ped);
+  } else if (p.tail === 'fan') {
+    t.bezierCurveTo(tb - L * 0.3, -S * 0.7, tb - L * 0.8, -S * 1.15, tb - L, -S * 0.75);
+    t.bezierCurveTo(tb - L * 1.08, -S * 0.35, tb - L * 0.8, -S * 0.15, tb - L * 0.95, 0);
+    t.bezierCurveTo(tb - L * 0.8, S * 0.15, tb - L * 1.08, S * 0.35, tb - L, S * 0.75);
+    t.bezierCurveTo(tb - L * 0.8, S * 1.15, tb - L * 0.3, S * 0.7, tb + 0.04, ped);
+  } else if (p.tail === 'scythe') {   // (LAKE 2, lane F: the bream's scythe: two tall sharp lobes swept back, a deep notch)
+    t.quadraticCurveTo(tb - L * 0.2, -S * 0.32, tb - L * 1.02, -S * 1.12);
+    t.quadraticCurveTo(tb - L * 0.62, -S * 0.42, tb - L * 0.4, 0);
+    t.quadraticCurveTo(tb - L * 0.62, S * 0.42, tb - L * 1.02, S * 1.12);
+    t.quadraticCurveTo(tb - L * 0.2, S * 0.32, tb + 0.04, ped);
+  } else if (p.tail === 'hetero') {   // (M1 step 3a: the sturgeon's long upper lobe)
+    t.quadraticCurveTo(tb - L * 0.5, -S * 0.55, tb - L * 1.08, -S * 1.15);
+    t.quadraticCurveTo(tb - L * 0.72, -S * 0.28, tb - L * 0.46, S * 0.08);
+    t.quadraticCurveTo(tb - L * 0.52, S * 0.4, tb - L * 0.6, S * 0.6);
+    t.quadraticCurveTo(tb - L * 0.28, S * 0.36, tb + 0.04, ped);
+  } else if (p.tail === 'ribbon') {
+    t.bezierCurveTo(tb - L * 0.3, -S * 0.9, tb - L * 0.7, S * 0.2, tb - L, -S * 0.35);
+    t.bezierCurveTo(tb - L * 0.85, S * 0.1, tb - L * 0.95, S * 0.5, tb - L * 0.75, S * 0.7);
+    t.bezierCurveTo(tb - L * 0.5, S * 0.6, tb - L * 0.2, S * 0.4, tb + 0.04, ped);
+  } else {   // round
+    t.bezierCurveTo(tb - L * 0.5, -S, tb - L * 1.1, -S * 0.6, tb - L, 0);
+    t.bezierCurveTo(tb - L * 1.1, S * 0.6, tb - L * 0.5, S, tb + 0.04, ped);
+  }
+  t.closePath();
+  return t;
+}
+
+function finAlong(p, f, side, rng) {
+  const path = new Path2D();
+  const N = 14;
+  const base = [];
+  for (let i = 0; i <= N; i++) { const x = f.x0 + (f.x1 - f.x0) * (i / N); base.push([x, profile(p, x, side) * 0.9]); }
+  const edge = [];
+  for (let i = N; i >= 0; i--) {
+    const u = i / N;
+    let hh;
+    if (f.type === 'spiny') hh = f.h * (0.55 + 0.45 * Math.sin(Math.PI * Math.pow(u, 0.6))) * (i % 2 ? 0.72 : 1.08);
+    else if (f.type === 'long') hh = f.h * Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.15)), 0.5) * (0.55 + 0.45 * u);
+    else if (f.type === 'ribbon') hh = f.h * (0.4 + 0.6 * Math.sin(Math.PI * u)) * (1 + 0.15 * Math.sin(u * 13));
+    else if (f.type === 'spines') hh = f.h * (i % 2 ? 0.25 : 1) * (0.5 + 0.5 * Math.sin(Math.PI * u));
+    else if (f.type === 'shark') hh = f.h * (u <= 0.62 ? (u / 0.62) ** 1.6 : ((1 - u) / 0.38) ** 0.55);   // (LAKE 2, lane F: a shark's point)
+    else hh = f.h * Math.pow(Math.sin(Math.PI * Math.pow(u, 0.75)), 0.8);
+    const x = f.x0 + (f.x1 - f.x0) * u - hh * 0.55;       // raked backward
+    edge.push([x, profile(p, f.x0 + (f.x1 - f.x0) * u, side) + side * hh]);
+  }
+  path.moveTo(base[0][0], base[0][1]);
+  for (const q of base) path.lineTo(q[0], q[1]);
+  if (f.type === 'spiny' || f.type === 'spines' || f.type === 'shark') for (const q of edge) path.lineTo(q[0], q[1]);
+  else { const e = edge; for (let i = 0; i < e.length - 1; i++) path.quadraticCurveTo(e[i][0], e[i][1], (e[i][0] + e[i + 1][0]) / 2, (e[i][1] + e[i + 1][1]) / 2); path.lineTo(e[e.length - 1][0], e[e.length - 1][1]); }
+  path.closePath();
+  return { path, base, edge };
+}
+
+// ------------------------------------------------------------------ drawing helpers
+function drawEye(g, x, y, r, kind, col, U, sil) {
+  if (sil) { g.fillStyle = `rgba(${BONE},.12)`; g.beginPath(); g.arc(x, y, r * 0.7, 0, 7); g.fill(); return; }
+  if (kind === 'glow') {
+    g.save(); g.shadowColor = col.glowEye; g.shadowBlur = 14;
+    g.fillStyle = col.glowEye; g.beginPath(); g.arc(x, y, r * 1.05, 0, 7); g.fill(); g.restore();
+    g.fillStyle = '#fffbe8'; g.beginPath(); g.arc(x, y, r * 0.45, 0, 7); g.fill();
+  } else if (kind === 'blind') {
+    g.fillStyle = '#d9d6cc'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    g.fillStyle = 'rgba(160,170,175,.6)'; g.beginPath(); g.arc(x + r * 0.15, y + r * 0.1, r * 0.55, 0, 7); g.fill();
+    g.strokeStyle = INK; g.lineWidth = 1.2 * U; g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke();
+  } else {
+    g.fillStyle = '#e9e2cf'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    g.fillStyle = INK; g.beginPath(); g.arc(x + r * 0.12, y, r * 0.62, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.arc(x - r * 0.15, y - r * 0.28, r * 0.22, 0, 7); g.fill();
+    g.strokeStyle = INK; g.lineWidth = 1.2 * U; g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke();
+  }
+}
+
+function finFill(g, path, col, U, sil, alpha = 0.85) {
+  if (sil) { g.fillStyle = '#0b0d12'; g.fill(path); g.strokeStyle = `rgba(${BONE},.16)`; g.lineWidth = 1.1 * U; g.stroke(path); return; }
+  g.fillStyle = rgba(col.fin, alpha); g.fill(path);
+  g.strokeStyle = INK; g.lineWidth = 1.8 * U; g.stroke(path);
+}
+
+function finRays(g, path, from, to, count, col, U, sil) {
+  if (sil) return;
+  g.save(); g.clip(path);
+  g.strokeStyle = 'rgba(7,8,13,.35)'; g.lineWidth = 0.9 * U;
+  for (let i = 0; i < count; i++) {
+    const u = (i + 0.5) / count;
+    g.beginPath(); g.moveTo(from(u)[0], from(u)[1]); g.lineTo(to(u)[0], to(u)[1]); g.stroke();
+  }
+  g.restore();
+}
+
+function bodyShade(g, path, col, bounds, U, sil, alpha = 1) {
+  const [x0, x1, y0, y1] = bounds;
+  if (sil) { g.fillStyle = '#0b0d12'; g.fill(path); return; }
+  const lg = g.createLinearGradient(0, y0, 0, y1);
+  lg.addColorStop(0, mix(col.body, '#000000', 0.35));
+  lg.addColorStop(0.35, col.body);
+  lg.addColorStop(0.62, mix(col.body, col.belly, 0.55));
+  lg.addColorStop(1, col.belly);
+  g.save(); g.globalAlpha = alpha; g.fillStyle = lg; g.fill(path);
+  // soft core shadow toward the tail and under the back
+  const rg = g.createRadialGradient(x1 * 0.4, y0 * 0.2, 0.05, x1 * 0.2, 0, Math.max(0.6, (x1 - x0) * 0.7));
+  rg.addColorStop(0, 'rgba(0,0,0,0)'); rg.addColorStop(1, 'rgba(0,0,0,.42)');
+  g.fillStyle = rg; g.fill(path);
+  g.restore();
+}
+
+function pattern(g, path, kind, col, bounds, rng, U, sil) {
+  if (sil || !kind || kind === 'none') return;
+  const [x0, x1, y0, y1] = bounds;
+  g.save(); g.clip(path);
+  if (kind === 'scales') {
+    const s = 0.065;
+    g.lineWidth = 0.9 * U;
+    for (let y = y0, row = 0; y < y1 + s; y += s * 0.62, row++) {
+      for (let x = x0 + (row % 2 ? s / 2 : 0); x < x1 + s; x += s) {
+        g.strokeStyle = 'rgba(7,8,13,.28)';
+        g.beginPath(); g.arc(x, y, s * 0.55, Math.PI * 0.15, Math.PI * 0.85); g.stroke();
+        g.strokeStyle = `rgba(${BONE},.07)`;
+        g.beginPath(); g.arc(x, y - U * 0.8, s * 0.55, Math.PI * 0.25, Math.PI * 0.75); g.stroke();
+      }
+    }
+  } else if (kind === 'stripes') {
+    g.fillStyle = rgba(mix(col.body, '#000000', 0.55), 0.55);
+    const n = 6;
+    for (let i = 0; i < n; i++) {
+      const x = x0 + (x1 - x0) * (0.18 + 0.62 * (i / (n - 1))) + (rng() - 0.5) * 0.03;
+      const w = 0.035 + rng() * 0.03;
+      g.beginPath(); g.moveTo(x - w, y0); g.quadraticCurveTo(x + 0.04, 0, x - w * 0.4, y1 * 0.4); g.lineTo(x + w * 0.4, y1 * 0.4); g.quadraticCurveTo(x + 0.04 + w, 0, x + w, y0); g.fill();
+    }
+  } else if (kind === 'bands') {
+    g.strokeStyle = 'rgba(7,8,13,.30)'; g.lineCap = 'round';
+    for (let k = 0; k < 3; k++) {
+      g.lineWidth = (0.03 + k * 0.006);
+      const off = y0 + (y1 - y0) * (0.28 + k * 0.16);
+      g.beginPath(); g.moveTo(x0, off * 0.5); g.quadraticCurveTo((x0 + x1) / 2, off, x1, off * 0.3); g.stroke();
+    }
+  } else if (kind === 'spots') {
+    const n = 16;
+    for (let i = 0; i < n; i++) {
+      const x = x0 + (x1 - x0) * (0.12 + rng() * 0.75), y = y0 + (y1 - y0) * (0.12 + rng() * 0.55);
+      const r = 0.018 + rng() * 0.035;
+      if (col.glow) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 8; g.fillStyle = rgba(col.glow, 0.85); g.beginPath(); g.arc(x, y, r * 0.8, 0, 7); g.fill(); g.restore(); }
+      else { g.fillStyle = rng() < 0.5 ? rgba(col.fin, 0.75) : 'rgba(7,8,13,.35)'; g.beginPath(); g.ellipse(x, y, r * 1.3, r, 0, 0, 7); g.fill(); }
+    }
+  }
+  g.restore();
+}
+
+function rimLight(g, path, U, sil) {
+  g.save(); g.clip(path);
+  g.translate(-1.2 * U, -2.0 * U);
+  g.strokeStyle = sil ? `rgba(${BONE},.10)` : `rgba(${BONE},.42)`;
+  g.lineWidth = 2.4 * U; g.stroke(path);
+  g.restore();
+}
+
+function outline(g, path, U, sil, w = 2.6) {
+  g.strokeStyle = sil ? `rgba(${BONE},.22)` : INK;
+  g.lineWidth = (sil ? 1.2 : w) * U; g.lineJoin = 'round'; g.stroke(path);
+}
+
+function halo(g, path, colStr, blur, sil) {
+  if (sil || !colStr) return;
+  g.save(); g.shadowColor = colStr; g.shadowBlur = blur; g.fillStyle = rgba(colStr, 0.25); g.fill(path); g.restore();
+}
+
+// ------------------------------------------------------------------ shapes
+function drawGeneric(g, p, col, U, sil, rng, m) {
+  const body = genericBody(p);
+  const bb = [-0.68, 1.0, -p.top, p.bot];
+  const tail = tailPath(p);
+  if (col.glow && !sil) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 26; g.fillStyle = rgba(col.glow, 0.18); g.fill(body); g.fill(tail); g.restore(); }
+  // back fins
+  const dorsal = finAlong(p, p.dorsal, -1, rng);
+  const anal = finAlong(p, { type: 'soft', ...p.anal }, 1, rng);
+  const ghostA = p.ghost ? 0.45 : 0.85;
+  if (p.tailCol && !sil) tailFill(g, tail, p, U); else finFill(g, tail, col, U, sil, p.ghost ? 0.4 : 0.9);
+  finRays(g, tail, (u) => [-0.66, (u - 0.5) * p.ped * 1.6], (u) => [-0.68 - p.tailLen * 1.05, (u - 0.5) * p.spread * 2.3], 9, col, U, sil);
+  finFill(g, dorsal.path, col, U, sil, ghostA);
+  finRays(g, dorsal.path, (u) => dorsal.base[Math.round(u * (dorsal.base.length - 1))], (u) => dorsal.edge[dorsal.edge.length - 1 - Math.round(u * (dorsal.edge.length - 1))], 10, col, U, sil);
+  finFill(g, anal.path, col, U, sil, ghostA);
+  if (p.before) loopBefore(g, p, col, U, sil, rng, m);   // (LAKE 2, lane F: a loop profile's own fins behind the body)
+  if (p.adipose) {   // (M1 step 3a: the trout's fatty fin, a small soft lobe on the back between the dorsal and the tail)
+    const x = p.adipose.x, y = profile(p, x, -1) * 0.92, ah = p.adipose.h;
+    const ad = new Path2D(); ad.moveTo(x + 0.07, y); ad.quadraticCurveTo(x + 0.03, y - ah * 1.2, x - 0.05, y - ah); ad.quadraticCurveTo(x - 0.07, y - ah * 0.4, x - 0.06, y + 0.01); ad.closePath();
+    finFill(g, ad, col, U, sil, ghostA);
+  }
+  // pelvic
+  if (p.pelvic) {
+    const x = p.pelvic.x, y = profile(p, x, 1) * 0.9, h = p.pelvic.h;
+    const pv = new Path2D(); pv.moveTo(x + 0.06, y); pv.quadraticCurveTo(x - 0.02, y + h * 0.7, x - 0.1, y + h); pv.quadraticCurveTo(x - 0.04, y + h * 0.4, x - 0.06, y); pv.closePath();
+    finFill(g, pv, col, U, sil, ghostA);
+  }
+  bodyShade(g, body, col, bb, U, sil, p.ghost ? 0.62 : p.glass ? 0.3 : 1);
+  pattern(g, body, p.noPattern ? 'none' : m.pattern, col, bb, rng, U, sil);
+  if (!sil) {
+    g.save(); g.clip(body);
+    // lateral line (none on a glass fish: its spine is the line through it)
+    if (!p.noLateral) {
+      g.strokeStyle = col.glow ? rgba(col.glow, 0.5) : 'rgba(7,8,13,.25)'; g.lineWidth = 1 * U;
+      g.beginPath(); g.moveTo(0.68, -p.top * 0.15);
+      g.quadraticCurveTo(0.1, -p.top * 0.32, -0.62, -p.ped * 0.1); g.stroke();
+    }
+    if (p.scutes) {
+      g.fillStyle = `rgba(${BONE},.22)`; g.strokeStyle = 'rgba(7,8,13,.45)'; g.lineWidth = 0.9 * U;
+      for (let i = 0; i < 11; i++) { const x = 0.55 - i * 0.11, y = -p.top * 0.25 * (1 - i / 14); g.beginPath(); g.moveTo(x + 0.035, y); g.lineTo(x, y - 0.025); g.lineTo(x - 0.035, y); g.lineTo(x, y + 0.025); g.closePath(); g.fill(); g.stroke(); }
+    }
+    if (p.ember) {
+      const eg = g.createRadialGradient(0.15, 0.06, 0, 0.15, 0.06, 0.22);
+      eg.addColorStop(0, 'rgba(255,236,170,.95)'); eg.addColorStop(0.35, 'rgba(232,198,106,.55)'); eg.addColorStop(1, 'rgba(232,198,106,0)');
+      g.fillStyle = eg; g.beginPath(); g.arc(0.15, 0.06, 0.22, 0, 7); g.fill();
+    }
+    // gill arc
+    g.strokeStyle = 'rgba(7,8,13,.55)'; g.lineWidth = 1.5 * U;
+    const gx = p.gillX ?? p.eye.x - 0.17;
+    g.beginPath(); g.moveTo(gx + 0.02, profile(p, gx, -1) * 0.8); g.quadraticCurveTo(gx - 0.06, 0, gx + 0.03, profile(p, gx, 1) * 0.75); g.stroke();
+    if (p.plan) planDetails(g, p, col, U, rng, m);
+    g.restore();
+  }
+  rimLight(g, body, U, sil);
+  outline(g, body, U, sil);
+  // jaw / mouth
+  if (!sil) {
+    g.strokeStyle = INK; g.lineWidth = 1.4 * U; g.beginPath();
+    if (p.mouthUp) { g.moveTo(0.995, -0.05); g.quadraticCurveTo(0.95, -0.015, 0.9, -0.012); } else if (p.jaw) { g.moveTo(1.0, 0.0); g.lineTo(0.7, 0.025); } else { g.moveTo(0.995, profile(p, 0.99, 1) * 0.3 + 0.01); g.quadraticCurveTo(0.94, 0.03, 0.9, 0.025); }
+    g.stroke();
+    if (p.barbels && m?.barbels !== 'none') { g.strokeStyle = rgba(col.fin, 0.9); g.lineWidth = 1.1 * U; g.beginPath(); g.moveTo(0.95, 0.04); g.quadraticCurveTo(0.98, 0.12, 0.9, 0.16); g.moveTo(0.9, 0.05); g.quadraticCurveTo(0.9, 0.14, 0.82, 0.17); g.stroke(); }
+  }
+  // pectoral fin on top of the body
+  if (p.pect) {
+    const x = p.pect.x, y = profile(p, x, 1) * 0.25, L = p.pect.len;
+    const pc = new Path2D(); pc.moveTo(x, y - 0.02); pc.bezierCurveTo(x - L * 0.4, y - 0.05, x - L, y + 0.02, x - L * 0.95, y + L * 0.35); pc.bezierCurveTo(x - L * 0.6, y + L * 0.25, x - L * 0.2, y + 0.08, x, y + 0.03); pc.closePath();
+    finFill(g, pc, col, U, sil, p.ghost ? 0.4 : 0.72);
+  }
+  if (!sil && p.plan === 'catfish' && p.whiskers === undefined) {   // M1 step 4: two long whiskers swept back from the mouth's corners, four short chin barbels
+    g.strokeStyle = rgba(col.fin, 0.95); g.lineCap = 'round';
+    g.lineWidth = 1.5 * U; g.beginPath(); g.moveTo(0.97, 0.02); g.bezierCurveTo(0.9, 0.22, 0.62, 0.3, 0.38, 0.36); g.moveTo(0.97, 0.0); g.bezierCurveTo(0.92, -0.16, 0.7, -0.26, 0.46, -0.3); g.stroke();
+    g.lineWidth = 1.0 * U; g.beginPath();
+    for (let i = 0; i < 4; i++) { const x = 0.9 + i * 0.022; g.moveTo(x, profile(p, x, 1) * 0.7); g.quadraticCurveTo(x - 0.01, 0.15, x - 0.035, 0.19 + (i % 2) * 0.012); }
+    g.stroke();
+  }
+  if (!sil && p.plan === 'sturgeon') {   // four barbels hanging under the shovel snout
+    g.strokeStyle = rgba(col.fin, 0.95); g.lineWidth = 1.1 * U; g.lineCap = 'round';
+    for (let i = 0; i < 4; i++) { const x = 0.8 + i * 0.035; g.beginPath(); g.moveTo(x, profile(p, x, 1) * 0.8); g.quadraticCurveTo(x - 0.01, 0.07, x - 0.03, 0.1 + (i % 2) * 0.012); g.stroke(); }
+  }
+  if (p.after) loopAfter(g, p, col, U, sil, rng, m);   // (LAKE 2, lane F: a loop profile's own marks over the body)
+  drawEye(g, p.eye.x, p.eye.y, p.eye.r, m.eyes, col, U, sil);
+  if (!sil && LOOP_ART && m.eyeRim === 'amber') { g.strokeStyle = 'rgba(226,170,92,.95)'; g.lineWidth = 1.4 * U; g.beginPath(); g.arc(p.eye.x, p.eye.y, p.eye.r * 1.18, 0, 7); g.stroke(); }
+  return [-0.68 - p.tailLen * 1.02, 1.02, -(p.top + p.dorsal.h * 0.95), p.bot + Math.max(p.anal.h, p.pelvic?.h || 0) * 1.05];
+}
+
+/** The loop's plan details inside the body (clipped to it): the trout's star-spots and its one scar, the sturgeon's scute rows. */
+function planDetails(g, p, col, U, rng, m) {
+  if (p.inner) { loopInner(g, p, col, U, rng, m); return; }   // (LAKE 2, lane F)
+  if (p.plan === 'trout') {
+    // ivory four-point stars over the back and flank, none on the belly; one pale round scar behind the gill (ROSTER §3.1)
+    g.fillStyle = 'rgba(236,228,206,.82)';
+    for (let i = 0; i < 15; i++) {
+      const x = -0.52 + rng() * 1.1, y = profile(p, x, -1) * (0.15 + rng() * 0.6), r = 0.012 + rng() * 0.012;
+      g.beginPath(); g.moveTo(x, y - r * 1.6); g.lineTo(x + r * 0.4, y - r * 0.4); g.lineTo(x + r * 1.6, y); g.lineTo(x + r * 0.4, y + r * 0.4);
+      g.lineTo(x, y + r * 1.6); g.lineTo(x - r * 0.4, y + r * 0.4); g.lineTo(x - r * 1.6, y); g.lineTo(x - r * 0.4, y - r * 0.4); g.closePath(); g.fill();
+    }
+    if (m.scar) { g.strokeStyle = 'rgba(232,222,204,.75)'; g.lineWidth = 1.3 * U; g.beginPath(); g.arc(0.3, 0.02, 0.045, 0, 7); g.stroke(); g.fillStyle = 'rgba(232,222,204,.18)'; g.fill(); }
+  } else if (p.plan === 'sturgeon') {
+    // three rows of bony scutes (rust under the loop's model), the dorsal row largest
+    const rust = m.scutes === 'rust';
+    g.fillStyle = rust ? 'rgba(176,96,62,.78)' : `rgba(${BONE},.3)`; g.strokeStyle = 'rgba(7,8,13,.5)'; g.lineWidth = 0.9 * U;
+    const row = (yk, n, sz) => {
+      for (let i = 0; i < n; i++) {
+        const x = 0.6 - i * (1.18 / n), y = profile(p, x, yk < 0 ? -1 : 1) * Math.abs(yk), w = sz * (1 - i / (n * 2.2));
+        g.beginPath(); g.moveTo(x + w, y); g.lineTo(x, y - w * 0.8); g.lineTo(x - w, y); g.lineTo(x, y + w * 0.8); g.closePath(); g.fill(); g.stroke();
+      }
+    };
+    row(-0.82, 12, 0.032); row(-0.18, 15, 0.022); row(0.62, 11, 0.018);
+  }
+}
+
+function drawEel(g, col, U, sil, rng, m) {
+  const N = 60, pts = [], top = [], bot = [];
+  const A = 0.07, k = 3.4;
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, x = 1 - u * 2.05;
+    const y = A * Math.sin(k * (1 - u) * Math.PI * 0.62 + 0.4) * (0.4 + u);
+    const dy = A * Math.cos(k * (1 - u) * Math.PI * 0.62 + 0.4) * k * Math.PI * 0.62 * -1 / 2.05;
+    const nl = Math.hypot(1, dy); const nx = -dy / nl, ny = 1 / nl;
+    const h = 0.085 * Math.pow(Math.sin(Math.PI * Math.min(1, (u * 0.92 + 0.08))), 0.35) * (1 - u * 0.75) + 0.008;
+    pts.push([x, y]); top.push([x - nx * h, y - ny * h]); bot.push([x + nx * h, y + ny * h]);
+  }
+  const body = new Path2D(); smoothPath(body, [...top, ...bot.reverse()], true);
+  // fin fringe
+  const fin = new Path2D(); const ft = [], fb = [];
+  for (let i = 18; i <= N; i++) { const t = top[i], b = bot[N - i]; const w = 0.035 + 0.02 * Math.sin(i * 0.9); ft.push([t[0], t[1] - w]); fb.push([b[0], b[1] + w]); }
+  smoothPath(fin, [...ft, ...fb.reverse()], true);
+  if (col.glow && !sil) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 24; g.fillStyle = rgba(col.glow, 0.2); g.fill(body); g.restore(); }
+  finFill(g, fin, col, U, sil, 0.6);
+  bodyShade(g, body, col, [-1.05, 1, -0.12, 0.12], U, sil);
+  pattern(g, body, m.pattern, col, [-1.05, 1, -0.12, 0.12], rng, U, sil);
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  if (!sil) { g.strokeStyle = INK; g.lineWidth = 1.3 * U; g.beginPath(); g.moveTo(0.99, pts[0][1] + 0.02); g.lineTo(0.9, pts[3][1] + 0.03); g.stroke(); }
+  drawEye(g, 0.9, pts[3][1] - 0.025, 0.03, m.eyes, col, U, sil);
+  return BOUNDS.eel;
+}
+
+/** M1 step 3a (the loop's lamprey, PLAN CHOICE 14): the eel's long body, thick toward the head; two low fins on its back half and
+ *  round its tail, no jaw and no paired fins; a round toothed disc for a mouth (its teeth amber), seven small gill holes behind the
+ *  eye, lit lavender (ROSTER §3.1: ink back, stone belly). */
+function drawLamprey(g, col, U, sil, rng, m) {
+  const N = 60, pts = [], top = [], bot = [];
+  const A = 0.075, k = 2.6;
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, x = 1.02 - u * 2.08;
+    const y = A * Math.sin(k * (1 - u) * Math.PI * 0.62 + 0.9) * (0.25 + u);
+    const dy = A * Math.cos(k * (1 - u) * Math.PI * 0.62 + 0.9) * k * Math.PI * 0.62 * -1 / 2.08;
+    const nl = Math.hypot(1, dy); const nx = -dy / nl, ny = 1 / nl;
+    const h = 0.1 * Math.pow(Math.sin(Math.PI * Math.min(1, (u * 0.9 + 0.1))), 0.3) * (1 - u * 0.7) + 0.01;
+    pts.push([x, y]); top.push([x - nx * h, y - ny * h]); bot.push([x + nx * h, y + ny * h]);
+  }
+  const body = new Path2D(); smoothPath(body, [...top, ...bot.reverse()], true);
+  // the fins: two low lobes on the back's rear half running into the tail's fringe
+  const fin = new Path2D(); const ft = [], fb = [];
+  for (let i = 28; i <= N; i++) { const t = top[i], b = bot[N - i]; const w = (i < 38 ? 0.05 * Math.sin(Math.PI * (i - 28) / 10) : i < 42 ? 0.014 : 0.055 * (0.6 + 0.4 * Math.sin(Math.PI * (i - 42) / 18))) + 0.006; ft.push([t[0], t[1] - w]); fb.push([b[0], b[1] + (i > 47 ? w * 0.85 : 0.004)]); }
+  smoothPath(fin, [...ft, ...fb.reverse()], true);
+  finFill(g, fin, col, U, sil, 0.6);
+  bodyShade(g, body, col, [-1.06, 1.02, -0.12, 0.12], U, sil);
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  const hx = pts[0][0], hy = pts[0][1];
+  // the oral disc: a round lip at the head (part of its shape: the hatch shows it), its rows of small teeth amber on the loop's model
+  const disc = new Path2D(); disc.ellipse(hx + 0.012, hy + 0.012, 0.05, 0.085, 0, 0, 7);
+  bodyShade(g, disc, { ...col, body: mix(col.body, '#000000', 0.35) }, [hx - 0.05, hx + 0.07, hy - 0.08, hy + 0.1], U, sil);
+  outline(g, disc, U, sil, 1.6);
+  if (!sil) {
+    g.fillStyle = m.teeth === 'amber' ? 'rgba(232,180,98,.95)' : '#e9e2cf';
+    for (let i = 0; i < 9; i++) { const a = -1.2 + (i / 8) * 2.4, r = 0.032; g.beginPath(); g.arc(hx + 0.012 + Math.cos(a) * r * 0.55, hy + 0.012 + Math.sin(a) * r * 1.6, 0.007, 0, 7); g.fill(); }
+    // seven gill holes in a row behind the eye, lit lavender
+    const glow = m.gillGlow != null ? hex(m.gillGlow) : '#b8b0ee';
+    for (let i = 0; i < 7; i++) {
+      const j = 5 + i * 1.15, q = pts[Math.round(j)], x = q[0], y = q[1] + 0.012;
+      g.save(); g.shadowColor = glow; g.shadowBlur = 5; g.fillStyle = rgba(glow, 0.9); g.beginPath(); g.arc(x, y, 0.011, 0, 7); g.fill(); g.restore();
+      g.strokeStyle = 'rgba(7,8,13,.6)'; g.lineWidth = 0.8 * U; g.beginPath(); g.arc(x, y, 0.013, 0, 7); g.stroke();
+    }
+  }
+  drawEye(g, hx - 0.1, pts[4][1] - 0.035, 0.024, m.eyes, col, U, sil);
+  return BOUNDS_LOOP.lamprey;
+}
+
+function drawAngler(g, col, U, sil, rng, m) {
+  const p = { top: 0.4, bot: 0.34, hx: 0.42, ped: 0.06, nose: 0.38, tail: 'round', tailLen: 0.28, spread: 0.24, dorsal: { x0: -0.4, x1: -0.05, h: 0.12, type: 'soft' }, anal: { x0: -0.45, x1: -0.2, h: 0.1 }, pelvic: null, pect: { x: 0.28, len: 0.22 }, eye: { x: 0.62, y: -0.2, r: 0.045 } };
+  const body = genericBody(p);
+  const tail = tailPath(p);
+  const glowCol = col.glow || '#ffe2a8';
+  // lure stalk & bulb
+  const stalk = new Path2D(); stalk.moveTo(0.6, -0.36); stalk.bezierCurveTo(0.7, -0.75, 1.05, -0.78, 1.12, -0.52);
+  finFill(g, tail, col, U, sil, 0.85);
+  const dorsal = finAlong(p, p.dorsal, -1, rng); finFill(g, dorsal.path, col, U, sil, 0.8);
+  const anal = finAlong(p, { type: 'soft', ...p.anal }, 1, rng); finFill(g, anal.path, col, U, sil, 0.8);
+  bodyShade(g, body, col, [-0.68, 1, -p.top, p.bot], U, sil);
+  pattern(g, body, m.pattern, col, [-0.68, 1, -p.top, p.bot], rng, U, sil);
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  // mouth with teeth
+  const mouth = new Path2D(); mouth.moveTo(1.0, -0.02); mouth.quadraticCurveTo(0.8, 0.02, 0.55, 0.06); mouth.quadraticCurveTo(0.8, 0.2, 0.99, 0.06); mouth.closePath();
+  g.fillStyle = sil ? '#0b0d12' : '#120a0a'; g.fill(mouth); g.strokeStyle = sil ? `rgba(${BONE},.2)` : INK; g.lineWidth = 1.6 * U; g.stroke(mouth);
+  if (!sil) {
+    g.fillStyle = '#e9e2cf';
+    for (let i = 0; i < 7; i++) { const x = 0.6 + i * 0.055; const yT = 0.035 - (x - 0.6) * 0.1; g.beginPath(); g.moveTo(x, yT); g.lineTo(x + 0.018, yT); g.lineTo(x + 0.009, yT + 0.05); g.closePath(); g.fill(); }
+    for (let i = 0; i < 6; i++) { const x = 0.62 + i * 0.06; const yB = 0.12 - (x - 0.6) * 0.15; g.beginPath(); g.moveTo(x, yB); g.lineTo(x + 0.018, yB); g.lineTo(x + 0.009, yB - 0.045); g.closePath(); g.fill(); }
+  }
+  g.strokeStyle = sil ? `rgba(${BONE},.2)` : INK; g.lineWidth = 2.2 * U; g.stroke(stalk);
+  if (!sil) {
+    g.save(); g.shadowColor = glowCol; g.shadowBlur = 22; g.fillStyle = glowCol; g.beginPath(); g.arc(1.12, -0.5, 0.055, 0, 7); g.fill(); g.restore();
+    g.fillStyle = '#fffbe8'; g.beginPath(); g.arc(1.12, -0.5, 0.025, 0, 7); g.fill();
+  } else { g.fillStyle = `rgba(${BONE},.18)`; g.beginPath(); g.arc(1.12, -0.5, 0.05, 0, 7); g.fill(); }
+  const pc = new Path2D(); const x = p.pect.x, y = 0.1; pc.moveTo(x, y); pc.quadraticCurveTo(x - 0.22, y + 0.02, x - 0.2, y + 0.18); pc.quadraticCurveTo(x - 0.08, y + 0.12, x, y + 0.05); pc.closePath();
+  finFill(g, pc, col, U, sil, 0.7);
+  drawEye(g, p.eye.x, p.eye.y, p.eye.r, m.eyes, col, U, sil);
+  return BOUNDS.angler;
+}
+
+function drawPuffer(g, col, U, sil, rng, m) {
+  const cx = 0.05, rx = 0.55, ry = 0.46;
+  const body = new Path2D(); body.ellipse(cx, 0, rx, ry, 0, 0, 7);
+  // spikes
+  const sp = new Path2D();
+  for (let i = 0; i < 26; i++) {
+    const a = (i / 26) * Math.PI * 2; if (Math.cos(a) > 0.85) continue;
+    const bx = cx + Math.cos(a) * rx * 0.96, by = Math.sin(a) * ry * 0.96;
+    const L = 0.07 + 0.03 * ((i * 7) % 3);
+    sp.moveTo(bx - Math.sin(a) * 0.018, by + Math.cos(a) * 0.018); sp.lineTo(bx + Math.cos(a) * L, by + Math.sin(a) * L); sp.lineTo(bx + Math.sin(a) * 0.018, by - Math.cos(a) * 0.018);
+  }
+  const tail = new Path2D(); tail.moveTo(-0.46, -0.06); tail.quadraticCurveTo(-0.7, -0.22, -0.82, -0.14); tail.quadraticCurveTo(-0.74, 0, -0.82, 0.14); tail.quadraticCurveTo(-0.7, 0.22, -0.46, 0.06); tail.closePath();
+  const dors = new Path2D(); dors.moveTo(-0.2, -0.42); dors.quadraticCurveTo(-0.38, -0.62, -0.46, -0.5); dors.quadraticCurveTo(-0.36, -0.42, -0.34, -0.34); dors.closePath();
+  if (col.glow && !sil) halo(g, body, col.glow, 24, sil);
+  finFill(g, tail, col, U, sil, 0.85); finFill(g, dors, col, U, sil, 0.85);
+  g.fillStyle = sil ? '#0b0d12' : mix(col.body, '#000000', 0.3); g.fill(sp);
+  g.strokeStyle = sil ? `rgba(${BONE},.16)` : INK; g.lineWidth = 1.2 * U; g.stroke(sp);
+  bodyShade(g, body, col, [-0.5, 0.6, -ry, ry], U, sil);
+  pattern(g, body, m.pattern, col, [-0.5, 0.6, -ry, ry], rng, U, sil);
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  if (!sil) { g.strokeStyle = INK; g.lineWidth = 1.6 * U; g.beginPath(); g.moveTo(0.6, 0.02); g.quadraticCurveTo(0.56, 0.07, 0.5, 0.06); g.stroke(); }
+  const pc = new Path2D(); pc.moveTo(0.22, 0.04); pc.quadraticCurveTo(0.08, 0.0, 0.04, 0.14); pc.quadraticCurveTo(0.14, 0.14, 0.22, 0.1); pc.closePath();
+  finFill(g, pc, col, U, sil, 0.75);
+  drawEye(g, 0.38, -0.12, 0.075, m.eyes, col, U, sil);
+  return BOUNDS.puffer;
+}
+
+function drawRay(g, col, U, sil, rng, m) {
+  const disc = new Path2D();
+  disc.moveTo(0.62, 0);
+  disc.bezierCurveTo(0.5, -0.24, 0.2, -0.6, -0.05, -0.6);
+  disc.bezierCurveTo(-0.2, -0.45, -0.35, -0.2, -0.45, 0);
+  disc.bezierCurveTo(-0.35, 0.2, -0.2, 0.45, -0.05, 0.6);
+  disc.bezierCurveTo(0.2, 0.6, 0.5, 0.24, 0.62, 0);
+  disc.closePath();
+  const tail = new Path2D(); tail.moveTo(-0.42, -0.025); tail.bezierCurveTo(-0.7, -0.03, -0.95, 0.06, -1.15, 0.02); tail.lineTo(-1.15, 0.03); tail.bezierCurveTo(-0.95, 0.08, -0.7, 0.03, -0.42, 0.025); tail.closePath();
+  if (col.glow && !sil) halo(g, disc, col.glow, 24, sil);
+  finFill(g, tail, col, U, sil, 0.95);
+  if (sil) { g.fillStyle = '#0b0d12'; g.fill(disc); }
+  else {
+    const rg = g.createRadialGradient(0.1, 0, 0.05, 0.05, 0, 0.66);
+    rg.addColorStop(0, mix(col.body, col.belly, 0.25)); rg.addColorStop(0.6, col.body); rg.addColorStop(1, mix(col.fin, '#000000', 0.25));
+    g.fillStyle = rg; g.fill(disc);
+  }
+  pattern(g, disc, m.pattern, col, [-0.45, 0.62, -0.6, 0.6], rng, U, sil);
+  if (!sil) { g.save(); g.clip(disc); g.strokeStyle = 'rgba(7,8,13,.22)'; g.lineWidth = 1 * U; for (let i = 1; i < 4; i++) { g.beginPath(); g.ellipse(0.05, 0, 0.12 * i + 0.05, 0.14 * i + 0.04, 0, 0, 7); g.stroke(); } g.restore(); }
+  rimLight(g, disc, U, sil); outline(g, disc, U, sil);
+  drawEye(g, 0.34, -0.11, 0.035, m.eyes, col, U, sil); drawEye(g, 0.34, 0.11, 0.035, m.eyes, col, U, sil);
+  return BOUNDS.ray;
+}
+
+function drawJelly(g, col, U, sil, rng, m) {
+  const bell = new Path2D();
+  bell.moveTo(-0.48, 0.05);
+  bell.bezierCurveTo(-0.5, -0.4, -0.25, -0.55, 0, -0.55);
+  bell.bezierCurveTo(0.25, -0.55, 0.5, -0.4, 0.48, 0.05);
+  for (let i = 0; i < 8; i++) { const x0 = 0.48 - i * 0.12, x1 = x0 - 0.12; bell.quadraticCurveTo((x0 + x1) / 2, 0.12, x1, 0.05); }
+  bell.closePath();
+  const glowCol = col.glow || col.belly;
+  // tentacles
+  g.lineCap = 'round';
+  for (let i = 0; i < 9; i++) {
+    const x = -0.42 + i * 0.105;
+    g.strokeStyle = sil ? `rgba(${BONE},.12)` : rgba(col.fin, 0.55); g.lineWidth = 1.3 * U;
+    g.beginPath(); g.moveTo(x, 0.06);
+    for (let k = 1; k <= 8; k++) g.lineTo(x + Math.sin(k * 0.9 + i) * 0.03, 0.06 + k * 0.09 * (0.7 + 0.3 * ((i * 3) % 4) / 3));
+    g.stroke();
+  }
+  for (let i = 0; i < 3; i++) {
+    const x = -0.12 + i * 0.12;
+    const arm = new Path2D(); arm.moveTo(x - 0.03, 0.05);
+    arm.bezierCurveTo(x - 0.1, 0.25, x + 0.08, 0.4, x - 0.02, 0.62); arm.bezierCurveTo(x + 0.1, 0.42, x + 0.06, 0.24, x + 0.04, 0.05); arm.closePath();
+    finFill(g, arm, { ...col, fin: col.belly }, U, sil, 0.6);
+  }
+  if (!sil) { g.save(); g.shadowColor = glowCol; g.shadowBlur = 30; g.fillStyle = rgba(glowCol, 0.3); g.fill(bell); g.restore(); }
+  if (sil) { g.fillStyle = '#0b0d12'; g.fill(bell); }
+  else {
+    const lg = g.createLinearGradient(0, -0.55, 0, 0.1);
+    lg.addColorStop(0, rgba(mix(col.body, '#ffffff', 0.15), 0.9));
+    lg.addColorStop(1, rgba(col.body, 0.55));
+    g.fillStyle = lg; g.fill(bell);
+    g.save(); g.clip(bell);
+    g.strokeStyle = rgba(col.belly, 0.6); g.lineWidth = 2 * U;
+    for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(-0.18 + i * 0.12, -0.12, 0.05, Math.PI, 0); g.stroke(); }
+    g.restore();
+  }
+  rimLight(g, bell, U, sil); outline(g, bell, U, sil, 2);
+  if (!sil) { for (let i = 0; i < 7; i++) { const x = -0.4 + i * 0.133; g.save(); g.shadowColor = glowCol; g.shadowBlur = 8; g.fillStyle = glowCol; g.beginPath(); g.arc(x, 0.065, 0.014, 0, 7); g.fill(); g.restore(); } }
+  return BOUNDS.jelly;
+}
+
+function drawCrayfish(g, col, U, sil, rng, m) {
+  const shell = new Path2D();
+  shell.moveTo(0.72, -0.06); shell.lineTo(0.56, -0.12);
+  shell.bezierCurveTo(0.44, -0.24, 0.1, -0.24, -0.02, -0.16);
+  shell.lineTo(-0.02, 0.08); shell.bezierCurveTo(0.12, 0.14, 0.44, 0.14, 0.56, 0.04); shell.closePath();
+  const segs = [];
+  for (let i = 0; i < 5; i++) {
+    const x0 = -0.02 - i * 0.12, x1 = x0 - 0.13, yo = i * i * 0.012;
+    const s = new Path2D(); s.moveTo(x0, -0.15 + yo + i * 0.008); s.quadraticCurveTo((x0 + x1) / 2, -0.19 + yo, x1, -0.13 + yo + i * 0.012); s.lineTo(x1 + 0.01, 0.06 + yo * 1.2); s.quadraticCurveTo((x0 + x1) / 2, 0.1 + yo, x0, 0.07 + yo); s.closePath();
+    segs.push(s);
+  }
+  const fan = new Path2D(); fan.moveTo(-0.62, -0.05 + 0.2); fan.lineTo(-0.9, -0.08 + 0.26); fan.quadraticCurveTo(-0.96, 0.28, -0.88, 0.4); fan.lineTo(-0.6, 0.24); fan.closePath();
+  g.lineCap = 'round';
+  // antennae & legs
+  g.strokeStyle = sil ? `rgba(${BONE},.18)` : rgba(col.fin, 0.95); g.lineWidth = 1.3 * U;
+  g.beginPath(); g.moveTo(0.66, -0.1); g.bezierCurveTo(0.9, -0.4, 1.1, -0.55, 1.26, -0.6); g.moveTo(0.64, -0.08); g.bezierCurveTo(0.95, -0.25, 1.15, -0.32, 1.27, -0.3); g.stroke();
+  g.strokeStyle = sil ? `rgba(${BONE},.18)` : INK; g.lineWidth = 1.6 * U;
+  for (let i = 0; i < 4; i++) { const x = 0.42 - i * 0.11; g.beginPath(); g.moveTo(x, 0.1); g.lineTo(x - 0.03, 0.24); g.lineTo(x - 0.08, 0.3); g.stroke(); }
+  // claw arm
+  const claw = new Path2D(); claw.moveTo(0.5, 0.06); claw.quadraticCurveTo(0.7, 0.2, 0.84, 0.14); claw.bezierCurveTo(0.98, 0.04, 1.18, 0.06, 1.24, 0.12); claw.lineTo(1.02, 0.15); claw.bezierCurveTo(1.16, 0.2, 1.2, 0.27, 1.16, 0.3); claw.bezierCurveTo(1.0, 0.32, 0.86, 0.27, 0.8, 0.22); claw.quadraticCurveTo(0.66, 0.24, 0.46, 0.12); claw.closePath();
+  finFill(g, fan, col, U, sil, 0.92);
+  for (let i = segs.length - 1; i >= 0; i--) { bodyShade(g, segs[i], col, [-0.7, 0, -0.2, 0.15], U, sil); pattern(g, segs[i], m.pattern === 'bands' ? 'none' : m.pattern, col, [-0.7, 0, -0.2, 0.15], rng, U, sil); rimLight(g, segs[i], U, sil); outline(g, segs[i], U, sil, 2); }
+  bodyShade(g, shell, col, [0, 0.72, -0.24, 0.14], U, sil); pattern(g, shell, m.pattern, col, [0, 0.72, -0.24, 0.14], rng, U, sil);
+  rimLight(g, shell, U, sil); outline(g, shell, U, sil, 2.2);
+  bodyShade(g, claw, col, [0.45, 1.25, 0.04, 0.32], U, sil); rimLight(g, claw, U, sil); outline(g, claw, U, sil, 2);
+  if (!sil) { g.strokeStyle = 'rgba(7,8,13,.5)'; g.lineWidth = 1.2 * U; g.beginPath(); g.moveTo(0.3, -0.2); g.quadraticCurveTo(0.26, -0.04, 0.32, 0.1); g.stroke(); }
+  drawEye(g, 0.6, -0.16, 0.03, m.eyes, col, U, sil);
+  return BOUNDS.crayfish;
+}
+
+// >>> LAKE 2, lane F (docs/loop/LAKE2.md §2.3): Sporewood's fourteen in ink, read only once setLoopArt(true) has been called and only
+// for a species whose model carries the brief's words (models-fish.js builds the same looks in 3D): the bream and the finlet (new
+// profiles), the disc (drawDisc), and the loop builds of the catfish, the carp, the minnow, the eel, the crayfish and the puffer. Every
+// built species draws as before.
+SHAPES_LOOP.bream = { top: 0.43, bot: 0.4, hx: 0.16, ped: 0.05, nose: 0.34, tail: 'scythe', tailLen: 0.36, spread: 0.52, dorsal: { x0: -0.44, x1: 0.32, h: 0.17, type: 'spiny' },
+  anal: { x0: -0.52, x1: -0.04, h: 0.15 }, pelvic: { x: 0.22, h: 0.1 }, pect: { x: 0.56, len: 0.2 }, eye: { x: 0.74, y: -0.05, r: 0.056 }, plan: 'bream', after: true, inner: true };
+SHAPES_LOOP.finlet = { top: 0.17, bot: 0.15, hx: 0.22, ped: 0.028, nose: 0.78, tail: 'crescent', tailLen: 0.3, spread: 0.36, dorsal: { x0: 0.12, x1: 0.42, h: 0.13, type: 'spiny' },
+  dorsal2: { x0: -0.2, x1: -0.06, h: 0.09 }, anal: { x0: -0.22, x1: -0.08, h: 0.08 }, pelvic: { x: 0.36, h: 0.05 }, pect: { x: 0.56, len: 0.26 }, eye: { x: 0.8, y: -0.02, r: 0.042 },
+  jaw: true, plan: 'finlet', before: true, after: true, inner: true };
+BOUNDS_LOOP.disc = [-1.14, 0.62, -0.6, 0.6]; BOUNDS_LOOP.grove = [-1.32, 0.72, -0.62, 0.62]; BOUNDS_LOOP.capshell = [-0.86, 1.3, -0.84, 0.46];
+/** A built plan's loop profile when the model carries the brief's words; null: as built. */
+function loopProfile(shape, p, m) {
+  if (shape === 'catfish' && m.head === 'bullet_round') return { top: 0.25, bot: 0.18, hx: 0.36, ped: 0.04, nose: 0.42, tail: 'fork', tailLen: 0.36, spread: 0.4,
+    dorsal: { x0: 0.16, x1: 0.42, h: 0.22, type: 'shark' }, anal: { x0: -0.52, x1: -0.2, h: 0.08 }, pelvic: { x: 0.0, h: 0.06 }, pect: { x: 0.68, len: 0.21 },
+    eye: { x: 0.87, y: 0.07, r: 0.026 }, plan: 'catfish', whiskers: 0, noPattern: true, after: true };
+  if (shape === 'catfish' && m.head === 'bullet') return { top: 0.15, bot: 0.14, hx: 0.46, ped: 0.034, nose: 0.36, tail: 'fork', tailLen: 0.32, spread: 0.3,
+    dorsal: { x0: 0.24, x1: 0.42, h: 0.18, type: 'soft' }, anal: { x0: -0.5, x1: -0.22, h: 0.08 }, pelvic: { x: 0.04, h: 0.06 }, pect: { x: 0.72, len: 0.17 },
+    adipose: m.fattyFin ? { x: -0.36, h: 0.055 } : null, eye: { x: 0.86, y: -0.05, r: 0.022 }, plan: 'catfish', whiskers: Number(m.whiskers) || 0, noPattern: true, after: true,
+    inner: true, tailCol: m.tailCol != null ? [hex(m.tailCol), hex(m.tailTip ?? m.tailCol)] : null, sideLine: m.sideLine != null ? hex(m.sideLine) : null, xMax: 1.36 };
+  if (shape === 'carp' && (m.head != null || m.back === 'arched' || m.scales === 'giant' || m.mouth === 'up')) return { top: 0.37, bot: 0.29, hx: 0.2, ped: 0.11, nose: 0.5,
+    tail: 'fork', tailLen: 0.38, spread: 0.48, dorsal: { x0: -0.08, x1: 0.28, h: 0.21, type: 'soft' }, anal: { x0: -0.42, x1: -0.24, h: 0.13 }, pelvic: { x: 0.05, h: 0.12 },
+    pect: { x: 0.44, len: 0.22 }, eye: { x: 0.8, y: 0.0, r: 0.05 }, gillX: 0.46, mouthUp: m.mouth === 'up', plan: 'nightbloom', noPattern: m.scales === 'giant', inner: true };
+  // (the integration's fix: the Netcloud Fry's own profile, never the minnow's: a blunt round head, deepest just behind it, a thin stalk,
+  // a rounded fan of a tail, the dorsal set far back, a big eye; see-through, no lateral line)
+  if (shape === 'minnow' && m.skin === 'glass') return { top: 0.21, bot: 0.19, hx: 0.42, ped: 0.034, nose: 0.2, tail: 'fan', tailLen: 0.34, spread: 0.34,
+    dorsal: { x0: -0.42, x1: -0.08, h: 0.12, type: 'soft' }, anal: { x0: -0.44, x1: -0.14, h: 0.09 }, pelvic: { x: 0.12, h: 0.07 }, pect: { x: 0.6, len: 0.15 },
+    eye: { x: 0.78, y: -0.02, r: 0.058 * (Number(m.eye) || 1) }, plan: 'glass', glass: true, noPattern: true, noLateral: true, inner: true, after: true };
+  return null;
+}
+function tailFill(g, tail, p, U) {   // a tail its own colour: ember at its root to amber at its tips
+  const lg = g.createLinearGradient(-0.66, 0, -0.68 - p.tailLen, 0);
+  lg.addColorStop(0, rgba(p.tailCol[0], 0.95)); lg.addColorStop(1, rgba(p.tailCol[1], 0.95));
+  g.fillStyle = lg; g.fill(tail); g.strokeStyle = INK; g.lineWidth = 1.8 * U; g.stroke(tail);
+}
+/** Behind the body: the finlet's second dorsal and its finlets. */
+function loopBefore(g, p, col, U, sil, rng, m) {
+  if (p.dorsal2) { const d2 = finAlong(p, { type: 'soft', ...p.dorsal2 }, -1, rng); finFill(g, d2.path, col, U, sil, 0.85); }
+  if (p.plan === 'finlet' && m.finlets !== false) {
+    const fl = new Path2D();
+    for (let i = 0; i < 6; i++) for (const sd of [-1, 1]) {
+      const x = -0.3 - i * 0.052, y = profile(p, x, sd) * 0.95, hh = (0.05 - i * 0.004) * sd;
+      fl.moveTo(x + 0.02, y); fl.lineTo(x - 0.018, y + hh); fl.lineTo(x - 0.016, y); fl.closePath();
+    }
+    finFill(g, fl, { ...col, fin: mix(col.fin, '#c8a060', 0.35) }, U, sil, 0.95);
+  }
+}
+/** Inside the body (clipped): the bream's scales, the finlet's scribbles, the Nightbloom's petal scales, the Cindertail's side line,
+ *  the glass fish's spine and gut. */
+function loopInner(g, p, col, U, rng, m) {
+  if (p.plan === 'finlet' && m.scribbles != null) {
+    g.strokeStyle = rgba(hex(m.scribbles), 0.72); g.lineWidth = 1.3 * U; g.lineCap = 'round';
+    for (let i = 0; i < 26; i++) {
+      const x = -0.5 + rng() * 1.2, y = profile(p, x, -1) * (0.25 + rng() * 0.55);
+      g.beginPath(); g.moveTo(x, y); for (let k = 1; k <= 4; k++) g.lineTo(x - k * 0.022, y + Math.sin(k * 1.9 + i) * 0.018); g.stroke();
+    }
+    g.fillStyle = 'rgba(7,8,13,.5)'; g.beginPath(); g.ellipse(-0.56, 0, 0.03, 0.012, 0, 0, 7); g.fill();   // (the keel on the stalk)
+  } else if (p.plan === 'nightbloom') {
+    const r = 0.075, edge = hex(m.scaleEdge, '#e8d6b6');
+    for (let row = 0, y = -p.top; y < p.bot + r; y += r * 0.9, row++) for (let x = -0.6 + (row % 2) * r * 0.8; x < p.gillX; x += r * 1.55) {
+      g.fillStyle = 'rgba(7,8,13,.16)'; g.beginPath(); g.arc(x, y, r, Math.PI * 0.5, Math.PI * 1.5); g.fill();
+      g.strokeStyle = rgba(edge, 0.85); g.lineWidth = 1.2 * U; g.beginPath(); g.arc(x, y, r, Math.PI * 0.58, Math.PI * 1.42); g.stroke();
+      if (col.glow) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 5; g.strokeStyle = rgba(col.glow, 0.35); g.lineWidth = 0.9 * U; g.stroke(); g.restore(); }
+    }
+  } else if (p.plan === 'catfish' && p.sideLine) {
+    g.strokeStyle = rgba(p.sideLine, 0.9); g.lineWidth = 2.2 * U; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(0.62, 0.01); g.quadraticCurveTo(0.0, 0.0, -0.62, 0.0); g.stroke();
+  } else if (p.plan === 'glass') {   // seen through it: the spine and its comb, the silvered gut, and the light coming through its edges
+    g.strokeStyle = 'rgba(30,24,38,.9)'; g.lineWidth = 2.6 * U; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(0.6, -0.03); g.quadraticCurveTo(0.0, -0.035, -0.62, -0.004); g.stroke();
+    g.lineWidth = 1.0 * U;
+    for (let i = 0; i < 11; i++) { const x = 0.44 - i * 0.092, y = -0.03 + (x < 0 ? 0.012 : 0); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 0.035, profile(p, x, -1) * 0.7); g.moveTo(x, y); g.lineTo(x - 0.035, profile(p, x, 1) * 0.62); g.stroke(); }
+    const gut = g.createLinearGradient(0.1, 0.0, 0.1, 0.13);
+    gut.addColorStop(0, 'rgba(206,214,224,.9)'); gut.addColorStop(1, 'rgba(120,126,140,.8)');
+    g.fillStyle = gut; g.beginPath(); g.ellipse(0.3, 0.06, 0.15, 0.055, -0.08, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(232,240,246,.55)'; g.lineWidth = 2 * U; g.stroke(genericBody(p));   // (a pale fresnel edge inside the ink)
+  } else if (p.plan === 'bream') {
+    g.strokeStyle = 'rgba(7,8,13,.22)'; g.lineWidth = 0.9 * U;
+    for (let y = -p.top, row = 0; y < p.bot; y += 0.055, row++) for (let x = -0.55 + (row % 2) * 0.04; x < 0.6; x += 0.08) { g.beginPath(); g.arc(x, y, 0.045, Math.PI * 0.6, Math.PI * 1.4); g.stroke(); }
+  }
+}
+/** Over the body: the bream's keel and its square teeth, the catfish's fanned whiskers, the glass fish's amber tail spot. */
+function loopAfter(g, p, col, U, sil, rng, m) {
+  if (p.plan === 'bream') {
+    const kl = new Path2D(); kl.moveTo(0.62, profile(p, 0.62, 1));
+    for (let i = 0; i <= 14; i++) { const x = 0.62 - i * 0.05, y = profile(p, x, 1); kl.lineTo(x, y + (i % 2 ? 0.028 : 0.004)); }
+    kl.lineTo(-0.08, profile(p, -0.08, 1) - 0.01); kl.closePath();
+    finFill(g, kl, col, U, sil, 0.9);
+    if (!sil && m.jaw === 'square_teeth') {   // the smile: a dark mouth a little open, three square teeth above and three below
+      const mx = 0.97, my = 0.06;
+      const mo = new Path2D(); mo.moveTo(mx + 0.03, my - 0.035); mo.quadraticCurveTo(mx - 0.08, my - 0.02, mx - 0.12, my); mo.quadraticCurveTo(mx - 0.08, my + 0.025, mx + 0.03, my + 0.04); mo.closePath();
+      g.fillStyle = '#120a0c'; g.fill(mo);
+      g.fillStyle = '#efe6d2'; g.strokeStyle = INK; g.lineWidth = 0.9 * U;
+      for (let i = 0; i < 3; i++) for (const sd of [-1, 1]) { const x = mx - 0.005 - i * 0.034, y = my + sd * (0.022 - i * 0.003) - (sd > 0 ? 0.018 : 0); g.fillRect(x - 0.014, y, 0.026, 0.018); g.strokeRect(x - 0.014, y, 0.026, 0.018); }
+      g.strokeStyle = INK; g.lineWidth = 1.5 * U; g.stroke(mo);
+    }
+  } else if (p.plan === 'catfish' && p.whiskers > 0 && !sil) {   // four pairs fanned forward, past the snout
+    g.strokeStyle = rgba(hex(m.whiskerCol, '#d8ccb8'), 0.95); g.lineCap = 'round';
+    for (let k = 0; k < Math.min(4, p.whiskers / 2); k++) {
+      const y0 = [0.02, -0.05, 0.07, 0.1][k], L = [0.36, 0.2, 0.17, 0.12][k], dy = [-0.1, -0.16, 0.08, 0.14][k];
+      g.lineWidth = (1.5 - k * 0.15) * U; g.beginPath(); g.moveTo(0.96, y0); g.bezierCurveTo(0.96 + L * 0.5, y0 + dy * 0.6, 0.96 + L * 0.85, y0 + dy, 0.96 + L, y0 + dy * 1.5 + 0.04); g.stroke();
+    }
+  } else if (p.plan === 'catfish' && !sil) {   // the Downcast's wide mouth, set above its low eyes
+    g.strokeStyle = INK; g.lineWidth = 1.5 * U; g.beginPath(); g.moveTo(0.99, -0.015); g.quadraticCurveTo(0.93, 0.012, 0.86, 0.0); g.stroke();
+  } else if (p.plan === 'glass' && !sil) {   // the amber tail spot (its one warm mark) and the eye's dark ring
+    if (m.tailSpot) { g.save(); g.fillStyle = m.tailSpot === 'amber' ? '#e8a246' : hex(m.tailSpot); g.beginPath(); g.arc(-0.57, 0, 0.042, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = 1 * U; g.stroke(); g.restore(); }
+    g.strokeStyle = 'rgba(30,24,38,.95)'; g.lineWidth = 2.2 * U; g.beginPath(); g.arc(p.eye.x, p.eye.y, p.eye.r * 1.22, 0, 7); g.stroke();
+  }
+}
+
+/** The disc (a river ray from above): a near-round disc, two eye turrets, a stout tail with one sting or a long whip with one barb, a
+ *  pointed snout tip; eye-rings (cream, dark centres) or a meadow (moss tufts, ferns, tiny caps with glowing gills) on the back. */
+function drawDisc(g, col, U, sil, rng, m) {
+  const grove = m.meadow === true, R = grove ? 0.5 : 0.52, cx = grove ? 0.14 : 0.08;
+  const disc = new Path2D();
+  if (m.snout === 'point') {
+    disc.moveTo(cx + R + 0.09, 0);
+    disc.bezierCurveTo(cx + R + 0.02, -0.06, cx + R * 0.95, -R * 0.45, cx + R * 0.6, -R * 0.82);
+    disc.bezierCurveTo(cx + R * 0.2, -R * 1.04, cx - R * 0.55, -R * 1.0, cx - R * 0.86, -R * 0.55);
+    disc.bezierCurveTo(cx - R * 1.02, -R * 0.2, cx - R * 1.02, R * 0.2, cx - R * 0.86, R * 0.55);
+    disc.bezierCurveTo(cx - R * 0.55, R * 1.0, cx + R * 0.2, R * 1.04, cx + R * 0.6, R * 0.82);
+    disc.bezierCurveTo(cx + R * 0.95, R * 0.45, cx + R + 0.02, 0.06, cx + R + 0.09, 0);
+  } else disc.ellipse(cx, 0, R, R * 1.0, 0, 0, 7);
+  disc.closePath();
+  const whip = m.tail === 'whip_barb', tx0 = cx - R * 0.82, tL = whip ? 1.1 : 0.62, tw = whip ? 0.028 : 0.07;
+  const tail = new Path2D(); tail.moveTo(tx0, -tw); tail.bezierCurveTo(tx0 - tL * 0.4, -tw * 0.8, tx0 - tL * 0.8, -tw * 0.3, tx0 - tL, 0); tail.bezierCurveTo(tx0 - tL * 0.8, tw * 0.3, tx0 - tL * 0.4, tw * 0.8, tx0, tw); tail.closePath();
+  if (col.glow && !sil && !grove) halo(g, disc, col.glow, 24, sil);
+  finFill(g, tail, { ...col, fin: col.body }, U, sil, 1);
+  { const u = whip ? 0.16 : 0.42, x = tx0 - tL * u, st = new Path2D(); st.moveTo(x + 0.03, -tw * 0.5); st.lineTo(x - (whip ? 0.16 : 0.18), -tw * 0.5 - 0.035); st.lineTo(x - 0.01, -tw * 0.1); st.closePath();
+    if (!sil) { g.fillStyle = '#e6dcc4'; g.fill(st); g.strokeStyle = INK; g.lineWidth = 1.1 * U; g.stroke(st); } else { g.fillStyle = '#0b0d12'; g.fill(st); } }
+  if (sil) { g.fillStyle = '#0b0d12'; g.fill(disc); }
+  else {
+    const rg = g.createRadialGradient(cx + 0.05, 0, 0.05, cx, 0, R * 1.05);
+    rg.addColorStop(0, mix(col.body, col.belly, 0.12)); rg.addColorStop(0.7, col.body); rg.addColorStop(1, mix(col.body, '#000000', 0.35));
+    g.fillStyle = rg; g.fill(disc);
+  }
+  if (!sil) {
+    g.save(); g.clip(disc);
+    const n = Math.max(0, Math.round(Number(m.eyeRings) || 0));
+    if (n) {   // the eye-rings: cream, each with a dark centre
+      const ring = hex(m.ring, '#e8d4a8'), spots = [[0.44, 0], [0.56, -0.44], [0.56, 0.44], [0.69, 0], [0.75, -0.62], [0.75, 0.62], [0.87, -0.3], [0.87, 0.3], [0.36, -0.64], [0.36, 0.64], [0.22, -0.7], [0.22, 0.7]].slice(0, n);
+      for (const [t, q] of spots) {
+        const x = cx + R - t * 2 * R, y = q * R * Math.sqrt(Math.max(0, 1 - ((x - cx) / R) ** 2)), rr = 0.05 * (1 - Math.abs(q) * 0.25);
+        g.fillStyle = mix(col.body, '#000000', 0.5); g.beginPath(); g.arc(x, y, rr * 0.55, 0, 7); g.fill();
+        g.strokeStyle = ring; g.lineWidth = rr * 0.45; g.beginPath(); g.arc(x, y, rr * 0.78, 0, 7); g.stroke();
+      }
+    }
+    if (grove) {   // the meadow: moss tufts, curled ferns, tiny caps whose gills glow amber
+      const moss = ['#5c6834', '#4e5c2c', '#6c7440', '#76703c'], gl = col.glow || '#ffb46a';
+      for (let i = 0; i < 26; i++) {
+        const a = rng() * 7, rr = Math.sqrt(rng()) * R * 0.78, x = cx + Math.cos(a) * rr, y = Math.sin(a) * rr, s = 0.03 + rng() * 0.035;
+        g.fillStyle = moss[i % 4]; g.beginPath();
+        for (let k = 0; k < 9; k++) { const b = (k / 9) * 7, q = s * (0.75 + rng() * 0.45); g.lineTo(x + Math.cos(b) * q, y + Math.sin(b) * q * 0.8); }
+        g.closePath(); g.fill(); g.strokeStyle = 'rgba(7,8,13,.55)'; g.lineWidth = 0.9 * U; g.stroke();
+      }
+      g.strokeStyle = '#7a8a46'; g.lineWidth = 1.4 * U; g.lineCap = 'round';
+      for (let i = 0; i < 8; i++) {
+        const a = rng() * 7, rr = Math.sqrt(rng()) * R * 0.7, x = cx + Math.cos(a) * rr, y = Math.sin(a) * rr, s = 0.06 + rng() * 0.03, d = rng() < 0.5 ? 1 : -1;
+        g.beginPath(); g.moveTo(x, y + s * 0.6); g.quadraticCurveTo(x - s * 0.2 * d, y - s * 0.4, x + s * 0.35 * d, y - s * 0.55); g.quadraticCurveTo(x + s * 0.6 * d, y - s * 0.45, x + s * 0.45 * d, y - s * 0.25); g.stroke();
+        for (let k = 1; k < 5; k++) { const t = k / 5, px = x - s * 0.2 * d * t, py = y + s * 0.6 - s * t; g.beginPath(); g.moveTo(px, py); g.lineTo(px - 0.022, py - 0.012); g.moveTo(px, py); g.lineTo(px + 0.022, py - 0.012); g.stroke(); }
+      }
+      for (let i = 0; i < 9; i++) {
+        const a = rng() * 7, rr = Math.sqrt(rng()) * R * 0.72, x = cx + Math.cos(a) * rr, y = Math.sin(a) * rr, s = 0.026 + rng() * 0.02;
+        g.save(); g.shadowColor = gl; g.shadowBlur = 8; g.fillStyle = rgba(gl, 0.9); g.beginPath(); g.ellipse(x, y + s * 0.15, s * 0.9, s * 0.35, 0, 0, 7); g.fill(); g.restore();
+        g.fillStyle = ['#c8905a', '#9a6a6e', '#d8b47a'][i % 3]; g.beginPath(); g.arc(x, y, s, Math.PI, 0); g.closePath(); g.fill();
+        g.strokeStyle = INK; g.lineWidth = 1 * U; g.stroke();
+      }
+    }
+    g.restore();
+  }
+  rimLight(g, disc, U, sil); outline(g, disc, U, sil);
+  // the eye turrets and their eyes
+  const ex = cx + R * 0.5, ey = R * 0.24;
+  for (const sd of [-1, 1]) {
+    if (!sil) { g.fillStyle = mix(col.body, col.belly, 0.2); g.beginPath(); g.ellipse(ex, sd * ey, 0.045, 0.04, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = 1.2 * U; g.stroke(); }
+    drawEye(g, ex, sd * ey, grove ? 0.022 : 0.03, m.eyes, col, U, sil);
+  }
+  return grove ? BOUNDS_LOOP.grove : BOUNDS_LOOP.disc;
+}
+
+/** The eel's loop words: girth, a paddle head (blunt and squared), no back fin, a ribbon fin under the whole belly or only a skin fold
+ *  at the tail, a pointed tail, small eyes, lit strings down the flank (the Harpstring), bark blotches and a belly line (the Threadling). */
+function drawEelLoop(g, col, U, sil, rng, m) {
+  const G = Number(m.girth) || 1, paddle = m.head === 'paddle', N = 60, pts = [], top = [], bot = [];
+  const A = 0.07, k = paddle ? 2.8 : 3.6;
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, x = 1 - u * 2.05;
+    const y = A * Math.sin(k * (1 - u) * Math.PI * 0.62 + 0.4) * (0.4 + u);
+    const dy = A * Math.cos(k * (1 - u) * Math.PI * 0.62 + 0.4) * k * Math.PI * 0.62 * -1 / 2.05;
+    const nl = Math.hypot(1, dy); const nx = -dy / nl, ny = 1 / nl;
+    let h = 0.085 * Math.pow(Math.sin(Math.PI * Math.min(1, (u * 0.92 + 0.08))), 0.35) * (1 - u * 0.75) + 0.008;
+    if (paddle && u < 0.1) h = Math.max(h, 0.062 + 0.008 * (u / 0.1));   // (a blunt, squared head, no taper to a snout)
+    if (m.tail === 'point') h *= Math.min(1, (1 - u) * 6 + 0.06);
+    if (G < 1 && u < 0.06) h *= 0.35 + 0.65 * (u / 0.06);   // (a tiny pointed head)
+    h *= G;
+    pts.push([x, y]); top.push([x - nx * h, y - ny * h]); bot.push([x + nx * h, y + ny * h]);
+  }
+  const body = new Path2D(); smoothPath(body, [...top, ...bot.reverse()], true); bot.reverse();
+  const fin = new Path2D(), ft = [], fb = [];
+  const v0 = m.ventral === 'ribbon_full' ? 6 : m.ventral === 'fold' ? 52 : 30, d0 = m.dorsal === 'none' ? (m.ventral === 'fold' ? 54 : N + 1) : 18;
+  for (let i = Math.min(v0, d0); i <= N; i++) {
+    const w = (m.ventral === 'fold' ? 0.014 : 0.03 * G) + 0.012 * Math.sin(i * 0.9);
+    ft.push([top[i][0], top[i][1] - (i >= d0 ? w : 0)]); fb.push([bot[i][0], bot[i][1] + (i >= v0 ? w : 0)]);
+  }
+  if (ft.length) { smoothPath(fin, [...ft, ...fb.reverse()], true); finFill(g, fin, col, U, sil, 0.6); }
+  if (col.glow && !sil && !m.strings) { g.save(); g.shadowColor = col.glow; g.shadowBlur = 24; g.fillStyle = rgba(col.glow, 0.2); g.fill(body); g.restore(); }
+  bodyShade(g, body, col, [-1.05, 1, -0.12 * G, 0.12 * G], U, sil);
+  if (!sil) {
+    g.save(); g.clip(body);
+    if (m.mottle) for (let i = 0; i < 60; i++) { const q = pts[4 + Math.floor(rng() * (N - 8))], r = 0.012 + rng() * 0.02; g.fillStyle = i % 3 ? 'rgba(30,24,14,.42)' : 'rgba(226,212,184,.34)'; g.beginPath(); g.ellipse(q[0] + (rng() - 0.5) * 0.04, q[1] + (rng() - 0.5) * 0.06 * G, r, r * 0.7, rng() * 3, 0, 7); g.fill(); }
+    if (m.bellyLine) { g.strokeStyle = rgba(hex(m.bellyLine === true ? '#e8dcbc' : m.bellyLine), 0.75); g.lineWidth = 1.6 * U; g.beginPath(); smoothPath(g, bot.map(([x, y]) => [x, y - 0.006]), false); g.stroke(); }
+    g.restore();
+  }
+  if (m.strings && !sil) {   // three lit strings down the flank, the whole length
+    const gl = col.glow || '#f2a07a', n = Math.round(Number(m.strings)) || 3;
+    g.save(); g.shadowColor = gl; g.shadowBlur = 7; g.strokeStyle = rgba(gl, 0.95); g.lineWidth = 1.5 * U; g.lineCap = 'round';
+    for (let s = 0; s < n; s++) {
+      const f = (s + 1) / (n + 1);
+      g.beginPath(); smoothPath(g, pts.slice(5, N - 3).map(([x, y], i) => { const j = i + 5; return [x, top[j][1] + (bot[j][1] - top[j][1]) * f]; }), false); g.stroke();
+    }
+    g.restore();
+  }
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  if (!sil) { g.strokeStyle = INK; g.lineWidth = 1.3 * U; g.beginPath(); g.moveTo(paddle ? 1.0 : 0.99, pts[0][1] + 0.02 * G); g.lineTo(0.9, pts[3][1] + 0.03 * G); g.stroke(); }
+  drawEye(g, 0.92, pts[3][1] - 0.025 * G, 0.03 * Math.min(1, G) * (Number(m.eye) || 1), m.eyes, col, U, sil);
+  return BOUNDS.eel;
+}
+
+/** The puffer's loop words: a beak of four fused teeth, short prickles, an amber-ringed eye-spot on the flank, lit like a paper lantern. */
+function drawPufferLoop(g, col, U, sil, rng, m) {
+  const cx = 0.05, rx = 0.55, ry = 0.46;
+  const body = new Path2D(); body.ellipse(cx, 0, rx, ry, 0, 0, 7);
+  const sp = new Path2D(), short = m.prickles === 'short', nS = short ? 44 : 26;
+  for (let i = 0; i < nS; i++) {
+    const a = (i / nS) * Math.PI * 2; if (Math.cos(a) > 0.85) continue;
+    const bx = cx + Math.cos(a) * rx * 0.97, by = Math.sin(a) * ry * 0.97, L = short ? 0.035 + 0.012 * ((i * 7) % 3) : 0.07 + 0.03 * ((i * 7) % 3);
+    sp.moveTo(bx - Math.sin(a) * 0.014, by + Math.cos(a) * 0.014); sp.lineTo(bx + Math.cos(a) * L, by + Math.sin(a) * L); sp.lineTo(bx + Math.sin(a) * 0.014, by - Math.cos(a) * 0.014);
+  }
+  const tail = new Path2D(); tail.moveTo(-0.46, -0.06); tail.quadraticCurveTo(-0.7, -0.22, -0.82, -0.14); tail.quadraticCurveTo(-0.74, 0, -0.82, 0.14); tail.quadraticCurveTo(-0.7, 0.22, -0.46, 0.06); tail.closePath();
+  const dors = new Path2D(); dors.moveTo(-0.2, -0.42); dors.quadraticCurveTo(-0.38, -0.62, -0.46, -0.5); dors.quadraticCurveTo(-0.36, -0.42, -0.34, -0.34); dors.closePath();
+  if (col.glow && !sil) halo(g, body, col.glow, 34, sil);
+  finFill(g, tail, col, U, sil, 0.85); finFill(g, dors, col, U, sil, 0.85);
+  g.fillStyle = sil ? '#0b0d12' : mix(col.body, '#000000', 0.3); g.fill(sp);
+  g.strokeStyle = sil ? `rgba(${BONE},.16)` : INK; g.lineWidth = 1.1 * U; g.stroke(sp);
+  bodyShade(g, body, col, [-0.5, 0.6, -ry, ry], U, sil);
+  if (!sil) {
+    g.save(); g.clip(body);
+    if (col.glow) {   // the lantern: warm light through the paper, fuller below, and its ribs
+      const lg = g.createRadialGradient(cx, ry * 0.25, 0.05, cx, 0, rx * 1.05);
+      lg.addColorStop(0, rgba(col.glow, 0.42)); lg.addColorStop(1, rgba(col.glow, 0.04)); g.fillStyle = lg; g.fillRect(-0.6, -0.6, 1.3, 1.2);
+      g.strokeStyle = 'rgba(7,8,13,.22)'; g.lineWidth = 1 * U;
+      for (let i = 1; i < 7; i++) { const x = cx - rx + (i / 7) * rx * 2; g.beginPath(); g.ellipse(cx, 0, Math.abs(x - cx), ry, 0, x > cx ? -1.57 : 1.57, x > cx ? 1.57 : 4.71); g.stroke(); }
+    }
+    if (m.eyeSpots) {   // the eye-spot: an amber ring, a dark centre
+      const ec = hex(m.eyeSpotCol, '#e0a048');
+      g.fillStyle = '#1a0e18'; g.beginPath(); g.arc(-0.2, 0.05, 0.08, 0, 7); g.fill();
+      g.strokeStyle = ec; g.lineWidth = 0.042; g.beginPath(); g.arc(-0.2, 0.05, 0.104, 0, 7); g.stroke();
+      g.strokeStyle = INK; g.lineWidth = 1 * U; g.beginPath(); g.arc(-0.2, 0.05, 0.127, 0, 7); g.stroke();
+    }
+    g.restore();
+  }
+  rimLight(g, body, U, sil); outline(g, body, U, sil);
+  if (!sil && Number(m.beak) >= 4) {   // the beak: four fused teeth, two above and two below a dark seam
+    g.fillStyle = '#f2e8d0'; g.strokeStyle = INK; g.lineWidth = 1.1 * U;
+    for (const [y0, sg] of [[-0.012, -1], [0.016, 1]]) for (const k of [0, 1]) { const x = 0.58 + k * 0.035, b = new Path2D(); b.moveTo(x - 0.03, y0); b.quadraticCurveTo(x + 0.02, y0 + sg * 0.005, x + 0.035, y0 + sg * 0.03); b.lineTo(x - 0.02, y0 + sg * 0.036); b.closePath(); g.fill(b); g.stroke(b); }
+    g.strokeStyle = '#120a0c'; g.lineWidth = 1.6 * U; g.beginPath(); g.moveTo(0.54, 0.002); g.lineTo(0.64, 0.002); g.stroke();
+  } else if (!sil) { g.strokeStyle = INK; g.lineWidth = 1.6 * U; g.beginPath(); g.moveTo(0.6, 0.02); g.quadraticCurveTo(0.56, 0.07, 0.5, 0.06); g.stroke(); }
+  const pc = new Path2D(); pc.moveTo(0.22, 0.04); pc.quadraticCurveTo(0.08, 0.0, 0.04, 0.14); pc.quadraticCurveTo(0.14, 0.14, 0.22, 0.1); pc.closePath();
+  finFill(g, pc, col, U, sil, 0.75);
+  drawEye(g, 0.38, -0.14, 0.065, m.eyes, col, U, sil);
+  return BOUNDS.puffer;
+}
+
+/** The Capshell: a mushroom cap of a shell hiding the body, its gills under the rim, tiny claws, very long antennae with amber tips. */
+function drawCapshell(g, col, U, sil, rng, m) {
+  const capC = hex(m.cap, '#d6ae76'), frk = hex(m.freckle, '#5a3450'), ka = Number(m.antennae) || 1, kc = Number(m.claws) || 1;
+  g.lineCap = 'round';
+  // the antennae: from under the cap's front, over the cap and back past the tail, amber at the tips
+  for (const [lift, w] of [[0, 1.4], [0.06, 1.15]]) {
+    const P0 = [0.78, -0.02], P1 = [ka * 0.62 + 0.4, -0.3 * ka - lift], P2 = [0.4, -0.375 * ka - lift], P3 = [-0.225 * ka, -0.252 * ka - lift];
+    const at = (t) => [0, 1].map((i) => (1 - t) ** 3 * P0[i] + 3 * (1 - t) ** 2 * t * P1[i] + 3 * (1 - t) * t * t * P2[i] + t ** 3 * P3[i]);
+    g.strokeStyle = sil ? `rgba(${BONE},.18)` : rgba(mix(col.fin, capC, 0.55), 0.95); g.lineWidth = w * U;
+    g.beginPath(); g.moveTo(...P0); for (let i = 1; i <= 24; i++) g.lineTo(...at(i / 24 * 0.86)); g.stroke();
+    g.strokeStyle = sil ? `rgba(${BONE},.18)` : '#e8a04a'; g.lineWidth = (w + 0.5) * U;   // (the tips amber)
+    g.beginPath(); g.moveTo(...at(0.86)); for (let i = 1; i <= 6; i++) g.lineTo(...at(0.86 + i / 6 * 0.14)); g.stroke();
+  }
+  // legs below the rim
+  g.strokeStyle = sil ? `rgba(${BONE},.18)` : INK; g.lineWidth = 1.6 * U;
+  for (let i = 0; i < 4; i++) { const x = 0.5 - i * 0.13; g.beginPath(); g.moveTo(x, 0.1); g.lineTo(x - 0.04, 0.24); g.lineTo(x - 0.1, 0.31); g.stroke(); }
+  // the tail behind the cap, short, and its fan
+  const segs = [];
+  for (let i = 0; i < 4; i++) { const x0 = -0.04 - i * 0.11, x1 = x0 - 0.12, yo = i * i * 0.01; const s = new Path2D(); s.moveTo(x0, -0.06 + yo); s.quadraticCurveTo((x0 + x1) / 2, -0.1 + yo, x1, -0.05 + yo); s.lineTo(x1 + 0.01, 0.06 + yo); s.quadraticCurveTo((x0 + x1) / 2, 0.09 + yo, x0, 0.07 + yo); s.closePath(); segs.push(s); }
+  const fan = new Path2D(); fan.moveTo(-0.5, 0.02); fan.lineTo(-0.68, -0.02); fan.quadraticCurveTo(-0.74, 0.12, -0.66, 0.22); fan.lineTo(-0.48, 0.12); fan.closePath();
+  finFill(g, fan, col, U, sil, 0.92);
+  for (let i = segs.length - 1; i >= 0; i--) { bodyShade(g, segs[i], col, [-0.6, 0, -0.1, 0.12], U, sil); rimLight(g, segs[i], U, sil); outline(g, segs[i], U, sil, 2); }
+  // the tiny claws, just out from under the rim
+  const claw = new Path2D(); const cx0 = 0.76, cl = 0.24 * kc + 0.06;
+  claw.moveTo(cx0, 0.04); claw.quadraticCurveTo(cx0 + cl * 0.5, 0.08, cx0 + cl, 0.06); claw.lineTo(cx0 + cl + 0.03, 0.1); claw.quadraticCurveTo(cx0 + cl * 0.5, 0.15, cx0, 0.1); claw.closePath();
+  bodyShade(g, claw, { ...col, body: mix(capC, '#000000', 0.2) }, [0.7, 1.1, 0.04, 0.16], U, sil); outline(g, claw, U, sil, 1.8);
+  // the cap: a broad dome over the front two-thirds, its rim rolled, its gills under the rim
+  const cap = new Path2D(); cap.moveTo(-0.16, 0.06); cap.bezierCurveTo(-0.2, -0.36, 0.4, -0.5, 0.74, -0.24); cap.bezierCurveTo(0.9, -0.1, 0.92, 0.02, 0.86, 0.07); cap.quadraticCurveTo(0.35, 0.12, -0.16, 0.06); cap.closePath();
+  if (!sil) {
+    g.strokeStyle = 'rgba(90,58,40,.9)'; g.lineWidth = 1 * U;
+    for (let i = 0; i <= 22; i++) { const x = -0.12 + i * 0.044; g.beginPath(); g.moveTo(x, 0.075 + 0.02 * Math.sin(i)); g.lineTo(x + 0.01, 0.13); g.stroke(); }
+  }
+  bodyShade(g, cap, { ...col, body: capC, belly: mix(capC, '#ffffff', 0.25) }, [-0.2, 0.9, -0.5, 0.12], U, sil);
+  if (!sil) {
+    g.save(); g.clip(cap); g.fillStyle = rgba(frk, 0.85);
+    for (let i = 0; i < 34; i++) { const x = -0.12 + rng() * 0.95, y = -0.42 + rng() * 0.46; g.beginPath(); g.arc(x, y, 0.008 + rng() * 0.012, 0, 7); g.fill(); }
+    g.restore();
+  }
+  rimLight(g, cap, U, sil); outline(g, cap, U, sil, 2.2);
+  drawEye(g, 0.82, 0.075, 0.026, m.eyes, col, U, sil);
+  return BOUNDS_LOOP.capshell;
+}
+
+/** The Netcloud Fry comes as a cloud of five: the same drawing, smaller and farther, round the near one. [x, y (in its bounds' width
+ *  and height), scale], the farthest first. */
+const CLOUD_2D = [[-0.3, -0.62, 0.56], [0.36, -0.5, 0.6], [-0.42, 0.52, 0.62], [0.28, 0.66, 0.58]];
+// <<< LAKE 2, lane F
+
+// ------------------------------------------------------------------ public
+const cache = new Map();
+
+/**
+ * Draw a species onto a canvas element (CSS size w×h). opts: {silhouette, pad, flip}
+ * Returns the canvas.
+ */
+export function drawFish(canvas, species, opts = {}) {
+  const w = opts.w || canvas.clientWidth || canvas.width || 160;
+  const h = opts.h || canvas.clientHeight || canvas.height || 90;
+  const dpr = Math.min(2, (typeof devicePixelRatio === 'number' && devicePixelRatio) || 1);
+  const hatch = !!opts.hatch;
+  const sil = !hatch && !!opts.silhouette;
+  const id = species?.id || 'unknown';
+  const key = `${id}|${w}|${h}|${hatch ? 'h' : sil ? 1 : 0}|${dpr}|${opts.pad ?? ''}${LOOP_ART ? '|L' : ''}`;
+  canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  if (!canvas.style.width) { canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
+  const g = canvas.getContext('2d');
+  if (!g) return canvas;
+  const hit = cache.get(key);
+  if (hit) { g.clearRect(0, 0, canvas.width, canvas.height); g.drawImage(hit, 0, 0); return canvas; }
+  const off = document.createElement('canvas');
+  off.width = canvas.width; off.height = canvas.height;
+  if (hatch) paintHatch(off, species, opts.pad ?? 0.08, dpr);
+  else paint(off.getContext('2d'), off.width, off.height, species, sil, opts.pad ?? 0.08, dpr);
+  if (cache.size > 160) cache.delete(cache.keys().next().value);
+  cache.set(key, off);
+  g.clearRect(0, 0, canvas.width, canvas.height);
+  g.drawImage(off, 0, 0);
+  return canvas;
+}
+
+function paint(g, W, H, species, sil, pad, dpr) {
+  const m = species?.model || {};
+  const shape = m.shape || 'minnow';
+  const col = { body: hex(m.body, '#6e7684'), belly: hex(m.belly, '#d8dae0'), fin: hex(m.fin, '#3c4452'), glow: m.glow != null ? hex(m.glow) : null };
+  col.glowEye = col.glow || '#ffd98a';
+  let rng = seedRng(species?.id || 'x');
+  let p = shapeOf(shape);
+  if (LOOP_ART && p) p = loopProfile(shape, p, m) || p;   // (LAKE 2, lane F: a built plan's loop build)
+  let bounds;
+  if (p) {
+    bounds = [-0.68 - p.tailLen * 1.02, p.xMax ?? 1.02, -(p.top + p.dorsal.h * 0.95), p.bot + Math.max(p.anal.h, p.pelvic?.h || 0) * 1.05];
+  } else bounds = (LOOP_ART ? loopBounds(shape, m) : null) || BOUNDS[shape] || (LOOP_ART ? BOUNDS_LOOP[shape] : null) || BOUNDS.eel;
+  // (LAKE 2, lane F: the Netcloud Fry comes as a cloud of five: the frame holds them all)
+  const cloud = LOOP_ART && Number(m.cloud) > 1 ? [...CLOUD_2D.slice(0, Math.round(Number(m.cloud)) - 1), [0, 0, 1]] : null;
+  if (cloud) {
+    const [a0, a1, b0, b1] = bounds, bw0 = a1 - a0, bh0 = b1 - b0;
+    bounds = cloud.reduce((B, [ox, oy, sc]) => [Math.min(B[0], ox * bw0 + a0 * sc), Math.max(B[1], ox * bw0 + a1 * sc), Math.min(B[2], oy * bh0 + b0 * sc), Math.max(B[3], oy * bh0 + b1 * sc)], [Infinity, -Infinity, Infinity, -Infinity]);
+    bounds.unit = [bw0, bh0];
+  }
+  const [x0, x1, y0, y1] = bounds;
+  const bw = x1 - x0, bh = y1 - y0;
+  const avail = Math.min((W * (1 - pad * 2)) / bw, (H * (1 - pad * 2)) / bh);
+  const scale = avail;
+  const ox = W / 2 - ((x0 + x1) / 2) * scale, oy = H / 2 - ((y0 + y1) / 2) * scale;
+  g.save();
+  g.setTransform(scale, 0, 0, scale, ox, oy);
+  const U = dpr / scale;      // one CSS px in unit space
+  g.lineJoin = 'round';
+  const one = (Uk) => {
+    if (p) drawGeneric(g, p, col, Uk, sil, rng, m);
+    else if (shape === 'eel') (LOOP_ART && eelLoop(m) ? drawEelLoop : drawEel)(g, col, Uk, sil, rng, m);
+    else if (shape === 'angler') drawAngler(g, col, Uk, sil, rng, m);
+    else if (shape === 'puffer') (LOOP_ART && (m.beak || m.eyeSpots || m.prickles) ? drawPufferLoop : drawPuffer)(g, col, Uk, sil, rng, m);
+    else if (shape === 'ray') drawRay(g, col, Uk, sil, rng, m);
+    else if (shape === 'jelly') drawJelly(g, col, Uk, sil, rng, m);
+    else if (shape === 'crayfish') (LOOP_ART && m.carapace === 'dome' ? drawCapshell : drawCrayfish)(g, col, Uk, sil, rng, m);
+    else if (LOOP_ART && shape === 'lamprey') drawLamprey(g, col, Uk, sil, rng, m);
+    else if (LOOP_ART && shape === 'disc') drawDisc(g, col, Uk, sil, rng, m);
+    else drawGeneric(g, SHAPES.minnow, col, Uk, sil, rng, m);
+  };
+  try {
+    if (!cloud) one(U);
+    else for (const [ox, oy, sc] of cloud) {   // (the farthest first, each the same drawing: its own seed again)
+      rng = seedRng(species?.id || 'x');
+      g.save(); g.translate(ox * bounds.unit[0], oy * bounds.unit[1]); g.scale(sc, sc); one(U / sc); g.restore();
+    }
+  } catch { /* never break a screen over an illustration */ }
+  g.restore();
+}
+
+// ------------------------------------------------------------------ the hatch (M1 step 3a; SPEC §8.8, decision 60)
+/** The hatch's ink: the Chart's sepia, pale, for the Journal's night page (its hue band is sepia's; a dark sepia would not read on
+ *  the night): every drawn pixel is this colour, at most HATCH.ink alpha. */
+export const HATCH = Object.freeze({ rgb: [214, 196, 168], ink: 0.55, step: 3, line: 0.75, edge: 1, halo: 2, haloInk: 0.25 });
+/**
+ * A fish not yet caught, under the loop (drawFish(…, {hatch: true})): the species' own shape plan (the same bounds and scale as its
+ * drawing) as an outline only, filled with fine diagonal hatching (0.75 px lines, 3 px apart, at 45°), its edge stroked once at 1 px
+ * and once more at 2 px and 25% ink, the whole at 55% ink: no eye, glow, colour, spots, fin rays or inner line. The shape is the
+ * silhouette's coverage (paint(…, sil)), so the hatch tells a pike from a carp and never which pike.
+ */
+function paintHatch(off, species, pad, dpr) {
+  const W = off.width, H = off.height, n = W * H;
+  const m = document.createElement('canvas'); m.width = W; m.height = H;
+  const mg = m.getContext('2d');
+  paint(mg, W, H, species, true, pad, dpr);
+  const md = mg.getImageData(0, 0, W, H).data;
+  const inside = new Uint8Array(n);
+  for (let i = 0; i < n; i++) inside[i] = md[i * 4 + 3] > 24 ? 1 : 0;
+  const dIn = chamfer(inside, W, H, 1), dOut = chamfer(inside, W, H, 0);
+  const U = dpr, period = HATCH.step * U * Math.SQRT2, half = (HATCH.line * U) / 2;
+  const g = off.getContext('2d'), out = g.createImageData(W, H), o = out.data;
+  const [r, gg, b] = HATCH.rgb;
+  for (let y = 0, i = 0; y < H; y++) {
+    for (let x = 0; x < W; x++, i++) {
+      let a = 0;
+      if (inside[i]) {
+        const t = (x + y + 1) % period, dist = Math.abs(t - period / 2) / Math.SQRT2;   // (distance to the nearest 45° line)
+        const lineK = Math.min(1, Math.max(0, half + 0.5 - (period / 2 / Math.SQRT2 - dist)));
+        a = lineK;
+        const e = dIn[i] - 0.5;
+        if (e <= (HATCH.edge * U) / 2) a = 1; else if (e <= (HATCH.halo * U) / 2 && a < HATCH.haloInk) a = HATCH.haloInk;
+      } else {
+        const e = dOut[i] - 0.5;
+        if (e <= (HATCH.edge * U) / 2) a = Math.max(0, Math.min(1, (HATCH.edge * U) / 2 - e + 0.5));
+        else if (e <= (HATCH.halo * U) / 2) a = HATCH.haloInk;
+      }
+      const A8 = Math.round(255 * HATCH.ink * Math.min(1, a));
+      if (A8 < 10) continue;   // (a whisper of a line's antialias carries no colour worth the name: left blank)
+      const j = i * 4;
+      o[j] = r; o[j + 1] = gg; o[j + 2] = b; o[j + 3] = A8;
+    }
+  }
+  g.clearRect(0, 0, W, H);
+  g.putImageData(out, 0, 0);
+}
+/** A chamfer (3-4) distance transform of a binary mask, in pixels: for each pixel whose mask equals `val`, its distance to the
+ *  nearest pixel whose mask does not (0 elsewhere). */
+function chamfer(mask, W, H, val) {
+  const BIG = 1e9, d = new Float32Array(W * H);
+  for (let i = 0; i < d.length; i++) d[i] = mask[i] === val ? BIG : 0;
+  const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? (val ? 0 : BIG) : d[y * W + x]);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (!d[i]) continue;
+    d[i] = Math.min(d[i], at(x - 1, y) + 3, at(x, y - 1) + 3, at(x - 1, y - 1) + 4, at(x + 1, y - 1) + 4);
+  }
+  for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) {
+    const i = y * W + x; if (!d[i]) continue;
+    d[i] = Math.min(d[i], at(x + 1, y) + 3, at(x, y + 1) + 3, at(x + 1, y + 1) + 4, at(x - 1, y + 1) + 4);
+  }
+  for (let i = 0; i < d.length; i++) d[i] = d[i] >= BIG ? W + H : d[i] / 3;
+  return d;
+}
+/**
+ * The hatch's probe (T137; ctx.debug.ui.hatchProbe): draws a species hatched at w × h and reads it back. → {pixels (drawn), offHue
+ * (a pixel off the ink's colour), maxInk (the highest alpha, 0–1), inner (ink deep inside the shape that is neither the hatch's
+ * lines nor its edge: an eye, a spot, an inner line), w, h, dpr}. Off the loop it still draws (the probe is a test's).
+ */
+export function hatchProbe(species, w = 116, h = 62) {
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas');
+  drawFish(c, species, { w, h, hatch: true });
+  const W = c.width, H = c.height, dpr = W / w;
+  const d = c.getContext('2d').getImageData(0, 0, W, H).data;
+  // the shape's own interior from the silhouette, so the probe can tell a line of the hatch from anything else
+  const m = document.createElement('canvas'); m.width = W; m.height = H;
+  const mg = m.getContext('2d'); paint(mg, W, H, species, true, 0.08, dpr);
+  const md = mg.getImageData(0, 0, W, H).data, inside = new Uint8Array(W * H);
+  for (let i = 0; i < W * H; i++) inside[i] = md[i * 4 + 3] > 24 ? 1 : 0;
+  const dIn = chamfer(inside, W, H, 1);
+  const period = HATCH.step * dpr * Math.SQRT2;
+  let pixels = 0, offHue = 0, maxA = 0, inner = 0;
+  const [R, G, B] = HATCH.rgb;
+  for (let y = 0, i = 0; y < H; y++) for (let x = 0; x < W; x++, i++) {
+    const a = d[i * 4 + 3];
+    if (!a) continue;
+    pixels++;
+    maxA = Math.max(maxA, a);
+    // (a canvas keeps colour premultiplied: a faint pixel reads back a few levels off; the band widens as the alpha falls)
+    const tol = a >= 100 ? 4 : a >= 40 ? 9 : 24;
+    if (Math.abs(d[i * 4] - R) > tol || Math.abs(d[i * 4 + 1] - G) > tol || Math.abs(d[i * 4 + 2] - B) > tol) offHue++;
+    if (inside[i] && dIn[i] > HATCH.halo * dpr + 1.5) {
+      const t = (x + y + 1) % period, onLine = Math.abs(t - period / 2) / Math.SQRT2 > period / 2 / Math.SQRT2 - (HATCH.line * dpr) / 2 - 1;
+      if (!onLine) inner++;
+    }
+  }
+  return { pixels, offHue, maxInk: maxA / 255, inner, w, h, dpr };
+}
+
+/**
+ * The same species as a pale ink sketch (the catch card, DESIGN §21.6). The illustration is drawn
+ * as usual, then its own ink lines (outline, fins, rays, gill, eye, scales) are lifted out of the
+ * fills: luminance over white paper, minus a blurred copy of itself, keeps only thin dark strokes.
+ * They are redrawn in `color`, so every species keeps its own shape and markings.
+ * opts: {w, h, pad, color, gain}
+ */
+export function drawFishInk(canvas, species, opts = {}) {
+  const w = opts.w || 300, h = opts.h || 150;
+  const src = document.createElement('canvas');
+  drawFish(src, species, { w, h, pad: opts.pad, silhouette: false });
+  const W = src.width, H = src.height;
+  canvas.width = W; canvas.height = H;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const g = canvas.getContext('2d');
+  const sg = src.getContext('2d');
+  if (!g || !sg || !W || !H) return canvas;
+  const d = sg.getImageData(0, 0, W, H).data;
+  const n = W * H;
+  const L = new Float32Array(n);
+  for (let i = 0, j = 0; i < n; i++, j += 4) {
+    const a = d[j + 3] / 255;
+    L[i] = 1 - a + a * ((0.299 * d[j] + 0.587 * d[j + 1] + 0.114 * d[j + 2]) / 255);
+  }
+  const r = Math.max(1, Math.round(1.6 * (W / w)));
+  const B = boxBlur(boxBlur(L, W, H, r), W, H, r);
+  const out = g.createImageData(W, H);
+  const o = out.data;
+  const [cr, cg, cb] = rgb(opts.color || '#ece8f4');
+  const gain = opts.gain || 5.5;
+  for (let i = 0, j = 0; i < n; i++, j += 4) {
+    let k = (B[i] - L[i]) * gain;
+    if (k <= 0.03) continue;
+    if (k > 1) k = 1;
+    o[j] = cr; o[j + 1] = cg; o[j + 2] = cb; o[j + 3] = Math.round(255 * Math.pow(k, 0.8));
+  }
+  g.putImageData(out, 0, 0);
+  return canvas;
+}
+/** Separable box blur of a W×H float field (radius r, edges clamped). */
+function boxBlur(src, W, H, r) {
+  const tmp = new Float32Array(src.length), dst = new Float32Array(src.length);
+  const inv = 1 / (2 * r + 1);
+  for (let y = 0; y < H; y++) {
+    const row = y * W;
+    let acc = 0;
+    for (let x = -r; x <= r; x++) acc += src[row + Math.min(W - 1, Math.max(0, x))];
+    for (let x = 0; x < W; x++) {
+      tmp[row + x] = acc * inv;
+      acc += src[row + Math.min(W - 1, x + r + 1)] - src[row + Math.max(0, x - r)];
+    }
+  }
+  for (let x = 0; x < W; x++) {
+    let acc = 0;
+    for (let y = -r; y <= r; y++) acc += tmp[Math.min(H - 1, Math.max(0, y)) * W + x];
+    for (let y = 0; y < H; y++) {
+      dst[y * W + x] = acc * inv;
+      acc += tmp[Math.min(H - 1, y + r + 1) * W + x] - tmp[Math.max(0, y - r) * W + x];
+    }
+  }
+  return dst;
+}

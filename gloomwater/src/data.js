@@ -1,0 +1,6713 @@
+// data.js — GLOOMWATER content & balance tables (design team).
+// Pure ES module; its only imports are the loop's roster converter and the roster records it ships (src/roster-species.js,
+// src/roster-shipped.js: pure data, read only under LOOP_ENABLED). Implements CONTRACT.md §8; every rule that reads these
+// numbers is specified in DESIGN.md (section numbers in the table headers below).
+// Conventions: colours are hex NUMBERS; times in seconds; distances in metres; speeds
+// in m/s. Optional/extra fields beyond the contract are read with `?.` / `??`.
+// Vocabulary: Embers = health (hearts), Cinders = XP dropped by gloomlings, Shells =
+// run currency, Memories = meta currency, Relics = permanent upgrades.
+
+import { rosterSpecies, rosterItemNames, HOUR_WINDOWS } from './roster-species.js';
+import { ROSTER_SHIPPED } from './roster-shipped.js';
+import { findShares as findSharesOf } from './loop-finds.js';   // M1 step 5c (lane 5C): the finds' one draw, pure
+import { HOOK_ITEMS as WC_HOOK_ITEMS, gradeTargets as wcGradeTargets, gradeOf as wcGradeOf, WATERCRAFT as WC_TABLES } from './watercraft.js';   // the sheet (SHEET.md §8.1): the Hold rule's targets, pure
+
+// =====================================================================================
+// STATS (DESIGN §6–§10) — every stat key the game reads. base = value before
+// character, upgrades, relics, journal perks and stat boons (all ADDITIVE per level).
+// min/max = clamps applied by progression.getStats() after summing.
+// =====================================================================================
+export const STATS = {
+  maxHp:         { label: 'Embers',          base: 5,    fmt: 'int', min: 1,    max: 12 },
+  maxOil:        { label: 'Lantern Oil',     base: 100,  fmt: 'int', min: 40,   max: 260 },
+  maxSatiety:    { label: 'Satiety',         base: 100,  fmt: 'int', min: 40,   max: 220 },
+  oilDrain:      { label: 'Oil Burn',        base: 0.17, fmt: 'num', min: 0.05, max: 1 },
+  satietyDrain:  { label: 'Hunger',          base: 0.10, fmt: 'num', min: 0.04, max: 1 },
+  lightRadius:   { label: 'Light Radius',    base: 8,    fmt: 'm',   min: 3,    max: 18 },
+  auraDps:       { label: 'Lantern Burn',    base: 2.0,  fmt: 'num', min: 0,    max: 40 },
+  flareCost:     { label: 'Flare Cost',      base: 16,   fmt: 'int', min: 6,    max: 60 },
+  flareRadius:   { label: 'Flare Radius',    base: 10,   fmt: 'm',   min: 4,    max: 20 },
+  flareCooldown: { label: 'Flare Cooldown',  base: 16,   fmt: 's',   min: 6,    max: 60 },
+  zapCost:       { label: 'Zap Cost',        base: 1,    fmt: 'num', min: 0.3,  max: 10 },
+  zapDamage:     { label: 'Zap Damage',      base: 6,    fmt: 'num', min: 1,    max: 60 },
+  damageMult:    { label: 'Damage',          base: 1,    fmt: 'x',   min: 0.2,  max: 5 },
+  cooldownMult:  { label: 'Cooldowns',       base: 1,    fmt: 'x',   min: 0.4,  max: 2 },
+  critChance:    { label: 'Critical Chance', base: 0.05, fmt: 'pct', min: 0,    max: 0.75 },
+  moveSpeed:     { label: 'Raft Speed',      base: 6,    fmt: 'num', min: 2,    max: 11 },
+  pickupRadius:  { label: 'Cinder Magnet',   base: 4,    fmt: 'm',   min: 1,    max: 20 },
+  xpMult:        { label: 'Cinder Gain',     base: 1,    fmt: 'x',   min: 0.2,  max: 4 },
+  luck:          { label: 'Luck',            base: 0,    fmt: 'num', min: 0,    max: 2 },
+  rerolls:       { label: 'Rerolls',         base: 1,    fmt: 'int', min: 0,    max: 9 },
+  dawnHeal:      { label: 'Dawn Mending',    base: 1,    fmt: 'int', min: 0,    max: 5 },
+  castMax:       { label: 'Cast Range',      base: 16,   fmt: 'm',   min: 8,    max: 30 },
+  lineStrength:  { label: 'Line Strength',   base: 1,    fmt: 'x',   min: 0.5,  max: 2.5 },
+  reelSpeed:     { label: 'Reel Speed',      base: 1,    fmt: 'x',   min: 0.4,  max: 2.2 },
+  sweetZone:     { label: 'Sweet Band',      base: 0.16, fmt: 'pct', min: 0.06, max: 0.30 },
+  biteSpeed:     { label: 'Bite Speed',      base: 1,    fmt: 'x',   min: 0.4,  max: 2 },
+  hookWindow:    { label: 'Hook Window',     base: 1,    fmt: 'x',   min: 0.5,  max: 1.6 },
+  rarityBonus:   { label: 'Rare Fish Luck',  base: 0,    fmt: 'pct', min: 0,    max: 0.6 },
+  creelSize:     { label: 'Creel Slots',     base: 4,    fmt: 'int', min: 2,    max: 10 },
+  sellMult:      { label: 'Sale Price',      base: 1,    fmt: 'x',   min: 0.5,  max: 2 },
+  foodMult:      { label: 'Meal Value',      base: 1,    fmt: 'x',   min: 0.5,  max: 2 },
+  oilYieldMult:  { label: 'Render Yield',    base: 1,    fmt: 'x',   min: 0.5,  max: 2 },
+  armor:         { label: 'Ward',            base: 0,    fmt: 'pct', min: 0,    max: 0.6 },
+  slackTime:     { label: 'Slack Grace',     base: 1.6,  fmt: 's',   min: 0.6,  max: 3 },
+  nibbleTells:   { label: 'Nibble Sense',    base: 0,    fmt: 'int', min: 0,    max: 2 },
+};
+
+// =====================================================================================
+// BALANCE — every timing / drain / damage / tuning constant referenced by DESIGN.md.
+// =====================================================================================
+export const BALANCE = {
+  // ---- Day clock (DESIGN §6.1). gloomtide length = gloomtideLength(day) =
+  // min(gloomMax, phases.gloomtide + gloomGrowth × (day − 1)) → 90, 96, 102 … 120 s.
+  phaseOrder: ['calm', 'dusk', 'gloomtide', 'dawn'],
+  phases: { calm: 120, dusk: 14, gloomtide: 90, dawn: 8 },
+  gloomGrowth: 6,
+  gloomMax: 120,
+
+  // ---- Drains (DESIGN §6.2).
+  // oil/s     = oilDrain × oilPhase[phase] × zone.drain.oil × diff.drainMult
+  // satiety/s = satietyDrain × zone.drain.satiety × diff.drainMult (no phase multiplier)
+  drain: {
+    oilPhase: { calm: 1.0, dusk: 1.3, gloomtide: 1.8, dawn: 0.5 },
+    duskForecastPad: 10,        // dusk toast if oil < projected gloomtide burn + pad
+  },
+
+  // ---- Lantern light & aura (DESIGN §8.1).
+  // lightR = lightRadius × (floorRadius + (1−floorRadius)×oilFrac) × Π dims × flareBoost
+  // aura   = auraDps × (floorAura + (1−floorAura)×oilFrac) × damageMult × crit × enemy.auraTaken
+  // oil = 0 → lightR = emberGlow, aura = 0.
+  light: {
+    floorRadius: 0.55, floorAura: 0.30, emberGlow: 2.5,
+    mothDim: 0.88,              // × per latched moth
+    dimFloor: 0.5,              // the product of all dims never goes below this
+    slick: 0.8, sporeVeil: 0.6, sporeCloud: 0.8, eclipse: 0.4, hush: 0.8,
+    insideSlow: 0.75,           // enemy speed × inside the light
+    mothInside: 1.15,           // moths speed UP inside the light
+  },
+
+  // ---- Damage to the Wick (DESIGN §6.4).
+  damage: {
+    iframes: 1.2,               // s after losing an Ember
+    iframeOilMult: 0.5,         // contacts during i-frames still drain this share of their oil
+    contactRadius: 1.8,         // m from raft centre
+    armorCap: 0.6,
+    emberRounding: 'floor',     // embers = max(1, floor(base × diff.damageMult)); boss hits ≤ bossHitCap
+    bossHitCap: 3,
+    gutterBurst: { radius: 4, push: 5, stun: 0.5 },   // free radial knock on every Ember lost (0 dmg)
+    starvation: { grace: 5, interval: 20, reelMult: 0.75, windowMult: 0.85 },
+    darkness: { grace: 3, interval: 8, enemySpeed: 1.3, spawnMult: 1.3, waxZapSatiety: 4, waxZapDamage: 0.5, lastFlickerOil: 12 },
+  },
+
+  // ---- Healing (DESIGN §6.5). Dawn: +stats.dawnHeal, +wellFed if satiety ≥ wellFedAt.
+  heal: { wellFed: 1, wellFedAt: 0.7, kindleHeal: 1, heartwax: 1, heartwaxOnce: true },   // heartwaxOnce: only the FIRST kill of each Warden per run grants Heartwax
+
+  // ---- resource:low edges (fraction of max; hp in Embers) with re-arm hysteresis.
+  low: { oil: 0.25, oilRearm: 0.35, satiety: 0.20, satietyRearm: 0.30, hp: 2 },
+
+  // ---- Raft handling (DESIGN §4.1, player.js).
+  move: {
+    accel: 3.0,                 // velocity lerp rate toward target (1/s): 0→90% in 0.77 s
+    drag: 1.5,                  // lerp rate toward 0 with no input (1/s): boat glide ≈ 4 m
+    backpaddle: 1.8,            // accel × this when dot(input, v̂) < backpaddleDot
+    backpaddleDot: -0.2,
+    turnRate: 5.0,              // rad/s heading slew toward velocity
+    minHeadingSpeed: 0.4,       // heading follows velocity above this speed
+    raftRadius: 1.6,            // world.collide radius
+    bounceSpeed: 4, bounce: 0.3, bounceShake: 0.1,   // wall impact > bounceSpeed: reflect 30%, splash, shake
+    anchorDrag: 6,              // lerp rate toward 0 while fishing is busy (charging…waiting) with no input
+    anchorSpeed: 0.3,           // player:anchor {anchored:true} once speed < this while fishing
+    cutLineHold: 0.6,           // s of movement input while reeling → cut the line
+    slickMult: 0.6,             // target speed × inside an ink slick
+    wakeEvery: 0.12,            // s between wake puffs at full speed
+    paddleRipple: 0.45,         // s between paddle ripples
+    interactRange: 5,           // merchant trade range (m)
+    gateRange: 1.2,             // × gate radius to offer "Descend"
+  },
+
+  // ---- Levelling (DESIGN §10).
+  xp: {
+    curve: { base: 5, lin: 2.6, quad: 0.30 },          // xpForLevel(L) = round(base + lin(L−1) + quad(L−1)²)
+    heatScale: 0.10,            // cinder value × (1 + heatScale × Heat)
+    fishXp: { common: 3, uncommon: 5, rare: 10, legendary: 40 },   // × (1 + fishXpZone × zoneIndex) × xpMult
+    fishXpZone: 0.5,
+    choices: 3,
+    maxWeapons: 4,
+    maxPassives: 6,
+    rarityWeights: { common: 60, rare: 28, epic: 10, legendary: 2 },
+    luckShift: { common: 0, rare: 0.6, epic: 1.2, legendary: 2.0 },  // weight × (1 + luck × shift)
+    ownedWeight: 1.4,           // owned, not-maxed boons are offered more often
+    firstLevelWeapons: 2,       // the first level-up of a run offers ≥ 2 weapons
+    weaponPityLevel: 6,         // at this level with ≤ 1 weapon owned, force a weapon card
+    kindleWeight: 3,            // an eligible Kindle is weighted ×3 …
+    kindleForceAfter: 2,        // … and forced if it was missed for 2 level-ups
+    skipShells: 8,              // skip a pick: + skipShells × (1 + zoneIndex) Shells
+    weaponScale: 0.06,          // g(L) = 1 + weaponScale × (level − 1): scales zap & flare
+    cinderLife: 20,             // s before an uncollected cinder fades
+    magnetSpeed: 14,            // m/s glide once inside pickupRadius
+    mergeRadius: 1.5,           // nearby cinders merge into bigger motes
+    cinderTiers: [1, 5, 25],    // small, bright, great
+    dawnAutoCollect: true,
+    fallback: [                 // offered when nothing else is eligible
+      { id: 'fallback_shells', name: 'Spilled Shells', desc: '+15 Shells per zone depth.', give: { shells: 15, perZone: true } },
+      { id: 'fallback_mend', name: 'A Warm Breath', desc: 'Mend 1 Ember.', give: { hp: 1 } },
+      { id: 'fallback_oil', name: 'Oil Tears', desc: '+30 oil.', give: { oil: 30 } },
+    ],
+  },
+
+  // ---- Swarm director & lantern combat (DESIGN §7–§8, combat.js).
+  combat: {
+    spawnRing: [22, 34],        // m from the raft
+    behindShare: 0.35,          // max share of spawns placed behind the camera (+Z half)
+    packSpread: 2.5,
+    ringSamples: 12,            // ring samples before falling back to any water ≥ fallbackMinDist
+    fallbackMinDist: 18,
+    fadeIn: 0.6,                // s spawn fade-up from a ripple
+    auraTick: 0.25,             // s between aura ticks (damage = aura dps × tick)
+    separation: 0.9,            // m personal space between swarm members
+    leash: { dist: 40, time: 4 },   // > dist from the raft for > time → moved back onto the spawn ring
+    crit: { mult: 2 },
+    zap: { cooldown: 0.2, pickPx: 48, pickPxTouch: 56, range: 26, stun: 0.25, knock: 1.2, airborneMult: 2, latchedRefund: 1 },
+    flare: { damage: 10, maxHpPct: 0.15, bossHpPct: 0.03, knock: 6, stun: 1.5, lightBoost: 1.4, boostTime: 3, iframes: 0.3, clearsLatched: true, handStagger: 2 },
+    dusk: { rateMult: 0.3, maxAlive: 6, kinds: ['gloomling', 'sporeling'] },
+    night: { buildUntil: 0.12, buildMult: 0.5, crescendoFrom: 0.8, crescendoMult: 1.4, quietFrom: 0.93, swellPeriod: 20, swellAmp: 0.25 },
+    director: {
+      heatPerZone: 3,           // Heat H = (day − 1) + 3 × zoneIndex + linger
+      lingerFrom: 4, lingerHeat: 1,   // linger = +1 Heat for every night in the same lake beyond the 4th (anti-camping)
+      baseRate: 0.75,           // spawnRate = baseRate × zone.gloom × (1 + ratePerHeat×H) × nightCurve(k)
+      ratePerHeat: 0.12,
+      maxAliveBase: 30, maxAlivePerHeat: 6, maxAliveCap: 150,
+      hpLin: 0.24, hpQuad: 0.025,                 // hpMult = 1 + 0.24H + 0.025H²
+      bossHpLin: 0.3,                             // Wardens: hp = base × bossHpMult, bossHpMult = 1 + 0.3H (linear: kill time stays ≈ 45–65 s)
+      speedPerHeat: 0.03, speedCap: 1.45,
+      damageStep: 12, damageStepAdd: 0.5,         // damageMult = 1 + 0.5 × floor(H/12)
+      drainPerHeat: 0.04,                          // drainMult = 1 + 0.04H
+      eliteFromDay: 2, eliteBase: 42, elitePerHeat: 2, eliteMin: 22, eliteFirstAt: 0.25,
+      bossEvery: 3,             // Warden on nightInZone 3, 6, 9 …
+      bossAt: 0.35,             // gloomtide k at which the Warden rises (3 s banner before)
+      bossRateMult: 0.6,        // spawn rate × while a Warden lives; no formations, elites paused
+      formationsFromDay: 2, formationAt: [0.35, 0.65],
+    },
+    reelingRateMult: 0.8,       // spawn rate × while a fish is hooked at night
+    legendFightRateMult: 0.65,  // … while a legendary is hooked
+    legendPausesElites: true,   // no NEW elite hands rise while a legendary is hooked (its own summons still come)
+    oilDrips: { every: 15, base: 3, perZone: 1.5 }, // the first kill after every 15 s of night drops an oil drip: 3 + 1.5z oil
+    eliteOil: 15, wardenOil: 40,
+    stragglers: { fromDay: 5, fromZone: 1, perCalm: 1, kind: 'creelsnatch', window: [0.3, 0.8] },   // calm raid
+    maxLive: 150,
+  },
+
+  // ---- Cast (DESIGN §5.1, fishing.js).
+  cast: {
+    period: 1.6,                // ping-pong meter: 0→1→0 in one period (triangle wave)
+    minDist: 3,                 // castDist = max(minDist, charge × castMax)
+    tapIgnore: 0.12,            // presses shorter than this never cast
+    cleanAt: 0.92,              // charge ≥ cleanAt = "Clean Cast"
+    cleanBiteMult: 0.85,        // clean cast: wait × this …
+    cleanRarity: 0.05,          // … and +0.05 rarityBonus for that cast
+    maxRaftSpeed: 2.0,          // meter starts only once the raft is slower than this (anchor brake)
+    flightBase: 0.45,           // s; flight = flightBase + flightPerM × dist
+    flightPerM: 0.03,
+    arcHeight: 0.25,            // × dist
+    reelInTime: 0.6,
+    spookReelIn: 1.5,
+    lineBreakDist: 4,           // raft drifting > castDist + this from the bobber reels in
+  },
+
+  // ---- Waiting & biting (DESIGN §5.3).
+  bite: {
+    waitBase: 3, waitMean: 5.5, waitMin: 2, waitMax: 25,   // W = (waitBase + Exp(waitMean)) / mods
+    gloomMult: 1.15,            // gloomtide: waits ÷ this
+    nibbles: [0.2, 0.35, 0.3, 0.15],   // P(0..3 nibbles); +1 for uncommon and rarer
+    nibbleDip: 0.06, nibbleDur: 0.22, nibbleGap: 0.7, lastNibbleLead: 0.6,
+    feintChance: 0.3, feintDip: 0.12, feintZoneMin: 2,
+    plunge: 0.25,
+    windowMin: 0.35, windowMax: 1.4,
+    perfectFrac: 0.4, perfectMin: 0.25,
+    pity: { hp: 2, oilFrac: 0.15, waitMult: 0.7, rarity: 0.1 },
+  },
+
+  // ---- Reel tension model (DESIGN §5.5) — all constants of the per-frame model.
+  reel: {
+    safeMin: 0.15, safeMax: 0.85,
+    slackLine: 0.08,            // T below this accumulates slack time
+    slackDecay: 2,              // slack timer decays at this × dt when T ≥ slackLine
+    snapAt: 1.0, snapGrace: 0.12,
+    riseBase: 0.42,             // holding: target = riseBase × pw / LS
+    fallBase: 0.55,             // released: target = −fallBase / (0.8 + 0.2 pw)
+    surgeHoldMult: 2.2,         // holding in a surge: × surgeHoldMult × √str
+    surgeCreep: 0.18,           // released in a surge: total creep surgeCreep × pw × str / LS
+    leapHold: 0.25, leapRelease: -0.9,
+    sinkerDrag: 0.06,
+    jitter: 0.22, noiseHz: 1.5,
+    accel: 9,                   // tension velocity easing (1/s) ≈ 110 ms
+    tire: 0.25,                 // power × (1 − tire × P) once tiring is on
+    decaySlack: 0.04,           // progress lost per s while T < safeMin
+    decaySurge: 0.015,          // progress lost per s while released during a non-leap surge
+    sweetMult: 2,
+    startTension: 0.35, startProgress: 0.10, perfectProgress: 0.22,
+    firstSurgeDelay: 1.5, perfectSurgeDelay: 1.5,
+    dutyCap: 0.42,              // (surgeTime + warn) / surgeEvery ≤ dutyCap
+    warnMin: 0.5, warnBase: 0.9, warnErratic: 0.2, darterWarn: 0.5,
+    bandAmp: 0.08, bandAmpErratic: 0.14, bandOmega: 0.5, bandOmegaErratic: 0.9, bandNoise: 0.08,
+    darterJump: [0.10, 0.18], darterJumpTime: 0.3, sinkerBand: -0.08,
+    bandMin: 0.05, bandMax: 0.40,
+    strength: { steady: 1, darter: 0.6, sinker: 1, thrasher: 1.3, leaper: 1 },
+    enrage: { power: 1.25, surgeEvery: 0.75, warnCut: 0.15, warnFloor: 0.55 },
+    dangerFrom: 0.72,
+    landingTime: 1.2,           // s of 'landing' state before fishing:caught
+    surgeJitter: [0.75, 1.25],  // next surge = surgeEvery × U(…)
+    surgeLenJitter: [0.85, 1.15],
+  },
+
+  // ---- Feeding spots & legend pools (DESIGN §5.7).
+  spots: {
+    calmCount: [2, 4], gloomCount: [1, 2],
+    ttl: [45, 75], respawn: [8, 16],
+    radius: 2.6,
+    minDist: 10, maxDist: 45,
+    depthMin: 0.2,
+    waitMult: 0.55, rarity: 0.10, quality: 0.08,
+    rareChance: 0.15, rareRarity: 0.25, rareQuality: 0.15,
+    legend: { radius: 3.2, waitMult: 0.7, minDistFromRaft: 18 },
+    tideChart: { count: 2, rare: true },
+  },
+
+  // ---- Legendary rules (DESIGN §5.6).
+  legend: { guaranteed: true, woundedCarry: 0.5, woundedMax: 0.4, rebiteDelay: 20, windowBonus: 0.1, bannerDelay: 0.4, nibbles: 2 },
+
+  // ---- Catch quality from reel performance (see QUALITY for multipliers; DESIGN §5.8).
+  quality: { perfectHookBonus: 0.15, overDangerPenalty: 0.10, dangerLine: 0.85 },
+
+  // ---- Economy (DESIGN §9, progression.js).
+  economy: {
+    startShells: 20,
+    waystonePurse: { mossmere: 0, sporewood: 160, glasswater: 450, paleabyss: 950 },
+    waystoneLevels: { mossmere: 0, sporewood: 9, glasswater: 18, paleabyss: 28 },   // banked levels → Kindling Draft
+    supplyMult: [1, 1.4, 1.9, 2.5],   // by current zone index
+    baitMult: [1, 1.3, 1.6, 2.0],     // general baits only; legend baits fixed
+    weightSkew: 1.6,                  // t = U^skew (heavy bait: skew / (1 + weightBias)); w = min + (max−min)·t
+    sizeK: [0.75, 1.25],              // value/food/oil multiplier across t = 0..1
+    newSpeciesShells: 1.0,            // first catch ever: +round(1.0 × species.value) Shells (non-legendary only)
+    newSpeciesLegendary: false,       // legendaries pay no first-catch Shells (their sale already covers most of the next toll)
+    mercy: { perRelease: 0.02, cap: 0.10 },   // release: +rarityBonus for the rest of the day
+    streak: { perStep: 0.10, maxSteps: 5 },   // perfect-hook streak: value × (1 + 0.1 × min(streak, 5))
+    trophyMemories: [10, 20, 35, 0],  // legendary still in the creel at run end (Leviathan: victory instead)
+    legendTheftProof: true,
+    burnFishTime: 0.8,                // Burn-a-fish quick action animation (s); does not pause
+  },
+
+  // ---- Old Murk (DESIGN §13).
+  merchant: {
+    day1ArriveAt: 20,                 // s into day 1 calm (after the first-cast tip)
+    arriveAt: 0,                      // s into calm on later days
+    warnAt: 0.85,                     // calm k → bell + "casting off soon"
+    pity: { shells: 20, oilFrac: 0.25, give: { oil: 30, satiety: 30 }, perRun: 1 },
+    stockByZone: true,                // stock never random: depends on zone index only
+  },
+
+  // ---- Journal rewards (DESIGN §16).
+  journal: { halfZone: 4, newSpeciesMemories: 3, masteryAt: 10, masteryMemories: 2, halfZoneMemories: 10 },
+
+  // ---- Memories per run (DESIGN §17.1, memoriesFor). Challenge rewards are paid separately.
+  memories: { nightBase: 3, nightPerZone: 1.0, depth: [0, 10, 25, 45], fishPer: 2, legend: 15, slainPer: 50, elite: 1, warden: 15, victoryFirst: 150, victoryAfter: 100 },
+
+  // ---- Descent Gate travel (DESIGN §14).
+  travel: { phases: ['calm', 'dawn'], murkFollows: true, oneWay: true, descendTime: 2.5 },
+
+  // ---- Bounty ledger (DESIGN §15).
+  bounty: { offer: 2, maxActive: 3, durationDays: 2, dayGrowth: 0.04, memoriesEach: 2 },
+};
+
+// =====================================================================================
+// ZONES (DESIGN §4.3, §14, §19) — four cavern lakes, index 0..3, centred on the origin.
+// −Z = north = up-screen. arena: radius, seed, layout + depth recipe inputs, islands &
+// pillars as collision circles {x, z, r, name?, kind}, deep pools, legend pool, gate,
+// spawn, merchant docks (day 1 = docks[0]; yaw faces the lake centre).
+// unlock = what the PREVIOUS zone's Descent Gate demands: requires[] opens the gate,
+// shells is the toll paid at the whirlpool. gloom = spawn-rate factor for this lake.
+// valueMult scales bounty rewards & elite Shell drops only (species values are final).
+// =====================================================================================
+export const ZONES = [
+  {
+    id: 'mossmere', index: 0, name: 'The Mossmere', subtitle: 'Shallows of the Sunken Gate',
+    arena: {
+      radius: 60, seed: 1307, layout: 'bowl', shelf: 9, depthShare: [35, 40, 25], noise: 0.08,
+      deepPools: [{ name: 'Bell Pool', x: -4, z: -14, r: 13, depth: 0.9 }],
+      legendPool: { x: -4, z: -14, r: 3.2, name: 'Bell Pool' },
+      islands: [
+        { name: 'Drowned Gatehouse', x: 22, z: -12, r: 8, kind: 'tower' },
+        { name: 'Mossbell Isle', x: -30, z: 14, r: 6, kind: 'rock' },
+        { name: 'Root Isle', x: 34, z: 20, r: 5, kind: 'roots' },
+        { name: 'Stair Isle', x: -14, z: 28, r: 4, kind: 'stair' },
+        { name: 'Elder Sister', x: -30, z: -24, r: 5, kind: 'rock' },
+        { name: 'Younger Sister', x: -18, z: -34, r: 4, kind: 'rock' },
+      ],
+      pillars: [
+        { x: -40, z: -4, r: 1.4, kind: 'pier' }, { x: -33, z: -1, r: 1.4, kind: 'pier' },
+        { x: -26, z: 2, r: 1.4, kind: 'pier' }, { x: -19, z: 5, r: 1.4, kind: 'pier' },
+        { x: 12, z: -5, r: 1.2, kind: 'pylon' }, { x: 10, z: -18, r: 1.2, kind: 'pylon' }, { x: 30, z: -25, r: 1.2, kind: 'pylon' },
+        { x: 40, z: -20, r: 1.5, kind: 'statue' }, { x: -46, z: 22, r: 1.5, kind: 'statue' }, { x: 8, z: 36, r: 1.2, kind: 'statue' },
+      ],
+      gate: { name: 'The Moss Sluice', x: 0, z: -49, r: 4.5 },
+      spawn: { x: 0, z: 46, yaw: 0 },
+      docks: [{ x: 24, z: 38 }, { x: 49, z: 6 }, { x: 35, z: -40 }, { x: -36, z: -38 }, { x: -48, z: 14 }],
+    },
+    unlock: { shells: 0, requires: [] },
+    drain: { oil: 1.0, satiety: 1.0 }, gloom: 1.0, valueMult: 1,
+    legendary: 'belled_matriarch', warden: 'the_wickeater', gateName: 'The Moss Sluice',
+    // "Starlit moat" (DESIGN §19.3): violet-dusk water under lavender mist, pale stone, candle-amber windows
+    palette: { fog: 0x3a3070, fogDensity: 0.0055, water: 0x2e2664, waterDeep: 0x0a081e, foam: 0xd8d6e6,
+      glow: 0xbab2ee, accent: 0xd6d6e4, lamp: 0xb6b0f0, candle: 0xed9e3b, ambient: 0x4a3e88, ink: 0x08061a, far: 0x8c84bc, light: 0xd4d0f2,
+      nebula: 0xd296ae, stars: 1.0 },
+    grade: { exposure: 1.04, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tint: 0x40347e, tintAmount: 0.2, vignette: 0.24, saturation: 1.04, grain: 0.012 },
+    description: 'The outer moat of the Lamplit Kingdom, drowned to the arches. Moss drinks the old stone and roots hang from the vault like the beards of sleeping giants. The fish here are forgiving. The dark, for now, only watches.',
+  },
+  {
+    id: 'sporewood', index: 1, name: 'Sporewood Pools', subtitle: 'A Garden That Forgot the Sun',
+    arena: {
+      radius: 65, seed: 2711, layout: 'twoBasins', shelf: 8, depthShare: [30, 40, 30], noise: 0.08,
+      reef: { x: 0, zFrom: -42, zTo: 38, width: 6, depth: 0.15 },   // shallow cap-reef mat splitting the basins
+      deepPools: [
+        { name: 'Lullaby Pool', x: -28, z: -8, r: 16, depth: 0.85 },
+        { name: 'Grove Well', x: 28, z: -16, r: 14, depth: 0.95 },
+      ],
+      legendPool: { x: 28, z: -16, r: 3.2, name: 'Grove Well' },
+      islands: [
+        { name: 'Cap Reef I', x: 0, z: 32, r: 4.5, kind: 'cap' },
+        { name: 'Cap Reef II', x: 0, z: 10, r: 5, kind: 'cap' },
+        { name: 'Cap Reef III', x: 0, z: -14, r: 5, kind: 'cap' },
+        { name: 'Cap Reef IV', x: 0, z: -36, r: 4.5, kind: 'cap' },
+        { name: 'West Lily Cap', x: -44, z: -30, r: 5, kind: 'lily' },
+        { name: 'East Lily Cap', x: 46, z: -2, r: 4, kind: 'lily' },
+        { name: 'South Lily Cap', x: -16, z: 40, r: 4, kind: 'lily' },
+      ],
+      pillars: [
+        { x: -41, z: 21, r: 1.6, kind: 'stalk' }, { x: -35, z: 22, r: 1.2, kind: 'stalk' }, { x: -38, z: 28, r: 2.0, kind: 'stalk' }, { x: -44, z: 27, r: 1.4, kind: 'stalk' },
+        { x: 35, z: 23, r: 1.4, kind: 'stalk' }, { x: 41, z: 24, r: 2.0, kind: 'stalk' }, { x: 37, z: 30, r: 1.2, kind: 'stalk' }, { x: 43, z: 30, r: 1.6, kind: 'stalk' },
+      ],
+      gate: { name: 'The Mycelium Veil', x: 30, z: -47, r: 4.5 },
+      spawn: { x: 0, z: 50, yaw: 0 },
+      docks: [{ x: 20, z: 57 }, { x: 56, z: 18 }, { x: 52, z: -34 }, { x: -36, z: -50 }, { x: -57, z: 8 }],
+    },
+    unlock: { shells: 180, requires: [{ type: 'legendary', id: 'belled_matriarch', label: 'Land the Belled Matriarch' }] },
+    drain: { oil: 1.2, satiety: 1.15 }, gloom: 1.13, valueMult: 1.5,
+    legendary: 'drifting_grove', warden: 'the_veiled_gardener', gateName: 'The Mycelium Veil',
+    // "Ember garden" (DESIGN §19.4): violet-magenta haze, autumn-ochre caps, gold spores, nebula-pink accents
+    palette: { fog: 0x402258, fogDensity: 0.0065, water: 0x2c1842, waterDeep: 0x0e0716, foam: 0xeed8e6,
+      glow: 0xe8ac4c, accent: 0xe090bc, lamp: 0xc8aee6, candle: 0xed9e3b, ambient: 0x5c3a7c, ink: 0x0d0614, far: 0x9c74b8, light: 0xf2d8ea,
+      nebula: 0xe48cbc, stars: 0.8 },
+    grade: { exposure: 1.03, bloomStrength: 0.48, bloomRadius: 0.34, bloomThreshold: 0.90, tint: 0x5a2c78, tintAmount: 0.2, vignette: 0.26, saturation: 0.96, grain: 0.012 },
+    description: 'Beneath the royal gardens the fungi kept growing long after the gardeners stopped. Towers of cap and gill rise from sweet, warm water, and the air is thick with spores that glow like embers that never learned to burn.',
+  },
+  {
+    id: 'glasswater', index: 2, name: 'Glasswater Vault', subtitle: 'Where the Kingdom Kept Its Light',
+    arena: {
+      radius: 70, seed: 4421, layout: 'ringTrench', shelf: 7, depthShare: [30, 20, 50], noise: 0.06,
+      plateau: { r: 22, depth: 0.2 },                               // shallow, eel-free centre
+      trench: { rInner: 26, rOuter: 48, depth: 0.92 },              // the deep ring
+      deepPools: [],
+      legendPool: { x: 0, z: -37, r: 3.2, name: 'North Trench' },
+      islands: [
+        { name: 'Monolith of Hymns', x: 38, z: 0, r: 5, kind: 'monolith' },
+        { name: 'Monolith of Ledgers', x: 19, z: 32.9, r: 4.5, kind: 'monolith' },
+        { name: 'Monolith of Maps', x: -19, z: 32.9, r: 4.5, kind: 'monolith' },
+        { name: 'Monolith of Names', x: -38, z: 0, r: 5, kind: 'monolith' },
+        { name: 'Monolith of Tides', x: -19, z: -32.9, r: 6, kind: 'monolith' },
+        { name: 'Monolith of Lamps', x: 19, z: -32.9, r: 6, kind: 'monolith' },
+      ],
+      pillars: [
+        { x: 8.66, z: 5, r: 1.2, kind: 'reliquary' }, { x: 0, z: 10, r: 1.2, kind: 'reliquary' }, { x: -8.66, z: 5, r: 1.2, kind: 'reliquary' },
+        { x: -8.66, z: -5, r: 1.2, kind: 'reliquary' }, { x: 0, z: -10, r: 1.2, kind: 'reliquary' }, { x: 8.66, z: -5, r: 1.2, kind: 'reliquary' },
+        { x: 56, z: 0, r: 1.8, kind: 'shelf' }, { x: 28, z: 48.5, r: 1.8, kind: 'shelf' }, { x: -28, z: 48.5, r: 1.8, kind: 'shelf' },
+        { x: -56, z: 0, r: 1.8, kind: 'shelf' }, { x: -28, z: -48.5, r: 1.8, kind: 'shelf' }, { x: 28, z: -48.5, r: 1.8, kind: 'shelf' },
+      ],
+      gate: { name: 'The Vault Seal', x: 0, z: 0, r: 5 },
+      spawn: { x: 0, z: 58, yaw: 0 },
+      docks: [{ x: 21.9, z: 60.1 }, { x: 64, z: -2.2 }, { x: 17.6, z: -61.5 }, { x: -53.1, z: -35.8 }, { x: -50.4, z: 39.4 }],
+    },
+    unlock: { shells: 420, requires: [{ type: 'legendary', id: 'drifting_grove', label: 'Land the Drifting Grove' }] },
+    drain: { oil: 1.4, satiety: 1.3 }, gloom: 1.27, valueMult: 2.2,
+    legendary: 'glass_sovereign', warden: 'the_shard_abbot', gateName: 'The Vault Seal',
+    // "Sapphire orrery" (DESIGN §19.5): saturated cobalt-sapphire water, lilac crystal, the most starlight
+    palette: { fog: 0x172a7c, fogDensity: 0.0042, water: 0x10226e, waterDeep: 0x030921, foam: 0xd6defa,
+      glow: 0xa0aaf8, accent: 0xd2baff, lamp: 0xb6c0ff, candle: 0xe8be77, ambient: 0x24409a, ink: 0x02051b, far: 0x5c78d4, light: 0xd8e0ff,
+      nebula: 0xcc8ed0, stars: 1.5 },
+    grade: { exposure: 1.06, bloomStrength: 0.52, bloomRadius: 0.28, bloomThreshold: 0.90, tint: 0x203ca8, tintAmount: 0.2, vignette: 0.22, saturation: 1.02, grain: 0.010 },
+    description: 'Here the kingdom poured its light into crystal and shelved it like books. The water is cold and clear as a held breath. Every shard remembers a colour, and none remember why.',
+  },
+  {
+    id: 'paleabyss', index: 3, name: 'The Pallid Deep', subtitle: 'Where the Kingdom Laid Its Light to Rest',
+    arena: {
+      radius: 78, seed: 9001, layout: 'drop', shelf: 6, depthShare: [10, 30, 60], noise: 0.06,
+      causeway: { x: 0, zFrom: 30, zTo: 70, width: 8, depth: 0.2 },   // the only shallows
+      deepPools: [{ name: 'The Well', x: 0, z: -52, r: 12, depth: 1.0 }],
+      legendPool: { x: 0, z: -52, r: 3.2, name: 'The Well' },
+      islands: [
+        { name: 'The Kneeling West', x: -24, z: -44, r: 10, kind: 'giant' },
+        { name: 'The Kneeling East', x: 24, z: -44, r: 10, kind: 'giant' },
+        { name: 'Funeral Barge', x: -40, z: 10, r: 4, kind: 'wreck' },
+        { name: 'Candle Barge', x: 42, z: 4, r: 4, kind: 'wreck' },
+        { name: 'Bier Barge', x: -10, z: -20, r: 4, kind: 'wreck' },
+      ],
+      pillars: [   // the Rib Arches: 9 bone pillars on an arc r 32, −120°…+120° from north, open toward the causeway
+        { x: -27.7, z: 16, r: 1.5, kind: 'rib' }, { x: -32, z: 0, r: 1.5, kind: 'rib' }, { x: -27.7, z: -16, r: 1.5, kind: 'rib' },
+        { x: -16, z: -27.7, r: 1.5, kind: 'rib' }, { x: 0, z: -32, r: 1.5, kind: 'rib' }, { x: 16, z: -27.7, r: 1.5, kind: 'rib' },
+        { x: 27.7, z: -16, r: 1.5, kind: 'rib' }, { x: 32, z: 0, r: 1.5, kind: 'rib' }, { x: 27.7, z: 16, r: 1.5, kind: 'rib' },
+      ],
+      gate: null,   // final lake: the Well is the finale
+      spawn: { x: 0, z: 66, yaw: 0 },
+      docks: [{ x: 48, z: 56 }, { x: -48, z: 56 }, { x: 70, z: 20 }, { x: -70, z: 20 }],
+    },
+    unlock: { shells: 900, requires: [{ type: 'legendary', id: 'glass_sovereign', label: 'Land the Glass Sovereign' }] },
+    drain: { oil: 1.65, satiety: 1.45 }, gloom: 1.4, valueMult: 3.0,
+    legendary: 'pale_leviathan', warden: 'the_lightless_ferryman', gateName: null,
+    // "Candle requiem" (DESIGN §19.6): near-black violet, bone-pale stone, amber candles, few stars
+    palette: { fog: 0x2c2448, fogDensity: 0.0072, water: 0x1e183c, waterDeep: 0x07060e, foam: 0xe6e0d6,
+      glow: 0xf0b45e, accent: 0xe6e0d6, lamp: 0xc6c0d8, candle: 0xed9e3b, ambient: 0x463e6c, ink: 0x030206, far: 0xa89ec8, light: 0xece2d2,
+      nebula: 0xa87a98, stars: 0.7 },
+    grade: { exposure: 0.97, bloomStrength: 0.45, bloomRadius: 0.36, bloomThreshold: 0.92, tint: 0x3a2c60, tintAmount: 0.18, vignette: 0.32, saturation: 0.90, grain: 0.016 },
+    description: 'The deepest water. The kingdom set its dead adrift here with a candle each, and the candles went out long ago. Two veiled giants kneel in the mist, and the ribs of something larger than a cathedral arch overhead. Something below is breathing.',
+  },
+];
+
+// =====================================================================================
+// SPECIES (DESIGN §5.4, §5.6) — 32 fish, 8 per zone (3 common, 2 uncommon, 2 rare, 1 legendary).
+// value/food/oil are at mean weight, normal quality, and FINAL (already zone-scaled).
+// time: 'any' | 'calm' (any phase except gloomtide) | 'gloom' (gloomtide only).
+// depth: band of world.getDepth() at the BOBBER (0 shallow … 1 deep). Every zone keeps at
+// least one 'any'-time common reachable at every depth. bait: hard requirement (null = none).
+// Legendaries never appear in normal rolls: they bite only through the legend rule (§5.6).
+// difficulty is derived from TIER × behaviour (× legendary) with the duty cap applied;
+// the two finale fish are hand-tuned. Legendaries carry a `boss` script.
+// =====================================================================================
+export const DIFFICULTY_TIERS = {
+  1: { power: 0.60, surgeEvery: 6.5, surgeTime: 0.70, stamina: 5,    sweet: 1.30, erratic: 0.05, window: 1.10 },
+  2: { power: 0.85, surgeEvery: 5.2, surgeTime: 0.95, stamina: 7,    sweet: 1.10, erratic: 0.12, window: 0.90 },
+  3: { power: 1.15, surgeEvery: 4.2, surgeTime: 1.20, stamina: 9.5,  sweet: 0.95, erratic: 0.20, window: 0.75 },
+  4: { power: 1.50, surgeEvery: 3.4, surgeTime: 1.50, stamina: 12.5, sweet: 0.80, erratic: 0.30, window: 0.62 },
+  5: { power: 1.95, surgeEvery: 2.7, surgeTime: 1.85, stamina: 16,   sweet: 0.68, erratic: 0.40, window: 0.52 },
+};
+export const BEHAVIOR_MODS = {
+  steady:   {},
+  darter:   { power: 0.9, surgeEvery: 0.6, surgeTime: 0.55, erraticAdd: 0.15 },
+  sinker:   { power: 1.2, surgeEvery: 1.7, surgeTime: 1.1, stamina: 1.15, erraticAdd: -0.05 },
+  thrasher: { power: 1.1, surgeEvery: 1.1, surgeTime: 1.5, erraticAdd: 0.05 },
+  leaper:   { surgeEvery: 0.85, surgeTime: 0.8, sweet: 0.95, erraticAdd: 0.1 },
+};
+export const LEGENDARY_MODS = { power: 1.15, stamina: 1.9, surgeTime: 1.15, sweet: 0.88, window: 0.85, erraticAdd: 0.05 };
+
+const r2 = (v) => Math.round(v * 100) / 100;
+// warn time used by the duty cap (mirrors BALANCE.reel)
+function warnFor(behavior, erratic) {
+  const R = BALANCE.reel;
+  return behavior === 'darter' ? R.darterWarn : Math.max(R.warnMin, R.warnBase - R.warnErratic * erratic);
+}
+function diff(tier, behavior, legendary = false) {
+  const t = DIFFICULTY_TIERS[tier], b = BEHAVIOR_MODS[behavior] || {}, L = legendary ? LEGENDARY_MODS : {};
+  const m = (k) => (b[k] ?? 1) * (L[k] ?? 1);
+  const d = {
+    power: t.power * m('power'),
+    surgeEvery: t.surgeEvery * m('surgeEvery'),
+    surgeTime: t.surgeTime * m('surgeTime'),
+    stamina: t.stamina * m('stamina'),
+    sweet: Math.max(0.5, t.sweet * m('sweet')),
+    erratic: Math.min(0.9, Math.max(0, t.erratic + (b.erraticAdd || 0) + (L.erraticAdd || 0))),
+    window: Math.max(0.42, t.window * m('window')),
+  };
+  if (behavior === 'darter') d.surgeTime = Math.max(0.4, d.surgeTime);
+  d.surgeEvery = Math.max(d.surgeEvery, (d.surgeTime + warnFor(behavior, d.erratic)) / BALANCE.reel.dutyCap);
+  for (const k of Object.keys(d)) d[k] = r2(d[k]);
+  return d;
+}
+
+export const SPECIES = [
+  // ---------------------------------------------------------------- mossmere (z0)
+  { id: 'dusk_minnow', name: 'Dusk Minnow', zone: 'mossmere', rarity: 'common', tier: 1,
+    weight: [0.05, 0.25], value: 5, food: 16, oil: 16, time: 'any', depth: [0, 0.55], bait: null, behavior: 'darter',
+    difficulty: diff(1, 'darter'),
+    model: { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x3c4452, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.45 },
+    lore: 'They school beneath the raft like thrown pennies, each one wishing for nothing at all.' },
+  { id: 'mossback_perch', name: 'Mossback Perch', zone: 'mossmere', rarity: 'common', tier: 1,
+    weight: [0.3, 1.4], value: 7, food: 22, oil: 20, time: 'any', depth: [0.1, 1], bait: null, behavior: 'steady',
+    difficulty: diff(1, 'steady'),
+    model: { shape: 'perch', body: 0x585e56, belly: 0xd0d3c6, fin: 0x7e8474, glow: null, pattern: 'stripes', eyes: 'normal', scale: 0.8 },
+    lore: 'Moss takes root on its back by its third winter. By its tenth, it is mostly a small, slow garden.' },
+  { id: 'gutter_crayfish', name: 'Gutter Crayfish', zone: 'mossmere', rarity: 'common', tier: 1,
+    weight: [0.1, 0.5], value: 6, food: 20, oil: 18, time: 'any', depth: [0, 0.45], bait: null, behavior: 'sinker',
+    difficulty: diff(1, 'sinker'),
+    model: { shape: 'crayfish', body: 0x5b4a3e, belly: 0xb8a07a, fin: 0x2f2620, glow: null, pattern: 'bands', eyes: 'normal', scale: 0.6 },
+    lore: 'It hoards drowned buttons in its burrow. No one knows whose coat it is trying to finish.' },
+  { id: 'weeping_carp', name: 'Weeping Carp', zone: 'mossmere', rarity: 'uncommon', tier: 2,
+    weight: [1.5, 5.5], value: 15, food: 26, oil: 20, time: 'any', depth: [0.35, 1], bait: null, behavior: 'sinker',
+    difficulty: diff(2, 'sinker'),
+    model: { shape: 'carp', body: 0x646a74, belly: 0xe0e3e6, fin: 0x3c424c, glow: null, pattern: 'bands', eyes: 'normal', scale: 1.15 },
+    lore: 'Old fishers swore the carp were mourning. The carp have never once said otherwise.' },
+  { id: 'candlefin_koi', name: 'Candlefin Koi', zone: 'mossmere', rarity: 'uncommon', tier: 2,
+    weight: [0.8, 3], value: 18, food: 18, oil: 28, time: 'calm', depth: [0.25, 0.85], bait: null, behavior: 'darter',
+    difficulty: diff(2, 'darter'),
+    model: { shape: 'koi', body: 0xe9e2cf, belly: 0xfff6e0, fin: 0xf2c98a, glow: 0xffe2a8, pattern: 'spots', eyes: 'normal', scale: 1.0 },
+    lore: 'Its fins burn without heat. More than one Wick has mistaken it for kin, and leaned too far.' },
+  { id: 'reedjaw_pike', name: 'Reedjaw Pike', zone: 'mossmere', rarity: 'rare', tier: 3,
+    weight: [2.5, 9], value: 34, food: 30, oil: 26, time: 'any', depth: [0.55, 1], bait: null, behavior: 'thrasher',
+    difficulty: diff(3, 'thrasher'),
+    model: { shape: 'pike', body: 0x474e58, belly: 0xc8ccd2, fin: 0x272c36, glow: null, pattern: 'stripes', eyes: 'normal', scale: 1.3 },
+    lore: 'It lies among the drowned reeds until it forgets it is not one. Then something swims by.' },
+  { id: 'gloam_eel', name: 'Gloam Eel', zone: 'mossmere', rarity: 'rare', tier: 3,
+    weight: [1, 4], value: 42, food: 22, oil: 36, time: 'gloom', depth: [0.4, 1], bait: 'lumen_moss', behavior: 'leaper',
+    difficulty: diff(3, 'leaper'),
+    model: { shape: 'eel', body: 0x161b2a, belly: 0x6a78a0, fin: 0x0b0e18, glow: 0xb4c4ff, pattern: 'spots', eyes: 'glow', scale: 1.25 },
+    hint: 'Rises with the Gloomtide, in deep water. Drawn to the glow of Lumen Moss.',
+    lore: 'It rises only when the Gloom does. Some say it is the Gloom, slowly learning to be a fish.' },
+  { id: 'belled_matriarch', name: 'The Belled Matriarch', zone: 'mossmere', rarity: 'legendary', tier: 3,
+    epithet: 'She Who Tolls for the Drowned',
+    weight: [12, 30], value: 140, food: 60, oil: 60, time: 'calm', depth: [0.8, 1], bait: 'heartmoss', behavior: 'steady',
+    difficulty: diff(3, 'steady', true),
+    boss: {
+      enrage: 60,
+      phases: [
+        { at: 0, name: 'The Slow Toll', mechanic: 'none' },
+        { at: 0.4, name: 'Double Toll', mechanic: 'doubleSurge', gap: 0.9, warn: 0.5 },
+        { at: 0.75, name: 'Last Toll', mechanic: 'shrink', sweetTo: 0.6, tireFrom: 0.9 },
+      ],
+      cue: 'A bell tolls beneath the raft before every surge.',
+    },
+    model: { shape: 'carp', body: 0x50565e, belly: 0xdcdfe2, fin: 0x7a8494, glow: 0xd8e0ff, pattern: 'scales', eyes: 'glow', scale: 2.0 },
+    hint: 'Listen for a bell beneath the calm, far out in deep water. She takes only Heartmoss.',
+    lore: 'A temple bell sank into her when she was young. She has tolled for the drowned ever since.' },
+
+  // ---------------------------------------------------------------- sporewood (z1)
+  { id: 'sporebelly_puffer', name: 'Sporebelly Puffer', zone: 'sporewood', rarity: 'common', tier: 2,
+    weight: [0.2, 0.9], value: 13, food: 22, oil: 26, time: 'any', depth: [0, 0.6], bait: null, behavior: 'thrasher',
+    difficulty: diff(2, 'thrasher'),
+    model: { shape: 'puffer', body: 0x7a4f6e, belly: 0xf0c9d8, fin: 0xe89a5a, glow: 0xff9fc4, pattern: 'spots', eyes: 'normal', scale: 0.7 },
+    lore: 'Frightened, it swells and sighs out spores. In the quiet, the whole pool smells of lullabies.' },
+  { id: 'plumgill_perch', name: 'Plumgill Perch', zone: 'sporewood', rarity: 'common', tier: 2,
+    weight: [0.4, 1.8], value: 14, food: 26, oil: 24, time: 'any', depth: [0.15, 1], bait: null, behavior: 'steady',
+    difficulty: diff(2, 'steady'),
+    model: { shape: 'perch', body: 0x5a3d5e, belly: 0xe2c7d8, fin: 0xc77aa0, glow: null, pattern: 'stripes', eyes: 'normal', scale: 0.85 },
+    lore: 'Its gills are the colour of a bruise healing. It has been healing for a very long time.' },
+  { id: 'capshell_crayfish', name: 'Capshell Crayfish', zone: 'sporewood', rarity: 'common', tier: 2,
+    weight: [0.2, 0.9], value: 12, food: 26, oil: 22, time: 'any', depth: [0, 0.45], bait: null, behavior: 'sinker',
+    difficulty: diff(2, 'sinker'),
+    model: { shape: 'crayfish', body: 0x8a5a3c, belly: 0xe8c79a, fin: 0x4a2c22, glow: 0xffb46a, pattern: 'spots', eyes: 'normal', scale: 0.65 },
+    lore: 'It wears a small mushroom for a hat. When the mushroom dies it mourns, then finds another.' },
+  { id: 'velvet_ray', name: 'Velvet Ray', zone: 'sporewood', rarity: 'uncommon', tier: 3,
+    weight: [2, 7], value: 32, food: 30, oil: 28, time: 'any', depth: [0.35, 0.9], bait: null, behavior: 'leaper',
+    difficulty: diff(3, 'leaper'),
+    model: { shape: 'ray', body: 0x3e2944, belly: 0xd6b8cf, fin: 0x8a5a8a, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.2 },
+    lore: 'It glides beneath the spore-rain like a shadow looking for the thing that cast it.' },
+  { id: 'threadling_eel', name: 'Threadling Eel', zone: 'sporewood', rarity: 'uncommon', tier: 2,
+    weight: [0.5, 2.2], value: 34, food: 22, oil: 36, time: 'any', depth: [0.3, 0.85], bait: 'spore_cake', behavior: 'darter',
+    difficulty: diff(2, 'darter'),
+    model: { shape: 'eel', body: 0xcbb8c4, belly: 0xf3e6ee, fin: 0x7a5a74, glow: 0xffd6a0, pattern: 'bands', eyes: 'blind', scale: 1.0 },
+    hint: 'It feeds only on sweetness. Try Spore Cake.',
+    lore: 'Mostly root, a little fish. It stitches the pool floor together while no one is watching.' },
+  { id: 'mildew_angler', name: 'Mildew Angler', zone: 'sporewood', rarity: 'rare', tier: 3,
+    weight: [3, 10], value: 66, food: 34, oil: 40, time: 'gloom', depth: [0.5, 1], bait: null, behavior: 'sinker',
+    difficulty: diff(3, 'sinker'),
+    model: { shape: 'angler', body: 0x2a1c2c, belly: 0x6e4f66, fin: 0x1a101c, glow: 0xffb46a, pattern: 'spots', eyes: 'glow', scale: 1.1 },
+    hint: 'Its lure lights only in the Gloomtide, out where the water is deep.',
+    lore: "Its lure is one soft mushroom, lit like a window left on for someone who isn't coming." },
+  { id: 'sleepspore_jelly', name: 'Sleepspore Jelly', zone: 'sporewood', rarity: 'rare', tier: 3,
+    weight: [0.4, 1.5], value: 62, food: 14, oil: 46, time: 'calm', depth: [0.2, 0.75], bait: 'lumen_moss', behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'jelly', body: 0xe8b3d0, belly: 0xfff0f6, fin: 0xff7fb0, glow: 0xff8fc0, pattern: 'none', eyes: 'blind', scale: 0.75 },
+    hint: 'Drifts only in the calm, towards a gentle glow like Lumen Moss.',
+    lore: "It drifts through other creatures' dreams to rest. Most never notice. Some wake up kinder." },
+  { id: 'drifting_grove', name: 'The Drifting Grove', zone: 'sporewood', rarity: 'legendary', tier: 4,
+    epithet: 'The Meadow That Swims',
+    weight: [20, 45], value: 320, food: 70, oil: 70, time: 'calm', depth: [0.8, 1], bait: 'glowcap_bulb', behavior: 'leaper',
+    difficulty: diff(4, 'leaper', true),
+    boss: {
+      enrage: 75,
+      phases: [
+        { at: 0, name: 'Grazing', mechanic: 'none' },
+        { at: 0.35, name: 'False Bloom', mechanic: 'decoy', decoyWidth: 1.4, swapOnSurge: true },
+        { at: 0.7, name: 'Spore Veil', mechanic: 'flicker', every: 8, hide: 1.5 },
+      ],
+      cue: 'Spores burst from the water whenever she breaches.',
+    },
+    model: { shape: 'ray', body: 0x3a2a40, belly: 0xe8cfe0, fin: 0x6e4a72, glow: 0xffb46a, pattern: 'spots', eyes: 'glow', scale: 2.3 },
+    hint: 'When the pools are quiet, something vast grazes in the deep. It hungers for Glowcap Bulbs.',
+    lore: 'A whole meadow rides on her back. When she dives, it blooms beneath the water, where no one sees.' },
+
+  // ---------------------------------------------------------------- glasswater (z2)
+  { id: 'prism_minnow', name: 'Prism Minnow', zone: 'glasswater', rarity: 'common', tier: 2,
+    weight: [0.05, 0.3], value: 24, food: 26, oil: 32, time: 'any', depth: [0, 0.6], bait: null, behavior: 'darter',
+    difficulty: diff(2, 'darter'),
+    model: { shape: 'minnow', body: 0x8fb8e8, belly: 0xeaf6ff, fin: 0x5cbcff, glow: 0x5cbcff, pattern: 'scales', eyes: 'normal', scale: 0.45 },
+    lore: 'When the school turns at once, for an instant the water remembers the colour of the sky.' },
+  { id: 'glassgill_perch', name: 'Glassgill Perch', zone: 'glasswater', rarity: 'common', tier: 3,
+    weight: [0.5, 2], value: 28, food: 32, oil: 30, time: 'any', depth: [0.15, 1], bait: null, behavior: 'steady',
+    difficulty: diff(3, 'steady'),
+    model: { shape: 'perch', body: 0x3d4a8a, belly: 0xcfe0ff, fin: 0x8ab8ff, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.85 },
+    lore: 'You can see its heart through its side. It beats slower when you watch.' },
+  { id: 'glassblown_puffer', name: 'Glassblown Puffer', zone: 'glasswater', rarity: 'common', tier: 3,
+    weight: [0.3, 1.2], value: 26, food: 28, oil: 34, time: 'any', depth: [0, 0.55], bait: null, behavior: 'thrasher',
+    difficulty: diff(3, 'thrasher'),
+    model: { shape: 'puffer', body: 0x6a7ad0, belly: 0xe6ecff, fin: 0xb48cff, glow: 0xb48cff, pattern: 'spots', eyes: 'normal', scale: 0.7 },
+    lore: 'Puffed, it rings faintly like a wineglass. The Vault was full of them once, all ringing.' },
+  { id: 'chime_jelly', name: 'Chime Jelly', zone: 'glasswater', rarity: 'uncommon', tier: 3,
+    weight: [0.5, 2], value: 56, food: 18, oil: 50, time: 'calm', depth: [0.25, 0.85], bait: 'glass_larva', behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'jelly', body: 0xb6a6ff, belly: 0xf2eeff, fin: 0x7f6aff, glow: 0xb48cff, pattern: 'none', eyes: 'blind', scale: 0.8 },
+    hint: 'It answers the hum of Glass Larvae, and only while the Vault is calm.',
+    lore: 'It chimes when it brushes crystal. It is the only thing in the Vault still keeping time.' },
+  { id: 'mirror_pike', name: 'Mirror Pike', zone: 'glasswater', rarity: 'uncommon', tier: 4,
+    weight: [3, 10], value: 62, food: 38, oil: 40, time: 'any', depth: [0.5, 1], bait: null, behavior: 'darter',
+    difficulty: diff(4, 'darter'),
+    model: { shape: 'pike', body: 0x9aa8c8, belly: 0xf2f6ff, fin: 0x4a5aa8, glow: null, pattern: 'scales', eyes: 'normal', scale: 1.3 },
+    lore: 'Its silver flank shows you yourself, a little more tired than you remember.' },
+  { id: 'shardspine_eel', name: 'Shardspine Eel', zone: 'glasswater', rarity: 'rare', tier: 4,
+    weight: [2, 6], value: 130, food: 36, oil: 56, time: 'gloom', depth: [0.4, 1], bait: null, behavior: 'thrasher',
+    difficulty: diff(4, 'thrasher'),
+    model: { shape: 'eel', body: 0x1a1f4a, belly: 0x6a7ad0, fin: 0x5cbcff, glow: 0x5cbcff, pattern: 'bands', eyes: 'glow', scale: 1.35 },
+    hint: 'Hunts by the sound of breaking, and only in the Gloomtide.',
+    lore: 'Crystal grows along its spine like frost on a window. It hunts by the sound of breaking.' },
+  { id: 'blind_scrivener', name: 'The Blind Scrivener', zone: 'glasswater', rarity: 'rare', tier: 4,
+    weight: [4, 12], value: 120, food: 44, oil: 52, time: 'any', depth: [0.6, 1], bait: 'ember_roe', behavior: 'sinker',
+    difficulty: diff(4, 'sinker'),
+    model: { shape: 'angler', body: 0x1c1f3a, belly: 0x4a5aa8, fin: 0x0a0c20, glow: 0xb48cff, pattern: 'spots', eyes: 'blind', scale: 1.15 },
+    hint: 'A predator that reads the dark by smell. Ember Roe, in the deepest water.',
+    lore: 'Eyeless, it carries one glowing lure, as if reading the dark a single line at a time.' },
+  { id: 'glass_sovereign', name: 'The Glass Sovereign', zone: 'glasswater', rarity: 'legendary', tier: 5,
+    epithet: "Keeper of the Vault's Last Light",
+    weight: [18, 40], value: 600, food: 80, oil: 90, time: 'gloom', depth: [0.8, 1], bait: 'prism_moth', behavior: 'leaper',
+    difficulty: { power: 2.0, surgeEvery: 5.0, surgeTime: 1.3, stamina: 30, sweet: 0.6, erratic: 0.5, window: 0.45 },   // hand-tuned
+    boss: {
+      enrage: 90,
+      phases: [
+        { at: 0, name: 'Glide', mechanic: 'none' },
+        { at: 0.35, name: 'Glass Glide', mechanic: 'mixedSurge', tell: 0.8 },
+        { at: 0.7, name: 'Brittle Line', mechanic: 'brittle', snapAt: 0.92, shards: 2, shardWidth: 0.6 },
+      ],
+      cue: 'The whole Vault rings like struck glass. The swarm keeps coming (spawn rate × legendFightRateMult).',
+    },
+    model: { shape: 'koi', body: 0xa8b8ff, belly: 0xf4f7ff, fin: 0x5cbcff, glow: 0x5cbcff, pattern: 'scales', eyes: 'glow', scale: 2.1 },
+    hint: 'In the Gloomtide, in the deepest water, a Prism Moth draws a crown of light.',
+    lore: 'It swallowed the Vault\'s last light and never let it go. Each scale is a window with no one behind it.' },
+
+  // ---------------------------------------------------------------- paleabyss (z3)
+  { id: 'ossuary_fry', name: 'Ossuary Fry', zone: 'paleabyss', rarity: 'common', tier: 3,
+    weight: [0.05, 0.3], value: 42, food: 32, oil: 40, time: 'any', depth: [0, 0.6], bait: null, behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'minnow', body: 0xd8d2c0, belly: 0xf4f0e4, fin: 0x8a8270, glow: null, pattern: 'none', eyes: 'blind', scale: 0.45 },
+    lore: 'Pale as the bones they nest in. They have never seen light and do not seem to miss it.' },
+  { id: 'pallid_wraithfin', name: 'Pallid Wraithfin', zone: 'paleabyss', rarity: 'common', tier: 3,
+    weight: [0.4, 2], value: 48, food: 38, oil: 42, time: 'any', depth: [0.1, 1], bait: null, behavior: 'steady',
+    difficulty: diff(3, 'steady'),
+    model: { shape: 'ghost', body: 0xbfb9a6, belly: 0xeeeadc, fin: 0x6e6a5c, glow: 0xeae4d3, pattern: 'none', eyes: 'blind', scale: 0.9 },
+    lore: 'Hold one too long and you begin to forget its weight. Then, slowly, your own.' },
+  { id: 'bonecrook_crayfish', name: 'Bonecrook Crayfish', zone: 'paleabyss', rarity: 'common', tier: 3,
+    weight: [0.3, 1.2], value: 44, food: 40, oil: 36, time: 'any', depth: [0, 0.5], bait: null, behavior: 'sinker',
+    difficulty: diff(3, 'sinker'),
+    model: { shape: 'crayfish', body: 0x3a362e, belly: 0xd8d0b8, fin: 0xe8dcb8, glow: null, pattern: 'bands', eyes: 'normal', scale: 0.7 },
+    lore: 'It builds its shell from whatever the deep lets fall. Some of what it wears was once a crown.' },
+  { id: 'gilt_eyed_eel', name: 'Gilt-Eyed Eel', zone: 'paleabyss', rarity: 'uncommon', tier: 4,
+    weight: [2, 7], value: 92, food: 40, oil: 56, time: 'any', depth: [0.4, 1], bait: null, behavior: 'thrasher',
+    difficulty: diff(4, 'thrasher'),
+    model: { shape: 'eel', body: 0x141310, belly: 0x5a5440, fin: 0x2a2618, glow: 0xd9b45a, pattern: 'bands', eyes: 'glow', scale: 1.4 },
+    lore: 'Two gold coins for eyes, as if someone paid its passage and it never left the ferry.' },
+  { id: 'shroud_ray', name: 'Shroud Ray', zone: 'paleabyss', rarity: 'uncommon', tier: 4,
+    weight: [4, 12], value: 88, food: 44, oil: 48, time: 'any', depth: [0.45, 1], bait: null, behavior: 'leaper',
+    difficulty: diff(4, 'leaper'),
+    model: { shape: 'ray', body: 0xd8d2c0, belly: 0xf4f0e4, fin: 0x9a9480, glow: null, pattern: 'stripes', eyes: 'normal', scale: 1.35 },
+    lore: 'It drifts like a burial cloth that has lost its sleeper and is still looking.' },
+  { id: 'funeral_veil', name: 'Funeral Veil', zone: 'paleabyss', rarity: 'rare', tier: 4,
+    weight: [0.8, 3], value: 190, food: 24, oil: 74, time: 'gloom', depth: [0.3, 0.9], bait: null, behavior: 'darter',
+    difficulty: diff(4, 'darter'),
+    model: { shape: 'jelly', body: 0xe9dfb8, belly: 0xfffaf0, fin: 0xd9b45a, glow: 0xd9b45a, pattern: 'none', eyes: 'blind', scale: 0.9 },
+    hint: 'It follows the Gloom the way a widow follows a cart.',
+    lore: "Its threads are fine as a widow's veil. It follows the Gloom the way a widow follows a cart." },
+  { id: 'lampwarden_angler', name: 'Lampwarden Angler', zone: 'paleabyss', rarity: 'rare', tier: 5,
+    weight: [6, 16], value: 210, food: 50, oil: 70, time: 'gloom', depth: [0.6, 1], bait: 'ember_roe', behavior: 'sinker',
+    difficulty: diff(5, 'sinker'),
+    model: { shape: 'angler', body: 0x0c0b09, belly: 0x3a3628, fin: 0x1a1812, glow: 0xe8c66a, pattern: 'spots', eyes: 'glow', scale: 1.25 },
+    hint: 'Its lamp answers only Ember Roe, and only in the Gloomtide.',
+    lore: 'The last lamp of the kingdom hangs from its jaw. It is still waiting for someone to come home.' },
+  { id: 'pale_leviathan', name: 'The Pale Leviathan', zone: 'paleabyss', rarity: 'legendary', tier: 5, final: true,
+    epithet: 'The Well Beneath the Kingdom',
+    weight: [120, 300], value: 2500, food: 100, oil: 150, time: 'gloom', depth: [0.85, 1], bait: 'pale_marrow', behavior: 'sinker',
+    difficulty: { power: 2.5, surgeEvery: 6.2, surgeTime: 1.8, stamina: 44, sweet: 0.62, erratic: 0.55, window: 0.45 },  // hand-tuned
+    boss: {
+      enrage: 110,
+      noSlackEscape: true,                 // phases I-III: slack makes it dive instead of escaping
+      slackDive: { progress: -0.12, tension: 0.35 },
+      phases: [
+        { at: 0, name: 'Deep Pull', mechanic: 'drag', drag: 0.08, bandOffset: -0.10 },
+        { at: 0.25, name: 'Grasping Dark', mechanic: 'summon', enemy: 'drowned_hand', zoneMod: 'paleabyss', count: 2, gap: 4 },
+        { at: 0.5, name: 'Eclipse', mechanic: 'eclipse', lightMult: 0.5, every: 3, warn: 0.6 },
+        { at: 0.8, name: 'Last Breath', mechanic: 'shrink', sweetTo: 0.6, decayMult: 2, slackEscapes: true },
+      ],
+      cue: 'The water goes very still. The Ferryman cannot rise while it is hooked. Landing it ends the Gloomtide and wins the run.',
+    },
+    model: { shape: 'leviathan', body: 0xd8d2c0, belly: 0xf6f2e6, fin: 0x8a8270, glow: 0xe8c66a, pattern: 'scales', eyes: 'glow', scale: 3.5 },
+    hint: 'Only Drowned Marrow. Only in the Gloomtide. Only in the deepest water of the Pallid Deep.',
+    lore: 'Older than the kingdom above. The kingdom fell into it the way a coin falls into a well.' },
+];
+// =====================================================================================
+// BAITS (DESIGN §5.2–§5.3, §13.4) — consumed one charge per cast (legend baits: consumed only when
+// the legendary is HOOKED; a missed hook-set keeps it). Species whose `bait` names a bait are hard-locked to it. `attract` ids get
+// weight ×2.5. Optional bonus keys beyond STATS: weightBias, shimmer (quality score),
+// gloomDraw (extra enemy spawn rate while equipped). price × BALANCE.economy.baitMult.
+// =====================================================================================
+export const BAITS = [
+  { id: 'mireworm', name: 'Mire Worms', price: 8, count: 8, zoneMin: 0, unlock: null, legend: false, icon: 'worm',
+    desc: 'Fat, patient worms from the moat mud. Bottom-feeders cannot help themselves.',
+    bonus: { biteSpeed: 0.3, attract: ['gutter_crayfish', 'mossback_perch', 'weeping_carp', 'capshell_crayfish', 'plumgill_perch', 'bonecrook_crayfish'] } },
+  { id: 'lumen_moss', name: 'Lumen Moss', price: 18, count: 5, zoneMin: 0, unlock: null, legend: false, icon: 'moss',
+    desc: 'A pinch of moss that glows like a held breath. Things that shine are drawn to it.',
+    bonus: { rarityBonus: 0.10, attract: ['candlefin_koi', 'prism_minnow', 'funeral_veil', 'pallid_wraithfin'] } },
+  { id: 'spore_cake', name: 'Spore Cake', price: 26, count: 5, zoneMin: 1, unlock: null, legend: false, icon: 'cake',
+    desc: 'Pressed spores and old honey. It smells like a garden asleep.',
+    bonus: { hookWindow: 0.15, attract: ['sporebelly_puffer', 'velvet_ray', 'plumgill_perch'] } },
+  { id: 'ember_roe', name: 'Ember Roe', price: 36, count: 4, zoneMin: 1, unlock: null, legend: false, icon: 'roe',
+    desc: 'Roe that keeps a little warmth. Predators come for it, and so does the Gloom.',
+    bonus: { rarityBonus: 0.15, weightBias: 0.35, gloomDraw: 0.2, attract: ['reedjaw_pike', 'mildew_angler', 'mirror_pike', 'shardspine_eel', 'gilt_eyed_eel'] } },
+  { id: 'glass_larva', name: 'Glass Larvae', price: 48, count: 4, zoneMin: 2, unlock: null, legend: false, icon: 'larva',
+    desc: 'Translucent larvae that hum when the water tenses. You will feel the bite coming.',
+    bonus: { nibbleTells: 1, shimmer: 0.05, attract: ['glassblown_puffer', 'glassgill_perch', 'prism_minnow', 'shroud_ray'] } },
+  { id: 'shimmerfly', name: 'Shimmerfly', price: 40, count: 3, zoneMin: 0, unlock: 'heavy_catch', legend: false, icon: 'fly',
+    desc: 'A fly with wings like spilled oil. Fish that take it come up gleaming.',
+    bonus: { shimmer: 0.12, rarityBonus: 0.04, attract: [] } },
+  // legend baits — one per zone, fixed price, single use (spent on HOOK)
+  { id: 'heartmoss', name: 'Heartmoss Ball', price: 40, count: 1, zoneMin: 0, zone: 'mossmere', unlock: null, legend: true, icon: 'heart',
+    desc: 'Moss rolled around a warm stone. Old fishers say it beats if you hold it long enough.', bonus: {} },
+  { id: 'glowcap_bulb', name: 'Glowcap Bulb', price: 90, count: 1, zoneMin: 1, zone: 'sporewood', unlock: null, legend: true, icon: 'cap',
+    desc: 'A swollen cap that glows from inside, like a lantern somebody forgot to blow out.', bonus: {} },
+  { id: 'prism_moth', name: 'Prism Moth', price: 170, count: 1, zoneMin: 2, zone: 'glasswater', unlock: null, legend: true, icon: 'moth',
+    desc: 'Its wings split light into seven sorrows. Keep it in the dark until you need it.', bonus: {} },
+  { id: 'pale_marrow', name: 'Drowned Marrow', price: 320, count: 1, zoneMin: 3, zone: 'paleabyss', unlock: null, legend: true, icon: 'bone',
+    desc: 'The marrow of something that should not have died. Only one thing down here is hungry enough.', bonus: { gloomDraw: 0.35 } },
+];
+
+// =====================================================================================
+// UPGRADES (DESIGN §13.2) — per-run gear bought from Old Murk with Shells. effects additive per level
+// on STATS keys. costs.length === maxLevel. zone: appears once that zone is unlocked.
+// =====================================================================================
+export const UPGRADES = [
+  { id: 'rod_ashwood', name: 'Ashwood Rod', category: 'rod', icon: 'rod', maxLevel: 3, costs: [40, 120, 300], zone: null,
+    effects: { castMax: 3 }, desc: 'Longer, springier wood. Reach deeper water and farther spots.' },
+  { id: 'rod_whalebone', name: 'Whalebone Tip', category: 'rod', icon: 'rod', maxLevel: 3, costs: [45, 130, 320], zone: null,
+    effects: { hookWindow: 0.12, slackTime: 0.3 }, desc: 'Feels every twitch. More time to strike, more forgiveness on a slack line.' },
+  { id: 'line_gut', name: 'Braided Gut Line', category: 'line', icon: 'line', maxLevel: 4, costs: [40, 110, 260, 520], zone: null,
+    effects: { lineStrength: 0.15 }, desc: 'Twisted strands that take a surge without parting.' },
+  { id: 'line_silver', name: 'Silverthread', category: 'line', icon: 'line', maxLevel: 2, costs: [480, 800], zone: 'glasswater',
+    effects: { lineStrength: 0.25, slackTime: 0.2 }, desc: 'Spun from something that should not exist. Strong enough for the deepest thing.' },
+  { id: 'reel_brass', name: 'Brass Spool Reel', category: 'reel', icon: 'reel', maxLevel: 4, costs: [50, 130, 280, 520], zone: null,
+    effects: { reelSpeed: 0.15 }, desc: 'Gears from a drowned clock. Bring them in faster.' },
+  { id: 'reel_drag', name: 'Whisper Drag', category: 'reel', icon: 'reel', maxLevel: 3, costs: [60, 150, 340], zone: null,
+    effects: { sweetZone: 0.02 }, desc: 'A soft brake that widens the sweet band.' },
+  { id: 'lantern_chimney', name: 'Thick-Glass Chimney', category: 'lantern', icon: 'lantern', maxLevel: 3, costs: [45, 130, 300], zone: null,
+    effects: { oilDrain: -0.012, maxOil: 15 }, desc: 'Holds the heat in. The flame sips instead of gulps.' },
+  { id: 'lantern_mantle', name: 'Searing Mantle', category: 'lantern', icon: 'flame', maxLevel: 4, costs: [55, 140, 300, 560], zone: null,
+    effects: { auraDps: 0.4 }, desc: 'A mantle of salted wick. Your light burns harder at whatever enters it.' },
+  { id: 'lantern_lens', name: 'Moth-Dust Lens', category: 'lantern', icon: 'lens', maxLevel: 3, costs: [90, 200, 420], zone: 'sporewood',
+    effects: { lightRadius: 1.0, flareRadius: 1.0 }, desc: 'Glass dusted with powdered moth-wing. Throws your light, and your flare, wider.' },
+  { id: 'lantern_striker', name: 'Flint Striker', category: 'lantern', icon: 'spark', maxLevel: 3, costs: [55, 150, 330], zone: null,
+    effects: { flareCooldown: -1.5, flareCost: -2, zapDamage: 2 }, desc: 'Sharper sparks: cheaper, faster flares and harder zaps.' },
+  { id: 'creel_wicker', name: 'Woven Creel', category: 'creel', icon: 'creel', maxLevel: 4, costs: [30, 90, 200, 420], zone: null,
+    effects: { creelSize: 1 }, desc: 'One more slot. One more choice you do not have to make tonight.' },
+  { id: 'creel_frost', name: 'Frost-Moss Lining', category: 'creel', icon: 'creel', maxLevel: 3, costs: [100, 240, 480], zone: 'sporewood',
+    effects: { sellMult: 0.12 }, desc: 'Keeps the catch fresh. Old Murk pays more for fish that still look surprised.' },
+  { id: 'raft_brazier', name: 'Rendering Brazier', category: 'raft', icon: 'brazier', maxLevel: 3, costs: [55, 140, 310], zone: null,
+    effects: { oilYieldMult: 0.2, foodMult: 0.15 }, desc: 'Render and cook on board. More oil and more meal from every fish.' },
+  { id: 'raft_hull', name: 'Barnacle Hull', category: 'raft', icon: 'hull', maxLevel: 3, costs: [110, 250, 520], zone: 'sporewood',
+    effects: { armor: 0.07 }, desc: 'Crusted planks. Some blows glance off.' },
+  { id: 'raft_oars', name: 'Long Oars', category: 'raft', icon: 'oar', maxLevel: 3, costs: [40, 110, 260], zone: null,
+    effects: { moveSpeed: 0.5, pickupRadius: 0.5 }, desc: 'Reach the spots first. Outrun what follows. Sweep up cinders on the way.' },
+  { id: 'raft_hearth', name: 'Ember Hearth', category: 'raft', icon: 'hearth', maxLevel: 2, costs: [260, 600], zone: 'glasswater',
+    effects: { maxHp: 1, maxSatiety: 15 }, desc: 'A little hearth that keeps a spare Ember warm.' },
+  { id: 'lure_glimmer', name: 'Glimmer Spoon', category: 'lure', icon: 'lure', maxLevel: 3, costs: [70, 190, 420], zone: null,
+    effects: { rarityBonus: 0.05, biteSpeed: 0.08 }, desc: 'A bent spoon that catches the light. Rarer fish come to look.' },
+  { id: 'lure_feather', name: 'Trembling Feather', category: 'lure', icon: 'feather', maxLevel: 2, costs: [80, 220], zone: null,
+    effects: { nibbleTells: 1, hookWindow: 0.08 }, desc: 'It shivers a heartbeat before the real bite.' },
+];
+
+// =====================================================================================
+// SUPPLIES (DESIGN §13.3) — consumables from Old Murk. price × BALANCE.economy.supplyMult[zoneIndex].
+// give keys: oil, satiety, hp, flareCharges (next N flares cost no oil), spots (rare spots).
+// =====================================================================================
+export const SUPPLIES = [
+  { id: 'oil_flask', name: "Murk's Lamp Oil", price: 18, give: { oil: 30 }, zoneMin: 0, limitPerVisit: 0, icon: 'oil',
+    desc: 'Smells of frogs. Burns anyway.' },
+  { id: 'oil_cask', name: 'Lamp-Oil Cask', price: 50, give: { oil: 100 }, zoneMin: 1, limitPerVisit: 0, icon: 'oil',
+    desc: 'A whole night of light, if you are careful. You will not be careful.' },
+  { id: 'moss_cake', name: 'Dried Moss Cake', price: 14, give: { satiety: 30 }, zoneMin: 0, limitPerVisit: 0, icon: 'food',
+    desc: 'Tastes of nothing, which is better than most things down here.' },
+  { id: 'mushroom_loaf', name: 'Mushroom Loaf', price: 38, give: { satiety: 90 }, zoneMin: 1, limitPerVisit: 0, icon: 'food',
+    desc: 'Dense, warm, faintly glowing. Do not ask what rose it.' },
+  { id: 'wax_patch', name: 'Wax Patch', price: 45, give: { hp: 1 }, zoneMin: 0, limitPerVisit: 1, icon: 'ember',
+    desc: 'Smooth it over the cracks. Mends one Ember.' },
+  { id: 'flare_powder', name: 'Flare Powder', price: 30, give: { flareCharges: 2 }, zoneMin: 0, limitPerVisit: 0, icon: 'flare',
+    desc: 'Your next two flares cost no oil.' },
+  { id: 'tide_chart', name: 'Tide Chart', price: 40, give: { spots: 2 }, zoneMin: 0, limitPerVisit: 1, icon: 'map',
+    desc: 'Two rich feeding spots surface now and stay until dusk.' },
+];
+
+// =====================================================================================
+// RELICS (DESIGN §17.2) — permanent, bought with Memories at the Shrine of Drowned
+// Lanterns. effects on STATS keys (per level) and/or `special` ('key' or 'key:value',
+// applied per level): startShells:N  startKit  shimmer:N  memMult:N  secondWick
+// waystone:<zoneId>. unlock: challenge id that reveals it (null = available);
+// requires: meta thresholds that reveal it {bestDay, runs, deepestZone, bestLevel}.
+// =====================================================================================
+export const RELICS = [
+  { id: 'oilskin_flask', name: 'Cracked Oilskin', icon: 'oil', maxLevel: 3, costs: [40, 110, 245], effects: { maxOil: 15 }, unlock: null,
+    desc: 'It leaks, but only a little, and only when it is sad. +15 max oil.' },
+  { id: 'salt_glass_lens', name: 'Salt-Glass Lens', icon: 'lens', maxLevel: 3, costs: [65, 170, 375], effects: { lightRadius: 0.6, auraDps: 0.15 }, unlock: null,
+    desc: 'Fitted to a lantern long since drowned. The light it bends still finds its way back. +0.6 m light, +0.15 burn.' },
+  { id: 'bent_tin_spoon', name: 'Bent Tin Spoon', icon: 'spoon', maxLevel: 3, costs: [40, 110, 245], effects: { maxSatiety: 15, satietyDrain: -0.006 }, unlock: null,
+    desc: 'Someone ate every meal with this, slowly, to make it last.' },
+  { id: 'mended_creel', name: 'Mended Creel', icon: 'creel', maxLevel: 2, costs: [50, 230], effects: { creelSize: 1 }, unlock: null,
+    desc: "Patched with reed, ribbon, and a lock of someone's hair. +1 creel slot." },
+  { id: 'old_debt', name: "Murk's Old Debt", icon: 'shell', maxLevel: 4, costs: [30, 80, 170, 340], effects: {}, special: 'startShells:30', unlock: null,
+    desc: 'He owes you. He will not say for what. +30 starting Shells per level.' },
+  { id: 'heartwood_oar', name: 'Heartwood Oar', icon: 'oar', maxLevel: 3, costs: [45, 125, 280], effects: { moveSpeed: 0.3 }, unlock: null,
+    desc: 'Carved from the last tree that grew in sunlight. It still leans toward it. +0.3 raft speed.' },
+  { id: 'seven_knots', name: 'Line of Seven Knots', icon: 'line', maxLevel: 3, costs: [45, 140, 310], effects: { lineStrength: 0.1 }, unlock: null,
+    desc: 'Each knot was tied by a different Wick. None have come undone.' },
+  { id: 'first_wick_stub', name: 'Stub of the First Wick', icon: 'ember', maxLevel: 2, costs: [140, 400], effects: { maxHp: 1 }, unlock: null, requires: { bestDay: 3 },
+    desc: 'Barely a thumb of wax. It remembers being tall. +1 Ember.' },
+  { id: 'two_headed_coin', name: 'Two-Headed Coin', icon: 'coin', maxLevel: 3, costs: [80, 220, 465], effects: { rarityBonus: 0.03, luck: 0.1 }, unlock: null, requires: { runs: 2 },
+    desc: 'Lucky, they said. It came up heads every time. Even the last time.' },
+  { id: 'drifters_bundle', name: "Drifter's Bundle", icon: 'bundle', maxLevel: 2, costs: [65, 185], effects: {}, special: 'startKit', unlock: null, requires: { runs: 2 },
+    desc: "I: start with 8 Mire Worms and 3 Lumen Moss. II: also the starting zone's legend bait." },
+  { id: 'tinderbox', name: "Grandsire's Tinderbox", icon: 'xp', maxLevel: 3, costs: [50, 140, 310], effects: { xpMult: 0.05, pickupRadius: 0.5 }, unlock: null, requires: { bestLevel: 8 },
+    desc: 'Dry wood, flint, and the patience of someone long gone. +5% cinders, +0.5 m magnet.' },
+  { id: 'steady_hook', name: "Grandmother's Hook", icon: 'hook', maxLevel: 3, costs: [45, 140, 310], effects: { hookWindow: 0.08, sweetZone: 0.012 }, unlock: 'perfect_10_run',
+    desc: 'Blunted with use. It still remembers exactly when to bite.' },
+  { id: 'barnacle_cloak', name: 'Barnacle Cloak', icon: 'ward', maxLevel: 3, costs: [90, 245, 530], effects: { armor: 0.05 }, unlock: 'untouched',
+    desc: 'Heavy, wet, and very hard to bite through. +5% ward.' },
+  { id: 'ember_in_resin', name: 'Ember in Resin', icon: 'flare', maxLevel: 3, costs: [65, 170, 375], effects: { flareCooldown: -1.5, flareRadius: 0.5 }, unlock: 'bonfire_night',
+    desc: 'A spark from a flare that once saved someone. It is still warm.' },
+  { id: 'shimmer_scale', name: 'Shimmering Scale', icon: 'scale', maxLevel: 3, costs: [80, 220, 465], effects: { rarityBonus: 0.02 }, special: 'shimmer:0.04', unlock: 'shimmering',
+    desc: 'It never stops catching light. Neither, now, will your catches.' },
+  { id: 'remembrance', name: 'Remembrance', icon: 'memory', maxLevel: 3, costs: [125, 310, 620], effects: {}, special: 'memMult:0.08', unlock: 'kindled',
+    desc: 'The water remembers a little more of you each time. +8% Memories per level.' },
+  { id: 'listening_bobber', name: 'The Listening Bobber', icon: 'bobber', maxLevel: 1, costs: [185], effects: { nibbleTells: 1 }, unlock: 'catch_100',
+    desc: 'Painted with a small ear. It hears the difference between hunger and curiosity.' },
+  { id: 'torn_ledger', name: 'Torn Ledger Page', icon: 'ledger', maxLevel: 3, costs: [70, 185, 400], effects: { sellMult: 0.06 }, unlock: 'shells_1000_run',
+    desc: "A page from Old Murk's accounts. Your name is on it, crossed out, then written in again." },
+  { id: 'gamblers_wick', name: "Gambler's Wick", icon: 'reroll', maxLevel: 2, costs: [90, 280], effects: { rerolls: 1 }, unlock: 'kindle_one',
+    desc: 'Burns at both ends. One more chance to choose. +1 reroll per run.' },
+  { id: 'second_wick', name: 'Second Wick', icon: 'revive', maxLevel: 1, costs: [465], effects: {}, special: 'secondWick', unlock: 'into_the_vault',
+    desc: 'Once per run, a killing blow leaves you at 1 Ember with 40 oil and a free flare.' },
+  { id: 'waystone_sporewood', name: 'Waystone: Sporewood', icon: 'waystone', maxLevel: 1, costs: [185], effects: {}, special: 'waystone:sporewood', unlock: null, requires: { deepestZone: 1 },
+    desc: 'Charcoal pressed against a mossy stone. Begin a descent in Sporewood Pools with 160 Shells and 9 banked levels.' },
+  { id: 'waystone_glasswater', name: 'Waystone: Glasswater', icon: 'waystone', maxLevel: 1, costs: [400], effects: {}, special: 'waystone:glasswater', unlock: null, requires: { deepestZone: 2 },
+    desc: 'A rubbing of a cold, clear stone. Begin in the Glasswater Vault with 450 Shells and 18 banked levels.' },
+  { id: 'waystone_paleabyss', name: 'Waystone: Pallid Deep', icon: 'waystone', maxLevel: 1, costs: [700], effects: {}, special: 'waystone:paleabyss', unlock: null, requires: { deepestZone: 3 },
+    desc: 'A stone no Wick should have reached. It still points down. Begin in the Pallid Deep with 950 Shells and 28 banked levels.' },
+];
+
+// =====================================================================================
+// ENEMIES (DESIGN §7) — the night swarm. model ∈ CREATURE_KINDS. hp/speed are BASE values
+// (× difficultyFor hpMult/speedMult). damage = Embers per hit (× damageMult, floored,
+// min 1). oilDrain = oil per contact, or per SECOND while latched/gripping (× drainMult).
+// xp = cinder value (× (1 + 0.1·Heat) × xpMult). weights = spawn-bag weight per zone
+// index (0 = never). dayMin applies only in the enemy's own zoneMin lake. pack = members
+// per spawn event (each costs one spawn credit). flies: ignores islands/pillars.
+// waterBound: steers around obstacles. auraTaken: × aura damage. variants: per-zone
+// cosmetic re-skins (+ small mods). elite/boss enemies come from timers, not the bag.
+// =====================================================================================
+export const ENEMIES = [
+  // ---------------------------------------------------------------- fodder & specialists
+  { id: 'gloomling', name: 'Gloomling', model: 'wisp', zoneMin: 0, dayMin: 1, hp: 4, speed: 2.6, damage: 1, oilDrain: 2, xp: 1,
+    behavior: 'chase', pack: 1, weights: [10, 6, 4, 3], flies: true, burstOnContact: true, auraTaken: 1,
+    telegraph: { lungeAt: 3, pause: 0.35, lungeMult: 2.5, lungeTime: 0.5 }, tint: 0x07080d, eyeColor: 0xecf0f6, scale: 1,
+    variants: { sporewood: { eyeColor: 0xffd9c4 }, glasswater: { eyeColor: 0xc9e8ff }, paleabyss: { eyeColor: 0xeae4d3 } },
+    desc: 'A fist-sized curl of living ink with two pinprick eyes. It flares its eyes before it lunges.',
+    lore: "It doesn't hate you. It's only cold, and you're the only warm thing for miles." },
+  { id: 'inkmite', name: 'Inkmite', model: 'mite', zoneMin: 0, dayMin: 2, hp: 1.5, speed: 3.9, damage: 1, oilDrain: 1, xp: 0.5,
+    behavior: 'pack', pack: 6, packPerHeat: 0.34, packMax: 10, weights: [5, 4, 3, 2], waterBound: true, burstOnContact: true, zigzag: 1.2, auraTaken: 1,
+    tint: 0x0a0a10, eyeColor: 0xf2b6c8, scale: 0.8,
+    variants: { sporewood: { name: 'Spore Tick', eyeColor: 0xff7fb0, tint: 0x150a14 }, glasswater: { name: 'Shard Mite', eyeColor: 0x5cbcff, tint: 0x0a0f24 }, paleabyss: { name: 'Ash Mite', eyeColor: 0xeae4d3, tint: 0x0c0b09 } },
+    desc: 'Soot-black ticks that skitter in clutches, zig-zagging. Islands break the pack.',
+    lore: 'Alone, a crumb of soot. Together, a tide that knows your name.' },
+  { id: 'duskmantle', name: 'Duskmantle', model: 'moth', zoneMin: 0, dayMin: 2, hp: 3, speed: 3.4, damage: 0, oilDrain: 1.2, xp: 2,
+    behavior: 'latch', pack: 1, weights: [3, 3, 2.5, 2], flies: true, maxLatched: 4, dim: 0.88, lightSpeedMult: 1.15, auraTaken: 1, auraTakenLatched: 0.5, latchedRefund: 1,
+    tint: 0x6a5f78, eyeColor: 0xb8ccff, scale: 1,
+    variants: { glasswater: { name: 'Veil Moth', eyeColor: 0xb48cff, tint: 0x2a2244 }, paleabyss: { name: 'Pyrewing', eyeColor: 0xe8c66a, tint: 0xd8d2c0, scale: 1.2 } },
+    desc: 'A dusty moth with painted eye-spots. It speeds up in your light, latches on the lantern and drinks it.',
+    lore: 'It does not bite. It only loves your light more than you do.' },
+  { id: 'creelsnatch', name: 'Creelsnatch', model: 'eel', zoneMin: 0, dayMin: 3, hp: 8, speed: 4.5, damage: 1, oilDrain: 0, xp: 3,
+    behavior: 'leap', pack: 1, weights: [2, 2, 2, 1.5], depthMin: 0.4, maxAlive: 2, maxAlivePerHeat: 0.167, steals: true, leapSpeed: 10,
+    telegraph: { circle: [3, 6], circleRadius: [6, 9], surface: 1.0, leap: 0.6 }, fleeTime: 3, auraImmuneSubmerged: true, zapAirborneMult: 2, auraTaken: 1,
+    tint: 0x07080d, eyeColor: 0xf2b6c8, scale: 1,
+    variants: { glasswater: { name: 'Prism Eel', eyeColor: 0x5cbcff, tint: 0x05081a, feint: 0.8 } },
+    desc: 'A ribbon of shadow with hook-teeth. It surfaces, hisses, then leaps the raft to steal from your creel.',
+    lore: 'It has never once been hungry. It just likes holding things that were yours.' },
+  { id: 'sporeling', name: 'Sporeling Drift', model: 'wisp', zoneMin: 1, dayMin: 1, hp: 6, speed: 2.8, damage: 1, oilDrain: 2, xp: 1.5,
+    behavior: 'orbitDive', pack: 3, weights: [0, 6, 3, 2], flies: true, burstOnContact: true, auraTaken: 1,
+    orbit: { radius: 9, time: 2, diveGap: 0.5 }, deathBurst: { radius: 2.2, damage: 3 }, contactDim: { mult: 0.85, time: 3 },
+    tint: 0x1a0d1c, eyeColor: 0xffb46a, scale: 1,
+    desc: 'Three puffball gloomlings that circle outside your light, then dive one by one. A popped one hurts its kin.',
+    lore: 'They circle three times, the old way, before they come to pay respects.' },
+  { id: 'weeping_inkwell', name: 'Weeping Inkwell', model: 'wisp', zoneMin: 0, dayMin: 6, hp: 11, speed: 1.8, damage: 0, oilDrain: 0, xp: 4,
+    behavior: 'artillery', pack: 1, weights: [1.5, 2.5, 2.5, 2], flies: true, maxAlive: 3, maxAlivePerHeat: 0.125, auraTaken: 1,
+    artillery: { hold: [13, 18], every: 5.0, flight: 1.2, lead: 0.6, ringRadius: 2.4, damage: 1, slick: { radius: 2.4, time: 6, speedMult: 0.6, lightMult: 0.8 } },
+    tint: 0x07080d, eyeColor: 0xecf0f6, scale: 1.5,
+    desc: 'A bowed figure with a swollen ink-sac. It keeps its distance and lobs ink: a dark ring marks where it lands.',
+    lore: 'It never comes close. It only grieves at you from the dark, and its grief has weight.' },
+  { id: 'belljar_tick', name: 'Bell-Jar Tick', model: 'mite', zoneMin: 1, dayMin: 8, hp: 28, speed: 1.7, damage: 1, oilDrain: 3, xp: 5,
+    behavior: 'bulwark', pack: 2, weights: [0, 1.5, 3, 2.5], waterBound: true, burstOnContact: false,
+    auraTaken: 0.25, auraTakenCracked: 0.6, crackedAt: 0.5, zapTaken: 1.5, shove: 3, rehit: 1.0,
+    tint: 0x10131c, eyeColor: 0xc9e8ff, scale: 2.0,
+    desc: 'A hound-sized tick under a cracked glass bell-jar. Light glances off it; weapons and zaps do not.',
+    lore: 'Someone kept it on a shelf for a hundred years. Now it would like to keep you.' },
+  { id: 'silent_choir', name: 'Silent Choir', model: 'wisp', zoneMin: 2, dayMin: 12, hp: 7, speed: 2.8, damage: 1, oilDrain: 4, xp: 2,
+    behavior: 'stalk', pack: 3, weights: [0, 0, 1.5, 6], flies: true, burstOnContact: true, auraTaken: 1,
+    invisibleOutsideLight: true, gatherCount: 3, rushBelowOil: 0.35, rushMult: 1.6,
+    tint: 0x020202, eyeColor: 0xe8c66a, scale: 1.1,
+    desc: 'Tall veiled figures. Outside your light only their gold eyes show. When your oil runs low, they rush.',
+    lore: "They sing a hymn no one hears. You'll know the verse when your lantern dims." },
+
+  // ---------------------------------------------------------------- elite (timer)
+  { id: 'drowned_hand', name: 'Drowned Hand', model: 'hand', zoneMin: 0, dayMin: 2, hp: 60, speed: 0, damage: 2, oilDrain: 10, xp: 15,
+    behavior: 'slam', pack: 1, weights: [0, 0, 0, 0], elite: true, eliteWeights: [1, 1, 1, 1], shells: 6, oilDrop: 15, auraTaken: 1,
+    telegraph: { stain: 1.4, stainRadius: 3.2, breach: 0.6, linger: 3, slams: 3, maxTime: 16 },
+    flareStagger: { time: 2, damageTaken: 1.5 }, zapStagger: 3, snapsLine: true, knock: 4,
+    zoneMods: {
+      sporewood: { name: 'Mould-Gloved Hand', sporeCloud: { lightMult: 0.8, time: 4 }, eyeColor: 0xffb46a },
+      glasswater: { name: 'The Undertow Grasp', tipsCreel: 2, eyeColor: 0x5cbcff },
+      paleabyss: { name: 'The Ringed Grasp', pair: true, pairGap: 1.0, tint: 0xd8d2c0, eyeColor: 0xe8c66a, grip: { time: 3, oilPerSec: 3, zapsToBreak: 3 } },
+    },
+    tint: 0x07080d, eyeColor: 0xecf0f6, scale: 1,
+    desc: 'A colossal dripping hand. Ink stains the water under you first: move, or flare it while it rises.',
+    lore: 'It reaches for the surface the way it reached for the lantern, the night everything fell.' },
+
+  // ---------------------------------------------------------------- Wardens (boss nights)
+  { id: 'the_wickeater', name: 'The Wickeater', model: 'warden', zoneMin: 0, dayMin: 1, hp: 1000, speed: 1.5, damage: 1, oilDrain: 20, xp: 60,
+    behavior: 'warden', boss: true, zone: 'mossmere', shells: 40, weights: [0, 0, 0, 0], auraTaken: 1,
+    abilities: [
+      { id: 'inhale', every: 9, telegraph: 1.5, radius: 10, pull: 3.5, duration: 2, maw: 2.5, mawDamage: 2, mawOil: 25 },
+      { id: 'brood', every: 12, enemy: 'gloomling', count: 6 },
+    ],
+    phase2: { at: 0.5, abilities: [{ id: 'snuff', radius: 6, lightMult: 0.6 }], inhaleEvery: 7 },
+    tint: 0x05070a, eyeColor: 0xdbe2ff, scale: 1,
+    desc: 'A colossal hooded gloom with a hollow, moon-lit maw and candle stubs in its hem like teeth. It inhales.',
+    lore: 'It has eaten a thousand little flames. It remembers none of their names and all of their warmth.' },
+  { id: 'the_veiled_gardener', name: 'The Veiled Gardener', model: 'warden', zoneMin: 1, dayMin: 1, hp: 1100, speed: 1.5, damage: 2, oilDrain: 20, xp: 90,
+    behavior: 'warden', boss: true, zone: 'sporewood', shells: 80, weights: [0, 0, 0, 0], auraTaken: 1,
+    abilities: [
+      { id: 'veil', every: 10, telegraph: 1.2, radius: 6, duration: 4, lightMult: 0.6, auraMult: 0.6 },
+      { id: 'charge', every: 14, telegraph: 1.2, length: 25, speed: 14, damage: 2 },
+      { id: 'brood', every: 11, enemy: 'sporeling', count: 6 },
+    ],
+    phase2: { at: 0.5, veilDuration: 8, veilDrift: 1.5 },
+    tint: 0x0b060d, eyeColor: 0xffb46a, scale: 1.1,
+    desc: 'A towering figure draped in plum veils of mould, an amber glow where a face should be. It charges along a glowing line.',
+    lore: 'It still walks the garden paths, carrying flowers that have become something else.' },
+  { id: 'the_shard_abbot', name: 'The Shard Abbot', model: 'warden', zoneMin: 2, dayMin: 1, hp: 1200, speed: 1.6, damage: 2, oilDrain: 25, xp: 130,
+    behavior: 'warden', boss: true, zone: 'glasswater', shells: 140, weights: [0, 0, 0, 0], auraTaken: 1,
+    abilities: [
+      { id: 'hymnRing', every: 8, telegraph: 1.0, count: 12, gaps: 2, speed: 7, damage: 1 },
+      { id: 'reliquary', every: 14, enemy: 'belljar_tick', count: 2 },
+    ],
+    phase2: { at: 0.5, mirror: { every: 12, duration: 6, images: 2 } },
+    tint: 0x03040e, eyeColor: 0x5cbcff, scale: 1.2,
+    desc: 'Robed in shelved crystal like a walking library. It rings out expanding hymns of glass with gaps to slip through.',
+    lore: 'It catalogued every light the kingdom kept. You are an omission it means to correct.' },
+  { id: 'the_lightless_ferryman', name: 'The Lightless Ferryman', model: 'warden', zoneMin: 3, dayMin: 1, hp: 1400, speed: 1.7, damage: 2, oilDrain: 30, xp: 200,
+    behavior: 'warden', boss: true, zone: 'paleabyss', shells: 220, weights: [0, 0, 0, 0], auraTaken: 1,
+    abilities: [
+      { id: 'poleSweep', every: 7, telegraph: 1.0, arcDeg: 120, length: 10, damage: 2 },
+      { id: 'eclipse', every: 14, telegraph: 1.5, lightMult: 0.4, duration: 4 },
+      { id: 'brood', every: 10, enemy: 'silent_choir', count: 6 },
+    ],
+    phase2: { at: 0.5, abilities: [{ id: 'inhale', every: 9, telegraph: 1.5, radius: 12, pull: 3.5, duration: 2, maw: 2.5, mawDamage: 2, mawOil: 25 }] },
+    neverDuringLegend: 'pale_leviathan',
+    tint: 0x020202, eyeColor: 0xe8c66a, scale: 1.35,
+    desc: 'A hooded giant poling a boat that is not there, a dull gold coin for each eye. Its pole sweeps lit arcs across the water.',
+    lore: 'It has carried every light across. It has saved a seat for yours.' },
+];
+
+// =====================================================================================
+// FORMATIONS (DESIGN §7.3) — scripted swarm beats at gloomtide k = 0.35 and 0.65 from
+// day 2 (one weighted pick each; skipped while a Warden lives). count may use H = Heat.
+// =====================================================================================
+export const FORMATIONS = [
+  { id: 'encircle', name: 'The Closing Ring', zoneMin: 0, dayMin: 2, weight: 3, enemy: 'gloomling', enemyByZone: { sporewood: 'sporeling' },
+    count: { base: 10, perHeat: 2 }, ringRadius: 18, banner: 'They close in a ring.', answer: 'Flare a gap, or burn through with area weapons.' },
+  { id: 'tide', name: 'Mite Tide', zoneMin: 0, dayMin: 2, weight: 3, enemy: 'inkmite', packs: [3, 4], packSize: { base: 18, perHeat: 1 }, bandWidth: 24, speedMult: 1.25,
+    banner: 'A tide of mites sweeps in.', answer: 'Sail perpendicular to it.' },
+  { id: 'dimming', name: 'The Dimming', zoneMin: 0, dayMin: 3, weight: 2, enemy: 'duskmantle', count: { base: 5, perHeatHalf: 1 },
+    banner: 'Wings, from one side.', answer: 'Zap them off, or flare.' },
+  { id: 'volley', name: 'Inkwell Volley', zoneMin: 1, dayMin: 1, zone0DayMin: 6, weight: 2, enemy: 'weeping_inkwell', count: { base: 3 }, ringRadius: 16, shape: 'triangle',
+    banner: 'Grief, from three sides.', answer: 'Keep moving and hunt them down.' },
+  { id: 'procession', name: 'Bell-Jar Procession', zoneMin: 2, dayMin: 1, weight: 2, enemy: 'belljar_tick', count: { min: 4, max: 6 }, escort: 'inkmite',
+    banner: 'Glass, clinking in a line.', answer: 'Weapons and zaps, not the aura. Kite them.' },
+  { id: 'hush', name: 'The Hush', zoneMin: 3, dayMin: 1, weight: 3, enemy: 'silent_choir', count: { trios: 3 }, lightMult: 0.8, duration: 8,
+    banner: 'The light thins. Something is listening.', answer: 'Keep oil above a third. The beam reveals them.' },
+];
+
+// =====================================================================================
+// BOONS (DESIGN §10) — level-up picks (1 of 3). kind 'weapon' (levels[i] = full params at
+// level i+1, `note` = what changed) or 'stat' (effects on STATS keys per level; optional
+// onPick and proc). Weapon damage × damageMult and rolls critChance; weapon cooldowns ×
+// cooldownMult. A weapon at L5 + its kindle.requires passive (any level) offers a
+// legendary KINDLE card that becomes level 6 (params = kindle.params). unlock: challenge
+// id (null = in the pool from run 1). Slots: 4 weapons, 6 passives (stat boons).
+// Param meanings per weapon type: DESIGN §10.3.
+// =====================================================================================
+export const BOONS = [
+  // ---------------------------------------------------------------- weapons (10)
+  { id: 'circling_cinders', name: 'Circling Cinders', icon: 'orbit', rarity: 'common', maxLevel: 5, kind: 'weapon', weapon: 'orbit', unlock: null, tags: ['fire', 'area', 'close'],
+    desc: 'Coals circle your lantern, scorching what they touch.', lore: 'A few coals that refuse to stray far from home.',
+    levels: [
+      { count: 2, damage: 4, radius: 2.8, spin: 2.4, hitCooldown: 0.6, note: 'Two coals circle the raft.' },
+      { count: 3, damage: 4, radius: 2.8, spin: 2.4, hitCooldown: 0.6, note: '+1 coal.' },
+      { count: 3, damage: 6, radius: 3.0, spin: 2.7, hitCooldown: 0.55, note: '+50% damage, faster spin.' },
+      { count: 4, damage: 6, radius: 3.2, spin: 2.7, hitCooldown: 0.55, note: '+1 coal, wider ring.' },
+      { count: 5, damage: 9, radius: 3.4, spin: 3.0, hitCooldown: 0.5, note: '+1 coal, +50% damage.' },
+    ],
+    kindle: { requires: 'searing_glow', name: 'Hearth Halo', desc: 'Seven coals ride the edge of your light and leave things burning.', lore: 'A ring of warmth as wide as a hearth, and as patient.',
+      params: { count: 7, damage: 14, radiusLightMult: 0.6, spin: 3.0, hitCooldown: 0.5, burnDps: 3, burnTime: 2 } } },
+  { id: 'drifting_motes', name: 'Drifting Motes', icon: 'motes', rarity: 'common', maxLevel: 5, kind: 'weapon', weapon: 'motes', unlock: null, tags: ['light', 'projectile', 'homing'],
+    desc: 'Little lights drift out and seek the nearest gloomling.', lore: 'Little lights that go looking, as you once did.',
+    levels: [
+      { count: 2, damage: 6, cooldown: 1.5, speed: 9, range: 16, pierce: 0, note: 'Two seeking motes.' },
+      { count: 2, damage: 8, cooldown: 1.4, speed: 9, range: 16, pierce: 0, note: '+33% damage.' },
+      { count: 3, damage: 8, cooldown: 1.3, speed: 10, range: 16, pierce: 0, note: '+1 mote.' },
+      { count: 3, damage: 11, cooldown: 1.2, speed: 11, range: 16, pierce: 0, note: '+38% damage, faster.' },
+      { count: 4, damage: 14, cooldown: 1.0, speed: 12, range: 16, pierce: 1, note: '+1 mote; motes pierce once.' },
+    ],
+    kindle: { requires: 'brighter_wick', name: 'Lantern Moths', desc: 'Six winged motes, each striking three times and seeking anew after a kill.', lore: 'The motes grew wings and stopped needing you to aim.',
+      params: { count: 6, damage: 14, cooldown: 1.0, speed: 12, range: 16, pierce: 2, reseek: true } } },
+  { id: 'burning_wake', name: 'Burning Wake', icon: 'trail', rarity: 'common', maxLevel: 5, kind: 'weapon', weapon: 'trail', unlock: null, tags: ['fire', 'area', 'movement'],
+    desc: 'While the raft moves it leaves a ribbon of fire on the water.', lore: 'Where you have been, the water remembers fire.',
+    levels: [
+      { dps: 5, life: 2.5, width: 1.4, minSpeed: 1.5, igniteTime: 2, note: 'A trail of fire behind the raft.' },
+      { dps: 7, life: 2.5, width: 1.6, minSpeed: 1.5, igniteTime: 2, note: '+40% burn, wider.' },
+      { dps: 7, life: 3.5, width: 1.8, minSpeed: 1.5, igniteTime: 2, note: 'Burns 1 s longer.' },
+      { dps: 10, life: 3.5, width: 2.0, minSpeed: 1.5, igniteTime: 2, note: '+43% burn.' },
+      { dps: 14, life: 4.5, width: 2.4, minSpeed: 1.0, igniteTime: 2, note: '+40% burn, lasts longer, lights at lower speed.' },
+    ],
+    kindle: { requires: 'swift_oars', name: 'Comet Keel', desc: 'A road of fire; at full speed the raft rams small gloomlings aside instead of being hit.', lore: 'The raft burns a road across the water, and anything on it.',
+      params: { dps: 24, life: 4.5, width: 2.6, minSpeed: 1.0, igniteTime: 2, ram: { speedFrac: 0.8, damage: 30, knock: 5 } } } },
+  { id: 'prodigal_hook', name: 'Prodigal Hook', icon: 'hook', rarity: 'common', maxLevel: 5, kind: 'weapon', weapon: 'hook', unlock: null, tags: ['projectile', 'ricochet'],
+    desc: 'A barbed hook on a glowing thread ricochets between gloomlings and returns.', lore: 'Flung, forgiven, and always home before dark.',
+    levels: [
+      { damage: 10, bounces: 3, cooldown: 2.2, speed: 18, bounceRange: 7, returns: true, note: 'A ricocheting hook.' },
+      { damage: 13, bounces: 3, cooldown: 2.0, speed: 18, bounceRange: 7, returns: true, note: '+30% damage, faster.' },
+      { damage: 13, bounces: 4, cooldown: 1.8, speed: 18, bounceRange: 7, returns: true, note: '+1 bounce.' },
+      { damage: 17, bounces: 5, cooldown: 1.6, speed: 18, bounceRange: 7, returns: true, note: '+1 bounce, +30% damage.' },
+      { damage: 22, bounces: 6, cooldown: 1.4, speed: 18, bounceRange: 7, returns: true, note: '+1 bounce, +30% damage.' },
+    ],
+    kindle: { requires: 'fierce_flame', name: 'Gaff of the Drowned Crown', desc: 'Nine bounces, triple crits, and it drags its last victim into your light.', lore: 'It drags them into the light to look at you.',
+      params: { damage: 30, bounces: 9, cooldown: 1.2, speed: 18, bounceRange: 7, returns: true, pull: 4, critMult: 3 } } },
+  { id: 'forked_spark', name: 'Forked Spark', icon: 'spark', rarity: 'rare', maxLevel: 5, kind: 'weapon', weapon: 'spark', unlock: null, tags: ['light', 'chain'],
+    desc: 'Lightning leaps from the lantern and forks from gloomling to gloomling.', lore: 'Lightning forgets nothing it has touched.',
+    levels: [
+      { damage: 8, chains: 3, cooldown: 2.0, range: 11, chainRange: 4.5, stun: 0.15, note: 'Lightning that forks 3 times.' },
+      { damage: 8, chains: 4, cooldown: 1.8, range: 11, chainRange: 4.5, stun: 0.15, note: '+1 fork, faster.' },
+      { damage: 12, chains: 4, cooldown: 1.7, range: 11, chainRange: 4.5, stun: 0.15, note: '+50% damage.' },
+      { damage: 12, chains: 5, cooldown: 1.5, range: 11, chainRange: 5, stun: 0.15, note: '+1 fork, longer reach.' },
+      { damage: 16, chains: 6, cooldown: 1.3, range: 11, chainRange: 5.5, stun: 0.15, note: '+1 fork, +33% damage.' },
+    ],
+    kindle: { requires: 'restless_hands', name: 'Stormglass', desc: 'Casts twice; struck gloomlings are charged and your next zap on them deals ×3.', lore: 'Twice the lightning. The dark never knows which was the warning.',
+      params: { damage: 18, chains: 9, cooldown: 1.3, range: 11, chainRange: 5.5, stun: 0.15, casts: 2, charge: { time: 3, zapMult: 3 } } } },
+  { id: 'tolling_bell', name: 'Tolling Bell', icon: 'bell', rarity: 'rare', maxLevel: 5, kind: 'weapon', weapon: 'bell', unlock: 'first_dawn', tags: ['area', 'slow', 'frost'],
+    desc: 'A drowned bell rings from the raft. Gloomlings in its toll are hurt and slowed.', lore: 'Rung once for every Wick the water kept.',
+    levels: [
+      { damage: 4, radius: 8, slow: 0.35, slowTime: 2.5, cooldown: 6, note: 'A slowing toll.' },
+      { damage: 5, radius: 9, slow: 0.40, slowTime: 2.5, cooldown: 5.5, note: 'Wider, stronger slow.' },
+      { damage: 7, radius: 10, slow: 0.45, slowTime: 2.5, cooldown: 5, note: '+40% damage, wider.' },
+      { damage: 9, radius: 11, slow: 0.50, slowTime: 2.5, cooldown: 4.5, note: '+30% damage, wider.' },
+      { damage: 12, radius: 12, slow: 0.55, slowTime: 2.5, cooldown: 4, note: '+33% damage, wider, faster.' },
+    ],
+    kindle: { requires: 'hardened_wax', name: 'Requiem', desc: 'Chilled gloomlings take +30% from everything; every third toll roots them.', lore: 'The bell rings, and the dark forgets how to move.',
+      params: { damage: 16, radius: 13, slow: 0.6, slowTime: 2.5, cooldown: 4, chillVuln: 0.3, rootEvery: 3, rootTime: 1 } } },
+  { id: 'lantern_pulse', name: 'Lantern Pulse', icon: 'nova', rarity: 'rare', maxLevel: 5, kind: 'weapon', weapon: 'nova', unlock: 'three_nights', tags: ['light', 'area', 'knockback'],
+    desc: 'Your light throbs outward, hurting and hurling back everything inside it.', lore: "Your flame's heartbeat, loud enough to frighten the dark.",
+    levels: [
+      { damage: 10, radiusMult: 0.9, cooldown: 5, knock: 2, note: 'A pulse across 90% of your light.' },
+      { damage: 13, radiusMult: 0.95, cooldown: 4.6, knock: 2, note: '+30% damage.' },
+      { damage: 17, radiusMult: 1.0, cooldown: 4.2, knock: 2.5, note: '+30% damage, fills your light.' },
+      { damage: 21, radiusMult: 1.05, cooldown: 3.8, knock: 2.5, note: '+25% damage.' },
+      { damage: 28, radiusMult: 1.15, cooldown: 3.2, knock: 3.5, note: '+33% damage, past your light.' },
+    ],
+    kindle: { requires: 'slow_burn', name: 'Heartbeat of the Deep', desc: 'A faster, heavier pulse that sips oil back from what it breaks.', lore: 'Each pulse sips a little oil from what it breaks.',
+      params: { damage: 40, radiusMult: 1.15, cooldown: 2.4, knock: 3.5, oilPerHit: 0.5, oilMaxPerPulse: 3 } } },
+  { id: 'smouldering_floats', name: 'Smouldering Floats', icon: 'mines', rarity: 'rare', maxLevel: 5, kind: 'weapon', weapon: 'mines', unlock: 'break_a_hand', tags: ['fire', 'area', 'trap'],
+    desc: 'Cracked cork bobbers full of coal drop in your wake (or are tossed at crowds while anchored) and burst.', lore: 'Old bobbers stuffed with coal. The fish never bit. Something else will.',
+    levels: [
+      { damage: 18, blastRadius: 2.5, cooldown: 2.5, max: 3, arm: 0.6, trigger: 1.5, life: 12, toss: [4, 8], note: 'Up to 3 floats.' },
+      { damage: 24, blastRadius: 2.8, cooldown: 2.2, max: 4, arm: 0.6, trigger: 1.5, life: 12, toss: [4, 8], note: '+1 float, bigger blast.' },
+      { damage: 30, blastRadius: 3.0, cooldown: 2.0, max: 5, arm: 0.6, trigger: 1.5, life: 12, toss: [4, 8], note: '+1 float, +25% damage.' },
+      { damage: 38, blastRadius: 3.2, cooldown: 1.8, max: 6, arm: 0.6, trigger: 1.5, life: 12, toss: [4, 8], note: '+1 float, +27% damage.' },
+      { damage: 50, blastRadius: 3.6, cooldown: 1.5, max: 8, arm: 0.6, trigger: 1.5, life: 12, toss: [4, 8], note: '+2 floats, +32% damage.' },
+    ],
+    kindle: { requires: 'cinder_magnet', name: 'Lantern Fleet', desc: 'Ten floats that drift toward gloomlings; every blast pulls cinders to you.', lore: 'A drifting armada of little fires, each looking for company.',
+      params: { damage: 60, blastRadius: 3.6, cooldown: 1.5, max: 10, arm: 0.6, trigger: 1.5, life: 12, toss: [4, 8], drift: 2, pullsCinders: true } } },
+  { id: 'little_maelstrom', name: 'Little Maelstrom', icon: 'vortex', rarity: 'epic', maxLevel: 5, kind: 'weapon', weapon: 'vortex', unlock: 'full_flame', tags: ['water', 'control', 'area'],
+    desc: 'A small whirlpool opens on the thickest crowd nearby and drags gloomlings into it.', lore: 'A small drowning, made to order.',
+    levels: [
+      { dps: 6, radius: 3, pull: 3, duration: 3, cooldown: 9, range: 14, note: 'A dragging whirlpool.' },
+      { dps: 8, radius: 3.3, pull: 3.5, duration: 3.2, cooldown: 8.5, range: 14, note: 'Stronger pull.' },
+      { dps: 10, radius: 3.6, pull: 4, duration: 3.5, cooldown: 8, range: 14, note: 'Bigger, longer.' },
+      { dps: 13, radius: 4, pull: 4.5, duration: 3.8, cooldown: 7.5, range: 14, note: '+30% damage.' },
+      { dps: 18, radius: 4.5, pull: 5.5, duration: 4.5, cooldown: 6.5, range: 14, note: '+38% damage, much stronger pull.' },
+    ],
+    kindle: { requires: 'wildfire', name: 'Undertow Bloom', desc: 'Two whirlpools, each closing in a free flare burst.', lore: 'The whirlpool closes like a flower made of flame.',
+      params: { dps: 24, radius: 4.5, pull: 5.5, duration: 4.5, cooldown: 6.5, range: 14, count: 2, endFlare: true } } },
+  { id: 'lighthouse_beam', name: 'Lighthouse Beam', icon: 'beam', rarity: 'epic', maxLevel: 5, kind: 'weapon', weapon: 'beam', unlock: 'lamplighter', tags: ['light', 'area', 'sweep'],
+    desc: 'Hard shafts of light sweep the water around you. Reveals what hides in the dark.', lore: "A light meant to bring ships home, turned on everything that isn't.",
+    levels: [
+      { damage: 8, beams: 1, lengthAdd: 4, width: 0.9, turnSpeed: 1.2, hitCooldown: 0.4, note: 'One sweeping beam.' },
+      { damage: 10, beams: 1, lengthAdd: 5, width: 1.0, turnSpeed: 1.3, hitCooldown: 0.4, note: '+25% damage, longer.' },
+      { damage: 10, beams: 2, lengthAdd: 5, width: 1.0, turnSpeed: 1.3, hitCooldown: 0.4, note: '+1 beam.' },
+      { damage: 13, beams: 2, lengthAdd: 6, width: 1.1, turnSpeed: 1.4, hitCooldown: 0.4, note: '+30% damage, longer.' },
+      { damage: 18, beams: 3, lengthAdd: 8, width: 1.3, turnSpeed: 1.6, hitCooldown: 0.4, note: '+1 beam, +38% damage.' },
+    ],
+    kindle: { requires: 'kindling_heart', name: 'The Great Lantern', desc: 'Four scorching beams; losing an Ember spins them three times faster.', lore: 'For a moment, the drowned city remembers its lighthouse.',
+      params: { damage: 24, beams: 4, lengthAdd: 8, width: 1.3, turnSpeed: 1.6, hitCooldown: 0.4, scorch: 1, spinOnHurt: { mult: 3, time: 3 } } } },
+
+  // ---------------------------------------------------------------- passives (16)
+  { id: 'brighter_wick', name: 'Brighter Wick', icon: 'light', rarity: 'common', maxLevel: 5, kind: 'stat', effects: { lightRadius: 0.7 }, unlock: null, tags: ['light'],
+    desc: '+0.7 m light radius: your aura, pulse and beam reach farther.', lore: 'Trim the wick. Stand a little taller.' },
+  { id: 'searing_glow', name: 'Searing Glow', icon: 'flame', rarity: 'common', maxLevel: 5, kind: 'stat', effects: { auraDps: 0.6 }, unlock: null, tags: ['fire', 'aura'],
+    desc: '+0.6 lantern burn per second.', lore: 'Your warmth stops asking permission.' },
+  { id: 'fierce_flame', name: 'Fierce Flame', icon: 'damage', rarity: 'rare', maxLevel: 5, kind: 'stat', effects: { damageMult: 0.08, critChance: 0.03 }, unlock: null, tags: ['damage'],
+    desc: '+8% damage and +3% critical chance.', lore: 'A flame that has made up its mind.' },
+  { id: 'restless_hands', name: 'Restless Hands', icon: 'cooldown', rarity: 'rare', maxLevel: 5, kind: 'stat', effects: { cooldownMult: -0.06 }, unlock: null, tags: ['cooldown'],
+    desc: 'Flares and weapons recover 6% faster.', lore: 'Hands that cannot bear to wait.' },
+  { id: 'swift_oars', name: 'Swift Oars', icon: 'oar', rarity: 'common', maxLevel: 4, kind: 'stat', effects: { moveSpeed: 0.45, pickupRadius: 0.4 }, unlock: null, tags: ['movement'],
+    desc: '+0.45 m/s raft speed and +0.4 m cinder magnet.', lore: 'Row as if the dark is close. It is.' },
+  { id: 'cinder_magnet', name: 'Cinder Magnet', icon: 'magnet', rarity: 'common', maxLevel: 4, kind: 'stat', effects: { pickupRadius: 1.5, xpMult: 0.05 }, unlock: null, tags: ['greed'],
+    desc: '+1.5 m cinder magnet and +5% cinders.', lore: 'Every spark that falls is yours. Take them home.' },
+  { id: 'slow_burn', name: 'Slow Burn', icon: 'oil', rarity: 'common', maxLevel: 5, kind: 'stat', effects: { maxOil: 15, oilDrain: -0.012 }, unlock: null, tags: ['oil'],
+    desc: '+15 max oil and the flame sips 0.012 less per second.', lore: 'Sip the oil. Make the night last less than you do.' },
+  { id: 'hardened_wax', name: 'Hardened Wax', icon: 'ward', rarity: 'rare', maxLevel: 4, kind: 'stat', effects: { armor: 0.06 }, unlock: null, tags: ['survival'],
+    desc: '+6% chance to ward off a blow (oil still drains).', lore: 'Old wax, set hard in the cold.' },
+  { id: 'kindling_heart', name: 'Kindling Heart', icon: 'ember', rarity: 'epic', maxLevel: 3, kind: 'stat', effects: { maxHp: 1 }, onPick: { heal: 1 }, unlock: null, tags: ['survival'],
+    desc: '+1 Ember, and mend 1 Ember now.', lore: 'Somewhere inside, a second flame catches from the first.' },
+  { id: 'wildfire', name: 'Wildfire', icon: 'flare', rarity: 'rare', maxLevel: 4, kind: 'stat', effects: { flareRadius: 1.2, flareCost: -2, flareCooldown: -1.5 }, unlock: null, tags: ['flare'],
+    desc: 'Flares burst 1.2 m wider, cost 2 less oil and recover 1.5 s sooner.', lore: "Flares that don't know when to stop." },
+  { id: 'static_fingers', name: 'Static Fingers', icon: 'zap', rarity: 'common', maxLevel: 4, kind: 'stat', effects: { zapDamage: 3, zapCost: -0.15 }, unlock: null, tags: ['zap'],
+    desc: 'Zaps deal +3 damage and cost 0.15 less oil.', lore: 'Your touch crackles. The dark flinches.' },
+  { id: 'steady_reel', name: 'Steady Reel', icon: 'reel', rarity: 'common', maxLevel: 5, kind: 'stat', effects: { reelSpeed: 0.10, lineStrength: 0.08, sweetZone: 0.01 }, unlock: null, tags: ['fishing'],
+    desc: 'Reel 10% faster, +0.08 line strength, a slightly wider sweet band.', lore: 'The line hums, and does not part.' },
+  { id: 'hungry_waters', name: 'Hungry Waters', icon: 'bite', rarity: 'common', maxLevel: 5, kind: 'stat', effects: { biteSpeed: 0.12, hookWindow: 0.06, rarityBonus: 0.02 }, unlock: null, tags: ['fishing'],
+    desc: 'Fish bite sooner, hold the hook longer, and run a little rarer.', lore: "The fish come closer, as if they'd heard of you." },
+  { id: 'lucky_knot', name: 'Lucky Knot', icon: 'luck', rarity: 'rare', maxLevel: 3, kind: 'stat', effects: { luck: 0.2, rarityBonus: 0.03, rerolls: 1 }, unlock: 'naturalist', tags: ['luck', 'fishing'],
+    desc: 'Rarer boons and rarer fish, and +1 reroll.', lore: 'Tied by someone who wanted you to come back.' },
+  { id: 'gutsfire', name: 'Gutsfire', icon: 'gut', rarity: 'rare', maxLevel: 5, kind: 'stat', effects: { oilYieldMult: 0.05 }, unlock: 'ember_hoard', tags: ['fishing', 'oil', 'fire'],
+    desc: '+5% render yield. Rendering a fish makes your light surge for a few seconds.', lore: 'Nothing wasted. Not even the fish.',
+    proc: { on: 'render', levels: [
+      { time: 6, auraDps: 1.5, lightRadius: 1 }, { time: 7, auraDps: 2, lightRadius: 1.25 }, { time: 8, auraDps: 2.5, lightRadius: 1.5 },
+      { time: 9, auraDps: 3, lightRadius: 1.75 }, { time: 10, auraDps: 4, lightRadius: 2 } ] } },
+  { id: 'lantern_on_the_line', name: 'Lantern on the Line', icon: 'nightline', rarity: 'rare', maxLevel: 3, kind: 'stat', effects: {}, unlock: 'night_angler', tags: ['fishing', 'night'],
+    desc: 'While reeling at dusk or night your aura burns hotter and the line itself scorches gloomlings.', lore: 'Hook something in the dark and the line itself catches light.',
+    proc: { on: 'reel', phases: ['dusk', 'gloomtide'], levels: [
+      { auraMult: 1.3, lineDps: 6, lineRadius: 1.5, lineSlow: 0.3 }, { auraMult: 1.45, lineDps: 9, lineRadius: 1.5, lineSlow: 0.3 },
+      { auraMult: 1.6, lineDps: 12, lineRadius: 1.5, lineSlow: 0.3, flareOnNightLand: true } ] } },
+
+  // ---------------------------------------------------------------- legendary passives (3, challenge unlocks)
+  { id: 'undying_ember', name: 'Undying Ember', icon: 'ember', rarity: 'legendary', maxLevel: 1, kind: 'stat', effects: { maxHp: 2, dawnHeal: 1 }, onPick: { heal: 2 }, unlock: 'pallid_arrival', tags: ['survival'],
+    desc: '+2 Embers (mended now) and +1 dawn mending.', lore: 'A flame that refuses.' },
+  { id: 'moonless_calm', name: 'Moonless Calm', icon: 'moon', rarity: 'legendary', maxLevel: 1, kind: 'stat', effects: { auraDps: 1.5, lightRadius: 2 }, unlock: 'four_silences', tags: ['light', 'fire'],
+    desc: 'Your light becomes a wall: +1.5 burn and +2 m radius.', lore: 'Nothing moves in it that you did not allow.' },
+  { id: 'gilded_hook', name: 'Gilded Hook', icon: 'gold', rarity: 'legendary', maxLevel: 1, kind: 'stat', effects: { rarityBonus: 0.10, sellMult: 0.15, hookWindow: 0.10 }, unlock: 'cartographer', tags: ['fishing', 'luck'],
+    desc: 'Rarer fish, a longer hook window, and Old Murk pays 15% more.', lore: 'Gold remembers being treasure. So do the fish.' },
+];
+
+// =====================================================================================
+// CHARACTERS (DESIGN §11) — five playable Wicks. effects: flat STATS deltas. startBoon:
+// granted at L1 (bypasses its unlock and joins the run's pool). startKit: {shells, bait}.
+// quirk: unique rule (combat/fishing read quirk.id). look → actors.setCharacter().
+// =====================================================================================
+export const CHARACTERS = [
+  { id: 'wick', name: 'The Wick', title: 'A Small, Stubborn Flame', unlock: null,
+    desc: 'Balanced in all things. Fishes, sails and burns about as well as any candle can.',
+    effects: {}, startBoon: 'drifting_motes', startKit: { shells: 0, bait: { mireworm: 4 } },
+    quirk: { id: 'curious', name: 'Curious', desc: 'The first level-up of each night offers 4 cards instead of 3.', choices: 4 },
+    look: { flame: 0xffb347, cloak: 0x4a2e24, eyes: 0xffb347, hat: 'none', wax: 0xe9dfc6, scale: 1 },
+    lore: "A small, stubborn flame. No one ever told it that it couldn't." },
+  { id: 'taper', name: 'Taper', title: 'The Long Reach', unlock: 'steady_hands',
+    desc: 'Tall and thin. Casts far, reels true and finds rare fish, but its light burns weak and it carries little oil.',
+    effects: { castMax: 4, reelSpeed: 0.15, hookWindow: 0.10, rarityBonus: 0.04, auraDps: -0.4, maxOil: -10 }, startBoon: 'prodigal_hook', startKit: { shells: 0, bait: { mireworm: 8, lumen_moss: 2 } },
+    quirk: { id: 'anglers_ember', name: "Angler's Ember", desc: 'Fish give double cinders, and every landed fish refunds 25% of the flare cooldown.', fishXpMult: 2, flareRefund: 0.25 },
+    look: { flame: 0xffd27a, cloak: 0x34404a, eyes: 0xffd27a, hat: 'tall', wax: 0xf2ead8, scale: 1.1 },
+    lore: 'Long of reach, short of oil. It would rather be fishing.' },
+  { id: 'stub', name: 'Stub', title: 'The Bright Little One', unlock: 'down_the_sluice',
+    desc: 'Tiny, quick and fiercely bright. Sails fastest and shines widest; has fewest Embers and the smallest creel.',
+    effects: { moveSpeed: 1.0, lightRadius: 1.5, pickupRadius: 1.5, maxHp: -1, creelSize: -1 }, startBoon: 'burning_wake', startKit: { shells: 30, bait: {} },
+    quirk: { id: 'fanned_flame', name: 'Fanned Flame', desc: 'After 1.5 s at 80%+ top speed, the aura burns ×1.3 (fades over 1 s when slowing).', after: 1.5, speedFrac: 0.8, auraMult: 1.3, fade: 1 },
+    look: { flame: 0xfff0a8, cloak: 0x5a3a1e, eyes: 0xfff0a8, hat: 'none', wax: 0xf6efd9, scale: 0.8 },
+    lore: 'Burns twice as bright, and has heard how the saying ends.' },
+  { id: 'tallow', name: 'Tallow', title: 'The Stout Candle', unlock: 'long_vigil',
+    desc: 'Broad and slow. Extra Embers, a hard hide, a deep belly and a stronger dawn, but heavy on the oars and slow to recover.',
+    effects: { maxHp: 2, armor: 0.10, dawnHeal: 1, maxSatiety: 25, moveSpeed: -0.8, cooldownMult: 0.10 }, startBoon: 'lantern_pulse', startKit: { shells: 0, bait: {} },
+    quirk: { id: 'slow_melt', name: 'Slow Melt', desc: '+0.6 s i-frames; the Gutter-burst is 50% wider and deals flare damage.', iframes: 0.6, burstRadiusMult: 1.5, burstDamage: true },
+    look: { flame: 0xff9a4a, cloak: 0x3e3a24, eyes: 0xffb347, hat: 'hood', wax: 0xe2d4b0, scale: 1.15 },
+    lore: 'Slow to light. Slower to go out.' },
+  { id: 'ashwick', name: 'Ashwick', title: 'Burned Once, Burns Back', unlock: 'unwarded',
+    desc: 'A charred wick that hunts the dark: a fierce aura, sharp zaps and crits. It fishes badly and carries little.',
+    effects: { auraDps: 0.8, damageMult: 0.15, critChance: 0.05, zapDamage: 3, zapCost: -0.3, hookWindow: -0.15, sweetZone: -0.02, maxOil: -15, creelSize: -1 }, startBoon: 'forked_spark', startKit: { shells: 0, bait: {} },
+    quirk: { id: 'cinder_heart', name: 'Cinder Heart', desc: 'Every 12th kill in a night fires a free mini-flare (5 m, half flare damage).', every: 12, radius: 5, damageMult: 0.5 },
+    look: { flame: 0xff6a3d, cloak: 0x1e1a1a, eyes: 0xff6a3d, hat: 'hood', wax: 0x8a8070, scale: 1 },
+    lore: 'It went out once. It came back angry.' },
+];
+
+// =====================================================================================
+// CHALLENGES (DESIGN §12) — the 30-goal checklist. scope 'run' = within one descent;
+// 'total' = lifetime (meta.challengeProgress). type + params are read by progression
+// (type → bus source table in DESIGN §12.2). tier = checklist section (1..3).
+// =====================================================================================
+export const CHALLENGES = [
+  // ---- I. First Flickers (runs 1–3)
+  { id: 'first_light', tier: 1, name: 'First Light', desc: 'Land your first fish.', type: 'catch', params: { n: 1 }, scope: 'total', reward: { unlock: null, memories: 5 } },
+  { id: 'first_dawn', tier: 1, name: 'First Dawn', desc: 'Endure your first Gloomtide.', type: 'nights', params: { n: 1 }, scope: 'run', reward: { unlock: 'boon:tolling_bell', memories: 5 } },
+  { id: 'ember_hoard', tier: 1, name: 'Kindling', desc: 'Reach level 8 in one descent.', type: 'level', params: { n: 8 }, scope: 'run', reward: { unlock: 'boon:gutsfire', memories: 8 } },
+  { id: 'three_nights', tier: 1, name: 'Three Long Nights', desc: 'Endure 3 Gloomtides in one descent.', type: 'nights', params: { n: 3 }, scope: 'run', reward: { unlock: 'boon:lantern_pulse', memories: 10 } },
+  { id: 'break_a_hand', tier: 1, name: 'Unclenched', desc: 'Break a Drowned Hand.', type: 'slayElite', params: { n: 1 }, scope: 'total', reward: { unlock: 'boon:smouldering_floats', memories: 8 } },
+  { id: 'steady_hands', tier: 1, name: 'Steady Hands', desc: 'Land 25 fish across all descents.', type: 'catch', params: { n: 25 }, scope: 'total', reward: { unlock: 'character:taper', memories: 10 } },
+  { id: 'naturalist', tier: 1, name: 'Naturalist', desc: 'Name 8 species in the Journal.', type: 'journal', params: { n: 8 }, scope: 'total', reward: { unlock: 'boon:lucky_knot', memories: 10 } },
+  { id: 'gloombreaker', tier: 1, name: 'Gloombreaker', desc: 'Disperse 500 gloomlings across all descents.', type: 'slay', params: { n: 500 }, scope: 'total', reward: { unlock: null, memories: 15 } },
+  // ---- II. The Long Vigil (runs 3–8)
+  { id: 'unwarded', tier: 2, name: 'Unwarded', desc: 'Silence a Warden.', type: 'boss', params: { n: 1 }, scope: 'total', reward: { unlock: 'character:ashwick', memories: 15 } },
+  { id: 'down_the_sluice', tier: 2, name: 'Down the Sluice', desc: 'Reach Sporewood Pools.', type: 'reachZone', params: { zone: 'sporewood' }, scope: 'total', reward: { unlock: 'character:stub', memories: 15 } },
+  { id: 'long_vigil', tier: 2, name: 'The Long Vigil', desc: 'Endure 5 Gloomtides in one descent.', type: 'nights', params: { n: 5 }, scope: 'run', reward: { unlock: 'character:tallow', memories: 20 } },
+  { id: 'untouched', tier: 2, name: 'Untouched', desc: 'Endure a Gloomtide (night 2 or later) without losing an Ember.', type: 'nightNoDamage', params: { n: 1, minDay: 2 }, scope: 'run', reward: { unlock: 'relic:barnacle_cloak', memories: 10 } },
+  { id: 'bonfire_night', tier: 2, name: 'Bonfire Night', desc: 'Disperse 200 gloomlings in a single Gloomtide.', type: 'slayNight', params: { n: 200 }, scope: 'run', reward: { unlock: 'relic:ember_in_resin', memories: 20 } },
+  { id: 'full_flame', tier: 2, name: 'Full Flame', desc: 'Raise a weapon Boon to level 5.', type: 'boonLevel', params: { kind: 'weapon', level: 5 }, scope: 'run', reward: { unlock: 'boon:little_maelstrom', memories: 15 } },
+  { id: 'night_angler', tier: 2, name: 'Night Angler', desc: 'Land 3 fish during a single Gloomtide.', type: 'nightCatch', params: { n: 3 }, scope: 'run', reward: { unlock: 'boon:lantern_on_the_line', memories: 15 } },
+  { id: 'perfect_10_run', tier: 2, name: 'Clockwork Wrist', desc: 'Set 10 perfect hooks in one descent.', type: 'perfectHooks', params: { n: 10 }, scope: 'run', reward: { unlock: 'relic:steady_hook', memories: 10 } },
+  { id: 'kindled', tier: 2, name: 'Kindled', desc: 'Reach level 15 in one descent.', type: 'level', params: { n: 15 }, scope: 'run', reward: { unlock: 'relic:remembrance', memories: 20 } },
+  { id: 'shimmering', tier: 2, name: 'Shimmering', desc: 'Land a Shimmering fish.', type: 'quality', params: { quality: 'perfect' }, scope: 'total', reward: { unlock: 'relic:shimmer_scale', memories: 5 } },
+  { id: 'heavy_catch', tier: 2, name: 'Heavyweight', desc: 'Land a non-legendary fish over 8 kg.', type: 'weight', params: { kg: 8, excludeLegendary: true }, scope: 'total', reward: { unlock: 'bait:shimmerfly', memories: 10 } },   // v1
+  { id: 'catch_100', tier: 2, name: 'Old Hand', desc: 'Land 100 fish across all descents.', type: 'catch', params: { n: 100 }, scope: 'total', reward: { unlock: 'relic:listening_bobber', memories: 20 } },
+  { id: 'shells_1000_run', tier: 2, name: "Murk's Favourite", desc: 'Earn 1000 Shells in one descent.', type: 'shells', params: { n: 1000 }, scope: 'run', reward: { unlock: 'relic:torn_ledger', memories: 20 } },
+  // ---- III. Deeper Water (runs 8–20+)
+  { id: 'kindle_one', tier: 3, name: 'What the Flame Remembers', desc: 'Kindle a weapon (level 6).', type: 'kindle', params: { n: 1 }, scope: 'run', reward: { unlock: 'relic:gamblers_wick', memories: 30 } },
+  { id: 'cartographer', tier: 3, name: 'Cartographer of Gills', desc: 'Name 16 species in the Journal.', type: 'journal', params: { n: 16 }, scope: 'total', reward: { unlock: 'boon:gilded_hook', memories: 25 } },
+  { id: 'lamplighter', tier: 3, name: "Lamplighter's Vengeance", desc: 'Disperse 2500 gloomlings across all descents.', type: 'slay', params: { n: 2500 }, scope: 'total', reward: { unlock: 'boon:lighthouse_beam', memories: 30 } },
+  { id: 'into_the_vault', tier: 3, name: 'Into the Vault', desc: 'Reach the Glasswater Vault.', type: 'reachZone', params: { zone: 'glasswater' }, scope: 'total', reward: { unlock: 'relic:second_wick', memories: 30 } },
+  { id: 'pallid_arrival', tier: 3, name: 'Where the Light Was Laid', desc: 'Reach the Pallid Deep.', type: 'reachZone', params: { zone: 'paleabyss' }, scope: 'total', reward: { unlock: 'boon:undying_ember', memories: 40 } },
+  { id: 'four_silences', tier: 3, name: 'Four Silences', desc: 'Silence all four Wardens.', type: 'bossDistinct', params: { ids: ['the_wickeater', 'the_veiled_gardener', 'the_shard_abbot', 'the_lightless_ferryman'] }, scope: 'total', reward: { unlock: 'boon:moonless_calm', memories: 60 } },
+  { id: 'many_flames', tier: 3, name: 'Many Flames', desc: 'Reach the Glasswater Vault with 3 different Wicks.', type: 'reachZoneCharacters', params: { zone: 'glasswater', n: 3 }, scope: 'total', reward: { unlock: null, memories: 50 } },
+  { id: 'light_comes_up', tier: 3, name: 'The Light Comes Up', desc: 'Land the Pale Leviathan.', type: 'victory', params: {}, scope: 'total', reward: { unlock: null, memories: 100 } },
+  { id: 'complete_chronicle', tier: 3, name: 'The Complete Chronicle', desc: 'Name every species in the Journal.', type: 'journal', params: { n: 32 }, scope: 'total', reward: { unlock: null, memories: 200 } },
+];
+
+// =====================================================================================
+// BOUNTIES (DESIGN §15) — Old Murk's ledger templates. reward Shells = round(base ×
+// zone.valueMult × (1 + dayGrowth × (day − 1))) (+ perN × n where given). Up to 2 offered
+// per visit, 3 active, auto-accepted, due at the end of day + 2; failing costs nothing.
+// Each completed bounty adds BALANCE.bounty.memoriesEach Memories at run end.
+// =====================================================================================
+export const BOUNTIES = [
+  { id: 'catch_species', type: 'catchSpecies', text: 'Bring me {n} {species}.', params: { n: [2, 3], rarities: ['common', 'uncommon'] }, base: 18, perN: 8, weight: 3, zoneMin: 0, dayMin: 1 },
+  { id: 'catch_uncommon', type: 'catchRarity', text: 'Land {n} uncommon fish.', params: { rarity: 'uncommon', n: 2 }, base: 35, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'catch_rare', type: 'catchRarity', text: 'Land a rare fish.', params: { rarity: 'rare', n: 1 }, base: 45, weight: 2, zoneMin: 0, dayMin: 2 },
+  { id: 'heavy', type: 'heavy', text: 'Land a {species} over {kg} kg.', params: { percentile: 0.75 }, base: 40, weight: 2, zoneMin: 0, dayMin: 1 },   // v1
+  { id: 'deep_water', type: 'depthCatch', text: 'Land {n} fish from deep water.', params: { n: 2, depthMin: 0.75 }, base: 30, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'perfect_hooks', type: 'perfectHooks', text: 'Set {n} perfect hooks.', params: { n: [3, 5] }, base: 30, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'streak', type: 'streak', text: 'Chain {n} perfect hooks in a row.', params: { n: [3, 4] }, base: 45, weight: 1, zoneMin: 0, dayMin: 2 },
+  { id: 'unscathed', type: 'unscathed', text: "Endure tonight's Gloomtide without losing an Ember.", params: {}, base: 50, weight: 2, zoneMin: 0, dayMin: 2 },
+  { id: 'disperse', type: 'slayNight', text: 'Disperse {n} gloomlings in one Gloomtide.', params: { nBase: 40, perHeat: 12 }, base: 30, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'no_flare', type: 'noFlare', text: 'Endure the Gloomtide without a single flare.', params: {}, base: 40, weight: 1, zoneMin: 1, dayMin: 1 },
+  { id: 'quality', type: 'quality', text: 'Bring me a fine fish, or better.', params: { quality: 'fine' }, base: 35, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'night_fish', type: 'nightFish', text: 'Catch something that only rises in the Gloomtide.', params: {}, base: 40, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'sell_visit', type: 'sellVisit', text: 'Sell me {n} fish in a single visit.', params: { nBase: 3 }, base: 25, weight: 1, zoneMin: 0, dayMin: 2 },
+  { id: 'spot_catch', type: 'spotCatch', text: 'Catch {n} fish from shimmering spots.', params: { n: 3 }, base: 30, weight: 2, zoneMin: 0, dayMin: 1 },
+  { id: 'break_hand', type: 'slayElite', text: 'Break a hand that rises from the water.', params: { n: 1 }, base: 35, weight: 1, zoneMin: 0, dayMin: 2 },
+  { id: 'warden', type: 'boss', text: 'A Warden rises tonight. Silence it.', params: { n: 1 }, base: 60, weight: 4, zoneMin: 0, dayMin: 1, bossNightOnly: true },
+  { id: 'legend_hunt', type: 'legend', text: 'They say {legend} stirs. Land it.', params: {}, base: 60, weight: 0, zoneMin: 0, dayMin: 1, special: true, memories: 6 },
+];
+
+// =====================================================================================
+// QUALITY (DESIGN §5.8) — catch quality from the reel score q. threshold = min q.
+// chance = flat luck chance to bump one tier up (+ bait/relic shimmer bonuses).
+// =====================================================================================
+export const QUALITY = {
+  normal:  { id: 'normal',  label: 'Common',     valueMult: 1,   yieldMult: 1,    threshold: 0,    chance: 0,    color: 0xd8d2c0 },
+  fine:    { id: 'fine',    label: 'Fine',       valueMult: 1.4, yieldMult: 1.1,  threshold: 0.45, chance: 0.05, color: 0xa6c6e6 },
+  perfect: { id: 'perfect', label: 'Shimmering', valueMult: 2.5, yieldMult: 1.25, threshold: 0.78, chance: 0.01, color: 0xffe2a8 },
+};
+
+// JOURNAL_PERKS (DESIGN §16) — permanent bonus for naming every species of a zone. Stored
+// as meta.unlocks['perk:<zoneId>'] = true and added by getStats().
+export const JOURNAL_PERKS = {
+  mossmere:   { label: 'Moss-Reader', effects: { hookWindow: 0.08 }, desc: '+8% hook window, forever.' },
+  sporewood:  { label: 'Spore-Cook', effects: { foodMult: 0.1, oilYieldMult: 0.1 }, desc: '+10% meal value and render yield, forever.' },
+  glasswater: { label: 'Glass-Eye', effects: { rarityBonus: 0.04 }, desc: '+4% rare fish luck, forever.' },
+  paleabyss:  { label: 'Bone-Counter', effects: { sellMult: 0.08 }, desc: '+8% sale price, forever.' },
+};
+
+export const FISH_SHAPES = ['minnow', 'perch', 'carp', 'pike', 'eel', 'angler', 'ray', 'puffer', 'jelly', 'crayfish', 'koi', 'ghost', 'leviathan'];
+export const CREATURE_KINDS = ['wisp', 'mite', 'moth', 'eel', 'hand', 'warden'];
+export const RARITY_WEIGHTS = { common: 70, uncommon: 24, rare: 6 };   // fish pool per species; uncommon ×(1+2rb), rare ×(1+4rb)
+export const RARITY_COLORS = { common: 0xd8d2c0, uncommon: 0xa6c6e6, rare: 0xb48cff, epic: 0xff8fc0, legendary: 0xe8c66a };
+export const DEPTH_BANDS = { shallow: [0, 0.35], mid: [0.35, 0.75], deep: [0.75, 1] };   // reticle label + colour (DESIGN §5.1)
+
+// =====================================================================================
+// TIPS (DESIGN §21.5) — first-run hints, each shown once (meta.seenTips), ≤ 90 chars.
+// trigger = 'event' or 'event:<disc>' where disc = payload.phase ?? payload.resource ??
+// payload.reason ?? payload.state ?? payload.id ?? (payload.enemy?.elite ? 'elite' : undefined).
+// =====================================================================================
+export const TIPS = [
+  { id: 'sail_basics',   trigger: 'run:start',                text: 'Sail with WASD or the left stick. Shimmering water marks a feeding spot.' },
+  { id: 'cast_basics',   trigger: 'player:anchor',            text: "Hold on the water to charge a cast. Release near the meter's peak." },
+  { id: 'depth_read',    trigger: 'fishing:cast',             text: 'Deeper water holds rarer fish. The reticle shows how deep you are casting.' },
+  { id: 'nibble_wait',   trigger: 'fishing:nibble',           text: 'Only a nibble. Wait for the bobber to plunge, then tap.' },
+  { id: 'miss_early',    trigger: 'fishing:miss:early',       text: "Too eager. Nibbles are tests. Strike when the bobber sinks and '!' shows." },
+  { id: 'miss_late',     trigger: 'fishing:miss:late',        text: 'Too slow. Tap the instant it plunges. A fast hook earns a finer catch.' },
+  { id: 'miss_moved',    trigger: 'fishing:miss:moved',       text: 'Moving the raft pulls your line. Stay still while you fish.' },
+  { id: 'reel_band',     trigger: 'fishing:hook',             text: 'Hold to reel, release to ease. Keep tension in the pale band; the bright core doubles it.' },
+  { id: 'surge_release', trigger: 'fishing:surge',            text: 'It surges! Let go until the fury passes, or your line will snap.' },
+  { id: 'escaped_slack', trigger: 'fishing:escaped:slack',    text: 'A slack line lets them slip free. Always keep a little tension.' },
+  { id: 'escaped_snap',  trigger: 'fishing:escaped:snap',     text: 'Snapped. Release during surges. Old Murk sells stronger line.' },
+  { id: 'catch_choice',  trigger: 'fish:landed',              text: 'Eat it for Satiety, Render it for Oil, or Keep it to sell to Old Murk.' },
+  { id: 'merchant',      trigger: 'merchant:arrive',          text: 'A bell across the water. Old Murk has moored. Sail to his green lamp.' },
+  { id: 'trade_prompt',  trigger: 'interact:change:merchant', text: 'Press E or tap Trade. Sell your creel, buy gear, take a bounty.' },
+  { id: 'dusk_warn',     trigger: 'phase:change:dusk',        text: 'The light is thinning. Murk has gone. Fill your lantern while you can.' },
+  { id: 'gloomtide',     trigger: 'phase:change:gloomtide',   text: 'Gloomtide. Your light burns what enters it. More oil, wider light.' },
+  { id: 'enemy_zap',     trigger: 'enemy:spawn',              text: 'Tap a gloomling to zap it. Press F or Flare to burst everything near.' },
+  { id: 'cinders',       trigger: 'enemy:slain',              text: 'Gloomlings leave cinders. Sail over them to grow your flame.' },
+  { id: 'levelup',       trigger: 'levelup',                  text: 'Your flame grows. Choose a boon: it lasts the whole descent.' },
+  { id: 'elite',         trigger: 'enemy:spawn:elite',        text: 'Ink spreads under you: a hand is rising. Move, or flare it as it breaches.' },
+  { id: 'low_oil',       trigger: 'resource:low:oil',         text: 'Your lantern gutters. Tap Burn (R) to render a fish into oil, now.' },
+  { id: 'lantern_out',   trigger: 'lantern:out',              text: 'Your light is out. Render any fish to relight it before the dark bites.' },
+  { id: 'low_food',      trigger: 'resource:low:satiety',     text: 'Your wax runs thin with hunger. Eat something from the creel.' },
+  { id: 'low_hp',        trigger: 'resource:low:hp',          text: 'Two Embers left. Dawn mends one, a full belly mends another.' },
+  { id: 'steal',         trigger: 'enemy:steal',              text: 'Something stole from your creel! Kill it before it flees to get the fish back.' },
+  { id: 'dawn',          trigger: 'phase:change:dawn',        text: 'You outlasted the Gloomtide. Each night it returns hungrier.' },
+  { id: 'gate_open',     trigger: 'gate:open',                text: 'The Descent Gate churns open. Pay its toll at the whirlpool to go deeper.' },
+  { id: 'warden',        trigger: 'boss:spawn',               text: 'A Warden rises. Watch its tells, kite it, and keep your light wide.' },
+  { id: 'new_species',   trigger: 'journal:new',              text: 'A new name in the Journal. Some fish answer only to certain baits.' },
+  { id: 'zone_unlock',   trigger: 'zone:unlock',              text: 'Deeper waters pay more, and the dark there bites harder.' },
+];
+
+// =====================================================================================
+// Text banks (DESIGN §19–§21).
+// =====================================================================================
+export const MERCHANT_LINES = {
+  arrive: [
+    "Ding-a-ling. Still burning? Good. The dead don't haggle.",
+    "Murk's here. Murk's always here, eventually.",
+    'Smelled your lantern three bends back. Wasteful, little flame.',
+    "Mind the barge. She bites when she's lonely.",
+  ],
+  browse: [
+    "Look all you like. Looking's free. Light isn't.",
+    'That one? Fished it off a Wick like you. Near enough like you.',
+    "Everything here was somebody's last hope once.",
+    "Take your time. I've had centuries. Fewer than I'd like.",
+  ],
+  buy: [
+    'A fine choice. Mine again, eventually, when you sink.',
+    'Shells, shells. They clink like little teeth.',
+    "Pleasure. Truly. You'd be surprised how rarely.",
+    "Spend it now. Shells don't float.",
+  ],
+  sell: [
+    'Fresh enough. Fresher than me.',
+    "I'll take it. Don't tell it what I'm going to do with it.",
+    'Good weight. Good eyes. Good riddance.',
+  ],
+  poor: [
+    'Your purse is lighter than your flame, little Wick.',
+    'Credit? Ha. The drowned all asked for credit.',
+    "Come back richer. Or come back at all. That'd be a start.",
+  ],
+  warn: [
+    "Tide's turning. Murk casts off soon.",
+    "Last call, little flame. The barge won't wait for the dark.",
+  ],
+  farewell: [
+    "Tide's turning. Murk doesn't stay for the Gloom. Nobody sensible does.",
+    'Burn slow, little flame.',
+    "Same time tomorrow, if there is a tomorrow. There usually isn't.",
+  ],
+  legendary: [
+    'You hauled THAT up? With those arms? The deep will be talking for weeks.',
+    'Even old Murk takes his hat off to that. Metaphorically. The hat stays.',
+    'Something enormous just stopped being a legend. Celebrate quietly. Things are listening.',
+  ],
+  lowOil: [
+    "Your light's gone thin as soup. Buy oil, or render something. Quickly.",
+    "I've seen that flicker before. Usually right before the quiet.",
+    "Gutter like that and the Gloom comes calling. Oil's on the left.",
+  ],
+  warden: [
+    'Heard something big moving under the dark last night. Bigger tonight, I expect.',
+    "The Gloom sends its keepers every third night. Don't ask me how I know. I counted.",
+  ],
+  pity: ["Here. Don't make it a habit. Murk is not a charity. Murk is barely a toad."],
+};
+
+export const EPITAPHS = {
+  darkness: [
+    'Here a small flame flickered, and the dark, at last, leaned close.',
+    'It burned to the very end of its wick. There was simply no more wick.',
+    'The lantern went quiet first. Then the Wick did. Then the water.',
+    'Darkness does not take. It only waits, and it is very good at waiting.',
+  ],
+  starvation: [
+    'Surrounded by fish, it forgot to eat. The water does not forgive forgetting.',
+    'Its flame grew thin as a whisper, then thinner, then not at all.',
+    'Hunger is a quiet Gloom. It came without a single shadow.',
+    'It traded every catch for Shells and kept nothing for itself.',
+  ],
+  gloom: [
+    'The gloomlings came for the light, as they always do. This time they kept it.',
+    'Too many hands in the dark, and only one small flame.',
+    'The Gloomtide rose, and a little light went under with it.',
+    'They say the Gloom is only the drowned, missing warmth. They missed this one most.',
+  ],
+  default: ['Another Wick drifts down to the Shrine. It will not be the last.'],
+};
+
+export const TEXT = {
+  title: 'GLOOMWATER',
+  tagline: 'Sail the drowned dark. Fish to keep your light. Burn back the swarm.',
+  taglineAlts: [
+    'Below the fallen kingdom, the water remembers.',
+    'Every flame goes out. Make yours go out deep.',
+    'A small light, a long line, a hungry dark.',
+  ],
+  premise: "Long ago the Lamplit Kingdom hung a great lantern over its lake. When the lantern fell, the kingdom followed it into the water. The Wicks are what is left of its candles: small, stubborn flames on rafts, fishing so they stay lit. Somewhere below, the Pale Leviathan carries the great lantern's last ember in its belly.",
+  currency: { shells: 'Shells', memories: 'Memories', embers: 'Embers', cinders: 'Cinders', oil: 'Oil', satiety: 'Satiety' },
+  zoneEnter: {
+    mossmere: 'The moat still holds the shape of the walls it guarded.',
+    sporewood: 'The air here is sweet enough to sleep in. Do not.',
+    glasswater: 'Your light comes back to you from a thousand shards, a little colder each time.',
+    paleabyss: 'Somewhere below, something vast exhales. The water rises a finger-width, then falls.',
+  },
+  phaseBanner: {
+    calm: ['Day {day}', 'The waters still'],
+    dusk: ['The Light Thins', 'Gloomtide gathers at the edges'],
+    gloomtide: ['The Gloomtide Rises', 'Guard your flame'],
+    dawn: ['Grey Dawn', 'The dark withdraws, for now'],
+  },
+  bossBanner: ['{name}', 'A Warden rises from the Gloom'],
+  bossWithdraw: '{name} sinks back into the dark.',
+  formationBanner: '{name}',
+  kindleBanner: ['{name}', 'The flame remembers'],
+  legendaryHooked: '{name}: {epithet}',
+  legendPoolToast: 'A golden stillness gathers far out. Something legendary is listening.',
+  victoryHooked: 'The water goes very still.',
+  gateOpenToast: 'The Descent Gate churns open.',
+  gateSealed: 'The Gate is sealed. {requirement}',
+  descendPrompt: 'Feed the whirlpool {toll} Shells and sink to {zone}?',
+  deathTitle: { darkness: 'Your Light Went Out', starvation: 'The Wax Ran Thin', gloom: 'Taken by the Gloomtide', default: 'Extinguished' },
+  memoriesHeader: 'What the Water Remembers',
+  memoryLabels: {
+    nights: 'Nights endured', depth: 'Deepest water endured', fish: 'Fish landed', species: 'New names in the Journal',
+    legendaries: 'Legends hauled up', trophies: 'Trophies mounted', bounties: 'Bounties honoured', enemies: 'Gloomlings dispersed',
+    elites: 'Hands broken', wardens: 'Wardens silenced', victory: 'The light came up', remembrance: 'Remembrance',
+  },
+  summaryFlavour: [
+    { maxDay: 1, text: 'The first night is the hungriest. It usually wins.' },
+    { maxDay: 3, text: 'A short flame, but an honest one.' },
+    { maxDay: 6, text: "You learned the water's moods. The water learned yours." },
+    { maxDay: 10, text: 'Few Wicks see a seventh dawn. Fewer remember it.' },
+    { maxDay: 999, text: 'Old Murk will tell this one, badly, for years.' },
+  ],
+  records: { deepest: 'Deepest descent: {zone}', biggest: 'Biggest catch: {name}, {kg} kg', journal: 'The Journal holds {n} of {total} names.', level: 'Highest flame: level {n}' },   // v1
+  victoryTitle: 'The Light Comes Up',
+  victorySubtitle: 'The Pale Leviathan is landed.',
+  victory: [
+    'At the very end it stopped fighting, as if it had been waiting.',
+    "In its belly glimmered the kingdom's last great ember: the light that fell so long ago and took everything down with it.",
+    'One by one, the drowned candles of the Deep catch. Far above, something like morning.',
+    'You are still very small. You are still burning.',
+  ],
+  victoryButtons: { title: 'Return to the Surface', endless: 'Keep Drifting' },
+  shrineTitle: 'Shrine of Drowned Lanterns',
+  shrineSubtitle: 'Every Wick that fell left something behind.',
+  waystoneText: 'Waystones remember the way down. Begin your descent in any water you have reached before.',
+  kindlingDraft: 'The Waystone remembers your flame. Choose what it carried.',
+  journalTitle: "The Wick's Journal",
+  journalUnknown: 'An unfamiliar ripple. Something here has not yet been named.',
+  challengesTitle: 'Trials of the Wick',
+  challengeTiers: { 1: 'First Flickers', 2: 'The Long Vigil', 3: 'Deeper Water' },
+  creelFull: 'Your creel is full. Eat, render, release, or let this one go.',
+  newRecord: 'New record!',
+  burnFish: 'Burn',
+};
+
+// =====================================================================================
+// Functions (DESIGN §7.2, §10.1, §17.1).
+// =====================================================================================
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+const zoneIdx = (z) => Math.max(0, Math.min(ZONES.length - 1, z | 0));
+
+/** Gloomtide length (s) on a given day: 90, 96, 102 … capped at 120. */
+export function gloomtideLength(day = 1) {
+  return Math.min(BALANCE.gloomMax, BALANCE.phases.gloomtide + BALANCE.gloomGrowth * (Math.max(1, day | 0) - 1));
+}
+
+/**
+ * Gloom Heat: the single night-scaling axis. H = (day − 1) + 3 × zoneIndex + linger, where
+ * linger = lingerHeat × max(0, nightInZone − lingerFrom). nightInZone = Gloomtides since the last
+ * zone:change (1-based, tonight included); when omitted it is assumed on-pace (= day in the first
+ * lake, 0 deeper), so callers that track it should pass it.
+ */
+export function heatFor(day = 1, zoneIndex = 0, nightInZone = null) {
+  const D = BALANCE.combat.director, z = zoneIdx(zoneIndex), dayN = Math.max(1, day | 0);
+  const niz = nightInZone ?? (z === 0 ? dayN : 0);
+  return (dayN - 1) + D.heatPerZone * z + D.lingerHeat * Math.max(0, niz - D.lingerFrom);
+}
+
+/** Night intensity over gloomtide progress k (build-up, 20 s swell, crescendo, hush). t = seconds in. */
+export function nightCurve(k = 0.5, t = null) {
+  const N = BALANCE.combat.night;
+  k = clamp01(k);
+  if (k >= N.quietFrom) return 0;
+  if (k < N.buildUntil) return N.buildMult;
+  const secs = t ?? k * BALANCE.phases.gloomtide;
+  const swell = 1 + N.swellAmp * Math.sin((2 * Math.PI * secs) / N.swellPeriod);
+  return (k >= N.crescendoFrom ? N.crescendoMult : 1) * swell;
+}
+
+/** g(L): zap & flare damage scale with the Wick's level. */
+export function weaponScale(level = 1) {
+  return 1 + BALANCE.xp.weaponScale * (Math.max(1, level | 0) - 1);
+}
+
+/**
+ * Night difficulty for a day, zone and gloomtide progress k (0..1). Contract fields:
+ * spawnRate (individuals/s; pack members each cost one credit), maxAlive, hpMult,
+ * speedMult, damageMult (on damage dealt TO the Wick), drainMult, kinds [{id, w}],
+ * eliteEvery (s, 0 = none), boss (enemy id | null). Extras: elites [{id, w}], heat,
+ * xpScale, formationAt, bossAt, eliteFirstAt, gloomtide (s). opts.nightInZone (Gloomtides
+ * since the last zone:change, 1-based) picks boss nights; falls back to day.
+ */
+export function difficultyFor(day = 1, zoneIndex = 0, k = 0.5, opts = {}) {
+  const D = BALANCE.combat.director;
+  const z = zoneIdx(zoneIndex);
+  const dayN = Math.max(1, day | 0);
+  const H = heatFor(dayN, z, (opts && opts.nightInZone) || null);
+  const L = gloomtideLength(dayN);
+  const kk = clamp01(k ?? 0.5);
+  const spawnRate = +(D.baseRate * ZONES[z].gloom * (1 + D.ratePerHeat * H) * nightCurve(kk, kk * L)).toFixed(3);
+  const maxAlive = Math.min(D.maxAliveCap, D.maxAliveBase + D.maxAlivePerHeat * H);
+  const hpMult = +(1 + D.hpLin * H + D.hpQuad * H * H).toFixed(3);
+  const speedMult = +Math.min(D.speedCap, 1 + D.speedPerHeat * H).toFixed(3);
+  const damageMult = 1 + D.damageStepAdd * Math.floor(H / D.damageStep);
+  const drainMult = +(1 + D.drainPerHeat * H).toFixed(3);
+  const available = (e) => z > e.zoneMin || (z === e.zoneMin && dayN >= (e.dayMin || 1));
+  const kinds = [];
+  const elites = [];
+  for (const e of ENEMIES) {
+    if (e.boss || !available(e)) continue;
+    if (e.elite) { const w = e.eliteWeights?.[z] ?? 0; if (w > 0) elites.push({ id: e.id, w }); continue; }
+    const w = e.weights?.[z] ?? 0;
+    if (w > 0) kinds.push({ id: e.id, w });
+  }
+  const eliteEvery = dayN < D.eliteFromDay || !elites.length ? 0 : Math.max(D.eliteMin, D.eliteBase - D.elitePerHeat * H);
+  const niz = Math.max(1, (opts && opts.nightInZone) || dayN);
+  const boss = niz % D.bossEvery === 0 ? (ZONES[z].warden || null) : null;
+  return {
+    spawnRate, maxAlive, hpMult, speedMult, damageMult, drainMult, kinds, eliteEvery, boss,
+    elites, heat: H, xpScale: +(1 + BALANCE.xp.heatScale * H).toFixed(3), bossHpMult: +(1 + D.bossHpLin * H).toFixed(3),
+    formationAt: dayN >= D.formationsFromDay ? D.formationAt.slice() : [], bossAt: D.bossAt, eliteFirstAt: D.eliteFirstAt,
+    gloomtide: L, day: dayN, zoneIndex: z, k: kk,
+  };
+}
+
+/** Cinders (XP) needed to go from `level` to `level + 1`. */
+export function xpForLevel(level = 1) {
+  const c = BALANCE.xp.curve, L = Math.max(1, level | 0) - 1;
+  return Math.round(c.base + c.lin * L + c.quad * L * L);
+}
+
+/** Cinders granted for landing a fish (before stats.xpMult and character quirks). */
+export function fishXpFor(rarity = 'common', zoneIndex = 0) {
+  return Math.round((BALANCE.xp.fishXp[rarity] ?? BALANCE.xp.fishXp.common) * (1 + BALANCE.xp.fishXpZone * zoneIdx(zoneIndex)));
+}
+
+const countOf = (v) => (Array.isArray(v) ? v.length : v && typeof v === 'object' ? Object.keys(v).length : Number(v) || 0);
+
+/**
+ * Memories earned by a run. Reads {day, zoneIndex, fishCaught, newSpecies, legendaries,
+ * bountiesDone, enemiesSlain, victory} plus optional {nightsSurvived, deepestEnduredIndex,
+ * bossesSlain, elitesSlain, trophies:[zoneIndex], memMult, firstVictory}. legendaries /
+ * bountiesDone may be numbers, arrays or objects. Depth only counts where a full
+ * Gloomtide was endured (so a Waystone start followed by a quick death earns nothing there).
+ */
+export function memoriesFor(summary = {}) {
+  const s = summary || {};
+  const zi = zoneIdx(s.zoneIndex ?? 0);
+  const day = Math.max(1, (s.day ?? 1) | 0);
+  const nights = Math.max(0, s.nightsSurvived ?? (day - 1));
+  const endured = s.deepestEnduredIndex ?? (nights > 0 ? zi : -1);
+  const L = TEXT.memoryLabels;
+  const M = BALANCE.memories;
+  const rows = [
+    { label: L.nights, value: Math.round(nights * (M.nightBase + M.nightPerZone * zi)) },
+    { label: L.depth, value: endured >= 0 ? M.depth[Math.min(3, endured)] : 0 },
+    { label: L.fish, value: Math.floor((s.fishCaught || 0) / M.fishPer) },
+    { label: L.species, value: BALANCE.journal.newSpeciesMemories * (s.newSpecies || 0) },
+    { label: L.legendaries, value: M.legend * countOf(s.legendaries) },
+    { label: L.bounties, value: BALANCE.bounty.memoriesEach * countOf(s.bountiesDone) },
+    { label: L.enemies, value: Math.floor((s.enemiesSlain || 0) / M.slainPer) },
+    { label: L.elites, value: M.elite * (s.elitesSlain || 0) },
+    { label: L.wardens, value: M.warden * (s.bossesSlain || 0) },
+    { label: L.places || 'New places found', value: (M.placeNew || 0) * (s.placesNew || 0) },   // v2 (walking, §24.9): 0 unless WALK_ENABLED
+  ];
+  if (Array.isArray(s.trophies) && s.trophies.length) {
+    rows.push({ label: L.trophies, value: s.trophies.reduce((a, t) => a + (BALANCE.economy.trophyMemories[t | 0] || 0), 0) });
+  }
+  if (s.victory) rows.push({ label: L.victory, value: s.firstVictory === false ? M.victoryAfter : M.victoryFirst });
+  let subtotal = rows.reduce((a, r) => a + r.value, 0);
+  if (s.memMult > 0) {
+    const extra = Math.round(subtotal * s.memMult);
+    rows.push({ label: L.remembrance, value: extra });
+    subtotal += extra;
+  }
+  const breakdown = rows.filter((r) => r.value > 0);
+  return { total: subtotal, breakdown };
+}
+
+// =====================================================================================
+// v2 (walking) — DESIGN §24 "Exploration on foot" (rev. 2). Everything below is ADDITIVE and
+// INERT until WALK_ENABLED is true: with it off, every v1 table, arena field and text above is
+// bit-identical to v1 (QA §24.13 #1 holds for all four lakes in an interim build). With it on,
+// the v2 tables are merged into the v1 ones (SPECIES, BOONS, ZONES[].arena…) before the lookup
+// maps are built. The walk layouts, BALANCE.walk / places / lamps / combat.foot and the pure
+// helpers (walkGridFor, shoreRFor…) are always exported so tools can read them.
+//
+// Turn it on: set `globalThis.GW_WALK = true` before this module evaluates (tools/walk-on.mjs;
+// template.html in the walking build), or flip the default below in the commit that lands
+// world / player / fishing v2. world and data read only this one flag.
+// =====================================================================================
+export const WALK_ENABLED = globalThis.GW_WALK === true;
+
+// ---- On-foot controller, crossings, cast-from-height, camera (§24.2–§24.5; player, render, fishing).
+BALANCE.walk = {
+  speedMult: 0.84,           // foot top speed = stats.moveSpeed × speedMult + stats.stride  (5.0 m/s base)
+  accel: 6, decel: 8,         // 1/s lerp toward target / toward 0: 0→90% in 0.38 s; stops in ≈ 0.6 m (raft: 0.77 s / ≈ 4 m)
+  turnRate: 12, faceMinSpeed: 0.15,
+  radius: 0.4,                // foot body radius; every reachability check runs on the grid eroded by this body
+  // Heights: walkGridFor quantises every surface to heightQuant (0.1 m); every height threshold below
+  // sits on a half-step (…x5), so no rule ever compares within eps of a threshold (walkHeightLE / walkStepOK).
+  heightQuant: 0.1, eps: 0.02,
+  stepUp: 0.45, stepDown: 0.45, maxSlope: 0.5,   // symmetric: only authored drops are one-way; ramps ≤ 0.5 rise/run
+  uphillSlow: 0.2,            // speed × (1 − uphillSlow × slope / maxSlope)
+  push: { time: 0.4, cone: 35 },   // push-to-cross: 0.4 s of stick within 35° of the edge normal (rings, tips, drops)
+  crossCooldown: 3,           // s between mode switches (Ashore / Board)
+  nightPillOnly: true,        // at dusk and in the Gloomtide, drops and Ashore / Board work only through the pill or E
+  drop: { max: 3.55, time: 0.35, perM: 0.08, iframes: 0.2 },   // one-way hop-downs (arena.drops), calm / dawn i-frames only
+  moor: { range: 3.0, maxSpeed: 2.0, time: 0.6 },   // raft within range of a mooring slot and slower than maxSpeed
+  board: { range: 3.0, time: 0.5 },                 // validated: |stand − slot| − raftRadius ≤ range
+  hopIframes: 0.3, hopIframesNight: 0,              // i-frames while crossing; none at dusk / in the Gloomtide
+  towBell: { speed: 6, etaMin: 3, etaMax: 12 },
+  castStopSpeed: 1.0,         // the cast meter starts once foot speed < this (no anchor brake on foot)
+  highCast: { from: 1.0, perM: 0.5, cap: 4 },       // castMax + min(cap, perM × (standY − from)) when standY > from
+  steepLine: { from: 4.95, sweetAdd: -0.03, surgeWarnAdd: -0.1 },   // standing ≥ 5 m above the bobber: the line runs steep
+  poolCast: 'firstRun',       // the meter maps onto the first contiguous water run along the aim ray when it is shorter than reach
+  rodTip: 1.9,                // rod-tip height above the ground for the arc test (fishing, validator)
+  aimAssist: { within: 2.0, pull: 1.0, lock: 1.6, lockKinds: ['hole'], off: ['reflection', 'drifters', 'moving'] },
+  interactRange: 2.4,         // lamps, deeds, bells, Ashore / Board pills
+  holdTime: { lamp: 1.0, deed: 0.6, fishHere: 0 },  // hold-to-act (player.interactHold)
+  tradeRange: 5,              // = BALANCE.move.interactRange (Murk's barge, from foot or raft)
+  gateFootRange: 2.5,         // foot gate: Descend within gate.r + this of the gate centre
+  stepEvery: 0.34,            // s between player:step events at top speed
+  lanternHeight: 1.55,        // lantern hook height above the ground on the Lantern Crook
+  fallIntoWater: false,       // never: knockback slides along edges (the Wick is a candle)
+  ring: { radius: 1.0, notch: true, rim: 0.06 },    // the Wick's ground ring on foot (heading notch) + thin amber rim
+  vigil: { maxSeconds: 14, loopMin: 40, discMin: 8, discFill: 0.9 },   // open ground near every non-dead-end stand (validated)
+  camera: {
+    walk: { elev: 40, dist: 12.5, aim: 3.0, aimY: 0.9, fov: 50, ahead: 0.35, stiff: 4.4 },
+    walkNight: { elev: 56, dist: 16.5, aim: 1.5, aimY: 0.4, fov: 52, ahead: 0.25, stiff: 4.6 },
+    portrait: { walk: { elev: 44, dist: 12, fov: 60 }, walkNight: { elev: 58, dist: 15.5, fov: 62 } },   // replaces render's portrait widening on foot
+    high: { from: 3, to: 5, dist: 1.5, elev: 3 },   // blend k = clamp((groundY − from)/(to − from)): dist + k·1.5, elev + k·3
+    focusRate: 5, focusDeadband: 0.25,              // focus y follows ground y (spring), ignoring steps < deadband
+    yawFixed: true,                                 // never turns on foot (shop and death too): controls stay screen-relative
+    // fish / reel framing on walking lakes: elev = clamp(max(base, max_i atan((top_i + pad)/d_i) + add), base, cap), sampled
+    // along +z (toward the camera) from the bobber every `step` m out to `reach`; when it lifts above base the focus moves to the bobber
+    pool: { pad: 0.3, add: 8, cap: 75, step: 0.5, reach: 12 },
+    clamp: { samples: 12, pad: 0.6, shoreIn: 2 },   // terrain clamp: raise elev / shorten dist so the camera stays above land and inside R − 2
+  },
+  occlusion: { nearR: 0.8, farR: 2.6, floorPad: 0.35, xray: 'proxy', lowSouthDist: 14, lowSouthMax: 3.5, lowSouthHalfW: 4 },
+};
+
+// ---- Places: the unique fishing locations (§24.7; fishing, progression, ui).
+BALANCE.places = {
+  base: { waitMult: 0.75, rarity: 0.10, quality: 0.06 },     // bobber inside any place's water
+  astir: { waitMult: 0.55, rarity: 0.25, quality: 0.15 },    // today's Astir place (replaces base)
+  astirPerDay: 1, astirFromZone: 1,                          // one per walking lake per day, seeded, never the legend place
+  stackWithSpot: 'max',                                      // place vs feeding spot: per field, the stronger applies
+  exclusiveWeight: 8,                                        // place-kept species: rare weight × this (only when awake)
+  awake: { sporewood: 1, glasswater: 2, paleabyss: 1 },      // place-kept species awake per descent (seeded); 4 of 8
+  twistB: 0.5,                                               // chance per descent that a non-legend place runs its `alt` twist
+  discoverRadius: 8,                                         // discovery: Wick within 8 m of the stand or of the water shape, or a cast into it
+  markerRange: 45, fishHereRange: 2.0,
+  mastery: { catches: 4, minQuality: 'fine', memories: 10 }, // 4 catches in one descent incl. ≥ 1 fine → +10 Memories, Known Place
+  depthOverride: true,                                       // world.getDepth inside place water stays within place.water.depth
+  minVisible: 0.6,                                           // validated: ≥ 60% of castable place water visible to the fish camera
+  upScreenDeg: 50, nearTarget: 6,                            // validated: water target within ±50° of up-screen or within 6 m
+};
+
+// ---- Sister-candles (internal id: lamps): fallen candles you relight with your own flame (§24.8–§24.9).
+BALANCE.lamps = {
+  shareTime: 1.0, lightCost: 12, costZoneScaled: true,       // "Share flame": oil = lightCost × zone.drain.oil (14.4 / 16.8 / 19.8)
+  range: 2.4, radius: 6,                                     // share within range; cold light pool radius (m)
+  slow: 0.7,                                                 // enemies inside a lit pool move × this (min with the lantern's 0.75)
+  darknessShelter: 0.5,                                      // darkness ticks at × 0.5 inside a lit pool (interval × 2); never stops
+  revealChoir: true,
+  snuffSlamRadius: 4, snuffMoths: 3, snuffTime: 6,           // a slam within 4 m, or 3 latched moths for 6 s, snuffs it
+  relightCost: 6,                                            // × zone.drain.oil, any phase (Kindred Flames never discounts relights)
+  revealPlaces: 2,                                           // sharing marks the 2 nearest undiscovered places
+  knownPlace: 'freeShare',                                   // a mastered place starts discovered and its candle's FIRST share is free (still walked to and held)
+  hop: { phases: ['dawn'], perDay: 1, oil: 0, time: 2.0, angleTrue: true },   // "Flame-leap": once per dawn, free; the radial shows candles in their true map directions
+  legendSnuffRadius: 30,                                     // a gloom legendary's first surge breathes in every candle within 30 m of its pool
+  stake: { radius: 5, until: 'dawn', shelter: false, slow: true, revealChoir: true },   // Stake Lantern: slow + choir only, not a leap node
+  maxPathToLamp: 68,                                         // map rule (validated): every reachable foot cell ≤ 68 m path from a candle
+  minFromStand: 3, minFromDock: 2.5, postR: 0.35,            // validated pill separation; posts are walk blocks
+  light: { colour: 'accent', flicker: false, decal: true },  // cold, steady, in the lake's accent colour; only the Wick's light is amber
+};
+
+// ---- The swarm on foot (§24.8; combat). Rates, hp, Heat and kinds are unchanged; killers keep raft values.
+BALANCE.combat.foot = {
+  contactRadius: 1.6, contactDy: 1.6,                        // vs 1.8 on the raft
+  crawl: { climb: 1.25, drop: 3.55, haul: 0.8, haulAuraTaken: 1.5, landSpeed: 0.9 },
+  spawn: { flyer: [22, 34], crawl: [16, 28], crawlPathMax: 40, flyerOverWater: 0.7, emerge: 0.9, emergeWithin: 18, fallbackMinDist: 16,
+    unreachable: 'flyer', lakeOnly: true, raftWaterPathMax: 40 },   // crawlers never spawn in pools; raft nights in mixed / foot lakes: raft's water component only
+  flow: { cell: 0.5, pathMax: 45, every: 0.35, frames: 3, cellsPerFrame: 9000, directWithin: 5, layers: ['water', 'land'],
+    cost: { step: 2, diag: 3, haul: 6, land: 2 } },          // integer costs, bucket queue (Dijkstra) on the 0.5 m walk grid
+  leashPath: 45,
+  eel: { reach: 6, maxHeight: 3.05, poolMinR: 6, flop: 1.2, flopZapMult: 2 },
+  calmRaid: { edgeOnly: true, reach: 6 },                    // the day's eel raid only leaps at a Wick within 6 m of open water
+  inkwell: { hold: [13, 18], perchWalkWithin: 'zapRange-2' },   // raft hold distance; every perch has a walkway within zap range − 2 m
+  hand: { stainRadius: 3.2 },                                // raft value
+  warden: { telegraphAdd: 0, abbotAlignGap: true, sweepAlign: true, gardenerChargeAcross: true, eclipseSnuffRadius: 20 },
+  highGround: { minHeight: 1.95, zapRangeAdd: 3 },
+  pickupAdd: 0.5, cinderDrift: 2.0, cinderSameArea: 12, fishDrift: 1.0, settleInland: 0.5,
+  shadowWithin: 10,                                          // contact shadows under every enemy within 10 m
+  boonWeightRaftLake: 0,                                     // foot-tagged boons are never offered in raft-only lakes
+};
+
+// ---- Movement class per enemy on walking lakes (combat v2; v1 never reads it). Wardens fly; the Drowned Hand rises in place.
+export const ENEMY_MOVE = {
+  gloomling: 'fly', inkmite: 'crawl', duskmantle: 'fly', creelsnatch: 'swim', sporeling: 'fly', weeping_inkwell: 'fly',
+  belljar_tick: 'crawl', silent_choir: 'fly', drowned_hand: 'static',
+  the_wickeater: 'fly', the_veiled_gardener: 'fly', the_shard_abbot: 'fly', the_lightless_ferryman: 'fly',
+};
+
+// ---- Walk-grid constants and the shared height compare (world, player, combat flow, validator, tools).
+export const WALK_FLAGS = { GROUND: 1, WATER: 2, POOL: 4, BLOCK: 8, RAFTPASS: 16, VOID: 32, BRIDGE: 64, SILL: 128 };
+export const WALK_SHORE = { pad: 0.5, cliffGap: 1.5, cliffNoise: [0, 1.5], leanAbove: 9 };   // walking lakes: exact circle
+/** The one height comparison every walk rule uses: a ≤ b within eps (heights are Float32 and quantised). */
+export function walkHeightLE(a, b) { return a <= b + BALANCE.walk.eps; }
+/** May a mover step from height a to height b? Symmetric (stepUp = stepDown); drops are separate. */
+export function walkStepOK(a, b) { return walkHeightLE(Math.abs(b - a), BALANCE.walk.stepUp); }
+/** Collision radius of a lake obstacle, shared by walkGridFor and world collision (v1: islands r·1.08 + 0.2). */
+export function obstacleRadius(o, island = false) { return island ? o.r * 1.08 + 0.2 : o.r; }
+/** Pure cavern edge. Walking lakes use the exact circle R; raft lakes return null (world keeps its v1 noisy shoreline). */
+export function shoreRFor(zone) {
+  const z = typeof zone === 'string' ? ZONES.find((q) => q.id === zone) : zone;
+  if (!z || !ARENA_V2[z.id]) return null;
+  const R = z.arena.radius;
+  return () => R;
+}
+
+// ---- Zone modes, phase overrides, Arrival Hush.
+export const ZONE_V2 = {
+  mossmere: { mode: 'raft' },
+  sporewood: { mode: 'mixed' },
+  glasswater: { mode: 'foot' },
+  paleabyss: { mode: 'foot' },
+  // no calm overrides: the dawn Flame-leap and the places' bonuses pay for the walking (tools/balance-foot.mjs);
+  // `phases: {calm}` stays supported as the first knob (120–140) if playtests find the days rushed.
+};
+const ARRIVAL_HUSH = { sporewood: 10, glasswater: 30, paleabyss: 30 };   // + s on the first calm in a newly entered lake, no calm raid that day
+
+// ---- Walk layouts. Shapes (painter's order) → walkGridFor(). Angles in degrees: x = cx + r·cos a,
+// z = cz + r·sin a (a = 90 is south / toward the camera, 270 is north). y = walk-surface height (m).
+// Headings (`yawDeg`) use the player convention: 0 faces −Z (north), +90 faces −X (west).
+// hole.lip = {a0, a1, w, y}: the south rim band (default 30°–150°, width w outside the hole) is a low
+// sill at y ≤ 1 so the fixed camera sees into the water (validated: ≥ 60% of castable water visible).
+const wp = (x, z) => ({ x, z });
+const wr = (v) => Math.round(v * 100) / 100;
+const wpolar = (cx, cz, r, a) => wp(wr(cx + r * Math.cos(a * Math.PI / 180)), wr(cz + r * Math.sin(a * Math.PI / 180)));
+const wradial = (id, a, r0, r1, y0, y1, w, extra = {}) => {
+  const c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180);
+  return { id, kind: 'path', pts: [[wr(c * r0), wr(s * r0), y0], [wr(c * r1), wr(s * r1), y1]], w, ...extra };
+};
+const LIP = (w, y = 0.8, a0 = 30, a1 = 150) => ({ a0, a1, w, y });
+
+export const ARENA_V2 = {
+  // ================================================================== Sporewood Pools — raft + walking
+  sporewood: {
+    // v1 arena fields replaced by the walk map (applied only with WALK_ENABLED)
+    reef: { x: 0, zFrom: -30, zTo: 38, width: 6, depth: 0.15 },
+    deepPools: [{ name: 'The Lullaby', x: -28, z: -1, r: 11, depth: 0.85 }, { name: 'Murmur Basin', x: 26, z: 4, r: 11, depth: 0.8 }],
+    legendPool: { x: 32, z: -30, r: 3.2, name: "The Mother's Cup" },
+    islands: [
+      { name: 'Cap Reef I', x: 0, z: 32, r: 4.5, kind: 'cap' }, { name: 'Cap Reef II', x: 0, z: 10, r: 5, kind: 'cap' },
+      { name: 'Cap Reef III', x: 0, z: -14, r: 5, kind: 'cap' }, { name: 'Cap Reef IV', x: 0, z: -34, r: 4, kind: 'cap' },
+      { name: 'East Lily Cap', x: 46, z: -2, r: 4, kind: 'lily' }, { name: 'South Lily Cap', x: -16, z: 42, r: 3.5, kind: 'lily' },
+    ],
+    pillars: [   // the Lanternstalks stand on the two southern groves, clear of every stand's camera line
+      { x: -40, z: 18, r: 1.4, kind: 'stalk' }, { x: -55, z: 22, r: 1.6, kind: 'stalk' }, { x: -33, z: 44, r: 2.0, kind: 'stalk' }, { x: -53, z: 28, r: 1.4, kind: 'stalk' },
+      { x: 30, z: 20, r: 1.4, kind: 'stalk' }, { x: 54, z: 24, r: 2.0, kind: 'stalk' }, { x: 33, z: 44, r: 1.2, kind: 'stalk' }, { x: 46, z: 20, r: 1.6, kind: 'stalk' },
+    ],
+    gate: { name: 'The Mycelium Veil', x: 0, z: -53, r: 4.5 },
+    spawn: { x: 0, z: 52, yaw: 0 },
+    docks: [{ x: 20, z: 37.5 }, { x: -23, z: 31.5 }, { x: -16.7, z: -13.1 }, { x: 16.9, z: -12 }, { x: 26, z: 4 }],
+    // walk map
+    spawnMode: 'raft', gateAccess: 'raft',
+    raft: { mode: 'free' },
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'mc_isle', name: 'The Rootstool', kind: 'poly', y: 0.8, tag: 'ground', pts: [[12, -20], [24, -13], [40, -12], [54, -20], [62, -32], [50, -42], [36, -42], [28, -40], [18, -34], [13, -28]] },
+        { id: 'mc_nave', name: 'The Root Cloister', kind: 'disc', x: 32, z: -30, r: 9.5, y: 2.4, tag: 'ground' },
+        { id: 'mc_stair', name: 'Gill Climb', kind: 'path', pts: [[19.5, -24, 0.8], [24.2, -28, 2.4]], w: 3, tag: 'ramp' },   // arrives west of the lagoon's south lip
+        { id: 'mc_ridge', name: 'Root Ridge', kind: 'path', pts: [[31, -38.5, 2.4], [21, -44, 6.0]], w: 3, tag: 'ramp' },
+        { id: 'mc_anchor', name: 'Veil Anchor (east)', kind: 'disc', x: 17.5, z: -44, r: 3, y: 6.0, tag: 'ground' },
+        { id: 'mc_jetty', name: 'Rootfoot Jetty', kind: 'path', pts: [[17, -18.5, 0.8], [10.5, -10.5, 0.8]], w: 2.6, tag: 'jetty' },
+        { id: 'gb_isle', name: 'The Gillback', kind: 'poly', y: 0.8, tag: 'ground', pts: [[-12, -20], [-26, -13], [-44, -14], [-56, -24], [-62, -34], [-56, -44], [-44, -52], [-30, -48], [-18, -38], [-13, -28]] },
+        { id: 'gb_crown', name: 'Gill Crown', kind: 'disc', x: -36, z: -36, r: 9, y: 4.2, tag: 'ground' },
+        { id: 'gb_rampA', kind: 'path', pts: [[-27, -19.5, 0.8], [-31.5, -29, 4.2]], w: 3, tag: 'ramp' },
+        { id: 'gb_rampB', kind: 'path', pts: [[-48.5, -21.5, 0.8], [-42, -30, 4.2]], w: 3, tag: 'ramp' },
+        { id: 'gb_shrine', name: 'Veil Ledge', kind: 'disc', x: -41, z: -45.5, r: 5.5, y: 4.2, tag: 'ground' },
+        { id: 'gb_ridge', name: 'Gill Ridge', kind: 'path', pts: [[-30, -42, 4.2], [-21, -44, 6.0]], w: 3, tag: 'ramp' },
+        { id: 'gb_anchor', name: 'Veil Anchor (west)', kind: 'disc', x: -17.5, z: -44, r: 3, y: 6.0, tag: 'ground' },
+        { id: 'gb_jetty', name: 'Gill Jetty', kind: 'path', pts: [[-16.5, -19.5, 0.8], [-10.5, -11.5, 0.8]], w: 2.6, tag: 'jetty' },
+        { id: 'hy_west', kind: 'path', pts: [[-15, -44, 6], [-3.5, -44, 6]], w: 2.6, tag: 'bridge', raftPass: true },
+        { id: 'hy_east', kind: 'path', pts: [[3.5, -44, 6], [15, -44, 6]], w: 2.6, tag: 'bridge', raftPass: true },
+        { id: 'hy_mid', name: 'The Hyphae Strand', kind: 'path', pts: [[-3.5, -44, 6], [3.5, -44, 6]], w: 2.6, tag: 'bridge', raftPass: true, needs: 'hyphae_strand' },
+        { id: 'lg_isle', name: 'Lanternstalk Grove', kind: 'poly', y: 0.8, tag: 'ground', pts: [[-26, 14], [-40, 11], [-56, 16], [-68, 30], [-50, 58], [-34, 46], [-27, 32]] },
+        { id: 'lg_house', name: 'The Drowned Greenhouse', kind: 'rect', x: -44, z: 31, w: 13, d: 13, y: 1.0, tag: 'ground' },
+        { id: 'lg_jetty', name: 'Stalk Jetty', kind: 'path', pts: [[-28, 25, 0.8], [-18.5, 24.5, 0.8]], w: 2.6, tag: 'jetty' },
+        { id: 'bc_isle', name: 'Bellcap Copse', kind: 'poly', y: 0.8, tag: 'ground', pts: [[24, 18], [38, 14], [54, 18], [68, 30], [46, 58], [30, 46], [24, 32]] },
+        { id: 'bc_harp', name: 'Harp Green', kind: 'disc', x: 43, z: 32, r: 9, y: 1.0, tag: 'ground' },
+        { id: 'bc_jetty', name: 'Copse Jetty', kind: 'path', pts: [[25, 30.5, 0.8], [16.5, 31, 0.8]], w: 2.6, tag: 'jetty' },
+      ],
+      holes: [
+        { id: 'cup_lagoon', kind: 'disc', x: 32, z: -30, r: 5, depth: 0.95, lip: LIP(2) },
+        { id: 'veil_pool', kind: 'disc', x: -40, z: -45, r: 2.4, depth: 0.8, lip: LIP(2) },
+        { id: 'gh_row1', kind: 'rect', x: -48.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'gh_row2', kind: 'rect', x: -45.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'gh_row3', kind: 'rect', x: -42.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'gh_row4', kind: 'rect', x: -39.5, z: 30, w: 2, d: 9, depth: 0.45 },
+        { id: 'harp_pool', kind: 'disc', x: 43, z: 32, r: 5.2, depth: 0.75 },
+      ],
+      blocks: [   // glass frames between the greenhouse rows
+        { kind: 'rect', x: -47, z: 30, w: 1, d: 9, h: 2.4 }, { kind: 'rect', x: -44, z: 30, w: 1, d: 9, h: 2.4 }, { kind: 'rect', x: -41, z: 30, w: 1, d: 9, h: 2.4 },
+      ],
+      variants: [],
+    },
+    moorings: [
+      { id: 'rootfoot', name: 'Rootfoot Jetty', stand: wp(10.9, -11.0), slot: wp(8.7, -8.0), yawDeg: 144, bell: true },
+      { id: 'gill', name: 'Gill Jetty', stand: wp(-10.9, -12.0), slot: wp(-8.7, -9.0), yawDeg: -144, bell: true },
+      { id: 'stalk', name: 'Stalk Jetty', stand: wp(-18.9, 24.5), slot: wp(-14.6, 24.4), yawDeg: -91, bell: true },
+      { id: 'copse', name: 'Copse Jetty', stand: wp(17.2, 31.0), slot: wp(13.0, 31.1), yawDeg: 89, bell: true },
+    ],
+    lamps: [
+      { id: 'cup_lamp', x: 25.0, z: -31.5, place: 'mothers_cup' },
+      { id: 'crown_lamp', name: 'Gill Crown', x: -36, z: -36, place: 'veilwater' },
+      { id: 'house_lamp', x: -40.5, z: 36.5, place: 'drowned_greenhouse' },
+      { id: 'harp_lamp', x: 39.5, z: 39.2, place: 'gill_harp' },
+      { id: 'anchor_lamp', name: 'Veil Anchor', x: 16.0, z: -42.0 },
+    ],
+    deeds: [
+      { id: 'strand_counterweight', name: 'Swollen Counterweight', kind: 'winch', trigger: 'pill', at: wp(19.6, -45.4), opens: 'hyphae_strand', resets: 'run' },
+      { id: 'sporelights', name: 'The Spent Sporelights', kind: 'light', trigger: 'pill', points: [wp(46, -22), wp(-38, 47), wp(56, 27)], resets: 'run', place: 'veilwater' },
+      { id: 'harp_curtains', name: 'Gill Curtains', kind: 'sequence', trigger: 'touch', touchR: 1.2, points: [wpolar(43, 32, 7.2, 30), wpolar(43, 32, 7.2, 150), wpolar(43, 32, 7.2, 270)], resets: 'day', place: 'gill_harp' },
+    ],
+    shortcuts: [{ id: 'hyphae_strand', name: 'The Hyphae Strand', deed: 'strand_counterweight' }],
+    drops: [{ id: 'crown_drop', name: 'Crown Lip', from: wp(-27.9, -33.5), to: wp(-25, -32.5) }],
+    vigils: [
+      { id: 'gill_crown', name: 'Gill Crown', kind: 'disc', x: -36, z: -36, r: 8 },
+      { id: 'harp_round', name: 'Harp Green', kind: 'loop', pts: [0, 45, 90, 135, 180, 225, 270, 315].map((a) => [wpolar(43, 32, 7.1, a).x, wpolar(43, 32, 7.1, a).z]) },
+    ],
+    wayside: { kind: 'puffball', name: 'puffballs', perDay: 4, along: 'walk', touchR: 1.0, give: { satiety: 2 }, persist: 'day' },
+    places: [
+      { id: 'mothers_cup', name: "The Mother's Cup", access: 'foot', legend: true, lamp: 'cup_lamp', stand: wp(32, -21.8),
+        water: { kind: 'disc', x: 32, z: -30, r: 5, depth: [0.9, 0.95] },
+        attract: { velvet_ray: 2, plumgill_perch: 1.5 },
+        rule: { type: 'rhythm', name: 'Root Breath', period: 16, warn: 1.5, live: 6, mods: { waitMult: 0.6 } },
+        lore: 'The Mother Cap drinks here, ten breaths at a time.',
+        look: 'An enclosed lagoon inside a cloister of root arches, its south rim broken into low water-steps. On each exhale the arches loosen and amber spores rain onto the water.' },
+      { id: 'lullaby', name: 'The Lullaby', access: 'both', stand: wp(-32, 13.5), raftStand: wp(-28, 8),
+        water: { kind: 'disc', x: -28, z: -1, r: 8, depth: [0.6, 0.85] },
+        attract: { sleepspore_jelly: 3, velvet_ray: 1.5 },
+        mods: { surgeEveryMult: 1.3, erraticMult: 0.6, hookWindowMult: 0.85 },
+        rule: null, alt: { mods: { surgeEveryMult: 1.5, erraticMult: 0.5, hookWindowMult: 0.75 } },
+        lore: 'Fish sleep here with their mouths open.',
+        look: 'The open West Basin; a slow hum and drifting sleep-spores over violet water. Fished from the raft or from the north beach of Lanternstalk Grove, casting north.' },
+      { id: 'puffball_vent', name: 'The Puffball Vent', access: 'raft', stand: null, raftStand: wp(0, -21.8),
+        water: { kind: 'disc', x: 0, z: -25, r: 5, depth: [0.45, 0.55] },
+        attract: { sporebelly_puffer: 3, capshell_crayfish: 1.5 },
+        rule: { type: 'rhythm', name: 'Vent Burst', period: 20, warn: 2, live: 6, burst: true, mods: { rarity: 0.25, waitMult: 0.7 } },
+        alt: { period: 14, warn: 1.5 },
+        lore: 'Every twenty breaths the reef sneezes.',
+        look: 'A ring of pink puffball pods on the reef mat. A hiss, a six-metre spore geyser, then settling water full of stunned fish.' },
+      { id: 'drowned_greenhouse', name: 'The Drowned Greenhouse', access: 'foot', lamp: 'house_lamp', stand: wp(-44, 36.5),
+        water: { kind: 'rect', x: -44, z: 30, w: 11, d: 9, depth: [0.4, 0.5] },
+        attract: { capshell_crayfish: 2, plumgill_perch: 2, sporebelly_puffer: 1.5 },
+        rule: { type: 'targets', name: 'The Lit Row', lock: 1.6, lockPicks: 'bed',
+          targets: [
+            { id: 'row1', kind: 'rect', x: -48.5, z: 30, w: 2, d: 9 }, { id: 'row2', kind: 'rect', x: -45.5, z: 30, w: 2, d: 9 },
+            { id: 'row3', kind: 'rect', x: -42.5, z: 30, w: 2, d: 9 }, { id: 'row4', kind: 'rect', x: -39.5, z: 30, w: 2, d: 9 } ],
+          lit: { every: 15, patchDrift: 0.6, chargeTol: 0.08, mods: { waitMult: 0.5, quality: 0.12 } } },
+        alt: { lit: { every: 9 } },
+        lore: 'Rows of glass, rows of water, and one row that still remembers the sun.',
+        look: 'A roofless greenhouse of cracked panes. Four flooded beds run up-screen; one glows pink and a patch of old sunlight drifts along it. The meter shows a tick where the patch lies.' },
+      { id: 'gill_harp', name: 'The Gill Harp', access: 'foot', lamp: 'harp_lamp', stand: wp(43, 39.2),
+        water: { kind: 'disc', x: 43, z: 32, r: 5.2, depth: [0.7, 0.8] },
+        attract: { velvet_ray: 2.5, threadling_eel: 2 },
+        rule: { type: 'sequence', name: 'Serenade', deed: 'harp_curtains', window: 15, buff: 45, failDim: 5, mods: { waitMult: 0.5, nibbleTells: 1 } },
+        alt: { window: 10, buff: 60 },
+        lore: 'Walk the strings in the order she hums them.',
+        look: 'A pool under the Bellcap, a 14 m pink-gilled cap. Three luminous gill-curtains hang around the green (east, west and north of the pool) and pulse in a new order each day.' },
+      { id: 'veilwater', name: 'The Veilwater', access: 'foot', lamp: 'crown_lamp', stand: wp(-36.3, -45.2),
+        water: { kind: 'disc', x: -40, z: -45, r: 2.4, depth: [0.75, 0.85] },
+        attract: { mildew_angler: 2, sleepspore_jelly: 1.5 },
+        rule: { type: 'deed', name: 'Burn the Veil', deed: 'sporelights', mode: 'permanent', gloomInCalm: true, mods: { rarity: 0.25, quality: 0.15 } },
+        alt: { startStep: 1 },
+        lore: 'A pool that kept its own night.',
+        look: 'A veiled pool on a high ledge against the north wall; its south rim has fallen into low steps. Each sporelight relit on another island adds a strand of light to the veil; with all three it burns away.' },
+    ],
+  },
+
+  // ================================================================== Glasswater Vault — mostly on foot
+  glasswater: {
+    plateau: { r: 20, depth: 0.45 },                 // the old plateau is the Orrery Floor (land); this is the moat shelf
+    pillars: [   // reliquaries BETWEEN the Votive Font footbridges; bookcases on the Reading Terraces
+      ...[0, 60, 120, 180, 240, 300].map((a) => ({ ...wpolar(0, 0, 10, a), r: 1.2, kind: 'reliquary' })),
+      { x: 56, z: 0, r: 1.8, kind: 'shelf' }, { x: 51.96, z: 30, r: 1.8, kind: 'shelf' }, { x: -51.96, z: 30, r: 1.8, kind: 'shelf' },
+      { x: -51.96, z: -30, r: 1.8, kind: 'shelf' }, { x: 0, z: -63.5, r: 1.8, kind: 'shelf' }, { x: 51.96, z: -30, r: 1.8, kind: 'shelf' },
+    ],
+    spawn: { x: 0, z: 51, yaw: 0 },
+    docks: [{ x: 15, z: 43.5 }, { x: 44.5, z: 8 }, { x: 8, z: -44.5 }, { x: -44.5, z: 8 }, { x: -33.5, z: 32 }],
+    spawnMode: 'foot', gateAccess: 'foot',
+    raft: { mode: 'skiff', start: 'harbour' },     // the skiff is fenced into the east / south moat by the low spokes
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'gw_terrace', name: 'Reading Terraces', kind: 'ring', x: 0, z: 0, r0: 54, r1: 66, a0: 105, a1: 435, y: 4.0, tag: 'ground' },
+        { id: 'gw_gallery', name: 'Lower Gallery', kind: 'ring', x: 0, z: 0, r0: 48, r1: 54, y: 1.2, tag: 'ground' },
+        ...[20, 60, 120, 160, 230, 270, 300, 340].map((a) => wradial(`gw_ramp${a}`, a, 49.5, 57.5, 1.2, 4.0, 3, { tag: 'ramp' })),
+        { id: 'gw_bellchapel', name: 'Chapel of the Struck Hour', kind: 'disc', x: 60, z: 6, r: 4.2, y: 7.0, tag: 'ground' },
+        { id: 'gw_bellramp', kind: 'path', pts: [[59.5, 18.5, 4.0], [60, 9.5, 7.0]], w: 3, tag: 'ramp' },   // ramps are painted after the platforms they climb onto
+        { id: 'gw_ledgerlip', name: 'Ledger Stair', kind: 'disc', x: -41, z: 41, r: 5.5, y: 7.0, tag: 'ground' },
+        { id: 'gw_ledgerramp', kind: 'path', pts: [[-48, 34, 4.0], [-43.6, 38.6, 7.0]], w: 3, tag: 'ramp' },   // ends 1.96 m inside the disc
+        { id: 'gw_orrery', name: 'Orrery Floor', kind: 'disc', x: 0, z: 0, r: 20, y: 1.5, tag: 'ground' },
+        // spokes: low bridges over the moat (they fence the skiff)
+        wradial('sp90a', 90, 19.5, 23, 1.5, 1.45, 3.5, { tag: 'bridge' }),
+        wradial('sp90m', 90, 23, 31, 1.45, 1.38, 3.5, { tag: 'bridge', name: 'The Sundered Span', needs: 'sundered_span' }),
+        wradial('sp90b', 90, 31, 48.5, 1.38, 1.2, 3.5, { tag: 'bridge' }),
+        wradial('sp30a', 30, 19.5, 26, 1.5, 1.43, 3.5, { tag: 'bridge' }),
+        wradial('sp30b', 30, 40, 48.5, 1.29, 1.2, 3.5, { tag: 'bridge', name: 'The Broken Hymnal' }),
+        wradial('sp330', 330, 19.5, 48.5, 1.5, 1.2, 3.5, { tag: 'bridge', name: "Copyists' Bridge" }),
+        wradial('sp270a', 270, 19.5, 31.6, 1.5, 1.38, 3.5, { tag: 'bridge', name: 'Chandelier Causeway' }),
+        wradial('sp270b', 270, 42.4, 48.5, 1.27, 1.2, 3.5, { tag: 'bridge' }),
+        { id: 'crown_ring', name: 'The Coronet', kind: 'ring', x: 0, z: -37, r0: 3.6, r1: 6.0, y: 1.2, tag: 'bridge' },
+        wradial('sp210a', 210, 19.5, 28, 1.5, 1.41, 3.5, { tag: 'bridge' }),
+        wradial('sp210m', 210, 28, 40, 1.41, 1.29, 3.5, { tag: 'bridge', name: 'The Tuned Bridge', needs: 'tuned_bridge' }),
+        wradial('sp210b', 210, 40, 48.5, 1.29, 1.2, 3.5, { tag: 'bridge' }),
+        wradial('sp150', 150, 19.5, 48.5, 1.5, 1.2, 3.5, { tag: 'bridge', name: "Mapmakers' Bridge" }),
+        ...[30, 90, 150, 210, 270, 330].map((a) => wradial(`font${a}`, a, 11.4, 15.8, 1.5, 1.5, 2.4, { tag: 'bridge' })),
+      ],
+      holes: [
+        { id: 'vault_seal', kind: 'disc', x: 0, z: 0, r: 5, depth: 1.0 },
+        { id: 'votive_font', kind: 'ring', x: 0, z: 0, r0: 12, r1: 14, depth: 0.25, lip: LIP(1.2) },
+        { id: 'mirror_nave', kind: 'disc', x: -58.5, z: 0, r: 3.8, depth: 0.7, lip: LIP(2) },
+        { id: 'ledger_well', kind: 'disc', x: -41, z: 41, r: 2.2, depth: 1.0, lip: LIP(3.3) },   // the shaft's broken south face, as geometry
+        { id: 'cascade_basin', kind: 'disc', x: -29, z: -51, r: 4.2, depth: 0.85, lip: LIP(2) },
+      ],
+      blocks: [],
+      // one of three bridges has fallen this descent (seeded); everything stays reachable under each (validated)
+      variants: [
+        { id: 'gw_mapmakers', name: "Mapmakers' Bridge has fallen", weight: 1, fallen: ['sp150'] },
+        { id: 'gw_copyists', name: "Copyists' Bridge has fallen", weight: 1, fallen: ['sp330'] },
+        { id: 'gw_tuned', name: 'The Tuning Pillar is cracked', weight: 1, fallen: ['sp210m'] },
+      ],
+    },
+    moorings: [
+      { id: 'harbour', name: 'The Harbour Steps', stand: wp(8, 48.6), slot: wp(8, 45), yawDeg: 0, bell: true },
+      { id: 'skiff_steps', name: 'The Skiff Steps', stand: wp(5.2, 18.0), slot: wp(6.5, 22.2), yawDeg: 163, bell: true },
+    ],
+    lamps: [
+      { id: 'harbour_lamp', name: 'Harbour Steps', x: 3, z: 50.5 },
+      { id: 'orrery_lamp', name: 'Orrery Floor', x: -3.5, z: 16.3, place: 'votive_font' },
+      { id: 'north_lamp', name: 'North Terrace', x: 0, z: -57.5, place: 'fallen_chandelier' },
+      { id: 'mirror_lamp', x: -62, z: 6.5, place: 'mirror_nave' },
+      { id: 'hour_lamp', x: 60, z: 3.5, place: 'bell_window' },
+      { id: 'ledger_lamp', x: -37.6, z: 37.6, place: 'well_of_ledgers' },
+      { id: 'cascade_lamp', x: -37.1, z: -49.6, place: 'stilled_cascade' },
+      { id: 'hymnal_lamp', x: 43.3, z: 25, place: 'broken_hymnal' },
+    ],
+    deeds: [
+      { id: 'span_winch', name: 'Span Winch', kind: 'winch', trigger: 'pill', at: wp(-6.5, 17.5), opens: 'sundered_span', resets: 'run' },
+      { id: 'tuning_pillar', name: 'Tuning Pillar', kind: 'strike', trigger: 'pill', at: wpolar(0, 0, 50.5, 205), opens: 'tuned_bridge', resets: 'run' },
+      { id: 'chandelier_arms', name: "The Chandelier's Arms", kind: 'light', trigger: 'touch', touchR: 0.9, points: [0, 60, 120, 180, 240, 300].map((a) => wpolar(0, -37, 4.8, a)), resets: 'dawn', place: 'fallen_chandelier' },
+      { id: 'bell_rope', name: 'Bell Rope', kind: 'rope', trigger: 'pill', at: wp(61.8, 7.6), cooldown: 40, resets: 'never', place: 'bell_window' },
+    ],
+    shortcuts: [
+      { id: 'sundered_span', name: 'The Sundered Span', deed: 'span_winch' },
+      { id: 'tuned_bridge', name: 'The Tuned Bridge', deed: 'tuning_pillar' },
+    ],
+    drops: [],
+    vigils: [
+      { id: 'seal_round', name: 'Inside the Votive Font', kind: 'loop', pts: [0, 45, 90, 135, 180, 225, 270, 315].map((a) => [wpolar(0, 0, 7.4, a).x, wpolar(0, 0, 7.4, a).z]) },
+      { id: 'gallery_round', name: 'Lower Gallery', kind: 'loop', pts: Array.from({ length: 24 }, (_, i) => [wpolar(0, 0, 51, i * 15).x, wpolar(0, 0, 51, i * 15).z]) },
+    ],
+    wayside: { kind: 'page', name: 'drifting pages', perDay: 6, along: 'walk', touchR: 1.0, give: { shells: [1, 2], lore: 0.25 }, persist: 'day' },
+    places: [
+      { id: 'fallen_chandelier', name: 'The Fallen Chandelier', access: 'foot', legend: true, lamp: 'north_lamp', stand: wp(0, -31.0),
+        water: { kind: 'disc', x: 0, z: -37, r: 3.5, depth: [0.9, 0.95] },
+        attract: { mirror_pike: 1.5, shardspine_eel: 1.5 },
+        rule: { type: 'deed', name: 'Lit Arms', deed: 'chandelier_arms', mode: 'dawn', perStep: { rarity: 0.04 }, mods: { nibbleTells: 1, legendEnrageAdd: 15 } },
+        lore: 'It fell in one breath. It has been holding that breath ever since.',
+        look: 'A drowned chandelier whose coronet breaks the surface of the trench; you stand on its rim. Six arms relight as you walk past them.' },
+      { id: 'mirror_nave', name: 'The Mirror Nave', access: 'foot', lamp: 'mirror_lamp', stand: wp(-58.5, 6.5),
+        water: { kind: 'disc', x: -58.5, z: 0, r: 3.8, depth: [0.65, 0.75] },
+        attract: { mirror_pike: 3 },
+        rule: { type: 'reflection', name: 'Reflection', fish: 2, hitR: 0.9, wait: [2, 4], missWaitMult: 1.6, flash: 0.5, mirror: 'flipX', mods: { rarity: 0.2 } },
+        alt: { fish: 3, hitR: 0.75 },
+        lore: 'Nothing swims in the water. Everything swims in the ceiling.',
+        look: 'The flooded nave of the Chapel of Unseen Hours under open crystal ribs. Two fish silhouettes swim along the ribs and show on the water mirrored across a north–south brass line.' },
+      { id: 'bell_window', name: 'The Bell-Chapel Window', access: 'foot', lamp: 'hour_lamp', stand: wp(56.6, 6),
+        water: { kind: 'disc', x: 44, z: -6, r: 4, depth: [0.85, 0.95] },
+        attract: { chime_jelly: 3, mirror_pike: 2 },
+        rule: { type: 'deed', name: 'The Struck Hour', deed: 'bell_rope', mode: 'window', window: 12, mods: { waitMult: 0.4 } },
+        alt: { window: 8, cooldown: 25 },
+        lore: 'Strike the hour and the water remembers.',
+        look: 'A round window seven metres up in the west wall of the east chapel, looking north-west over the moat. Pull the rope: the bell tolls and a patch of water shivers.' },
+      { id: 'well_of_ledgers', name: 'The Well of Ledgers', access: 'foot', lamp: 'ledger_lamp', stand: wp(-41, 37.2),
+        water: { kind: 'disc', x: -41, z: 41, r: 2.2, depth: [0.5, 1.0] },
+        attract: { blind_scrivener: 3, mirror_pike: 1.5 },
+        rule: { type: 'plumb', name: 'Plumb Line', depth: [0.5, 1.0], bottomAt: 0.95, bottomMods: { rarity: 0.1 } },
+        alt: { depth: [0.6, 1.0], bottomAt: 0.9 },
+        lore: 'Every depth was written down.',
+        look: 'A narrow shaft through shelved stone; its south face has fallen in, so the water shows far below. You stand on its north rim; the cast drops straight down and the charge chooses how deep.' },
+      { id: 'stilled_cascade', name: 'The Stilled Cascade', access: 'foot', lamp: 'cascade_lamp', stand: wp(-33.6, -49.6),
+        water: { kind: 'disc', x: -29, z: -51, r: 4.2, depth: [0.8, 0.9] },
+        attract: { glassgill_perch: 2, prism_minnow: 1.5 },
+        mods: { bandAmpMult: 0.25, bandNoiseMult: 0.3, darterJumpMult: 0.5, quality: 0.1, waitMult: 1.4 },
+        rule: null, alt: { mods: { bandAmpMult: 0.35, bandNoiseMult: 0.4, darterJumpMult: 0.6, quality: 0.08, waitMult: 1.2 } },
+        lore: 'The falls froze mid-word.',
+        look: 'A basin under a waterfall turned to cyan crystal in mid-pour, open to the gallery on its south side. The water is so still the sweet band barely moves.' },
+      { id: 'broken_hymnal', name: 'The Broken Hymnal', access: 'foot', lamp: 'hymnal_lamp', stand: wpolar(0, 0, 40.6, 30),
+        water: { kind: 'disc', x: 30.5, z: 13.5, r: 6, depth: [0.85, 0.95] },
+        attract: { prism_minnow: 2, mirror_pike: 1.5, shardspine_eel: 2 },
+        rule: { type: 'cue', name: 'The Unfinished Chord', kind: 'chime', every: [3.5, 5], lead: 1.0, mods: { hookWindowAdd: 0.15, nibbleTells: 1 } },
+        alt: { every: [2.5, 4], lead: 0.6 },
+        lore: 'The bridge sang as it fell, and never quite finished.',
+        look: 'The tilted outer stub of a collapsed crystal bridge. Shards still chime every few seconds, and fish bite exactly one second after a chime.' },
+      { id: 'burning_glass', name: 'The Burning Glass', access: 'both', stand: null,
+        water: { kind: 'ring', x: 0, z: 0, r0: 25.5, r1: 32.5, a0: 250, a1: 340, depth: [0.85, 0.95] },
+        attract: {},
+        rule: { type: 'moving', name: 'Focused Light', arc: { x: 0, z: 0, r: 29, a0: 250, a1: 340 }, speed: 0.65, r: 3.5, phases: ['calm'], mods: { rarity: 0.2, waitMult: 0.6, quality: 0.08 } },
+        alt: { speed: 1.0, r: 2.8 },
+        lore: 'A lens the size of a chapel, still trying to light the water.',
+        look: 'A great lens hung high in the vault throws a 7 m pool of focused light that sweeps the north trench and back, about 70 s each way.' },
+      { id: 'votive_font', name: 'The Votive Font', access: 'foot', lamp: 'orrery_lamp', stand: wp(0, 16.3),
+        water: { kind: 'ring', x: 0, z: 0, r0: 12, r1: 14, depth: [0.2, 0.3] },
+        attract: { prism_minnow: 2, glassblown_puffer: 2 },
+        mods: { waitMult: 0.5, rarity: -0.1 },
+        rule: null, alt: { mods: { waitMult: 0.4, rarity: -0.15 } },
+        lore: 'Votive fry, small as wishes.',
+        look: 'A shallow ring channel around the Vault Seal, crossed by six footbridges, its south rim sunk into a low step. Quick, cheap, eel-free fish one step from the hub.' },
+    ],
+  },
+
+  // ================================================================== The Pallid Deep — mostly on foot
+  paleabyss: {
+    causeway: null,                                  // the shallow causeway is land now (the Spine)
+    deepPools: [{ name: 'The Bottomless', x: 0, z: -52, r: 12, depth: 1.0 }],
+    legendPool: { x: 0, z: -52, r: 3.2, name: 'The Bottomless' },
+    islands: [   // the giants kneel at the north wall, facing the Brink and the camera
+      { name: 'The Kneeling West', x: -25.5, z: -60.5, r: 10, kind: 'giant' },
+      { name: 'The Kneeling East', x: 25.5, z: -60.5, r: 10, kind: 'giant' },
+      { name: 'Funeral Barge', x: -42, z: 12, r: 4, kind: 'wreck' },
+      { name: 'Candle Barge', x: 42, z: 4, r: 4, kind: 'wreck' },
+    ],
+    pillars: [165, 195, 225, 255, 285, 315, 345, 375].flatMap((a) => [28.5, 35.5].map((r) => ({ ...wpolar(0, 0, r, a), r: 1.2, kind: 'rib' }))),
+    spawn: { x: 0, z: 68, yaw: 0 },
+    docks: [{ x: 12, z: 58 }, { x: 34, z: 55.5 }, { x: -10.5, z: 25 }, { x: 10.5, z: 25 }, { x: -5.5, z: -35.5 }],
+    spawnMode: 'foot', gateAccess: null,
+    raft: { mode: 'beached', at: { x: 6, z: 72, yawDeg: 17 } },     // "Nothing floats in the Pallid Deep."
+    spotStyle: { id: 'breath', name: 'The Breathing Deep', warn: 2, live: 12, every: [40, 70], missRespawn: 0.5, r: 3.5,
+      walkSecondsMax: 8, castInset: 2, mods: { rarity: 0.3, weightBias: 0.5 }, tideChart: { count: 2, until: 'dusk' }, countsAsSpot: true },
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'pd_landing', name: 'Landing of Last Rafts', kind: 'poly', y: 0.4, tag: 'ground', pts: [[-26, 60], [26, 60], [34, 68], [18, 74], [0, 76], [-18, 74], [-34, 68]] },
+        { id: 'pd_spine', name: 'The Spine', kind: 'path', pts: [[0, 62, 0.6], [0, 31, 0.8]], w: 4, tag: 'ground' },
+        { id: 'pd_plaza', name: 'Cairn Plaza', kind: 'disc', x: 0, z: 22, r: 9, y: 1.0, tag: 'ground' },
+        { id: 'pd_pier', name: 'Long Pier of Names', kind: 'path', pts: [[2, 46, 0.7], [32, 50, 0.9]], w: 2.6, tag: 'ground' },
+        { id: 'pd_pierend', kind: 'disc', x: 34, z: 50, r: 3, y: 0.9, tag: 'ground' },
+        { id: 'pd_ribwalk', name: 'The Rib Walk', kind: 'ring', x: 0, z: 0, r0: 30.5, r1: 33.5, a0: 150, a1: 390, y: 1.0, tag: 'ground' },
+        { id: 'pd_bearW', name: "Pallbearers' Walk (west)", kind: 'path', pts: [[-7, 18.5, 1.0], [-27.7, 16, 1.0]], w: 3, tag: 'ground' },
+        { id: 'pd_bearE', name: "Pallbearers' Walk (east)", kind: 'path', pts: [[7, 18.5, 1.0], [27.7, 16, 1.0]], w: 3, tag: 'ground' },
+        { id: 'pd_bierA', name: 'The Bier Road', kind: 'path', pts: [[-1, 13.5, 1.0], [-4.5, 2, 1.2]], w: 3, tag: 'ground' },
+        { id: 'pd_bierM', name: 'The Sunken Road', kind: 'path', pts: [[-4.5, 2, 1.2], [-7, -8, 1.3]], w: 3, tag: 'ground', needs: 'sunken_road' },
+        { id: 'pd_bierB', kind: 'path', pts: [[-7, -8, 1.3], [-9.5, -16.5, 1.5]], w: 3, tag: 'ground' },
+        { id: 'pd_barge', name: 'The Bier Barge', kind: 'disc', x: -10, z: -20, r: 4.8, y: 1.5, tag: 'ground' },
+        { id: 'pd_bierlink', kind: 'path', pts: [[-12, -22.5, 1.5], [-15.6, -27.6, 1.0]], w: 3, tag: 'ground' },
+        { id: 'pd_stair', name: 'The Pilgrim Road', kind: 'path', pts: [[0, -33, 1.0], [0, -37.6, 1.0]], w: 3.5, tag: 'ground' },
+        { id: 'pd_lip', name: 'The Brink', kind: 'ring', x: 0, z: -52, r0: 12, r1: 15, a0: 340, a1: 560, y: 1.0, tag: 'ground' },
+        { id: 'pd_hands', name: 'The Joined Hands', kind: 'disc', x: 0, z: -61, r: 3.5, y: 6.0, tag: 'ground' },
+        { id: 'pd_armW', name: 'West Forearm', kind: 'path', pts: [[-12.69, -56.62, 1.0], [-2.36, -60.18, 6.0]], w: 2.6, tag: 'ramp' },
+        { id: 'pd_armE', name: 'East Forearm', kind: 'path', pts: [[12.69, -56.62, 1.0], [2.36, -60.18, 6.0]], w: 2.6, tag: 'ramp' },
+        { id: 'pd_plank', name: 'Plank Walk', kind: 'path', pts: [[-32, -1.5, 1.0], [-50.5, -15.5, 2.5]], w: 2.6, tag: 'ground' },
+        { id: 'pd_alms', name: 'The Drowned Almshouse', kind: 'rect', x: -58, z: -20, w: 16, d: 14, y: 2.5, tag: 'ground' },
+        { id: 'pd_wallwalk', name: 'Wall Walk', kind: 'path', pts: [[-52.5, -26.5, 2.5], [-43, -40, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_slippath', name: 'Slip Path', kind: 'path', pts: [[-26.5, -19.5, 1.0], [-40, -40, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_sliphead', name: 'The Empty Ferry Slip', kind: 'disc', x: -42, z: -42, r: 3.5, y: 1.0, tag: 'ground' },
+        { id: 'pd_slipW', kind: 'path', pts: [[-44, -44.5, 1.0], [-47, -57, 1.0]], w: 2.4, tag: 'ground' },
+        { id: 'pd_slipE', kind: 'path', pts: [[-50, -44.5, 1.0], [-53, -56, 1.0]], w: 2.4, tag: 'ground' },
+        { id: 'pd_belfrypier', name: 'Belfry Pier', kind: 'path', pts: [[32.5, -3, 1.0], [53, -20.4, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_belfry', name: 'The Sunken Belfry', kind: 'disc', x: 56, z: -22, r: 5.2, y: 1.0, tag: 'ground' },
+        { id: 'pd_chainwalk', name: 'Chain Walk', kind: 'path', pts: [[27, -19.5, 1.0], [40, -37, 2.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_plinth', name: 'The Chain Garden', kind: 'disc', x: 44, z: -42, r: 6, y: 2.0, tag: 'ground' },
+        { id: 'pd_bellchain', name: 'Rust Walk', kind: 'path', pts: [[55, -26, 1.0], [47, -37.5, 2.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_shroudW', name: 'Shroud Walk (west)', kind: 'path', pts: [[-14.6, -51.5, 1.0], [-28, -46, 1.0], [-39.6, -43.4, 1.0]], w: 2.6, tag: 'ground' },
+        { id: 'pd_shroudE', name: 'Shroud Walk (east)', kind: 'path', pts: [[14.6, -51.5, 1.0], [28, -46, 1.5], [38.6, -44.4, 2.0]], w: 2.6, tag: 'ground' },
+      ],
+      holes: [
+        { id: 'bier_hold', kind: 'disc', x: -10, z: -21.2, r: 1.6, depth: 0.8, lip: LIP(1.0) },
+        { id: 'alms_cradle', kind: 'disc', x: -63, z: -24, r: 1.4, depth: 0.3, lip: LIP(0.6) },
+        { id: 'alms_cookpot', kind: 'disc', x: -58, z: -24, r: 1.4, depth: 0.4, lip: LIP(0.6) },
+        { id: 'alms_bed', kind: 'disc', x: -53, z: -23, r: 1.4, depth: 0.6, lip: LIP(0.6) },
+        { id: 'alms_chest', kind: 'disc', x: -62, z: -16, r: 1.4, depth: 0.8, lip: LIP(0.6) },
+        { id: 'alms_shrine', kind: 'disc', x: -55, z: -16, r: 1.4, depth: 0.7, lip: LIP(0.6) },
+        { id: 'belfry_mouth', kind: 'disc', x: 56, z: -22, r: 2.2, depth: 0.9 },
+      ],
+      blocks: [{ kind: 'disc', x: 44, z: -42, r: 1.5, h: 6 }],   // the chain anchor post
+      // either the Sunken Road is under water (default), or one Pallbearers' Walk is and the windlass raises that instead
+      variants: [
+        { id: 'pd_road', name: 'The Sunken Road is under water', weight: 2, fallen: [] },
+        { id: 'pd_west', name: "The west Pallbearers' Walk is under water", weight: 1, fallen: ['pd_bearW'], swap: { sunken_road: ['pd_bearW'] } },
+        { id: 'pd_east', name: "The east Pallbearers' Walk is under water", weight: 1, fallen: ['pd_bearE'], swap: { sunken_road: ['pd_bearE'] } },
+      ],
+    },
+    moorings: [],
+    lamps: [
+      { id: 'landing_lamp', name: 'Landing of Last Rafts', x: -5, z: 66 },
+      { id: 'plaza_lamp', name: 'Cairn Plaza', x: 4, z: 24 },
+      { id: 'pier_lamp', x: 33.0, z: 47.6, place: 'long_pier' },
+      { id: 'bier_lamp', x: -13.4, z: -17.6, place: 'bier_barge' },
+      { id: 'lip_lamp', name: 'The Brink', x: 6, z: -39, place: 'the_bottomless' },
+      { id: 'alms_lamp', x: -61.5, z: -20, place: 'drowned_almshouse' },
+      { id: 'slip_lamp', x: -45.4, z: -41.6, place: 'ferry_slip' },
+      { id: 'chain_lamp', x: 40, z: -40, place: 'chain_garden' },
+      { id: 'belfry_lamp', x: 59.4, z: -18.6, place: 'sunken_belfry' },
+    ],
+    deeds: [
+      { id: 'bone_windlass', name: 'Bone Windlass', kind: 'winch', trigger: 'pill', at: wp(-8.5, -11), opens: 'sunken_road', resets: 'run' },
+      { id: 'bier_offer', name: 'The Bier', kind: 'offer', trigger: 'pill', at: wp(-6.8, -19.6), cost: { fish: 'lowest' }, resets: 'dusk', place: 'bier_barge' },
+    ],
+    shortcuts: [{ id: 'sunken_road', name: 'The Sunken Road', deed: 'bone_windlass' }],
+    drops: [],
+    vigils: [
+      { id: 'plaza', name: 'Cairn Plaza', kind: 'disc', x: 0, z: 22, r: 8 },
+      { id: 'landing', name: 'Landing of Last Rafts', kind: 'disc', x: 0, z: 67, r: 8 },
+      { id: 'rib_round', name: 'The Rib Walk', kind: 'loop',
+        pts: [...[150, 180, 210, 240, 270, 300, 330, 360, 390].map((a) => [wpolar(0, 0, 32, a).x, wpolar(0, 0, 32, a).z]), [17, 17.3], [0, 22], [-17, 17.3]] },
+      { id: 'brink_round', name: 'The Brink and the Hands', kind: 'loop',
+        pts: [[0, -38.5], [9.5, -42.5], [13.5, -52], [12.2, -56.8], [7, -58.6], [2.36, -60.18], [0, -59], [-2.36, -60.18], [-7, -58.6], [-12.2, -56.8], [-13.5, -52], [-9.5, -42.5]] },
+    ],
+    wayside: { kind: 'memorial', name: 'memorial candles', count: 48, along: 'walk', spacing: 6, touchR: 1.0, give: { oil: 0.5 }, persist: 'descent', victoryCascade: true },
+    places: [
+      { id: 'the_bottomless', name: 'The Bottomless', access: 'foot', legend: true, lamp: 'lip_lamp',
+        stand: wp(0, -38.5), standName: 'The Brink', standMods: { sweetAdd: 0.03 },
+        altStand: { x: 0, z: -57.9, name: 'The Joined Hands', mods: {} },          // the steep line (BALANCE.walk.steepLine) applies up here
+        water: { kind: 'disc', x: 0, z: -52, r: 11.5, depth: [0.95, 1.0] },
+        attract: { lampwarden_angler: 1.5, shroud_ray: 1.5 },
+        rule: null,
+        lore: 'Two who kneel. One who breathes below.',
+        look: 'The black water before the kneeling giants. Fish from the low Brink (a flat line, but eels reach you) or climb a forearm to the Joined Hands (6 m up, eel-proof, a steep line).' },
+      { id: 'long_pier', name: 'The Long Pier of Names', access: 'foot', lamp: 'pier_lamp', stand: wp(35.5, 50),
+        water: { kind: 'disc', x: 39.8, z: 45.2, r: 6, depth: [0.75, 0.85] },
+        attract: { shroud_ray: 1.5, gilt_eyed_eel: 1.5 },
+        rule: { type: 'drifters', name: 'For the Named', lane: [[41, 34], [41, 62]], every: [20, 30], speed: 0.6, hitR: 1.5, perDay: 3, give: { oil: 6 }, nextBite: { rarity: 0.2 } },
+        alt: { every: [14, 20], speed: 0.9, perDay: 4, give: { oil: 4 } },
+        lore: "Every candle a promise someone couldn't keep.",
+        look: 'A long pier lined with names. Little candle-rafts drift past its end; land your bobber beside one to relight it.' },
+      { id: 'drowned_almshouse', name: 'The Drowned Almshouse', access: 'foot', lamp: 'alms_lamp', stand: wp(-58, -20),
+        water: { kind: 'rect', x: -58, z: -20, w: 14, d: 12, depth: [0.3, 0.8] },
+        attract: {},
+        rule: { type: 'targets', name: 'Five Rooms', lock: 1.6, lockPicks: 'hole',
+          targets: [
+            { id: 'cradle', name: 'The Cradle', kind: 'disc', x: -63, z: -24, r: 1.4, depth: 0.3, attract: { ossuary_fry: 4 } },
+            { id: 'cookpot', name: 'The Cookpot', kind: 'disc', x: -58, z: -24, r: 1.4, depth: 0.4, attract: { bonecrook_crayfish: 4 } },
+            { id: 'bed', name: 'The Bed', kind: 'disc', x: -53, z: -23, r: 1.4, depth: 0.6, attract: { pallid_wraithfin: 3 } },
+            { id: 'chest', name: 'The Chest', kind: 'disc', x: -62, z: -16, r: 1.4, depth: 0.8, attract: { gilt_eyed_eel: 3 } },
+            { id: 'shrine', name: 'The Shrine', kind: 'disc', x: -55, z: -16, r: 1.4, depth: 0.7, attract: { funeral_veil: 3 } } ] },
+        alt: { swap: [['cradle', 'chest'], ['cookpot', 'shrine']] },
+        lore: 'Five rooms, five lives, and every one of them kept a fish.',
+        look: 'A roofless upper floor with five holes in the boards, each over a different drowned room, each with a broken step on its south side. Aim near a hole and the reticle locks onto it.' },
+      { id: 'chain_garden', name: 'The Chain Garden', access: 'foot', lamp: 'chain_lamp', stand: wp(44, -36.5),
+        water: { kind: 'ring', x: 44, z: -42, r0: 6, r1: 12, depth: [0.85, 0.95] },
+        attract: { gilt_eyed_eel: 1.5, lampwarden_angler: 1.5 },
+        rule: { type: 'rhythm', name: 'The Thing Below Turns', period: 30, warn: 1.5, live: 8,
+          near: { points: [wp(40, -51), wp(53, -44), wp(50, -50)], r: 4 }, mods: { weightBias: 0.6, rarity: 0.15 },
+          foul: { chance: 0.15, spike: 0.15, warn: 0.3 } },
+        alt: { period: 22, foul: { chance: 0.25, spike: 0.15, warn: 0.3 } },
+        lore: 'Something turns over in its sleep.',
+        look: 'A plinth with a great anchor post; three iron chains plunge into the water around it. Rust snows down and the chains groan before something below rolls over.' },
+      { id: 'sunken_belfry', name: 'The Sunken Belfry', access: 'foot', lamp: 'belfry_lamp', stand: wp(56, -18.4), deadEnd: true,
+        water: { kind: 'disc', x: 56, z: -22, r: 2.2, depth: [0.85, 0.95] },
+        attract: { lampwarden_angler: 2, gilt_eyed_eel: 1.5 },
+        rule: { type: 'cue', name: 'Rung from Below', kind: 'toll', noPlunge: true, lead: 0, mods: { hookWindowAdd: 0.1, rarity: 0.2 } },
+        alt: { lead: 0.4 },
+        lore: 'The bell rings when something touches it.',
+        look: 'The crown of a drowned bell tower; you stand on its parapet over the bell-mouth. No plunge and no "!": the bell tolls and a bone-white ring pulses across the water.' },
+      { id: 'bier_barge', name: 'The Bier Barge', access: 'foot', lamp: 'bier_lamp', stand: wp(-10, -17.0),
+        water: { kind: 'disc', x: -10, z: -21.2, r: 1.6, depth: [0.75, 0.85] },
+        attract: { funeral_veil: 2 },
+        rule: { type: 'deed', name: 'Grave Goods', deed: 'bier_offer', mode: 'untilDusk', lockedBefore: true, gloomInCalm: true, mods: { rarity: 0.25, quality: 0.15 } },
+        alt: { cost: { fish: 'highest' }, mods: { rarity: 0.35, quality: 0.2 } },
+        lore: 'Give the dead a fish, and they open the hold.',
+        look: 'A funeral barge with a lidded hold in its deck. Lay your cheapest fish on the bier and the lid slides back until dusk.' },
+      { id: 'ferry_slip', name: 'The Empty Ferry Slip', access: 'foot', lamp: 'slip_lamp', stand: wp(-42, -42.5), deadEnd: true,
+        water: { kind: 'path', pts: [[-47, -46], [-50, -55]], w: 3.5, depth: [0.85, 0.95] },
+        attract: { shroud_ray: 1.5 },
+        rule: { type: 'phaseWindow', name: 'The Last Ferry', phases: ['dusk'], firstCastOnly: true, guarantee: 'rare', wait: 2, perDescent: 1 },
+        alt: { phases: ['dawn'] },
+        lore: 'At dusk the ferry comes. It brings no one.',
+        look: 'Two stone arms around an empty slip. Once a descent, at dusk, the water shows a boat that is not there; the first cast into it brings up something rare.' },
+    ],
+  },
+};
+export const PLACES = Object.entries(ARENA_V2).flatMap(([zid, a]) => (a.places || []).map((p) => ({ ...p, zone: zid })));
+
+// ---- v2 content tables (merged into the v1 tables only when WALK_ENABLED).
+export const WALK_STATS = {
+  stride: { label: 'Stride', base: 0, fmt: 'num', min: -2, max: 3 },   // + m/s on foot (§24.3)
+};
+// Place-kept species: eligible ONLY in their place's water, under their `cond`, and only while awake this
+// descent (BALANCE.places.awake). They count as rares everywhere else. Values ≈ +15% over each lake's rares.
+export const WALK_SPECIES = [
+  { id: 'harpstring_eel', name: 'Harpstring Eel', zone: 'sporewood', rarity: 'rare', tier: 3, place: 'gill_harp', cond: 'buff',
+    weight: [0.6, 2.4], value: 74, food: 22, oil: 44, time: 'any', depth: [0.4, 0.85], bait: null, behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'eel', body: 0x3a1f3e, belly: 0xffc9de, fin: 0xff7fb0, glow: 0xff9fc4, pattern: 'stripes', eyes: 'glow', scale: 1.1 },
+    hint: 'It only leaves the gill-strings while the Gill Harp sings.',
+    lore: 'It lives between the gill-strings and comes out only when the chord is right. It has perfect pitch and no patience.' },
+  { id: 'hushcap_koi', name: 'Hushcap Koi', zone: 'sporewood', rarity: 'rare', tier: 3, place: 'veilwater', cond: 'deed',
+    weight: [1, 4], value: 78, food: 26, oil: 46, time: 'calm', depth: [0.6, 1], bait: null, behavior: 'darter',
+    difficulty: diff(3, 'darter'),
+    model: { shape: 'koi', body: 0x2b1b30, belly: 0xe9d6f0, fin: 0xffb46a, glow: 0xffd28a, pattern: 'spots', eyes: 'glow', scale: 1.05 },
+    hint: 'In the Veilwater, once its veil has burned away.',
+    lore: 'It glows only in the dark the pool keeps. Burn the veil and the dark comes up to look at you.' },
+  { id: 'the_unreflected', name: 'The Unreflected', zone: 'glasswater', rarity: 'rare', tier: 4, place: 'mirror_nave', cond: 'reflection',
+    weight: [1, 4], value: 145, food: 30, oil: 56, time: 'any', depth: [0.5, 1], bait: null, behavior: 'darter',
+    difficulty: diff(4, 'darter'),
+    model: { shape: 'pike', body: 0xc9e8ff, belly: 0xffffff, fin: 0x5062b0, glow: 0xa8d4ff, pattern: 'none', eyes: 'blind', scale: 1.1 },
+    hint: 'Cast where its reflection swims, not where it seems to be.',
+    lore: 'It has no reflection. In the Mirror Nave it is the only thing that does.' },
+  { id: 'the_footnote', name: 'The Footnote', zone: 'glasswater', rarity: 'rare', tier: 4, place: 'well_of_ledgers', cond: 'plumbBottom',
+    weight: [2, 6], value: 140, food: 40, oil: 54, time: 'any', depth: [0.9, 1], bait: null, behavior: 'sinker',
+    difficulty: diff(4, 'sinker'),
+    model: { shape: 'angler', body: 0x1b2246, belly: 0xd8e8ff, fin: 0x0b1030, glow: 0x5cbcff, pattern: 'bands', eyes: 'glow', scale: 1.15 },
+    hint: 'At the very bottom of the Well of Ledgers. Only a perfect cast reaches it.',
+    lore: 'Every ledger has one: a small thing at the very bottom that explains everything above it.' },
+  { id: 'rainglass_darter', name: 'Rainglass Darter', zone: 'glasswater', rarity: 'rare', tier: 4, place: 'stilled_cascade',
+    weight: [0.3, 1.2], value: 135, food: 20, oil: 60, time: 'calm', depth: [0.75, 0.95], bait: null, behavior: 'darter',
+    difficulty: diff(4, 'darter'),
+    model: { shape: 'minnow', body: 0xa8d4ff, belly: 0xffffff, fin: 0xb48cff, glow: 0xc9e8ff, pattern: 'spots', eyes: 'normal', scale: 0.6 },
+    hint: 'Under the Stilled Cascade, while the light lasts.',
+    lore: 'Rain that fell into the cascade the moment it froze, and decided to stay.' },
+  { id: 'the_clapper', name: 'The Clapper', zone: 'paleabyss', rarity: 'rare', tier: 4, place: 'sunken_belfry',
+    weight: [3, 9], value: 225, food: 46, oil: 70, time: 'any', depth: [0.8, 1], bait: null, behavior: 'thrasher',
+    difficulty: diff(4, 'thrasher'),
+    model: { shape: 'carp', body: 0x4a4436, belly: 0xe9e2cf, fin: 0x2a261c, glow: 0xe8c66a, pattern: 'bands', eyes: 'glow', scale: 1.3 },
+    hint: 'It lives in the drowned bell. Listen for it.',
+    lore: 'When it turns over in the bell, the bell rings, and everything else in the Deep goes quiet to listen.' },
+  { id: 'wax_bearer', name: 'The Wax-Bearer', zone: 'paleabyss', rarity: 'rare', tier: 4, place: 'bier_barge', cond: 'deed',
+    weight: [2, 6], value: 220, food: 30, oil: 80, time: 'any', depth: [0.7, 0.9], bait: null, behavior: 'leaper',
+    difficulty: diff(4, 'leaper'),
+    model: { shape: 'eel', body: 0xd8d2c0, belly: 0xfff6e0, fin: 0x8a8070, glow: 0xffe2a8, pattern: 'none', eyes: 'glow', scale: 1.2 },
+    hint: 'In the hold of the Bier Barge, once the dead have been given something.',
+    lore: 'It carries a drop of candle-wax on its brow, as the dead were sent off. No one knows whose.' },
+  { id: 'the_unpaid_fare', name: 'The Unpaid Fare', zone: 'paleabyss', rarity: 'rare', tier: 4, place: 'ferry_slip', cond: 'window',
+    weight: [4, 12], value: 240, food: 50, oil: 78, time: 'calm', depth: [0.8, 1], bait: null, behavior: 'sinker',
+    difficulty: diff(4, 'sinker'),
+    model: { shape: 'ghost', body: 0x2a2822, belly: 0xa8a18c, fin: 0x14130f, glow: 0xe8c66a, pattern: 'none', eyes: 'glow', scale: 1.35 },
+    hint: 'It waits in the Empty Ferry Slip, but only for the Last Ferry.',
+    lore: 'A coin-eyed fish that waits for a ferry that never brings anyone. It will settle for you.' },
+];
+export const WALK_BAITS = [
+  { id: 'wick_worm', name: 'Wick-Worms', price: 30, count: 4, zoneMin: 1, unlock: 'strange_waters', legend: false, icon: 'worm',
+    desc: 'Soft worms that glow like a stub of tallow. The fish of the hidden waters cannot leave them alone.',
+    bonus: { rarityBonus: 0.06, attract: WALK_SPECIES.map((s) => s.id) } },
+];
+export const WALK_UPGRADES = [
+  { id: 'boots_cork', name: 'Cork-Soled Boots', category: 'feet', icon: 'boots', maxLevel: 3, costs: [45, 120, 280], zone: 'sporewood',
+    effects: { stride: 0.35 }, desc: 'Soles of drowned cork. Quieter on stone, quicker on the long way round. +0.35 m/s on foot.' },
+];
+export const WALK_SUPPLIES = [
+  { id: 'stake_lantern', name: 'Stake Lantern', price: 40, give: { stake: 1 }, zoneMin: 1, limitPerVisit: 1, icon: 'lamp',
+    desc: 'Plant it on any stone with the pill. Until dawn it slows what enters its light and shows the Silent Choir. It does not keep the dark off.' },
+];
+export const WALK_RELICS = [
+  { id: 'roadworn_soles', name: 'Roadworn Soles', icon: 'boots', maxLevel: 3, costs: [45, 125, 280], effects: { stride: 0.2 }, unlock: 'first_footfall',
+    desc: 'Worn through by someone who walked every road down here, and kept walking. +0.2 m/s on foot.' },
+  { id: 'trimmers_shears', name: "The Trimmer's Shears", icon: 'lamp', maxLevel: 2, costs: [90, 245], effects: {}, special: 'lampRadius:1', unlock: 'a_place_that_knows',
+    desc: 'A trimmed wick burns wider. Sister-candles you relight throw 1 m more light per level.' },
+  { id: 'surveyors_chalk', name: "The Surveyor's Chalk", icon: 'map', maxLevel: 1, costs: [185], effects: {}, special: 'shortcutStart:1', unlock: 'the_long_way_round',
+    desc: 'Chalk marks from a survey no one finished. In each walking lake, one way (the nearest to where you arrive) starts open.' },
+];
+export const WALK_BOONS = [
+  { id: 'undertow_crook', name: 'Undertow Crook', icon: 'crook', rarity: 'common', maxLevel: 5, kind: 'weapon', weapon: 'crook', unlock: 'held_the_crossing', tags: ['foot', 'area', 'close'],
+    desc: 'Your lantern crook sweeps a low arc and throws what climbs toward you back into the dark.', lore: 'Every drowned road needs someone to keep it clear.',
+    levels: [
+      { damage: 6, arc: 120, radius: 2.5, cooldown: 1.8, knock: 3.0, note: 'A 2.5 m sweep every 1.8 s. On foot it knocks crawlers off the walkway: they re-haul for 0.8 s, taking × 1.5 aura; a fall over 2 m stuns them for 1 s. On the raft it sweeps the deck edge.' },
+      { damage: 8, arc: 140, radius: 2.6, cooldown: 1.7, knock: 3.2, note: '+33% damage, wider arc.' },
+      { damage: 10, arc: 160, radius: 2.8, cooldown: 1.6, knock: 3.4, note: '+25% damage, faster.' },
+      { damage: 12, arc: 180, radius: 3.0, cooldown: 1.45, knock: 3.7, note: '+20% damage, a half-circle sweep.' },
+      { damage: 15, arc: 200, radius: 3.2, cooldown: 1.3, knock: 4.0, note: '+25% damage, faster, wider.' },
+    ],
+    kindle: { requires: 'vantage', name: 'Riptide Crook', desc: 'A full-circle sweep that hurls crawlers off any edge and stuns them where they land.', lore: 'The road is yours. Everything else goes back to the water.',
+      params: { damage: 20, arc: 360, radius: 3.6, cooldown: 1.2, knock: 4.5, dropStun: 1.5, haulAuraMult: 2 } } },
+  { id: 'vantage', name: 'Vantage', icon: 'height', rarity: 'common', maxLevel: 3, kind: 'stat', effects: {}, unlock: 'hidden_waters', tags: ['foot', 'light'],
+    desc: 'On high ground your zaps reach farther, and crawlers hauling themselves up to you burn hotter in your light.', lore: 'The dark has to climb to reach you. Let it.',
+    proc: { on: 'high', levels: [
+      { zapRange: 2, haulAuraMult: 1.5 }, { zapRange: 4, haulAuraMult: 2.0 }, { zapRange: 6, haulAuraMult: 2.5, lightRadius: 0.5 } ] } },
+  { id: 'kindred_flames', name: 'Kindred Flames', icon: 'lamp', rarity: 'rare', maxLevel: 3, kind: 'stat', effects: {}, unlock: 'shared_flame', tags: ['light', 'foot'],
+    desc: 'Sister-candles burn with your flame: they scorch what enters them, and share faster and cheaper.', lore: 'Every candle you relit remembers whose flame it was.',
+    proc: { on: 'lamp', levels: [
+      { auraFrac: 0.4, shareTime: 0.7, firstShareCostMult: 0.75 }, { auraFrac: 0.6, shareTime: 0.45, firstShareCostMult: 0.5 },
+      { auraFrac: 0.8, shareTime: 0.25, firstShareCostMult: 0, flarePerLampPerNight: 1 } ] } },
+];
+export const WALK_CHARACTERS = [
+  { id: 'wayfarer', name: 'The Wayfarer', title: 'Who Walked Every Road', unlock: 'every_still_place',
+    desc: 'Light on its feet and slow at the oars. Walks the long roads fastest and relights the first sister-candle in every lake for nothing.',
+    effects: { stride: 0.8, moveSpeed: -1 }, startBoon: 'undertow_crook', startKit: { shells: 0, bait: { wick_worm: 2 } },
+    quirk: { id: 'first_flame', name: 'First Flame', desc: 'The first sister-candle you share flame with in each lake costs no oil.', firstShareFree: true },
+    look: { flame: 0xffc070, cloak: 0x3a3a2c, eyes: 0xffc070, hat: 'hood', wax: 0xd9ccb0, scale: 0.95 },
+    lore: 'It never found the bottom. It found every road on the way.' },
+];
+export const WALK_CHALLENGES = [
+  // ---- IV. Paths Underfoot (runs 2–20+)
+  { id: 'first_footfall', tier: 4, name: 'First Footfall', desc: 'Step ashore from your raft.', type: 'footAshore', params: { n: 1 }, scope: 'total', reward: { unlock: 'relic:roadworn_soles', memories: 5 } },
+  { id: 'hidden_waters', tier: 4, name: 'Hidden Waters', desc: 'Discover 6 Places.', type: 'placeFound', params: { n: 6 }, scope: 'total', reward: { unlock: 'boon:vantage', memories: 10 } },
+  { id: 'shared_flame', tier: 4, name: 'Four Shared Flames', desc: 'Share your flame with 4 sister-candles in one descent.', type: 'lampLit', params: { n: 4 }, scope: 'run', reward: { unlock: 'boon:kindred_flames', memories: 15 } },
+  { id: 'strange_waters', tier: 4, name: 'Strange Waters', desc: 'Land 3 different place-kept fish.', type: 'placeSpecies', params: { n: 3 }, scope: 'total', reward: { unlock: 'bait:wick_worm', memories: 15 } },
+  { id: 'a_place_that_knows', tier: 4, name: 'A Place That Knows You', desc: 'Master a Place.', type: 'placeMastered', params: { n: 1 }, scope: 'total', reward: { unlock: 'relic:trimmers_shears', memories: 15 } },
+  { id: 'the_long_way_round', tier: 4, name: 'The Long Way Round', desc: 'Open 3 shortcuts in one descent.', type: 'shortcutOpen', params: { n: 3 }, scope: 'run', reward: { unlock: 'relic:surveyors_chalk', memories: 10 } },
+  { id: 'held_the_crossing', tier: 4, name: 'Held the Crossing', desc: 'Disperse 60 gloomlings on bridges in a single Gloomtide.', type: 'slayOnTag', params: { tag: 'bridge', n: 60 }, scope: 'run', reward: { unlock: 'boon:undertow_crook', memories: 20 } },
+  { id: 'far_from_any_candle', tier: 4, name: 'Far From Any Candle', desc: "Endure a Gloomtide on foot in the Glasswater Vault or deeper without standing in a sister-candle's light.", type: 'nightNoLamp', params: { zoneMin: 2 }, scope: 'run', reward: { unlock: null, memories: 20 } },
+  { id: 'every_candle', tier: 4, name: 'Every Candle in the Vault', desc: 'Share your flame with every sister-candle in the Glasswater Vault in one descent.', type: 'lampLitZone', params: { zone: 'glasswater' }, scope: 'run', reward: { unlock: null, memories: 25 } },
+  { id: 'every_still_place', tier: 4, name: 'Every Still Place', desc: 'Master every Place in the three lower lakes.', type: 'placeMastered', params: { n: PLACES.length }, scope: 'total', reward: { unlock: 'character:wayfarer', memories: 50 } },
+];
+// Foot-only formations and bounty templates (combat v2 / progression v2 append these; v1 never reads them).
+export const WALK_FORMATIONS = [
+  { id: 'edgerise', name: 'The Stirring Edge', zoneMin: 1, dayMin: 2, weight: 3, modes: ['mixed', 'foot'], footOnly: true, enemy: 'gloomling', enemyByZone: { sporewood: 'sporeling' },
+    count: { base: 6, perHeat: 1 }, ringRadius: [4, 10], telegraph: 1.2, requiresWaterShare: 0.5,
+    banner: 'The water at your feet stirs.', answer: 'Step inland, or flare as they rise.' },
+  { id: 'snuffers', name: 'Candle-Snuffers', zoneMin: 1, dayMin: 2, weight: 2, modes: ['mixed', 'foot'], footOnly: true, enemy: 'duskmantle',
+    count: { base: 4, perHeatHalf: 1 }, target: 'lamp', lampWithin: 25,
+    banner: 'Wings, drawn to a sister-candle.', answer: 'Zap them off the candle, or let it go dark.' },
+];
+export const WALK_BOUNTY_TYPES = ['placeCatch', 'placeSpecies', 'astirCatch', 'lampLit', 'nightInLamp'];
+export const WALK_BOUNTIES = [
+  { id: 'place_catch', type: 'placeCatch', text: 'Bring me {n} fish from {place}.', params: { n: [1, 2] }, base: 26, perN: 10, weight: 3, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'place_species', type: 'placeSpecies', text: 'They whisper of a {species} at {place}. Bring it to me.', params: { reachableOnly: true, awakeOnly: true }, base: 55, weight: 1, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'astir_catch', type: 'astirCatch', text: '{place} is astir today. Bring me {n} fish from it.', params: { n: 2 }, base: 34, weight: 2, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'light_lamp', type: 'lampLit', text: 'Share your flame with the sister-candle at {lamp} before dusk.', params: { unlitOnly: true }, base: 20, weight: 2, zoneMin: 1, dayMin: 1, modes: ['mixed', 'foot'] },
+  { id: 'lamp_vigil', type: 'nightInLamp', text: "Keep tonight's vigil inside the light of {lamp}.", params: { share: 0.75 }, base: 50, weight: 1, zoneMin: 2, dayMin: 1, modes: ['foot'] },
+];
+// Tips: trigger = `event` or `event:disc`, where disc is the payload's first of phase / resource / reason / state / id (ui).
+export const WALK_TIPS = [
+  { id: 'moor_walk',   trigger: 'interact:change:ashore',  text: 'Push into a jetty, or tap Ashore, to step off. Some pools no raft can reach.' },
+  { id: 'foot_basics', trigger: 'player:mode:ashore',      text: 'On foot you stop on a coin. The water is for fishing; the stone is for walking.' },
+  { id: 'foot_spawn',  trigger: 'player:mode:spawn',       text: 'No raft can follow you here. Walk the stone; cast from its edge.' },
+  { id: 'tow_bell',    trigger: 'interact:change:bell',    text: "Ring a jetty's bell to call your raft to it." },
+  { id: 'lamp_light',  trigger: 'interact:change:lamp',    text: 'Hold E or Share flame to relight a sister-candle. It costs oil, and burns all descent.' },
+  { id: 'lamp_hop',    trigger: 'lamp:lit',                text: 'At dawn you may flame-leap once, for free, to any sister-candle you have relit.' },
+  { id: 'place_found', trigger: 'place:discover',          text: 'A Place: still water with its own rule and its own fish. Master it.' },
+  { id: 'high_cast',   trigger: 'walk:high',               text: 'High ground casts farther, and only stairs bring the mites up to you.' },
+  { id: 'shortcut',    trigger: 'shortcut:open',           text: 'A way is open. It stays open for the rest of this descent.' },
+  { id: 'edge_eels',   trigger: 'foot:eelEdge',            text: 'Eels only reach you near open water. Step back from the edge, or zap.' },
+  { id: 'astir',       trigger: 'place:astir',             text: 'Murk says a Place is astir today. Its water runs rich until dusk.' },
+  { id: 'legend_snuff', trigger: 'lamp:snuffed:legend',    text: 'It breathes the candles in. Land it, and every one of them burns again.' },
+];
+export const WALK_TEXT = {
+  ashore: 'Ashore', board: 'Board', ringBell: 'Ring Bell', light: 'Share flame', hop: 'Flame-leap', fishHere: 'Fish here', plantStake: 'Plant',
+  winch: 'Turn', strike: 'Strike', rope: 'Pull', offer: 'Offer', candle: 'Sister-candle', candles: 'Sister-candles',
+  placeFound: 'A new water: {name}', placeMastered: '{name} remembers you.', knownPlace: 'Known Place', placesTitle: 'Places',
+  astirBanner: '{name} is astir today.', duskLamp: 'Nearest sister-candle {m} m · ≈ {s} s', openGround: 'Open ground {s} s',
+  noLamp: 'No candle within reach. Find open ground, or plant a Stake Lantern.',
+  shortcutOpen: '{name} is open.', lampSnuffed: 'The sister-candle at {name} goes dark.', legendSnuff: 'It breathes the candles in.',
+  victoryCandles: 'Every candle in the Deep burns gold.', variant: '{name}.', asleep: 'It sleeps this descent.',
+  raftBeached: 'Nothing floats in the Pallid Deep. The raft stays with the others.',
+  raftSkiff: "Your raft can't climb stairs. It can still cross the moat to the Skiff Steps.",
+  arrivalHush: 'The Gloom has not found you yet.',
+};
+
+// ---- Apply (only when the walking build is active).
+if (WALK_ENABLED) {
+  STATS.moveSpeed.label = 'Speed';                      // raft top speed; on foot × BALANCE.walk.speedMult (+ stride)
+  Object.assign(STATS, WALK_STATS);
+  SPECIES.push(...WALK_SPECIES); BAITS.push(...WALK_BAITS); UPGRADES.push(...WALK_UPGRADES); SUPPLIES.push(...WALK_SUPPLIES);
+  RELICS.push(...WALK_RELICS); BOONS.push(...WALK_BOONS); CHARACTERS.push(...WALK_CHARACTERS); CHALLENGES.push(...WALK_CHALLENGES);
+  const chron = CHALLENGES.find((c) => c.id === 'complete_chronicle'); if (chron) chron.params.n = SPECIES.length;
+  TIPS.push(...WALK_TIPS);
+  for (const z of ZONES) {
+    if (ZONE_V2[z.id]) Object.assign(z, ZONE_V2[z.id]);
+    if (ARENA_V2[z.id]) Object.assign(z.arena, ARENA_V2[z.id]);
+  }
+  BALANCE.travel.arrivalHush = ARRIVAL_HUSH;
+  BALANCE.memories.placeNew = 2;                       // run-end Memories per Place discovered for the first time ever
+  TEXT.challengeTiers[4] = 'Paths Underfoot';
+  TEXT.memoryLabels.places = 'New places found';
+  TEXT.walk = WALK_TEXT;
+  MERCHANT_LINES.astir = [
+    '{place} is stirring today. Go, before it remembers it is tired.',
+    'Something woke at {place}. Bring me what it brings you.',
+    '{place} has its mouth open today. I would not waste it.',
+  ];
+}
+// memoriesFor() reads BALANCE.memories.placeNew ?? 0 and summary.placesNew (v1 summaries have none).
+
+// ---- The walk grid (world builds from this; validate-data and tools read it too). Pure and
+// deterministic: same zone + same open shortcuts + same variant → same grid. Painter's order: ground
+// shapes (later overwrite earlier; `needs` unmet or `fallen` skipped) → holes (+ their low south lips)
+// → bridges (over water, pools or ground) → obstacles (islands at obstacleRadius, pillars, walk.blocks,
+// candle posts) block. Every top is quantised to BALANCE.walk.heightQuant. Cells beyond R − pad are VOID.
+const DEG = Math.PI / 180;
+function segDistT(px, pz, ax, az, bx, bz) {
+  const dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz;
+  const t = L2 > 0 ? Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / L2)) : 0;
+  return [Math.hypot(px - (ax + dx * t), pz - (az + dz * t)), t];
+}
+function inPolygon(px, pz, pts) {
+  let c = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, zi] = pts[i], [xj, zj] = pts[j];
+    if ((zi > pz) !== (zj > pz) && px < ((xj - xi) * (pz - zi)) / (zj - zi) + xi) c = !c;
+  }
+  return c;
+}
+const angIn = (a, a0, a1) => { let rel = (a - (((a0 % 360) + 360) % 360)); rel = ((rel % 360) + 360) % 360; return rel <= a1 - a0; };
+/** Surface height of a walk shape at (x, z), or NaN outside it (disc|ring|rect|poly|path). */
+export function walkShapeHeight(s, x, z) {
+  switch (s.kind) {
+    case 'disc': return Math.hypot(x - s.x, z - s.z) <= s.r ? (s.y ?? 0) : NaN;
+    case 'ring': {
+      const dx = x - s.x, dz = z - s.z, d = Math.hypot(dx, dz);
+      if (d < s.r0 || d > s.r1) return NaN;
+      if (s.a0 != null) { let a = Math.atan2(dz, dx) / DEG; if (a < 0) a += 360; if (!angIn(a, s.a0, s.a1)) return NaN; }
+      return s.y ?? 0;
+    }
+    case 'rect': {
+      const c = Math.cos((s.yaw || 0) * DEG), sn = Math.sin((s.yaw || 0) * DEG), dx = x - s.x, dz = z - s.z;
+      return Math.abs(dx * c + dz * sn) <= s.w / 2 && Math.abs(-dx * sn + dz * c) <= s.d / 2 ? (s.y ?? 0) : NaN;
+    }
+    case 'poly': return inPolygon(x, z, s.pts) ? (s.y ?? 0) : NaN;
+    case 'path': {
+      let best = Infinity, by = NaN; const P = s.pts;
+      for (let i = 0; i + 1 < P.length; i++) {
+        const [d, t] = segDistT(x, z, P[i][0], P[i][1], P[i + 1][0], P[i + 1][1]);
+        if (d < best) { best = d; const y0 = P[i][2] ?? s.y ?? 0, y1 = P[i + 1][2] ?? s.y ?? 0; by = y0 + (y1 - y0) * t; }
+      }
+      return best <= s.w / 2 ? by : NaN;
+    }
+    default: return NaN;
+  }
+}
+/** Axis-aligned bounds [x0, z0, x1, z1] of a walk shape (pad m around it). */
+export function walkShapeBounds(s, pad = 0) {
+  switch (s.kind) {
+    case 'disc': return [s.x - s.r - pad, s.z - s.r - pad, s.x + s.r + pad, s.z + s.r + pad];
+    case 'ring': return [s.x - s.r1 - pad, s.z - s.r1 - pad, s.x + s.r1 + pad, s.z + s.r1 + pad];
+    case 'rect': { const h = Math.hypot(s.w, s.d) / 2 + pad; return [s.x - h, s.z - h, s.x + h, s.z + h]; }
+    case 'poly': case 'path': {
+      const p2 = (s.kind === 'path' ? s.w / 2 : 0) + pad; let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
+      for (const p of s.pts) { a = Math.min(a, p[0]); b = Math.min(b, p[1]); c = Math.max(c, p[0]); d = Math.max(d, p[1]); }
+      return [a - p2, b - p2, c + p2, d + p2];
+    }
+    default: return [0, 0, 0, 0];
+  }
+}
+/** Distance outside a hole's edge at (x, z) and the angle (deg) from its centre; used for lips. */
+function lipBand(h, x, z) {
+  if (h.kind === 'disc') { const d = Math.hypot(x - h.x, z - h.z); return [d - h.r, Math.atan2(z - h.z, x - h.x) / DEG]; }
+  if (h.kind === 'ring') { const d = Math.hypot(x - h.x, z - h.z); return [d - h.r1, Math.atan2(z - h.z, x - h.x) / DEG]; }
+  if (h.kind === 'rect') { const dz = z - (h.z + h.d / 2); return Math.abs(x - h.x) <= h.w / 2 && dz >= 0 ? [dz, 90] : [Infinity, 0]; }
+  return [Infinity, 0];
+}
+/** True when (x, z) lies in a place's water area (place.water uses the walk-shape kinds). */
+export function placeContains(place, x, z) { return !!place?.water && !Number.isNaN(walkShapeHeight(place.water, x, z)); }
+/** The place whose water contains (x, z) in this zone, or null. */
+export function placeAt(zone, x, z) {
+  const id = typeof zone === 'string' ? zone : zone?.id;
+  return (ARENA_V2[id]?.places || []).find((p) => placeContains(p, x, z)) || null;
+}
+/** The walk arena of a zone: v1 arena fields overlaid with ARENA_V2 (independent of WALK_ENABLED). */
+export function walkArenaFor(zoneOrId) {
+  const zone = typeof zoneOrId === 'string' ? ZONES.find((z) => z.id === zoneOrId) : zoneOrId;
+  return zone ? { ...zone.arena, ...(ARENA_V2[zone.id] || {}) } : null;
+}
+/**
+ * Rasterise a zone's walk layout. opts: {open: {shortcutId: true}, variant: variantId, cell}.
+ * Returns {cell, n, ox, oz, top:Float32Array (NaN = no ground), flags:Uint8Array (WALK_FLAGS),
+ * shape:Int16Array (painting shape index, −1), pool:Int16Array (hole index, −1), idx(x, z) → cell | −1}.
+ */
+export function walkGridFor(zoneOrId, opts = {}) {
+  const zone = typeof zoneOrId === 'string' ? ZONES.find((z) => z.id === zoneOrId) : zoneOrId;
+  const A = walkArenaFor(zone), W = A.walk, F = WALK_FLAGS, Q = BALANCE.walk.heightQuant;
+  const cell = opts.cell ?? W?.cell ?? 0.5, R = A.radius, half = R + 2, edge = R - WALK_SHORE.pad;
+  const n = Math.ceil((2 * half) / cell), ox = -half, oz = -half, N = n * n;
+  const V = (W?.variants || []).find((v) => v.id === opts.variant) || null;
+  const open = { ...(opts.open || {}) };
+  const swapped = new Map();   // shapeId → shortcutId that raises it in this variant
+  if (V?.swap) for (const [sc, ids] of Object.entries(V.swap)) for (const id of ids) swapped.set(id, sc);
+  const top = new Float32Array(N).fill(NaN), flags = new Uint8Array(N), shape = new Int16Array(N).fill(-1), pool = new Int16Array(N).fill(-1);
+  const q = (y) => Math.round(y / Q) * Q;
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) flags[j * n + i] = Math.hypot(ox + (i + 0.5) * cell, oz + (j + 0.5) * cell) <= edge ? F.WATER : F.VOID;
+  const present = (s) => {
+    if (swapped.has(s.id)) return !!open[swapped.get(s.id)];                 // fallen this descent; the variant's shortcut raises it
+    if (V?.fallen?.includes(s.id)) return false;
+    if (!s.needs) return true;
+    if (V?.swap && V.swap[s.needs]) return true;                            // its shortcut now raises something else: present from the start
+    return !!open[s.needs];
+  };
+  const paint = (s, fn, pad = 0) => {
+    const [x0, z0, x1, z1] = walkShapeBounds(s, pad);
+    const i0 = Math.max(0, Math.floor((x0 - ox) / cell)), i1 = Math.min(n - 1, Math.ceil((x1 - ox) / cell));
+    const j0 = Math.max(0, Math.floor((z0 - oz) / cell)), j1 = Math.min(n - 1, Math.ceil((z1 - oz) / cell));
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+      const k = j * n + i; if (flags[k] & F.VOID) continue;
+      fn(k, ox + (i + 0.5) * cell, oz + (j + 0.5) * cell);
+    }
+  };
+  const shapes = W?.shapes || [];
+  shapes.forEach((s, si) => {
+    if (s.tag === 'bridge' || !present(s)) return;
+    paint(s, (k, x, z) => { const y = walkShapeHeight(s, x, z); if (Number.isNaN(y)) return; top[k] = q(y); flags[k] = (flags[k] & ~F.WATER) | F.GROUND; shape[k] = si; });
+  });
+  (W?.holes || []).forEach((h, hi) => {
+    paint(h, (k, x, z) => {
+      if (Number.isNaN(walkShapeHeight(h, x, z)) || !(flags[k] & F.GROUND)) return;
+      top[k] = NaN; flags[k] = (flags[k] & ~(F.GROUND | F.SILL)) | F.POOL; shape[k] = -1; pool[k] = hi;
+    });
+    if (h.lip) paint(h, (k, x, z) => {
+      if (!(flags[k] & F.GROUND)) return;
+      const [d, a] = lipBand(h, x, z); if (!(d > 0 && d <= h.lip.w)) return;
+      if (!angIn(((a % 360) + 360) % 360, h.lip.a0 ?? 30, h.lip.a1 ?? 150)) return;
+      const y = q(h.lip.y); if (!(top[k] > y)) return;
+      top[k] = y; flags[k] |= F.SILL;
+    }, h.lip.w);
+  });
+  shapes.forEach((s, si) => {
+    if (s.tag !== 'bridge' || !present(s)) return;
+    paint(s, (k, x, z) => {
+      const y = walkShapeHeight(s, x, z); if (Number.isNaN(y)) return;
+      const wet = flags[k] & (F.WATER | F.POOL);
+      top[k] = q(y); flags[k] = (flags[k] | F.GROUND) & ~F.SILL; shape[k] = si;
+      if (wet) { flags[k] |= F.BRIDGE; if (s.raftPass) flags[k] |= F.RAFTPASS; }
+    });
+  });
+  const block = (o) => paint(o, (k, x, z) => { if (!Number.isNaN(walkShapeHeight(o, x, z))) flags[k] |= F.BLOCK; });
+  for (const o of A.islands || []) block({ kind: 'disc', x: o.x, z: o.z, r: obstacleRadius(o, true) });
+  for (const o of A.pillars || []) block({ kind: 'disc', x: o.x, z: o.z, r: obstacleRadius(o) });
+  for (const o of W?.blocks || []) block(o.kind === 'rect' ? o : { kind: 'disc', x: o.x, z: o.z, r: o.r });
+  for (const l of A.lamps || []) block({ kind: 'disc', x: l.x, z: l.z, r: BALANCE.lamps.postR });
+  const idx = (x, z) => { const i = Math.floor((x - ox) / cell), j = Math.floor((z - oz) / cell); return i < 0 || j < 0 || i >= n || j >= n ? -1 : j * n + i; };
+  return { cell, n, ox, oz, top, flags, shape, pool, idx, variant: V?.id ?? null };
+}
+
+
+// =====================================================================================
+// v3 — "Expeditions from the Landing" (DESIGN §25, CONTRACT §13; source of truth: BRIEF-v3).
+// Everything below is ADDITIVE and INERT until V3_ENABLED is true: with it off, every v1 and v2
+// table above is bit-identical (validate-data passes 1 and 2 check it; pass 3 runs with V3 on).
+// With it on, the block at the end of this section applies the v3 tables to the v1 ones
+// (SPECIES → the 53-species roster, BALANCE gains the v3 keys, RELICS / CHALLENGES / BOONS /
+// CHARACTERS / BAITS / SUPPLIES / TIPS are patched) before the lookup maps are built. The v3
+// exports themselves are always present so tools (tools/sim/reel-v3.mjs, roster-v3.mjs,
+// validate-data --v3) can read them in any build.
+//
+// Turn it on: set `globalThis.GW_V3 = true` before this module evaluates (tools import data as
+// '../src/data.js?v3' after setting it), or flip the default below in the commit that lands the
+// v3 code. v3 is designed on top of §24: the walking build (GW_WALK) is expected alongside it;
+// with V3 on and WALK off, species and challenges that need §24's places are left out.
+//
+// Code names (brief §0): players see "the Landing"; code says `hub` (flow), `cove` (zone id,
+// camera mode, COVE export) and `hub:enter` (event), because `landing` is a fishing state.
+// =====================================================================================
+export const V3_ENABLED = globalThis.GW_V3 === true;
+// Which phase's data a v3 build carries (DESIGN §25.14.1, CONTRACT §13.0): 1 the feel shift · 2 the Mossmere's places
+// and giants · 3 expeditions and the Landing · 4 wonder and depth. Set `globalThis.GW_V3_PHASE` (1–4) before this
+// module evaluates; the default 4 carries everything, so tools see the whole design. Each phase's build sets it.
+// The Full Hold (docs/loop/SPEC.md §9): the loop always runs on the phase-1 data, whatever GW_V3_PHASE says (a tool that sets
+// GW_LOOP without GW_V3_PHASE still gets the loop's data); without GW_LOOP the expression is the one v3 has always had.
+export const V3_PHASE = V3_ENABLED && globalThis.GW_LOOP === true ? 1 : Math.max(1, Math.min(4, Math.floor(Number(globalThis.GW_V3_PHASE ?? 4)) || 4));
+// BALANCE_V3 blocks that join BALANCE after P1 (every other block lands with P1's code; validated per phase).
+export const V3_BLOCK_PHASE = { residents: 2, markedFish: 1, farWater: 3, liveWell: 3 };   // markedFish: the light P1 form ships with automatic fishing
+// ---- The Full Hold's switch (docs/loop/SPEC.md §9, slice-1a/PLAN.md §3.1, §4.1). Read once, here: every loop branch reads
+// LOOP_ENABLED or a PARKED key, never globalThis.GW_LOOP. Off the loop PARKED is {}, so every PARKED.x is falsy and the build is
+// exactly v1 or v3 as built. Both are declared above the apply block, which reads them.
+export const LOOP_ENABLED = V3_ENABLED && globalThis.GW_LOOP === true;
+/** What the loop switches off (SPEC §9's table): frozen; {} off the loop; on the loop exactly these 31 keys, all true. */
+export const PARKED = Object.freeze(LOOP_ENABLED ? {
+  swarm: true, combat: true, levels: true, embers: true, hunger: true, oilAsLife: true, nightModes: true, death: true, days: true,
+  farWater: true, liveWell: true, meta: true, tolls: true, longDescent: true, challenges: true, quality: true, mercy: true,
+  passFavour: true, baitAttract: true, murkInLake: true, runShop: true, residents: true, weather: true, walking: true,
+  giantSpots: true, watchLamps: true, arrivalHush: true, eatRender: true, bounties: true, firstCatchShells: true, proofs: true,
+} : {});
+
+const v3clone = (o) => JSON.parse(JSON.stringify(o));
+const v3r = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
+const v3uniq = (...lists) => [...new Map(lists.flat().map((x) => [x.id, x])).values()];   // v1 + §24 lists (the walking merge may already have pushed §24 rows)
+
+// ---- The size ladder (brief §6.1, §5.4, §5.8). One ladder everywhere: Small · Keeper · Prize · Trophy ·
+// Elder. Classes are cut on the size score z (same rarity on every species); an Ancient is an Elder with
+// z ≥ 3.2 (a gold thread on its seal), not a sixth rung. zMax = the class's upper cut (exclusive).
+export const SIZE_CLASSES = [
+  { id: 'small',  label: 'Small',  zMax: -0.25, bite: 'doublePop', seal: null,             ceremony: 1.2, chime: false },
+  { id: 'keeper', label: 'Keeper', zMax: 1.04,  bite: 'plunge',    seal: null,             ceremony: 1.2, chime: false },
+  { id: 'prize',  label: 'Prize',  zMax: 1.88,  bite: 'dragUnder', seal: 'inkStamp',       ceremony: 2.4, chime: true },
+  { id: 'trophy', label: 'Trophy', zMax: 2.65,  bite: 'flatSlide', seal: 'oxbloodWax',     ceremony: 3.5, chime: true },
+  { id: 'elder',  label: 'Elder',  zMax: Infinity, bite: 'dome',   seal: 'blackWaxRibbon', ceremony: 5.0, chime: true, named: true },
+];
+
+// ---- BALANCE_V3: merged into BALANCE when V3_ENABLED (the brief's `BALANCE.size`, `.farWater`,
+// `.liveWell`, `.oil`, `.wellFed`, `.nightModes`, `.cameras` …). Every block is new except
+// `bite`, whose v3 keys are merged into v1's BALANCE.bite; no v1 / v2 key is ever replaced (validated),
+// so The Long Descent keeps today's numbers.
+export const BALANCE_V3 = {
+  // ---- One size model (brief §6.1). z ~ Normal(μ, 1) truncated to [min, max];
+  // L = L50 · e^(σz + tail · max(0, z − tailFrom)²) (cm); W = k · L³ (g, k per body shape, g/cm³).
+  size: {
+    z: { sd: 1, min: -2.0, max: 3.6 },
+    tail: 0.06, tailFrom: 1.04,
+    ancient: 3.2,                     // an Elder with z ≥ 3.2
+    reachZ: 3.6,                      // "said to reach": the dotted ceiling on the ruler and the frame
+    simZ: { small: -0.8, keeper: 0.4, prize: 1.4, trophy: 2.2, elder: 2.95, ancient: 3.35 },   // the z each class is simulated at (brief §5.5)
+    giantsOnly: 2.65,                 // Elders roll only where giants live (holdsGiants places, residents, Marked Fish, P4 Underdepth) …
+    elsewhereMaxZ: 2.64,              // … everywhere else z is clamped to a top Trophy
+    classMaxZ: { keeper: 1.039, prize: 1.879, trophy: 2.64, elder: 3.6 },   // maxClass → z clamp (fry water: prize; Lampwarden: trophy)
+    // k per body (g/cm³), each checked against a real cousin's weight at the same length (within ±30%; docs/v3/pounds/SPEC.md §6).
+    // A fish whose cousin is far off its plan gets its own key (trout, gar, greateel, swampeel), never a per-fish number. A key is a
+    // plain family or build word, never a real species' own name (tools/sim/roster-check.mjs REAL_NAMES).
+    k: { minnow: 0.013, perch: 0.013, crayfish: 0.030, carp: 0.016, koi: 0.015, pike: 0.0075, eel: 0.0022, angler: 0.017,
+      ray: 0.012, puffer: 0.030, jelly: 0.020, ghost: 0.006, sturgeon: 0.006, trout: 0.011, gar: 0.0030, greateel: 0.0040, swampeel: 0.0016 },
+    sigma: [0.09, 0.175], giantTailSigma: 0.16, maxReachRatio: 2.8,       // validated: σ range, ≥ 2 giant tails per lake, ceiling ≤ 2.8 × median
+    elderKeeperRatio: { elderZ: 3.0, keeperZ: 0.4, range: [1.58, 2.0] }, // an Elder is ≈ 1.6–2.0× a typical Keeper's length
+    legend: { sigma: 0.02, minRatio: 1.4, growthWeight: 0.07, growthLength: 0.023, growthCap: 1.5 },   // authored; ≥ 1.4× the lake's longest reach; +7% per landing, cap × 1.5 weight
+    // value / food / oil from z (brief §6.2): value = round(species.value × factor × clamp(e^(perZ·z)) × classBonus × QUALITY.valueMult × streak)
+    value: { factor: 0.66, perZ: 0.45, clamp: [0.6, 6], classBonus: { trophy: 1.25, elder: 1.6 } },
+    // food / oil = species.food|oil × factor × clamp(e^(0.3z)) × QUALITY.yieldMult (× Far Water on rendered oil). factor = sizeKMean /
+    // mix (0.942 / 1.201) keeps the average yield at today's (a Mossmere common renders ≈ 17 oil, brief §3.4; validated from the mix).
+    yield: { perZ: 0.3, clamp: [0.7, 2.5], factor: 0.784, mix: 1.201 },
+    valueMix: { mu: [[0, 0.25], [0.3, 0.3], [0.6, 0.25], [1.0, 0.15], [1.5, 0.05]], giantShare: 1 / 3, sizeKMean: 0.942, multiplier: 1.428 },   // the normaliser behind 0.66 (roster-v3)
+    // (D1′, the AF build's data: the manual v3 reel's `fight` (size → difficulty, Elder age and step) and `reel` (stamina, easing,
+    // fatigue, old tricks, drag and Spooled, the runner / sulker verbs, the foul spike, the reel-sim targets) are retired; automatic
+    // fishing's land chance is CATCH_V3 and its play AUTOFISH.play. v1 (flag off) keeps BALANCE.reel untouched.)
+  },
+
+  // ---- The float's favour μ (brief §5.1, §6.1): one formula, shown as 0–5 ink notches by family.
+  favour: {
+    cap: 1.8,
+    notches: [0.15, 0.45, 0.8, 1.2, 1.6],          // μ < 0.15 → 0 notches … μ ≥ 1.6 → 5
+    families: ['place', 'hour', 'match', 'tackle', 'signs', 'pressure'],
+    place: { inside: 0.15, astir: 0.35, window: [0.2, 0.6] },            // astir replaces inside; a place's live window adds its own value (§7)
+    hour: { dusk: 0.2, dawn: 0.2, nightRise: 0.25, hush: 0.2, farWaterPerDawn: 0.06, farWaterCap: 0.24 },
+    match: { condition: 0.3, rumour: 0.3 },                               // the species' field-note condition; today's rumour (that species at that place)
+    tackle: { bait: { ember_roe: 0.35 }, cutStrip: 0.3, lure: { glimmer_spoon: 0.2, bone_jig: 0.2, moth_popper: 0.2, lantern_lure: 0.4 },
+      depthLowerThird: 0.25, cleanCast: 0.1 },
+    signs: { strike: 0.6, nervous: 0.3, bubbles: 0.2, letItPass: 0.15, letItPassCap: 0.3 },
+    pressure: { perCatch: -0.12, floor: -0.6, quietAt: -0.36, reset: 'dawn' },   // "The water here has gone quiet." at 3 catches
+    // The float is shown before the bite, so it must not leak the rolled species: its μ = the species-independent terms
+    // (place, hour incl. Far Water and Hush, signs, pressure, Clean Cast, a bait's or lure's base term) + each species-specific
+    // term (depth lower third, family lures, Cut Strip, Match condition, today's rumour) taken as the maximum over the bait's
+    // eligible pool at that point; a pinned rumour's species (or today's rumour species) is used instead when it is eligible
+    // there. The roll then uses the full μ of the rolled species; the measuring card lists the terms that actually applied.
+    float: { speciesTerms: 'maxOverEligible', prefer: ['pinnedRumour', 'todaysRumour'], card: 'rolledSpeciesTerms' },
+    examples: [                                                           // validated against the notches and the class odds (brief §5.1, §6.1, §2)
+      { name: 'decent', terms: [0.15, 0.2, 0.2], mu: 0.55, notches: 2 },
+      { name: 'first Prize at the Cupped Hands', terms: [0.15, 0.4], mu: 0.55, notches: 2 },
+      { name: 'Elder Mildew Angler setup', terms: [0.15, 0.25, 0.3, 0.35, 0.25], mu: 1.3, notches: 4 },
+      { name: 'full setup', terms: [0.35, 0.4, 0.25, 0.3, 0.35, 0.25, 0.1], mu: 1.8, notches: 5 },
+    ],
+  },
+
+  // ---- Reading the water: six signs replace the feeding-spot mote columns (brief §5.1).
+  signs: {
+    calmAlive: [2, 4], maxAlive: 6, within: 'castMax + 15', placeShare: 0.5,   // ≥ 50% inside place water on the walking lakes
+    kinds: {
+      rise:    { every: [4, 9], castR: 2.5, within: 3, waitMult: 0.5, ringScale: 'length', sound: ['plip', 'gulp'] },
+      boil:    { castR: 3, within: 8, bite: 0.6, ellipse: 'class', prerolled: true, minClass: 'prize' },
+      nervous: { castR: 'edge', predators: 3, favour: 0.3 },
+      strike:  { castR: 4, within: 10, favour: 0.6, predators: 3, panned: true },
+      bubbles: { castR: 'head', bottom: 2, favour: 0.2 },
+      glow:    { night: true, lead: [1, 3], bite: 0.7, brightness: 'length' },
+    },
+    shadows: ['sight', 'clearWater', 'residents'],                       // visible shadows stay special; no approach shadow before every bite
+    legendPool: { ring: 'still', column: 'lowGlimmer' },
+  },
+
+  // ---- The bite and the hook (brief §5.4). Merged INTO v1's BALANCE.bite (new keys only; v1's waiting rules stay).
+  bite: {
+    dragUnder: 0.4,                                   // Prize: a slow 0.4 s drag-under before the "!"
+    holdMultFrom: 'prize', holdMult: 1.1,             // Prize+ fish hold the bait 10% longer
+    // a lapsed bite (no hook attempt) refunds the cast's general bait (progression.refundBait) and adds +0.15 favour to the next
+    // cast in the same water (the same place, or within 6 m of the lapsed bobber), cap +0.3, reset on a hook or after 60 s
+    letItPass: { favour: 0.15, cap: 0.3, resetAfter: 60, keepsBait: 'refund', sameWater: { place: true, radius: 6 } },
+    leapReveal: { fromClass: 'prize', time: 0.25, timescale: 0.35, rimFlash: true },
+    // the class tells' float animations (s; fishing:tell `dur`): Small's double pop, Trophy's flat slide, Elder's dome (Keeper's
+    // plunge has none; Prize's drag-under is `dragUnder` above). `lead` = how long before the bite the tell may begin (s).
+    tells: { doublePop: 0.36, flatSlide: 0.5, dome: 0.6, lead: 0.6 },
+  },
+
+  // ---- Landing and measuring: the signature beat (brief §5.8, §6.3, §6.4).
+  ceremony: {
+    skipAfter: 0.6,
+    beats: { scoop: [0, 0.6], pose: [0.6, 1.4], cord: [1.4, 2.8], banners: [2.8, 3.6] },
+    poses: [{ id: 'palm', below: 0.25 }, { id: 'arms', below: 0.85 }, { id: 'hang', below: 2.0 }, { id: 'alongside', below: Infinity }],   // by length (m); legends always alongside
+    alongside: { foot: 'walksLength', raft: 'cordUnrolls' },              // on the raft (deck ≈ 2 × 2.6 m) the Wick stays on deck; the cord unrolls along the fish and the camera tracks it
+    // The ceremony is a cinematic state: gameplay modules freeze (survival's phase clock and drains, combat's enemies and
+    // director, fishing's bite timers) while actors, render, ui and audio run in real time. During an active swarm window every
+    // class plays the short 1.2 s variant so the arena is never hidden for long.
+    cinematic: { freezes: ['survival', 'combat', 'fishingTimers'], realTime: ['actors', 'render', 'ui', 'audio'], duringSwarm: 1.2 },
+    wickHeight: 0.85,
+    camera: { base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50 },   // trophy distance clamp(1.2 + 1.6·L, 1.6, 16) m
+    ancientThread: 'gold', mmBelow: 20,                                  // lengths under 20 cm print in mm (the Cupbearer, the Quayling's fry)
+  },
+  records: {
+    oldLedgerZ: 2.3, oldLedgerMemories: 5,            // a figure "since before the Fall" at mid-Trophy for every species
+    // 48 species × 3 classes, minus the Lampwarden's Elder seal (it caps at Trophy, brief §6.1, as the Quayling's Keeper cap
+    // drops its seals) = 143, plus 4 legend seals. Every other Elder seal has a route (validated: kept place with giantsKept, or a
+    // holdsGiants place whose water depth and hours the species can use).
+    seals: { classes: ['prize', 'trophy', 'elder'], species: 48, total: 143, legend: 4, noElder: ['lampwarden_angler'] },
+    escapeEstimate: 0.08,
+    tallyPosts: { live: 2, canvas: [128, 64] },
+    elderLog: ['name', 'weight', 'cm', 'place', 'expedition', 'day', 'wick', 'ancient', 'lost'],   // a line leads with the weight (pounds), then the length
+  },
+
+  // ---- Oil (brief §3.4): oil/s = stats.oilDrain × zone.drain.oil × context[phase] × Far Water night factor.
+  oil: {
+    context: {
+      raft: { calm: 0.35, dusk: 0.5, gloomtide: 1.0, dawn: 0.35 },       // sailing or moored (raft night 1.0 in all modes)
+      foot: { calm: 1.0, dusk: 1.0, gloomtide: 1.4, dawn: 1.0 },
+      lamp: { calm: 0.35, dusk: 0.35, gloomtide: 0.7, dawn: 0.35 },      // inside a lit Waylamp's pool, or standing at the moored raft
+    },
+    lastFlicker: { oil: 12, perDay: 1 },
+    gutter: { time: 25, light: 2.5, cast: false, renderRelights: true },
+    snuffs: { still: ['oil'], lantern: ['oil'], gloomtide: ['oil', 'embers'] },
+    checks: { mossmereDay: 28.3, mossmereDay1: 30.1, renderedCommon: 17, footLantern: { day: 7, night: 5 } },   // brief §3.4 arithmetic (validated)
+  },
+  // ---- Satiety → Well-fed (brief §9.1): no starvation, ever.
+  // Well-fed: +2 Hold under automatic fishing (a run buff, counted under CATCH_V3.buffs.runCap through progression.getCatchBuffs);
+  // `hold` is not a STATS key, so getStats ignores it (was reelSpeed +0.08, sweetZone +0.01 on the manual reel)
+  wellFed: { drainMult: 0.5, at: 0.6, effects: { hold: 2 }, dawnMendCombat: 1, starvation: false, glyph: true },
+
+  // ---- Far Water (brief §3.4): both begin with the first dawn of an expedition (day 2).
+  farWater: {
+    favourPerDawn: 0.06, favourCap: 0.24,             // a lake-wide Hour favour
+    showsPerDawn: 1, showsCap: 3,                     // resident shows per calm at each giant place
+    murk: { always: [1, 2, 3], after: 'odd' },        // moors days 1–3, then odd days only (none on day 4)
+    oilPrice: { from: 3, perDay: 0.5 },               // × (1 + 0.5 × max(0, day − 3)) when he moors (day 5: × 2.0)
+    render: { perDay: 0.1, floor: 0.6 },              // rendered oil × max(0.6, 1 − 0.1 × (day − 1))
+    nightBurn: { from: 2, perNight: 0.15 },           // night oil × (1 + 0.15 × max(0, day − 2))
+    hud: { diamonds: 4, homeward: true },
+    table: [                                           // brief §3.4, validated against the formulas above
+      { day: 2, favour: 0.06, shows: 1, murk: true, oilPrice: 1.0, render: 0.9, nightBurn: 1.0 },
+      { day: 3, favour: 0.12, shows: 2, murk: true, oilPrice: 1.0, render: 0.8, nightBurn: 1.15 },
+      { day: 4, favour: 0.18, shows: 3, murk: false, oilPrice: null, render: 0.7, nightBurn: 1.3 },
+      { day: 5, favour: 0.24, shows: 3, murk: true, oilPrice: 2.0, render: 0.6, nightBurn: 1.45 },
+      { day: 6, favour: 0.24, shows: 3, murk: false, oilPrice: null, render: 0.6, nightBurn: 1.6 },
+    ],
+    rendersPerDay: [1.8, 1.9, 2.3, 2.8, 3.5, 3.7],     // Mossmere commons rendered per day 1–6 (validated)
+    targets: { snuffHomeByDay3: 0.03, snuffPastDay4: [0.06, 0.10], lanternAdd: 0.02, medianDays: [3, 5], bargeShare: 0.25 },
+  },
+  // ---- The Live Well clock (brief §3.4): a marked fish keeps for N nights after it is marked (by Creel tier).
+  liveWell: { nightsByCreel: [3, 3, 4, 4, 5], legendSlot: false, legendExpires: false, release: 'dawnAfterLast',
+    spoilage: false, valueDecay: false, cargoGrid: false },
+
+  // ---- Night modes (brief §4): chosen per expedition at the Map Table, locked for the expedition.
+  nightModes: {
+    order: ['still', 'lantern', 'gloomtide'],
+    default: 'lantern', firstOuting: 'still', offeredFrom: 2, locked: true,          // flip `default` to 'still' if playtests say so (open question 1)
+    still: {
+      swarmNights: 'none', window: null, calmRaids: false, wardens: null, snuffBy: ['oil'], embersZero: null,
+      xp: { fishMult: 1.4, zoneFactor: false, cinders: false }, kindles: false, pool: 'angler',
+      tally: { stillNight: 1 }, snuffTarget: { homeByDay3: 0.03, pastDay4: [0.06, 0.10] }, fightShare: [0, 0],
+      hud: { ring: 'never', embers: 'hidden', flare: 'hidden', burn: 'lowOil', wellFed: true },
+    },
+    lantern: {
+      swarmNights: 'even', forecast: 'The Gloom stirs tonight.',
+      window: [0.05, 0.50], quietTail: 45,                                 // night k 0.05 → 0.50 (40.5 s); the last 45 s are always quiet
+      mult: { spawnRate: 0.55, hpMult: 0.8, maxAlive: 0.6, eliteEvery: 2 }, firstEliteHeat: 3, formationsPerSwarm: 1,
+      wardens: { everySwarmNight: 2, hpMult: 0.75, withdrawAtClose: true, at: 0.10 }, calmRaids: false,   // at: night k the Warden rises (inside the 0.05–0.50 window)
+      threat: { fodder: 'oil', creelsnatch: 'unmarkedOnly', whileHooked: false, slamSnaps: false, embersFrom: 'telegraphed',
+        // the hard rule, closed: while fishing.state is reeling or landing no knockback or shove moves the Wick or the raft,
+        // zap taps never release the reel, and a Scorched lets the fight finish before the forced lamp-watch anchors
+        knockWhileHooked: false, zapReleasesReel: false, scorchedWhileHooked: 'fightFirst' },
+      embersZero: 'scorched', scorched: { oil: -30, lampWatchR: 10, cinders: false, mendAtDawn: true },
+      snuffBy: ['oil'], heatOffset: [0, 2, 4, 6], xp: { fishMult: 1.0, zoneFactor: true, cinders: 'swarmNights' }, kindles: true,
+      pool: 'all', anglerCap: 'still', reelingSpawnMult: 0.8,
+      tally: { stillNight: 1, swarmNight: 4 }, embersLostTarget: [0, 1], snuffTarget: { addToStill: 0.02 }, fightShare: [0.04, 0.07],
+      hud: { ring: 'swarmDusk', embers: 'swarmOrHit', embersHitShow: 4, flare: 'swarmDusk', burn: 'lowOilOrSwarm', wellFed: true },
+    },
+    gloomtide: {
+      swarmNights: 'all', window: [0, 1], growth: 6, max: 120, mult: { spawnRate: 1, hpMult: 1, maxAlive: 1, eliteEvery: 1 },
+      wardens: { every: 3 }, calmRaids: true, threat: { slamSnaps: true, creelsnatch: 'unmarked', whileHooked: true },   // a fish marked for home is theft-proof in every mode
+      embersZero: 'snuffed', snuffBy: ['oil', 'embers'], heatOffset: [0, 4, 8, 12],
+      xp: { fishMult: 1.0, zoneFactor: true, cinders: true }, kindles: true, pool: 'all', anglerCap: 'still',
+      tally: { night: 'nightsSurvived × (3 + zoneIndex)' }, snuffTarget: { early: [0.25, 0.55], later: [0.2, 0.35] }, fightShare: [0.28, 0.32],
+      hud: { ring: 'calmRaidOrDusk', embers: 'always', flare: 'always', burn: 'always', wellFed: true },
+    },
+    // a watch lamp's pool is r 6; leaving it by more than 10 m during the night cancels the watch and the swarm window starts
+    // at the current k (a forced Scorched watch is anchored and cannot be left)
+    lampWatch: { modes: ['lantern'], at: 'duskEnd', radius: 6, fishWithin: 10, leaveCancels: 10, cinders: false, hudFromMurkBell: 0.85, perLake: 2 },
+    legendQuiet: { glass_sovereign: 'noSpawns', lantern_swallower: { snags: 2, lead: 1.0, spike: 0.2 } },   // Still and Lantern
+    hardRule: 'No species, place, size class, favour (μ) or fishing tool exists only with combat on.',
+  },
+  // ---- Levels and Boons per mode (brief §4.4).
+  xpModes: {
+    discovery: { species: 2, place: 4, classFirst: 2, dailyCap: 12 },
+    banked: { while: ['fishing', 'sailing', 'walking'], offerAt: ['measuringCard', 'dawnBell'], swarmImmediate: true },
+    levelsPerDay: { still: [3, 2, 1, 1], lantern: [3, 2.5, 1.5, 2] },
+    deepStartPicks: { sporewood: 3, glasswater: 6, paleabyss: 9 }, draftNonAngler: true,
+  },
+
+  // ---- Cameras in render's own convention (render.js MODES / PARAM_KEYS; brief §3.7.5, §11 row 19): the camera orbits the
+  // focus (the Wick's feet unless `focus` says otherwise) at `elev` degrees and `dist` metres, and looks at focus + aim metres
+  // along the view + aimY metres up, so the pitch is atan((dist·sin elev − aimY) / (dist·cos elev + aim)), not elev. Every
+  // preset carries all of elev, dist, aim, aimY, fov, ahead, stiff; `portrait` replaces render's v1 widening (fov + 22,
+  // dist × 1.38, elev + 7) on foot and in the cove, as §24.5 does; raft presets keep v1's widening.
+  cameras: {
+    sail: { elev: 24, dist: 15, aim: 6.5, aimY: 1.4, fov: 52, ahead: 0.55, stiff: 3.6 },
+    fish: { elev: 28, dist: 13, aim: -2.5, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 }, fishFallback: { elev: 30, dist: 13.5 },
+    reel: { elev: 25, dist: 10, aim: -3, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4, by: ['lineDistance', 'fightState'], neverBy: 'sizeClass' },
+    // the night overview (render MODES.night) blends in only while combat.swarmActive is true (a swarm window or a Gloomtide
+    // calm raid), never on the phase alone: Stillnights, Lantern's quiet nights and tail and lamp-watches keep sail / fish
+    // framings with the night grade, so true-scale fish and glow trails stay readable at the big-fish hour
+    night: { follows: 'swarmActive', blend: 1.6 },
+    // trophy: distance clamp(1.2 + 1.6·L, 1.6, 16) m, crane to 50° above 4 m; yaw swings toward the place's landmark by at
+    // most ±35° from north and eases back after the card. On foot the occlusion cone and terrain clamp stay on. No landmark
+    // (P1, or no place) → no yaw change.
+    trophy: { elev: 18, aim: 0, aimY: 0.6, fov: 44, ahead: 0, stiff: 2.4, base: 1.2, perM: 1.6, min: 1.6, max: 16, craneAbove: 4, craneElev: 50,
+      yawTo: 'landmarkOf(place)', yawMax: 35, onFoot: { occlusion: true, terrainClamp: true } },
+    // hub walk: camera 5.9 m above the Wick's feet and 12.1 m south; pitch ≈ 16°; top of frame ≈ 9° above horizontal
+    cove: { elev: 26, dist: 13.5, aim: 0, aimY: 2.4, fov: 50, ahead: 0.2, stiff: 2.6, portrait: { elev: 33, dist: 14, fov: 60 } },
+    // the arch close-up: only during the Set Out / Homecoming glides, or while the Wick stands at the look spot on the jetty
+    // root with no line out and the fishing state idle (never while fishing or boarding)
+    gate: { elev: 12, dist: 11, aim: 0, aimY: 5, fov: 50, ahead: 0, stiff: 2.0, portrait: { elev: 16, dist: 13, fov: 62 },
+      triggers: ['glide', 'lookSpot'], lookSpot: { x: -3.5, z: 2, r: 1.5 } },
+    // focus = the nearest wing's centre on its gallery floor; aimY = the wing's middle frame band (row 2) above that floor
+    wall: { elev: 14, dist: 6, aim: 0, aimY: 2.1, fov: 46, ahead: 0, stiff: 2.4, portrait: { elev: 18, dist: 7.5, fov: 60 }, focus: 'nearestWing', within: 4 },
+    // Homecoming close-up: focus = the frame's centre on the wall face (the Wick is placed at the wing's foot, never walked
+    // there); distance clamp(1.2 + 1.6·L, 1.6, 7) m; then a 1.2 s pull back to `wall`
+    hang: { elev: 10, aim: 0, aimY: 0, fov: 44, ahead: 0, stiff: 2.4, base: 1.2, perM: 1.6, min: 1.6, max: 7, then: 'wall', focus: 'frameCentre', wick: 'wingFoot' },
+    pond: { elev: 55, dist: 6, aim: 0, aimY: 0, fov: 44, ahead: 0, stiff: 2.4, portrait: { elev: 62, dist: 7, fov: 58 }, focus: 'pondCentreY0' },
+    setout: { elev: 10, dist: 14, aim: 0, aimY: 6, fov: 50, ahead: 0, stiff: 2.0, focus: 'raft' },
+    // the boot overlay: a ping-pong arc over the southern half only (the cove is authored for a north-looking camera)
+    title: { orbit: { centre: { x: -4, z: -6 }, radius: 24, height: 9, lookAt: { x: -4, y: 4.5, z: -12 }, arcDeg: [-55, 55], period: 90 }, fov: 42, stiff: 2.2 },
+    vista: { phase: 4 },
+  },
+
+  // ---- Residents and Marked Fish (brief §7.0, §5.7).
+  residents: {
+    places: 3,                                         // one per holdsGiants place, persistent in meta.residents[lake][place] = {species, z}
+    z: { mean: 1.6, sd: 0.6, min: 1.88, max: 3.6 },    // always Trophy or better: Elder 12.4%, Ancient 1.1%, mean z 2.27 (validated)
+    weights: { common: 1, uncommon: 2, rare: 3, kept: 3 },
+    shows: { calm: 2, dusk: 1, night: 1, kinds: ['boil', 'pass', 'leap'], castR: 3, within: 8, bite: 0.6 },
+    reroll: { onLanding: 'nextSetOut', afterInLakeDays: 3 },
+    stamp: 'Resident', checks: { elderShare: 0.124, ancientShare: 0.011, meanZ: 2.27 },
+  },
+  markedFish: { fromClass: { openWater: 'elder', place: 'trophy' }, max: 6, perLake: 2, hold: 6, holdOnce: true, replacesResident: true, glint: 'showsOnly',
+    anchorP1: 'escapePoint', anchorR: 8, showsPerCalm: 2, show: 'boilWithGlint', anchorP2: 'nearestPlace', nearestPlaceR: 25 },   // P1 (no places): it stays within 8 m of where it was lost; P2 moves it to the nearest place   // automatic fishing: +6 Hold on its re-hook, once (CATCH_V3.markedFish); the glint shows before the cast, never in a play
+
+  // ---- Place rules v3 (brief §7.0): two new rule types and five fields; pressure; Astir in the Mossmere.
+  placesV3: {
+    fields: ['holdsGiants', 'maxClass', 'resident', 'tally', 'weather'],
+    rules: ['sight', 'drift'],
+    sight: { biteR: 1.2, bite: [2, 4], spookOthers: 30, hushRangeMult: 2 },
+    drift: { speed: 1.5, seamRarity: 0.08 },
+    defaultMaxClass: 'trophy', fryMaxClass: 'prize',
+    giantsPerLake: 3, mossmereAstirPerDay: 1,
+    discovery: { radius: 8, memories: 2, titleCard: 1.2 }, mastery: { catches: 4, minQuality: 'fine', memories: 10 },
+    tally: { mossmere: 'floodGauge', sporewood: 'capStem', glasswater: 'brassRuler', paleabyss: 'boneTablet' },
+    shortcutsPersist: true, waylampsReset: true,
+    // giantsKept: at a place with this flag its kept species alone may roll past the elsewhere clamp and the place's maxClass
+    // (an Elder route for a kept rare at a place without residents); every other species there keeps both caps
+    giantsKept: { field: 'giantsKept', appliesTo: 'kept species' },
+    // the stopgap, per lake: a lake whose places are not in the build (the Mossmere before P2; the other three whenever §24's
+    // builds are off) uses RAFT_FALLBACK_V3[zone].giants as its holdsGiants water (the legend-pool rim r 3.2–9, deep pools
+    // ≥ 15 m from it, and authored discs to make 3), with one resident each; it ends per lake when that lake's places load
+    stopgap: { from: 'RAFT_FALLBACK_V3', sources: 3, rim: [3.2, 9], endsWhen: 'lakePlacesLoaded', residents: true },
+    // dropIn targets (the Cupped Hands' bowl, the Gatehouse Door): inside rule.lock of the target the cast lands at the target
+    // centre at y 0 without the arc, obstacle and open-water tests; a hooked fish is held inside the target disc (+ hold m) and
+    // is drawn only where it is outside obstacle collision; the line runs from the rod tip to the target
+    dropIn: { lock: 'rule.lock', landsAt: 'targetCentre', skips: ['arc', 'obstacle', 'openWater'], hold: 0.7, centreOpenMargin: 0.5 },
+  },
+
+  // ---- P1–P2 and The Long Descent: effective tackle tiers from per-run UPGRADES: the unrounded tier 4 × levels ÷ the slot's levels
+  // (rod 6, line 6, reel 7, creel 4) gives each slot's Hold (data.upgradeHold, every level counts); the rounded tier
+  // (data.upgradeTiers) gives the tackle rating's words (catchRating).
+  upgradeTiers: { slots: { rod: ['rod_ashwood', 'rod_whalebone'], line: ['line_gut', 'line_silver'], reel: ['reel_brass', 'reel_drag'], creel: ['creel_wicker'] },
+    uses: ['hold', 'rating'] },
+  // (D1′: the v3 fight stats `stats` (shock, absorb, pipBonus, dragAt) and the reel sim's `tackleRating` table are retired; the
+  // tackle rating is catchRating, in words.)
+};
+
+// ---- The roster: 53 species (brief §6.5). Grammar per lake: 3–4 everyday commons → uncommons → rares
+// (≥ 2 night-only) → 3–5 place-kept → 1 legendary; plus 2 Wanderers and the Landing's Quayling.
+// Existing species keep their v1 / §24 id, tier, behavior and difficulty (the reel core) exactly, so
+// tools/sim/reel-v3.mjs reproduces the brief's land rates; v3 adds:
+//   size {L50 cm, sigma, body, k g/cm³} (legends: {L50, W50 kg, sigma 0.02}; Pilgrim Salmon: L50 by lake)
+//   style  the v3 fight style (steady/darter/sinker/thrasher/leaper + runner (P3) / sulker (P4)); behavior
+//          stays the reel core's base until those verbs land
+//   family insect | predator | bottom | glow (read only by lures)    prefers  hush | drip | mist (the field-note
+//   condition: Match favour +0.3)    phase 1–4 (in the build from that phase)
+//   src 'v1' | 'walk' | 'v3'    place / cond (place-kept: eligible only there, under that state)
+//   weather (a hard condition gate)    spots {placeId: mult}    maxClass    zones (Wanderers)
+// Kept-fish conds extend §24's (buff / deed / reflection / plumbBottom / window) with live (a rhythm's live
+// window), target (inside a targets disc), litRow (a Clean Cast within 0.6 m of the Lit Row's centre line) and
+// relit (after relighting 3 candle-rafts that day). The brief's `cond` for Hush / Drip / Mist is `weather`
+// here, because §24 already uses SPECIES[].cond for place states.
+export const FISH_FAMILIES = ['insect', 'predator', 'bottom', 'glow'];
+export const FISH_STYLES = ['steady', 'darter', 'sinker', 'thrasher', 'leaper', 'runner', 'sulker'];
+export const FISH_SHAPES_V3 = [...FISH_SHAPES, 'sturgeon'];   // + scutes and a shovel snout, from the leviathan profile (P2)
+export const WEATHER = ['hush', 'drip', 'mist'];
+export const KEPT_CONDS = { buff: 'sequence', deed: 'deed', reflection: 'reflection', plumbBottom: 'plumb', window: 'phaseWindow',
+  live: 'rhythm', target: 'targets', litRow: 'targets', relit: 'drifters' };   // cond → the place rule type it needs
+
+// Per-lake fish hue stories (brief §6.6): off-green, distinct per lake. Glows sapphire, never aqua.
+export const FISH_PALETTES = {
+  mossmere:   { story: 'slate, pewter, rust, ivory', hues: [0x585e66, 0x646a74, 0x7a8494, 0x8a4b3a, 0xe2ddd0], glow: 0xb9a8ff },
+  sporewood:  { story: 'plum, amber, rose, cream', hues: [0x5a3d5e, 0x3e2944, 0xffb46a, 0xff7fb0, 0xe8d8b0], glow: 0xffb46a },
+  glasswater: { story: 'indigo, ice, violet; glows sapphire, not aqua', hues: [0x1a1f4a, 0x3d4a8a, 0xa8d4ff, 0xb48cff], glow: 0x5cbcff },
+  paleabyss:  { story: 'bone, ink, gold, one oxblood', hues: [0xd8d2c0, 0x14130f, 0xe8c66a, 0x8a3a3a], glow: 0xe8c66a },
+  cove:       { story: 'pewter with rust fins (the Quayling)', hues: [0x7a8494, 0x9a5a40], glow: null },
+};
+
+const SZK = BALANCE_V3.size.k;
+const v1sp = (id) => SPECIES.find((s) => s.id === id) || WALK_SPECIES.find((s) => s.id === id);
+const sz = (L50, sigma, body) => ({ L50, sigma, body, k: SZK[body] });
+// retunes for new species (reel-v3 at k 400, T4 skilled: Ancient 40–55% with a median ≤ 180 s; validated for every Elder-capable species)
+const diffMul = (d, m) => Object.fromEntries(Object.entries(d).map(([k, v]) => [k, k in m ? Math.round(v * m[k] * 100) / 100 : v]));
+const legendSize = (L50, W50) => ({ L50, W50, sigma: BALANCE_V3.size.legend.sigma, body: 'legend', k: v3r(W50 * 1000 / L50 ** 3, 6) });
+// clone a v1 / §24 species (never aliased) and add the v3 fields
+function sv3(srcId, v3, patch = {}) {
+  const s = v3clone(v1sp(srcId));
+  const out = { ...s, ...patch, ...v3 };
+  if (patch.model) out.model = { ...s.model, ...patch.model };
+  return out;
+}
+// derived fields shared by every row (night-only from time; v1 weight range from the size model)
+function v3fin(s) {
+  s.style = s.style || s.behavior;
+  s.night = s.time === 'gloom';
+  const L50 = typeof s.size.L50 === 'number' ? s.size.L50 : Math.min(...Object.values(s.size.L50));
+  const L = (z) => L50 * Math.exp(s.size.sigma * z + BALANCE_V3.size.tail * Math.max(0, z - BALANCE_V3.size.tailFrom) ** 2);
+  const zHi = BALANCE_V3.size.classMaxZ[s.maxClass] ?? BALANCE_V3.size.reachZ;
+  const kg = (cm) => v3r((s.size.k * cm ** 3) / 1000, cm < 30 ? 3 : 2);
+  if (s.rarity === 'legendary') s.weight = [s.size.W50, v3r(s.size.W50 * BALANCE_V3.size.legend.growthCap, 0)];
+  else s.weight = [kg(L(BALANCE_V3.size.z.min)), kg(L(zHi))];   // v1-compatible [min, max] kg (z −2 … the class ceiling)
+  return s;
+}
+
+export const SPECIES_V3 = [
+  // ---------------------------------------------------------------- The Mossmere (12): slate, pewter, rust, ivory
+  sv3('dusk_minnow', { size: sz(22, 0.12, 'minnow'), family: 'insect', prefers: 'drip', phase: 1, src: 'v1' },
+    { model: { fin: 0x8a4b3a, pattern: 'scales' }, lore: 'They school beneath the raft like thrown pennies, pewter flecked with rust, each one wishing for nothing at all.' }),
+  sv3('mossback_perch', { size: sz(36, 0.13, 'perch'), family: 'bottom', prefers: 'hush', phase: 1, src: 'v1' },
+    { model: { body: 0x585e66, fin: 0x8a4b3a }, lore: 'A pale lichen tuft takes root on its back by its third winter, and blooms a little more every year it is not caught.' }),
+  sv3('gutter_crayfish', { size: sz(19, 0.10, 'crayfish'), family: 'bottom', prefers: 'mist', phase: 1, src: 'v1' }),
+  {
+    id: 'lampsipper', name: 'Lampsipper', zone: 'mossmere', rarity: 'common', tier: 1, value: 9, food: 16, oil: 18, time: 'gloom',
+    depth: [0, 0.5], bait: null, behavior: 'darter', difficulty: diff(1, 'darter'), lightAttract: 2,
+    size: sz(26, 0.12, 'minnow'), family: 'insect', prefers: 'mist', phase: 2, src: 'v3',
+    model: { shape: 'minnow', body: 0x6a6f7c, belly: 0xe2ddd0, fin: 0xa8644a, glow: 0xd8d0ff, pattern: 'spots', eyes: 'normal', scale: 0.5, mouth: 'up' },
+    hint: 'Only at night, in the shallows. It rises to your own lantern.',
+    lore: 'Two moth-wing spots on its flanks, an upturned mouth, and a weakness for lanterns. It drinks the light off the water like milk.' },
+  sv3('weeping_carp', { size: sz(56, 0.16, 'carp'), family: 'bottom', prefers: 'drip', phase: 1, src: 'v1' },
+    { lore: 'Pewter and ivory, streaked as if with tears. The oldest trail barbels like mourning ribbons. They have never once said they were not mourning.' }),
+  sv3('candlefin_koi', { size: sz(46, 0.13, 'koi'), family: 'insect', prefers: 'hush', phase: 1, src: 'v1', spots: { lily_maze: 3 } }),
+  sv3('reedjaw_pike', { size: sz(70, 0.15, 'pike'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', reference: true },
+    { model: { body: 0x3e4a5c, fin: 0x1c2230, pattern: 'stripes' }, lore: 'Slate-blue, barred like reeds in ink. It lies among the drowned reeds until it forgets it is not one. The old ones carry pale scars from everyone who almost had them.' }),
+  sv3('gloam_eel', { size: sz(72, 0.13, 'eel'), family: 'glow', prefers: 'drip', phase: 1, src: 'v1', spots: { buoy_lights: 2 } },
+    { model: { body: 0x16142a, glow: 0xb9a8ff }, hint: 'Rises at night, in deep water. Drawn to the glow of Lumen Moss, and to the drowned buoy-lights.',
+      lore: 'An ink eel strung with moon-violet lights. It rises only when the Gloom does. Some say it is the Gloom, slowly learning to be a fish.' }),
+  {
+    id: 'old_portcullis', name: 'Old Portcullis', zone: 'mossmere', rarity: 'rare', tier: 3, value: 40, food: 30, oil: 30, time: 'any',
+    depth: [0.6, 1], bait: null, behavior: 'sinker', difficulty: diffMul(diff(3, 'sinker'), { stamina: 0.7 }), place: 'gatehouse_door', cond: 'target', foul: true,   // Ancient 43% / 172 s (was 2% / 289 s)
+    size: sz(58, 0.15, 'carp'), family: 'bottom', prefers: 'mist', phase: 2, src: 'v3',
+    model: { shape: 'carp', body: 0x5a4438, belly: 0xc8b8a0, fin: 0x2e2622, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.15, barbels: 'long' },
+    hint: 'Cast through the drowned door of the Gatehouse. Mind the chains.',
+    lore: 'A catfish whose barbels hang like a broken portcullis, mottled with the rust of the gate it guards. It has not let anyone through since the Fall.' },
+  {
+    id: 'cupbearer', name: 'Cupbearer', zone: 'mossmere', rarity: 'rare', tier: 2, value: 48, food: 6, oil: 22, time: 'calm',
+    depth: [0.3, 0.5], bait: null, behavior: 'darter', difficulty: diff(2, 'darter'), place: 'cupped_hands', cond: 'live', mm: true,
+    size: sz(8, 0.09, 'minnow'), family: 'insect', prefers: 'drip', phase: 2, src: 'v3',
+    model: { shape: 'minnow', body: 0xd8cfb8, belly: 0xf4eee0, fin: 0xb39ae8, glow: 0xe8c66a, pattern: 'none', eyes: 'normal', scale: 0.25, veil: true },
+    hint: 'In the stone bowl of the Cupped Hands, while it is full.',
+    lore: 'A thumb-sized fish with violet-gold veil fins that lives only in the giant\'s bowl. It is measured in millimetres, and very proud of every one.' },
+  {
+    id: 'bridgechain_sturgeon', name: 'Bridgechain Sturgeon', zone: 'mossmere', rarity: 'rare', tier: 3, value: 55, food: 34, oil: 30, time: 'any',
+    depth: [0.6, 1], bait: null, behavior: 'sinker', difficulty: diffMul(diff(3, 'sinker'), { stamina: 0.7 }), place: 'under_the_span', weather: 'hush',   // Ancient 42% / 168 s (was 2% / 289 s)
+    size: sz(70, 0.16, 'sturgeon'), family: 'bottom', prefers: 'hush', phase: 2, src: 'v3',
+    model: { shape: 'sturgeon', body: 0x4a4e58, belly: 0xcfcabd, fin: 0x8a4b3a, glow: null, pattern: 'bands', eyes: 'normal', scale: 1.3 },
+    hint: 'Under the broken bridge, but only when the water goes still as a mirror.',
+    lore: 'Rust scutes run down its back like the links of the chain that held the bridge. The Mossmere\'s longest fish, and it knows it.' },
+  sv3('belled_matriarch', { size: legendSize(260, 120), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'bell_pool' },
+    { model: { body: 0x6a5a44, glow: 0xd8d0ff, fin: 0x8a7a5c }, lore: 'A harbour bell grew into her skull when she was young. Her scales have gone the colour of tarnished bronze, and she has tolled for the drowned ever since.' }),
+
+  // ---------------------------------------------------------------- Sporewood Pools (12): plum, amber, rose, cream
+  sv3('sporebelly_puffer', { size: sz(25, 0.10, 'puffer'), family: 'insect', prefers: 'drip', phase: 1, src: 'v1', spots: { puffball_vent: 3 } }),
+  sv3('plumgill_perch', { size: sz(40, 0.13, 'perch'), family: 'predator', prefers: 'hush', phase: 1, src: 'v1' }),
+  sv3('capshell_crayfish', { size: sz(24, 0.10, 'crayfish'), family: 'bottom', prefers: 'mist', phase: 1, src: 'v1' }),
+  sv3('velvet_ray', { size: sz(67, 0.14, 'ray'), family: 'bottom', prefers: 'hush', phase: 1, src: 'v1', style: 'runner', spots: { mothers_cup: 2, gill_harp: 2 } }),
+  sv3('threadling_eel', { size: sz(86, 0.13, 'swampeel'), family: 'predator', prefers: 'drip', phase: 1, src: 'v1' }),
+  {
+    id: 'nightbloom_carp', name: 'Nightbloom Carp', zone: 'sporewood', rarity: 'uncommon', tier: 3, value: 40, food: 32, oil: 30, time: 'gloom',
+    depth: [0.3, 1], bait: null, behavior: 'sinker', difficulty: diff(3, 'sinker'),
+    size: sz(58, 0.17, 'carp'), family: 'bottom', prefers: 'mist', phase: 4, src: 'v3',
+    model: { shape: 'carp', body: 0x4a2a4e, belly: 0xe6c8d8, fin: 0x7a4a72, glow: 0xffb46a, pattern: 'scales', eyes: 'normal', scale: 1.2 },
+    hint: 'Anywhere in the Pools, but only at night, when its scales open.',
+    lore: 'A plum carp whose scales open at night like amber spore-lamps. By day it is just a carp, and a little embarrassed about it.' },
+  sv3('mildew_angler', { size: sz(60, 0.16, 'angler'), family: 'glow', prefers: 'mist', phase: 1, src: 'v1', reference: true, spots: { veilwater: 2 } },
+    { hint: 'Its lure lights only at night, out where the water is deep.' }),
+  sv3('sleepspore_jelly', { size: sz(33, 0.09, 'jelly'), family: 'glow', prefers: 'hush', phase: 1, src: 'v1', spots: { lullaby: 3 } }),
+  sv3('harpstring_eel', { size: sz(82, 0.13, 'eel'), family: 'predator', prefers: 'drip', phase: 3, src: 'walk' }),
+  sv3('hushcap_koi', { size: sz(50, 0.13, 'koi'), family: 'glow', prefers: 'hush', phase: 3, src: 'walk' }),
+  {
+    id: 'the_remembered_sun', name: 'The Remembered Sun', zone: 'sporewood', rarity: 'rare', tier: 3, value: 80, food: 26, oil: 46, time: 'calm',
+    depth: [0.4, 0.5], bait: null, behavior: 'leaper', difficulty: diff(3, 'leaper'), place: 'drowned_greenhouse', cond: 'litRow', litRowR: 0.6,
+    size: sz(45, 0.13, 'koi'), family: 'insect', prefers: 'drip', phase: 4, src: 'v3', proposal: true,
+    model: { shape: 'koi', body: 0xe8d8b0, belly: 0xfff6e0, fin: 0xffb46a, glow: 0xffd28a, pattern: 'spots', eyes: 'normal', scale: 1.0, sunDisc: true },
+    hint: 'On the Lit Row of the Drowned Greenhouse. Only a clean cast down the very middle of the row.',
+    lore: 'The one warm fish in the Pools: a pale-gold disc on each flank, like a sun it has only heard about. The gardeners kept it for the greenhouse, and it kept the greenhouse.' },
+  sv3('drifting_grove', { size: legendSize(300, 150), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'mothers_cup' }),
+
+  // ---------------------------------------------------------------- Glasswater Vault (13): indigo, ice, violet; sapphire glows
+  sv3('prism_minnow', { size: sz(23, 0.12, 'minnow'), family: 'insect', prefers: 'drip', phase: 1, src: 'v1' },
+    { lore: 'When the school turns at once, it flashes ice-blue, and for an instant the water remembers the colour of the sky.' }),
+  sv3('glassgill_perch', { size: sz(43, 0.13, 'perch'), family: 'predator', prefers: 'hush', phase: 1, src: 'v1' }),
+  sv3('glassblown_puffer', { size: sz(27, 0.10, 'puffer'), family: 'bottom', prefers: 'mist', phase: 1, src: 'v1' }),
+  sv3('chime_jelly', { size: sz(36, 0.09, 'jelly'), family: 'glow', prefers: 'hush', phase: 1, src: 'v1', spots: { bell_window: 3 } }),
+  sv3('mirror_pike', { size: sz(75, 0.17, 'pike'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', style: 'runner', reference: true, spots: { mirror_nave: 3 } }),
+  sv3('shardspine_eel', { size: sz(85, 0.14, 'eel'), family: 'predator', prefers: 'drip', phase: 1, src: 'v1' },
+    { hint: 'Hunts by the sound of breaking, and only at night.' }),
+  {
+    id: 'vesper_gar', name: 'Vesper Gar', zone: 'glasswater', rarity: 'rare', tier: 4, value: 135, food: 36, oil: 54, time: 'gloom',
+    depth: [0.5, 1], bait: null, behavior: 'darter', difficulty: diff(4, 'darter'),
+    size: sz(70, 0.15, 'gar'), family: 'predator', prefers: 'hush', phase: 4, src: 'v3', spots: { broken_hymnal: 3 },
+    model: { shape: 'pike', body: 0x23285a, belly: 0xc8d0f0, fin: 0xb48cff, glow: 0xb48cff, pattern: 'scales', eyes: 'glow', scale: 1.25, snout: 'needle' },
+    hint: 'Deep water at night, thickest where the Broken Hymnal leaves its chord unfinished.',
+    lore: 'A needle-jawed gar with violet glass fins that ring on every turn. The copyists said it sang vespers. It only ever sang the one note.' },
+  sv3('blind_scrivener', { size: sz(64, 0.16, 'angler'), family: 'glow', prefers: 'mist', phase: 1, src: 'v1', style: 'sulker', spots: { well_of_ledgers: 2 } }),
+  sv3('the_unreflected', { size: sz(60, 0.13, 'perch'), family: 'insect', prefers: 'hush', phase: 3, src: 'walk' }),
+  sv3('the_footnote', { size: sz(51, 0.13, 'perch'), family: 'bottom', prefers: 'mist', phase: 3, src: 'walk', style: 'sulker' }, { model: { pattern: 'marks' } }),
+  sv3('rainglass_darter', { size: sz(39, 0.11, 'trout'), family: 'insect', prefers: 'drip', phase: 3, src: 'walk' }),
+  {
+    id: 'the_sexton', name: 'The Sexton', zone: 'glasswater', rarity: 'rare', tier: 4, value: 150, food: 42, oil: 60, time: 'any',
+    depth: [0.85, 0.95], bait: null, behavior: 'thrasher', difficulty: diffMul(diff(4, 'thrasher'), { stamina: 0.65 }), place: 'bell_window', cond: 'deed',   // Ancient 40% / 145 s (was 1% / 293 s)
+    size: sz(66, 0.15, 'carp'), family: 'bottom', prefers: 'hush', phase: 4, src: 'v3', proposal: true,
+    model: { shape: 'carp', body: 0x1e2350, belly: 0xd0d8f0, fin: 0x3a3f7a, glow: 0xa8d4ff, pattern: 'spots', eyes: 'glow', scale: 1.25, bellPatch: true },
+    hint: 'Under the Bell-Chapel Window, during the Struck Hour.',
+    lore: 'Deep indigo, with a pale bell-shaped patch on each flank. Every time it turns, something far below tolls, muffled, as if through a closed door.' },
+  sv3('glass_sovereign', { size: legendSize(300, 210), family: 'glow', phase: 1, src: 'v1', legendPlace: 'fallen_chandelier' },
+    { hint: 'At night, in the deepest water, a Prism Moth draws a crown of light.' }),
+
+  // ---------------------------------------------------------------- The Pallid Deep (13): bone, ink, gold, one oxblood
+  sv3('ossuary_fry', { size: sz(23, 0.12, 'minnow'), family: 'insect', prefers: 'mist', phase: 1, src: 'v1' }),
+  sv3('pallid_wraithfin', { size: sz(46, 0.13, 'ghost'), family: 'predator', prefers: 'hush', phase: 1, src: 'v1' }),
+  sv3('bonecrook_crayfish', { size: sz(27, 0.10, 'crayfish'), family: 'bottom', prefers: 'drip', phase: 1, src: 'v1' }),
+  sv3('gilt_eyed_eel', { size: sz(131, 0.16, 'greateel'), family: 'predator', prefers: 'mist', phase: 1, src: 'v1', reference: true }),
+  sv3('shroud_ray', { size: sz(82, 0.14, 'ray'), family: 'bottom', prefers: 'hush', phase: 1, src: 'v1' }),
+  sv3('funeral_veil', { size: sz(42, 0.09, 'ghost'), family: 'glow', prefers: 'drip', phase: 1, src: 'v1' },
+    { hint: 'It follows the night the way a widow follows a cart.' }),
+  sv3('lampwarden_angler', { size: sz(72, 0.14, 'angler'), family: 'glow', prefers: 'mist', phase: 1, src: 'v1', style: 'sulker', maxClass: 'trophy',
+    spots: { sunken_belfry: 2, the_bottomless: 1.5 } }, { hint: 'Its lamp answers only Ember Roe, and only at night.' }),
+  sv3('the_clapper', { size: sz(66, 0.15, 'carp'), family: 'bottom', prefers: 'drip', phase: 3, src: 'walk' }),
+  sv3('wax_bearer', { size: sz(127, 0.13, 'eel'), family: 'glow', prefers: 'hush', phase: 3, src: 'walk' }),
+  sv3('the_unpaid_fare', { size: sz(87, 0.14, 'ghost'), family: 'bottom', prefers: 'mist', phase: 3, src: 'walk', style: 'sulker' }),
+  {
+    id: 'candlewake_sturgeon', name: 'Candlewake Sturgeon', zone: 'paleabyss', rarity: 'rare', tier: 4, value: 250, food: 56, oil: 84, time: 'gloom',
+    depth: [0.85, 0.95], bait: null, behavior: 'sinker', difficulty: diff(4, 'sinker'), place: 'chain_garden', cond: 'live',
+    size: sz(133, 0.175, 'sturgeon'), family: 'bottom', prefers: 'mist', phase: 4, src: 'v3', style: 'runner', proposal: true,
+    model: { shape: 'sturgeon', body: 0x2a2822, belly: 0xeae4d3, fin: 0x8a8070, glow: 0xe8c66a, pattern: 'bands', eyes: 'glow', scale: 1.6 },
+    hint: 'In the Chain Garden at night, while the thing below turns.',
+    lore: 'Its bone scutes stand along its back like candles nobody lit. They say one lights for every year it is not caught. The biggest fish in the Deep that is not a legend.' },
+  {
+    id: 'the_namesake', name: 'The Namesake', zone: 'paleabyss', rarity: 'rare', tier: 4, value: 230, food: 44, oil: 72, time: 'any',
+    depth: [0.75, 0.85], bait: null, behavior: 'steady', difficulty: diff(4, 'steady'), place: 'long_pier', cond: 'relit', relitN: 3,
+    size: sz(62, 0.13, 'perch'), family: 'predator', prefers: 'hush', phase: 4, src: 'v3', proposal: true,
+    model: { shape: 'perch', body: 0xe0d8c4, belly: 0xf6f2e6, fin: 0x8a8070, glow: 0xe8c66a, pattern: 'marks', eyes: 'normal', scale: 1.1 },
+    hint: 'By the Long Pier of Names, once three candle-rafts have been relit that day.',
+    lore: 'Bone-white, with gold marks along its flank that look like handwriting. Each one you land is logged under a name from the pier. No two have ever had the same.' },
+  sv3('pale_leviathan', { size: legendSize(850, 3200), family: 'bottom', phase: 1, src: 'v1', legendPlace: 'the_bottomless', renamedFrom: 'pale_leviathan' }, {
+    id: 'lantern_swallower', name: 'The Lantern-Swallower', epithet: 'The Ember Under the Kingdom', bait: 'last_candle',
+    hint: 'Only a Last Candle. Only at night. Only in the deepest water of the Pallid Deep.',
+    lore: 'Older than the kingdom above. On the night the lantern fell it swallowed the great lantern whole, and the ember still glows in its belly.' }),
+
+  // ---------------------------------------------------------------- Wanderers (2) and the Landing (1)
+  {
+    id: 'pilgrim_salmon', name: 'Pilgrim Salmon', zone: null, zones: ['sporewood', 'glasswater', 'paleabyss'], wanderer: true,
+    rarity: 'rare', tier: 3, value: 30, valueByLake: true, food: 30, oil: 34, time: 'dawn', depth: [0.3, 0.8], bait: null,
+    behavior: 'darter', difficulty: diff(3, 'darter'), homeward: { within: 20, calmSeconds: 30 }, perLakePerRealDay: 1,
+    size: { L50: { sporewood: 66, glasswater: 76, paleabyss: 87 }, sigma: 0.13, body: 'trout', k: SZK.trout },
+    family: 'predator', prefers: 'drip', phase: 3, src: 'v3', style: 'runner',
+    model: { shape: 'pike', body: 0x6a4a3e, belly: 0xd8c4b0, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 1.2, jaw: 'hooked' },
+    hint: 'At dawn, and for a little while after, near the stone that points home. Once a day in each lake.',
+    lore: 'A rust-jawed salmon with frayed fins, always going down, never coming back. It grows a little with every lake it passes through.' },
+  {
+    id: 'hearthfish', name: 'Hearthfish', zone: null, zones: ['mossmere', 'sporewood', 'glasswater', 'paleabyss'], wanderer: true,
+    rarity: 'rare', tier: 3, value: 28, valueByLake: true, food: 24, oil: 40, time: 'gloom', depth: [0, 1], bait: null,
+    behavior: 'leaper', difficulty: diff(3, 'leaper'), ownLight: true, minOilFrac: 0.75,
+    size: sz(32, 0.12, 'koi'), family: 'glow', prefers: 'hush', phase: 3, src: 'v3',
+    model: { shape: 'koi', body: 0x2a2422, belly: 0x6a3a2a, fin: 0x4a3a32, glow: 0xff9a4a, pattern: 'none', eyes: 'glow', scale: 0.6 },
+    hint: 'At night, in any lake, inside your own light, while your lantern is well fed.',
+    lore: 'A coal glows in its belly and brightens when it nears a lantern, as if it remembers being warm. It follows good light from lake to lake.' },
+  {
+    id: 'quayling', name: 'Quayling', zone: 'cove', cove: true, rarity: 'common', tier: 1, value: 0, noSale: true, food: 4, oil: 4,
+    time: 'any', depth: [0, 1], bait: null, behavior: 'darter', difficulty: diff(1, 'darter'), maxClass: 'keeper',
+    size: sz(14, 0.10, 'minnow'), family: 'insect', prefers: 'drip', phase: 1, src: 'v3',   // FE-D1: phase 1 (the First Evening), cove-only
+    model: { shape: 'minnow', body: 0x7a8494, belly: 0xdde2e8, fin: 0x9a5a40, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.3, curiousEye: true },
+    hint: 'Off the Landing\'s jetty. Old Murk will not buy it.',
+    lore: 'A quayside minnow with rust-flecked fins and one curious eye. It lives in Murk\'s front yard and has opinions about him.' },
+].map(v3fin);
+export const SPECIES_V3_BY_ID = Object.fromEntries(SPECIES_V3.map((s) => [s.id, s]));
+// ---- The Full Hold's roster fish (docs/loop/SPEC.md §13, M1 step 2): the drawing and the weather word of each roster fish that is new to
+// the game (a re-founded built species keeps its built model, SPEC §13 rule 1). Slate, pewter, rust and ivory (ROSTER §3.1); no glow
+// but the Milkeye's eyes. Read only by the loop's converter (src/roster-species.js), so the v1 and v3 builds never see them.
+export const ROSTER_ART = {
+  likely_chub:    { prefers: 'drip', model: { shape: 'minnow', body: 0x6e7684, belly: 0xe2ddd0, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.8 } },
+  overbold_bass:  { prefers: 'mist', model: { shape: 'perch', body: 0x5f5a4c, belly: 0xc9c2ad, fin: 0x3a3c40, glow: null, pattern: 'stripes', eyes: 'normal', scale: 0.85 } },
+  rustfin_sucker: { prefers: 'hush', model: { shape: 'carp', body: 0x646a74, belly: 0xd6d2c6, fin: 0x8a4b3a, glow: null, pattern: 'scales', eyes: 'normal', scale: 1.0, barbels: 'none' } },
+  milkeye_perch:  { prefers: 'mist', model: { shape: 'perch', body: 0x6a707a, belly: 0xe2ddd0, fin: 0x4a4e58, glow: 0xd8d0ff, pattern: 'stripes', eyes: 'glow', scale: 1.1 } },
+  // M1 step 3a (ROSTER §3.1, §4): the two giants and the Kissmark Trout, with the plan parameters models-fish.js builds them from (read
+  // only under the loop, PLAN CHOICE 14): the pike's upright bars and amber eye rim; the lamprey's toothed disc mouth and its seven gill
+  // holes lit lavender; the trout's fatty fin, plain jaw, ivory star-spots and one pale round scar. No glow on any body. The lamprey's
+  // and the trout's bellies are a cool stone (lane A's look: a warm stone-white mixed into their flanks read gold-bronze under the
+  // show's candle light, where the Starlit palette wants ink and slate)
+  thousandcast_pike: { prefers: 'mist', model: { shape: 'pike', body: 0xd4cec0, belly: 0xe8e2d4, fin: 0x8a4b3a, glow: null, pattern: 'stripes', eyes: 'normal', scale: 1.45,
+    bars: 'upright', eyeRim: 'amber' } },
+  hullkiss_lamprey:  { prefers: 'drip', model: { shape: 'lamprey', body: 0x1c1a2a, belly: 0xc6c2cc, fin: 0x2a2838, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
+    mouth: 'disc', teeth: 'amber', gills: 7, gillGlow: 0xb8b0ee } },
+  kissmark_trout:    { prefers: 'hush', model: { shape: 'trout', body: 0x5a6270, belly: 0xd0d0d2, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 1.2,
+    fattyFin: true, jaw: 'plain', spots: 'stars', scar: true } },
+  // LOST-TACKLE §4.2, §5.1: the guests a notebook brings. The Rosefleck and the Rainglass Darter on the trout plan (the darter's tall sail
+  // the plan's one new parameter), the Nightbloom on the carp plan with a faint lavender glow along its flank; slate, rust and stone
+  rosefleck_trout:   { prefers: 'drip', model: { shape: 'trout', body: 0x6a6670, belly: 0xd8d0cc, fin: 0x8a4b3a, glow: null, pattern: 'spots', eyes: 'normal', scale: 0.95,
+    fattyFin: true, jaw: 'plain', spots: 'rose' } },
+  rainglass_darter:  { model: { shape: 'trout', body: 0x5e6a78, belly: 0xdcdcde, fin: 0x9a92b4, glow: null, pattern: 'spots', eyes: 'normal', scale: 0.7,
+    fattyFin: true, jaw: 'plain', sail: true } },
+  // (LAKE 2, lane F: its look is its home water's, LAKE2.md §2.3: a huge barb, its head a third of its length, a high arched back, no
+  // barbels, a small upturned mouth, coin-sized plum scales edged in cream like petals that bloom faint amber at night; the lavender
+  // flank glow it had as the Mossmere's guest goes)
+  // (LAKE 2, the art pass: its head a third of its length, a stronger arch and a darker plum, so the cream petal edges carry)
+  nightbloom_carp:   { model: { shape: 'carp', body: 0x2e1630, belly: 0xc8b0bc, fin: 0x3a1e3c, glow: 0xffb46a, pattern: 'scales', eyes: 'normal', scale: 1.2,
+    head: 1.55, headLen: 0.48, back: 'arched', archK: 0.72, barbels: 'none', mouth: 'up', scales: 'giant', scaleEdge: 0xf2e2c4, flood: 0.35 } },
+  // a built species the loop keeps on a new plan (not a roster record: the converter never reads it): its plan parameters, merged over
+  // its built model under the loop (the Bridgechain's rust scutes and shovel snout, the sturgeon plan of M1 step 3a)
+  bridgechain_sturgeon: { model: { scutes: 'rust', snout: 'shovel' } },
+  // LAKE 2, lane D1 (docs/loop/LAKE2.md §2.3): Sporewood's fourteen looks, each its plan and the build words of the modeller's brief, so
+  // each fish with a relative in the Mossmere reads as a different animal. Lane F builds the new plans (disc, bream, finlet) and the new
+  // words, and paints each in the Clear Night palette (plum, amber, rose, cream; glow only where the brief names it). A new fish's model
+  // is this one; a kept or re-founded built fish (the Capshell, the Angler, the Jelly, the Velvet Ray, the Threadling, the Harpstring,
+  // the Grove) has it merged over its built model under the loop (an empty model: as built). The Nightbloom Carp's is its key above
+  // (lane F: each look built and painted. Plum, amber, rose and cream; the Threadling's bark and the Grove's meadow the brief's own; glow
+  // only on the Harpstring's strings, the Puffer's lantern, the Grove's gills and the Nightbloom's petal edges)
+  // (the integration's fix: the Fry's glass cool and milky, so the lantern's warm light does not turn it a small tan minnow; its own build)
+  netcloud_fry:       { model: { shape: 'minnow', body: 0xb4c2cc, belly: 0xe0e8ec, fin: 0xc6d4dc, glow: null, pattern: 'none', eyes: 'normal', scale: 0.25,
+    skin: 'glass', spine: true, eye: 1.6, tailSpot: 'amber', cloud: 5 } },
+  falsesmile_barb:    { model: { shape: 'bream', body: 0x9a6450, belly: 0xeadcc6, fin: 0x4e2e48, glow: null, pattern: 'scales', eyes: 'normal', scale: 0.6,
+    depth: 0.95, jaw: 'square_teeth', tail: 'scythe' } },
+  capshell_crayfish:  { model: { body: 0x7a4e36, belly: 0xe8c79a, fin: 0x4a2c3e, glow: null, pattern: 'none', cap: 0xd6ae76, freckle: 0x5a3450,
+    carapace: 'dome', claws: 0.4, antennae: 1.8, tail: 'fan' } },
+  threadling_eel:     { model: { body: 0x5a5034, belly: 0xd8ccae, fin: 0x4a4030, glow: null, pattern: 'none', eyes: 'normal',
+    girth: 0.5, pects: false, dorsal: 'none', ventral: 'fold', tail: 'point', eye: 0.5, mottle: true, bellyLine: true } },
+  cindertail_catfish: { model: { shape: 'catfish', body: 0x2c2234, belly: 0x6e5e6c, fin: 0x2a2030, glow: null, pattern: 'none', eyes: 'normal', scale: 1,
+    head: 'bullet', whiskers: 8, dorsal: 'tall', fattyFin: true, tail: 'fork', tailCol: 0xc4402a, tailTip: 0xf0a050, sideLine: 0xe8dcc4 } },
+  velvet_ray:         { model: { shape: 'disc', body: 0x3e2944, belly: 0xd6b8cf, fin: 0x5a3a5e, glow: null, pattern: 'none', eyes: 'normal',
+    eyeRings: 12, ring: 0xe8d4a8, turrets: true, tail: 'sting' } },
+  // (LAKE 2, the art pass: the colour-only change was not enough under the show's warm light. The Mackerel slim, a near-black slate back
+  // over a hard countershade line and a pale belly, dark plum bars down its back, a larger crescent; the Downcast deep and high-shouldered,
+  // a large tall sail of a back fin, low eyes, a dark plum back low on its flank, a catfish's barbels)
+  lostsea_mackerel:   { model: { shape: 'finlet', body: 0x1c2230, belly: 0xe6e2d6, fin: 0x1a1e2a, glow: null, pattern: 'none', eyes: 'normal', scale: 1.2,
+    dorsals: 2, finlets: true, tail: 'crescent', scribbles: 0x3a1438, girth: 0.82, tailK: 1.32, counterLine: 0.02, counterSoft: 0.035, flood: 0.3 } },
+  downcast_catfish:   { model: { shape: 'catfish', body: 0x2e1830, belly: 0xbcaaa8, fin: 0x26142a, glow: null, pattern: 'none', eyes: 'normal', scale: 1.3,
+    head: 'bullet_round', whiskers: 4, deep: true, shoulder: 0.42, dorsal: 'sail', tail: 'fork_tall', eyeSet: 'low', counterLine: -0.38, counterSoft: 0.12, flood: 0.3 } },
+  mildew_angler:      { model: {} },
+  sleepspore_jelly:   { model: {} },
+  harpstring_eel:     { model: { body: 0x2a1830, belly: 0x9a5472, fin: 0x3a2238, glow: 0xf2a07a, pattern: 'none', eyes: 'normal',
+    girth: 1.5, head: 'paddle', dorsal: 'none', ventral: 'ribbon_full', section: 'square', strings: 3 } },
+  festival_puffer:    { model: { shape: 'puffer', body: 0x4a2a4e, belly: 0xeadcc4, fin: 0x7a4a62, glow: 0xffb46a, pattern: 'none', eyes: 'normal', scale: 0.9,
+    beak: 4, prickles: 'short', eyeSpots: 'amber' } },
+  drifting_grove:     { model: { shape: 'disc', pattern: 'none', eyes: 'normal', snout: 'point', tail: 'whip_barb', meadow: true } },
+};
+// The loop's own body keys (pounds SPEC §6.4 rule 2): a roster fish whose cousin is more than ±30% off its plan's k gets a key of its own,
+// a plain build word, never a species' name. The Milkeye Perch (a slim, pike-built perch: perch 0.013 would be +37%) and the Rustfin
+// Sucker (a slimmer bottom fish than a carp: carp 0.016 would be +45%). Each value is the cousin's weight at the fish's L50 (roster.json's
+// docs-only reference, checked ±30% by tools/sim/roster-check.mjs). Merged into BALANCE_V3.size.k under the loop only.
+// M1 step 3a adds the lamprey plan's key (SPEC §6.4 rule 1: a new plan's k from a real cousin, here the eel's 0.0022: an adult lamprey
+// runs about 0.8 kg at 70 cm, the roster's docs-only reference weight), merged under the loop only so v3's size table is untouched.
+// LAKE 2, lane D1: Sporewood's plans' keys from a real cousin each (SPEC §6.4 rule 1). Lane F confirmed them with roster-check.mjs against
+// each fish's docs-only reference weight: the disc the built ray's (0.012, +3%) and the catfish 0.011 (the Cindertail +2%, the Downcast
+// +14%; the Matriarch, a legend, keeps her authored size); the bream's and the finlet's cousins were a carp's 0.016 (−39% of a plate-bodied
+// fish's weight) and a trout's 0.011 (+28%, at the edge), so each takes its own fish's: 0.026 and 0.0086
+export const LOOP_BODY_K = { slimperch: 0.0095, sucker: 0.011, lamprey: 0.0022, disc: 0.012, bream: 0.026, finlet: 0.0086, catfish: 0.011 };
+/** The loop's species table for the shipped waters (M1 step 2: the Mossmere's 11 open-water fish; M1 step 3a: its open water's twelve,
+ *  then its places' own fish and giants, 15), built by the converter in the apply block; empty off the loop. SPECIES under the loop holds
+ *  these in place of the built records of the same ids. */
+export const SPECIES_LOOP = [];
+// Elder names (brief §5.8): "Old Ninefin". A name is pre + core + suffix, seeded by the fish; lakes lend the core.
+export const ELDER_NAMES = {
+  pre: ['Old', 'Grey', 'Widow', 'Mother', 'Father', 'Parson', 'Captain', 'Granny', 'Uncle', 'Lady'],
+  core: {
+    mossmere: ['Nine', 'Rust', 'Bell', 'Chain', 'Moon', 'Toll', 'Gate', 'Buoy'],
+    sporewood: ['Hush', 'Spore', 'Plum', 'Lull', 'Root', 'Bloom', 'Gill', 'Cap'],
+    glasswater: ['Glass', 'Chime', 'Ledger', 'Prism', 'Hymn', 'Frost', 'Quill', 'Mirror'],
+    paleabyss: ['Bone', 'Wax', 'Coin', 'Shroud', 'Candle', 'Ash', 'Fare', 'Psalm'],
+    any: ['Ember', 'Tallow', 'Ink', 'Slate'],
+  },
+  suffix: { minnow: ['fin', 'scale'], perch: ['back', 'fin'], crayfish: ['claw', 'shell'], carp: ['whisker', 'scale'], koi: ['fin', 'tail'], pike: ['jaw', 'tooth'],
+    eel: ['tail', 'coil'], angler: ['lamp', 'wing'], ray: ['wing', 'cloak'], puffer: ['belly', 'spine'], jelly: ['bell', 'veil'], ghost: ['veil', 'fin'], sturgeon: ['scute', 'snout'] },
+};
+
+// Tally Post stones (flood gauges), one per Mossmere place: open water ≥ 1 m from any obstacle, outside every place, ≈ 1.2 m beyond
+// the place's edge on its camera side where possible (validated); collision r 0.4 (world adds it with the place props in P2).
+const TALLY_AT = { bell_pool: { x: -4, z: -6.8 }, under_the_span: { x: -31.5, z: 5.3 }, cupped_hands: { x: 16, z: 26.2 }, gatehouse_door: { x: 22, z: -0.6 },
+  ferry_market: { x: -21.4, z: -21.5 }, sluice_run: { x: -3.2, z: -31.4 }, lily_maze: { x: -40.5, z: 33.2 }, buoy_lights: { x: -44.8, z: -10 } };
+// ---- The Mossmere (raft only): 8 places + 1 secret on the existing arena (brief §7.3). Identity: the gate and
+// the harbour, a drowned ferry harbour of rust, iron, barges, a toll-gate and buoy-lanterns. Same place schema
+// as §24 (CONTRACT §12.4) plus the v3 fields: holdsGiants (Elders may roll; a resident lives here), giantsKept (only the
+// kept species may roll Elders here), maxClass, tally (Tally Post style) and tallyAt (its flood-gauge stone, in open water,
+// collision r 0.4), landmark (what the trophy camera frames), live (the place's live-window favour), happening (Moonfall).
+// All access 'raft'. On every lake world.getDepth inside a place's water is clamped to place.water.depth (CONTRACT §13.7),
+// so the authored bands hold whatever the recipe's depth noise says. Footprints stay clear of island collision (validated
+// against world-layout: island discs never overlap a place disc; ≥ 80% of a place's water is open; dropIn targets have an
+// open centre). Places, props and cracks join the arena in P2 (the Moon Cistern in P4); the watch-lamps from P1.
+export const MOSSMERE_V3 = {
+  palette: { accent: 0x8a4b3a },                     // rust iron leads (chains, bells, buoys, the gate, the bridge); moon-silver stays the glow
+  landmarks: [
+    { id: 'sunken_gate', name: 'The Sunken Gate', x: 0, z: -54, note: 'and its leaning toll-tower (N)' },
+    { id: 'moon_eye', name: 'The Moon-Eye', x: -21.4, z: -25.9, note: 'a ceiling fissure; its silver shaft falls on the Ferry-Market (NW)' },
+    { id: 'sluice_veil', name: 'The Sluice Veil', x: 58, z: 4, note: 'water spilling from a broken aqueduct down the east cliff' },
+    { id: 'toppled_bridge', name: 'The Toppled Bridge', x: -29.5, z: 0.5, note: 'the in-lake landmark (W)' },
+  ],
+  props: [                                           // new collision added with the places (arena.pillars when V3 ≥ P2)
+    { x: 16, z: 18, r: 2.2, kind: 'hands', name: 'The Cupped Hands' },
+  ],
+  // art-only props (no collision of their own: they sit inside existing collision) and the harbour re-dress (W9, P2)
+  dressing: [
+    { id: 'gatehouse_face', kind: 'gatehouseFace', x: 22, z: -3.6, yawDeg: 0, w: 4, h: 3.5, note: 'a stone wall-face with a flooded door frame on the Drowned Gatehouse\'s south rim (inside the island collision); the tower column art stays', calls: 0 },
+  ],
+  redress: [                                         // P2 world item W9; draw calls counted in DESIGN §25.8.8
+    { id: 'span_arches', what: 'arch spans and a broken deck over the four bridge piers; the chains hang from the break', calls: 1 },
+    { id: 'sluice_veil', what: 'the Sluice Veil: a scrolling water-curtain card down the east cliff and two aqueduct segments (the Cupped Hands\' spout hangs from the near one)', calls: 2 },
+    { id: 'bollards', what: 'street lamp-posts on islands and the three lamp pylons become rust bollards and buoy-lanterns (the dock-buoy InstancedMesh; the lamp-post mesh is removed)', calls: 0 },
+    { id: 'toll_tower', what: 'a leaning toll-tower on the Sunken Gate', calls: 1 },
+  ],
+  // the Moon-Eye's shaft is an authored crack (world-layout reads arena.cracks before its procedural ones)
+  cracks: [{ id: 'moon_eye', x: -21.4, z: -25.9, width: 2.2, swing: { toward: 'bell_pool', deg: 14, time: 3 } }],
+  happening: {                                        // the signature wow: Moonfall (P2). progression owns the schedule; world renders it
+    id: 'moonfall', name: 'Moonfall', at: [0.25, 0.70], time: 20, timeMist: 30, place: 'ferry_market', reveal: ['bell_pool'], owner: 'progression',
+    // two clear discs, each with its own floor painting: one 256² atlas with 2 cells (128² cells on low, radius × 0.7)
+    clear: { k: 1, atlas: 256, atlasLow: 128, lowRadiusMult: 0.7,
+      discs: [
+        { place: 'ferry_market', x: -21.4, z: -25.9, r: 3.2, paint: { cell: 0, rect: [-24.6, -29.1, 6.4, 6.4], shows: 'moored barges, a toll-house clock stopped at the hour of the Fall, cart wheels' } },
+        { place: 'bell_pool', x: -4, z: -14, r: 3.2, paint: { cell: 1, rect: [-7.2, -17.2, 6.4, 6.4], shows: 'the drowned harbour bell, verdigris on its crack' } },
+      ] },
+    fish: [3, 5], guaranteePrize: 1, trophyChance: 0.25,
+  },
+  // the watch-lamps are the two dock buoy-lamps as world-layout draws them (dock + buoy offset), pool r 6
+  watchLamps: [{ id: 'se_buoy', name: 'South-East Buoy-Lamp', x: 19.8, z: 37.8, radius: 6, dock: 0 }, { id: 'w_buoy', name: 'West Buoy-Lamp', x: -46.7, z: 10.1, radius: 6, dock: 4 }],
+  places: [
+    { id: 'bell_pool', name: 'The Bell Pool', access: 'raft', stand: null, legend: true, x: -4, z: -14, phase: 2,
+      water: { kind: 'disc', x: -4, z: -14, r: 6, depth: [0.8, 1] }, attract: { weeping_carp: 2 },
+      rule: null, reveal: 'moonfall', maxClass: 'trophy', tally: 'floodGauge', tallyAt: TALLY_AT.bell_pool, build: 'existing',
+      landmark: { x: -4, y: 2, z: -14 },
+      lore: 'A harbour bell lies nine metres down. In Moonfall you can see her circling it, at whatever she weighs today.',
+      look: 'the drowned harbour bell on the pool\'s floor, verdigris on its crack, seen only in Moonfall\'s second disc' },
+    { id: 'under_the_span', name: 'Under the Span', access: 'raft', stand: null, x: -29.5, z: 0.5, phase: 2,
+      water: { kind: 'path', pts: [[-40, -4], [-19, 5]], w: 8, depth: [0.45, 0.9] }, attract: { mossback_perch: 2, reedjaw_pike: 2 },   // brief 0.6–0.9; 0.45 adds the shallow lip under the broken deck, the night-only Lampsipper's only Elder water
+      rule: { type: 'targets', name: 'Threading the Span', lock: 1.6, clean: { favour: 0.3, rarity: 0.2 },
+        targets: [{ id: 'gap_w', kind: 'disc', x: -36.5, z: -2.5, r: 1.6 }, { id: 'gap_m', kind: 'disc', x: -29.5, z: 0.5, r: 1.6 }, { id: 'gap_e', kind: 'disc', x: -22.5, z: 3.5, r: 1.6 }] },
+      holdsGiants: true, maxClass: 'elder', tally: 'floodGauge', tallyAt: TALLY_AT.under_the_span, build: 'the re-dressed bridge (W9: arch spans and deck over the existing piers) + merged chain strands',
+      landmark: { x: -29.5, y: 3, z: 0.5 },
+      lore: 'Rust chains hang from the break where the bridge went down. The fish hold in the dark under its three arches.',
+      look: 'three dark arch gaps under hanging chains' },
+    { id: 'cupped_hands', name: 'The Cupped Hands', access: 'raft', stand: null, x: 16, z: 18, phase: 2,
+      water: { kind: 'disc', x: 16, z: 18, r: 7, depth: [0.35, 0.8] }, attract: { weeping_carp: 2, reedjaw_pike: 1 },
+      // the hands cup a pool AT WATER LEVEL (y 0; §24.4's one water plane): the bowl is a dropIn target inside the hands'
+      // collision; the aqueduct spout pours into it from above, and "overflow" is a spill ring (r 2.2–4) where the fry spill out
+      bowl: { id: 'bowl', kind: 'disc', x: 16, z: 18, r: 0.5, y: 0, depth: [0.3, 0.5], attract: { dusk_minnow: 3 }, dropIn: true },
+      spill: { r: [2.2, 4], during: 'live' },
+      rule: { type: 'rhythm', name: 'The Aqueduct Coughs', period: 60, periodDrip: 25, warn: 3, live: 6, lock: 1.6, below: { waitMult: 0.5, ring: [2.2, 4] }, mods: { waitMult: 0.5 } },
+      live: 0.4, maxClass: 'trophy', giantsKept: true, tally: 'floodGauge', tallyAt: TALLY_AT.cupped_hands, build: 'new: two stone hands 6 m tall cupping a water-level pool under the aqueduct spout (+1 call); the spout hangs from W9\'s aqueduct segment',
+      landmark: { x: 16, y: 4, z: 18 },
+      lore: 'A giant\'s hands hold a bowl under the broken aqueduct. When it coughs, the bowl overflows, the fry spill out, and the big fish wait below.',
+      look: 'two stone hands rising from the water, a spout gurgling above them' },
+    { id: 'gatehouse_door', name: 'The Gatehouse Door', access: 'raft', stand: null, x: 22, z: -2.5, phase: 2,
+      water: { kind: 'disc', x: 22, z: -2.5, r: 0.7, depth: [0.6, 1] }, attract: { weeping_carp: 2 }, dropIn: true,
+      rule: { type: 'targets', name: 'The Drowned Door', lock: 1.6, foul: { chance: 0.15, warn: 0.3, spike: 0.15 },
+        targets: [{ id: 'door', kind: 'disc', x: 22, z: -2.5, r: 0.7 }] },
+      maxClass: 'trophy', giantsKept: true, tally: 'floodGauge', tallyAt: TALLY_AT.gatehouse_door, build: 'the gatehouse_face dressing: a wall-face with a flooded door frame on the island\'s south rim (the door\'s threshold water is 10.5 m from the island centre, outside its 8.84 m collision)',
+      landmark: { x: 22, y: 2, z: -3.6 },
+      lore: 'Cast through a drowned door into the dark of a tower. Something in there clanks its chains when it turns.',
+      look: 'a flooded doorway in the Gatehouse wall, chains trailing into the dark' },
+    { id: 'ferry_market', name: 'The Ferry-Market', access: 'raft', stand: null, x: -21.4, z: -25.9, phase: 2,
+      water: { kind: 'disc', x: -21.4, z: -25.9, r: 3.2, depth: [0.4, 0.7] }, attract: { candlefin_koi: 2, weeping_carp: 1.5 },
+      rule: { type: 'sight', name: 'Moonfall', during: 'moonfall', fish: [3, 5], guaranteePrize: 1, trophyChance: 0.25 },
+      holdsGiants: true, giantsDuring: 'moonfall', maxClass: 'elder', tally: 'floodGauge', tallyAt: TALLY_AT.ferry_market, build: 'Moonfall disc 0 (uClear + its atlas cell)',
+      landmark: { x: -21.4, y: 6, z: -25.9 },
+      lore: 'The drowned market lies three metres down: moored barges, a toll-house clock stopped at the hour of the Fall, cart wheels.',
+      look: 'glass-clear water over barges and a stopped clock, in the moon\'s shaft' },
+    { id: 'sluice_run', name: 'The Sluice Run', access: 'raft', stand: null, x: 0, z: -35, phase: 2,
+      water: { kind: 'path', pts: [[0, -41], [0, -29]], w: 4, depth: [0.55, 0.9] }, attract: { reedjaw_pike: 2, gloam_eel: 2 },
+      // the lane starts 8 m south of the gate centre: outside its Descend pill (5.4 m) and stone ring (6.6 m)
+      rule: { type: 'drift', name: 'The Broken Teeth', lane: [[0, -41], [0, -29]], length: 12, speed: 1.5, seamRarity: 0.08, gloomInCalm: 'dusk' },
+      holdsGiants: true, maxClass: 'elder', tally: 'floodGauge', tallyAt: TALLY_AT.sluice_run, build: 'pooled foam-seam decals',
+      landmark: { x: 0, y: 4, z: -54 },
+      lore: 'Water pours through the sluice\'s broken teeth in a lane of white seams. The bobber rides it, and so do the hunters.',
+      look: 'white seams racing south from the Moss Sluice' },
+    { id: 'lily_maze', name: 'The Lily Maze', access: 'raft', stand: null, x: -40.5, z: 24.5, phase: 2,
+      water: { kind: 'disc', x: -40.5, z: 24.5, r: 7.5, depth: [0.3, 0.6] }, attract: { candlefin_koi: 3, weeping_carp: 1 },
+      rule: { type: 'sight', name: 'Lanterns Under Snow', glowIsSize: true, heart: { r: 3, needs: 'reed_pole', phase: 4 } },
+      maxClass: 'trophy', tally: 'floodGauge', tallyAt: TALLY_AT.lily_maze, build: 'existing instanced pads (local density × 2) + glow-buds',
+      landmark: { x: -30, y: 3, z: 14 },
+      lore: 'Notched pads in the lee of Mossbell Isle, and koi glowing under them like lanterns under snow. The size of the glow is the size of the fish.',
+      look: 'notched lily pads with soft glows beneath' },
+    { id: 'buoy_lights', name: 'The Buoy Lights', access: 'raft', stand: null, night: true, x: -48, z: -2, phase: 2,
+      water: { kind: 'rect', x: -48, z: -2, w: 4, d: 24, depth: [0.4, 0.8] }, attract: { gloam_eel: 2, lampsipper: 2 },
+      rule: { type: 'targets', name: 'The Old Channel', phases: ['gloomtide'], favour: 0.2, gloomMult: 2,
+        targets: [{ id: 'row_w', kind: 'rect', x: -49.2, z: -2, w: 1, d: 24 }, { id: 'row_e', kind: 'rect', x: -46.8, z: -2, w: 1, d: 24 }], buoys: 24 },
+      maxClass: 'trophy', tally: 'floodGauge', tallyAt: TALLY_AT.buoy_lights,
+      // the lake plane is opaque (water.js), so nothing below y 0 shows: the "under-water" lanterns are on-surface, depth-tinted
+      // glow decals (the pre-roll technique) under 24 small emissive float caps at y ≈ 0 (one InstancedMesh): 1 call
+      build: 'on-surface depth-tinted glow decals + 24 emissive float caps at y 0 (one InstancedMesh, 1 call)',
+      landmark: { x: -48, y: 1, z: -14 },
+      lore: 'At night the drowned channel-buoys still burn under the water, in two rows, showing the way to a harbour mouth that is not there.',
+      look: 'two rows of lanterns burning under the black water' },
+    { id: 'moon_cistern', name: 'The Moon Cistern', access: 'raft', stand: null, secret: true, phase: 4, x: 58, z: 4,
+      water: { kind: 'disc', x: 63, z: 4, r: 5, depth: [0.6, 1] }, attract: { reedjaw_pike: 3 },
+      rule: { type: 'moving', name: 'The Wandering Beam', speed: 0.3, r: 1.5, beamOnly: true },
+      holdsGiants: true, ownResident: true, maxClass: 'elder', tally: 'floodGauge', tallyAt: { x: 63, z: 8.4 }, reward: 'reed_pole',
+      needs: { shoreNotch: { a: 0, w: 10, depth: 0.8, len: 12 }, veil: 'noCollision' }, clues: ['bubbles', 'rumour', 'dock (49, 6)'],
+      landmark: { x: 63, y: 5, z: 4 },
+      lore: 'Sail straight through the falling water into a round cistern lit by its own moonbeam.',
+      look: 'a curtain of falling water, and silver light behind it' },
+  ],
+};
+// §24's 21 places, kept by id; v3 changes are data-only proposals (▲) to the §24 owner, applied when V3 is on.
+export const PLACE_SYNC_V3 = {
+  mothers_cup:       { holdsGiants: true, giantsNonLegend: true, breathing: 'spores on the exhale, a ring of rises' },
+  lullaby:           { holdsGiants: true, rule: { type: 'sight', name: 'The Sleepers', softCast: 0.5, canopy: 'lily-cap' }, waterDepth: [0.4, 0.85] },   // ▲ shallow sleepers' rim: the Capshell Crayfish's only Elder water
+  puffball_vent:     { maxClass: 'prize', dripPeriodMult: 0.5 },
+  drowned_greenhouse:{ kept: ['the_remembered_sun'], giantsKept: true },
+  gill_harp:         { holdsGiants: true, giantsWhile: 'buff', beacon: 25 },
+  veilwater:         { rumourAtNight: true, kept: ['hushcap_koi'], attractAdd: { mildew_angler: 2 }, giantsKept: true },
+  fallen_chandelier: { holdsGiants: true, giantsNonLegend: true, giantsAt: 'trench rim' },
+  mirror_nave:       { holdsGiants: true, reflections: 'prerolled, true size: pick the biggest' },
+  bell_window:       { highCastPerch: true, tackleGate: false, kept: ['the_sexton'], giantsKept: true },
+  well_of_ledgers:   { holdsGiants: true, giantsAt: 'bottomLedger' },
+  stilled_cascade:   { thaw: { weather: 'drip', time: 40, waitMult: 0.4, favour: 0.3 }, giantsKept: true },
+  broken_hymnal:     { attractAdd: { vesper_gar: 3 }, nightOnlyAdd: true },
+  burning_glass:     { alignment: { phase: 4, band: 'brightest' } },
+  votive_font:       { maxClass: 'prize' },
+  the_bottomless:    { holdsGiants: true, giantsNonLegend: true, underdepth: { phase: 4 } },
+  long_pier:         { kept: ['the_namesake'], giantsKept: true },
+  drowned_almshouse: {},
+  chain_garden:      { holdsGiants: true, turnFavour: 0.6, replaces: 'mods.weightBias', shadow: 9, kept: ['candlewake_sturgeon'] },
+  sunken_belfry:     { lift: false, giantsKept: true },
+  bier_barge:        { giantsKept: true },
+  ferry_slip:        { holdsGiants: true, ghostFerry: 'dusk', waterDepth: [0.45, 0.95] },   // ▲ the slip's ramp runs up into the shallows: the Ossuary Fry's and the Bonecrook's Elder water
+};
+// §24 structural changes routed through its owner (▲): renames, watch lamps, Homeward Waystones, persistence.
+export const WALK_SYNC_V3 = {
+  renames: { 'paleabyss.lamp.landing_lamp': 'Shore of Last Rafts', 'paleabyss.shape.pd_landing': 'Shore of Last Rafts' },
+  // ▲ no holdsGiants water within lampWatch.fishWithin (10 m) of a watch lamp (validated): the Sporewood's are the Greenhouse and
+  // Gill Crown lamps (the Gill Harp lamp stood 3 m from a giant place, so a lamp-watch there cost nothing)
+  watchLamps: { mossmere: ['se_buoy', 'w_buoy'], sporewood: ['house_lamp', 'crown_lamp'], glasswater: ['harbour_lamp', 'hymnal_lamp'], paleabyss: ['plaza_lamp', 'pier_lamp'] },
+  shortcutsPersist: true, waylampsReset: true, knownPlaceStartsLit: true,
+  breathingDeep: { live: 0.4 },
+  secrets: [
+    { id: 'seed_vault', zone: 'sporewood', name: 'The Seed Vault', needs: 'reed_pole', via: 'the Rootmat Shallows', reward: 'seedlight_glass', phase: 4 },
+    { id: 'unlit_stacks', zone: 'glasswater', name: 'The Unlit Stacks', needs: 'seedlight_glass', via: 'a light-ink door under the Ledger Stair', reward: 'tuning_fork', phase: 4 },
+    { id: 'lantern_hold', zone: 'paleabyss', name: 'The Lantern Hold', needs: 'tuning_fork', via: 'the Belfry note opens a §24 needs shape', reward: 'deep_line', phase: 4 },
+  ],
+};
+// ---- P4 wonder and depth (brief §7.7, §6.4). Found Relics come from the four secrets and are never bought (a Shrine
+// category shown as owned); each sends later expeditions back to an earlier lake.
+export const FOUND_RELICS = [
+  { id: 'reed_pole', name: 'Reed Pole', foundIn: 'moon_cistern', zone: 'mossmere', opens: ['lily_maze heart (r 3)', 'seed_vault (the Rootmat Shallows)'], phase: 4,
+    desc: 'A ferryman\'s pole, long enough to push a raft through pads and roots.' },
+  { id: 'seedlight_glass', name: 'Seedlight Glass', foundIn: 'seed_vault', zone: 'sporewood', opens: ['unlit_stacks (the light-ink door)'], glintAdd: 2, phase: 4,
+    desc: 'A lens ground from a seed-pod. Glints show from 2 m farther, and light-ink becomes legible.' },
+  { id: 'tuning_fork', name: 'Tuning Fork', foundIn: 'unlit_stacks', zone: 'glasswater', opens: ['lantern_hold (the Belfry note)'], extraMoonfall: { place: 'bell_pool', perDay: 1 }, phase: 4,
+    desc: 'It hums the note the Belfry forgot. Struck at the Bell Pool, the moon looks in once more that day.' },
+  { id: 'deep_line', name: 'Deep Line', foundIn: 'lantern_hold', zone: 'paleabyss', opens: ['the Underdepth'], underdepth: { castsPerLegendPoolPerDay: 1, favour: 0.8, elders: true }, phase: 4,
+    desc: 'A line that remembers how deep the water goes. Once a day in each legend pool it reaches the Underdepth.' },
+];
+// Age marks: one detail grows with class on 10 headline species (models-fish, ui-fishart).
+export const AGE_MARKS = {
+  mossback_perch: 'lichen tuft blooms', weeping_carp: 'barbels become ribbons', gutter_crayfish: 'one more drowned button per class',
+  capshell_crayfish: 'its mushroom hat grows', sporebelly_puffer: 'Trophy+ puff into a perfect sphere', reedjaw_pike: 'pale scars',
+  shardspine_eel: 'the crystal crest grows', bonecrook_crayfish: 'a crown fragment at Trophy+', bridgechain_sturgeon: 'one more chain link per class',
+  candlewake_sturgeon: 'one more scute-candle lit per class',
+};
+// Vistas (raise the lantern; never sit, never sketch) and Remnants: rules now, stands authored in P4 with the §24 owner.
+export const VISTAS = { perLake: 2, hold: 1.5, reveals: 'places in line of sight get a "?" on the Chart', memories: 1, sit: false, sketch: false, camera: 'vista', phase: 4, list: [] };
+export const REMNANTS = { perLake: 3, total: 12, gives: ['vignette', 'rumour'], optional: true, phase: 4, list: [] };
+// Apply a §24 place's PLACE_SYNC_V3 entry in place (rule merged, waterDepth into water.depth); used by PLACES_V3 and the apply block.
+function v3syncPlace(p) {
+  const sync = PLACE_SYNC_V3[p.id]; if (!sync) return p;
+  const { rule, waterDepth, ...rest } = v3clone(sync);
+  Object.assign(p, rest);
+  if (rule) p.rule = { ...(p.rule || {}), ...rule };
+  if (waterDepth && p.water) p.water = { ...p.water, depth: waterDepth };
+  return p;
+}
+// Raft-lake fallbacks (DESIGN §25.8.1, §25.14): what a lake uses when its places are not in the build — the Mossmere before P2,
+// the other three whenever §24's lake builds are off (P1–P3 and Landing v0 may ship without §24). Authored on the v1 arenas with
+// world-layout (open water, clear of docks, spawn and gate): `giants` = the stopgap holdsGiants water (the legend-pool rim, deep
+// pools ≥ 15 m from it, discs to make 3), one resident each; `watchLamps` = two dock buoy-lamps (pool r 6) with no giant water
+// within 10 m; `homeward` = a Homeward Waystone beside a dock ≥ 25 m from the spawn, ≥ 1.5 m from posts and buoys, ≥ 3.8 m from
+// the barge pad (validated in the non-walk v3 pass).
+export const RAFT_FALLBACK_V3 = {
+  mossmere: {
+    giants: [{ id: 'mm_legend_rim', kind: 'ring', x: -4, z: -14, r: [3.2, 9] }, { id: 'mm_deep_centre', kind: 'disc', x: 4, z: 6, r: 6 }, { id: 'mm_deep_west', kind: 'disc', x: -16, z: 14, r: 6 }],
+    until: 2,   // the Mossmere's places replace it from P2; its watch-lamps and Homeward stone are MOSSMERE_V3's / EXPEDITION's in every build
+  },
+  sporewood: {
+    giants: [{ id: 'sw_legend_rim', kind: 'ring', x: 28, z: -16, r: [3.2, 9] }, { id: 'sw_lullaby_pool', kind: 'disc', x: -28, z: -8, r: 16, deepPool: 'Lullaby Pool' }, { id: 'sw_deep_south', kind: 'disc', x: -27, z: 21, r: 6 }],
+    watchLamps: [{ id: 'sw_dock0_buoy', x: 15.4, z: 54.2, radius: 6, dock: 0 }, { id: 'sw_dock1_buoy', x: 52.7, z: 20.5, radius: 6, dock: 1 }],
+    homeward: { x: 50.8, z: 21, at: 'beside the east dock', radius: 0.6 },
+  },
+  glasswater: {
+    giants: [{ id: 'gw_legend_rim', kind: 'ring', x: 0, z: -37, r: [3.2, 9] }, { id: 'gw_deep_west', kind: 'disc', x: -34, z: -34, r: 6 }, { id: 'gw_deep_south', kind: 'disc', x: -8, z: 36, r: 6 }],
+    watchLamps: [{ id: 'gw_dock0_buoy', x: 17.9, z: 59, radius: 6, dock: 0 }, { id: 'gw_dock4_buoy', x: -50.6, z: 35.2, radius: 6, dock: 4 }],
+    homeward: { x: -44.6, z: 41, at: 'beside the south-west dock', radius: 0.6 },
+  },
+  paleabyss: {
+    giants: [{ id: 'pd_legend_rim', kind: 'ring', x: 0, z: -52, r: [3.2, 9] }, { id: 'pd_deep_east', kind: 'disc', x: 16, z: -12, r: 6 }, { id: 'pd_shelf_west', kind: 'disc', x: -58, z: -36, r: 6, note: 'a shelf disc from 0.26 to 0.82 deep: the Ossuary Fry and the Bonecrook have Elder water in raft builds' }],
+    watchLamps: [{ id: 'pd_dock0_buoy', x: 42.4, z: 54.7, radius: 6, dock: 0 }, { id: 'pd_dock1_buoy', x: -47.6, z: 50.3, radius: 6, dock: 1 }],
+    homeward: { x: 40.8, z: 55.9, at: 'beside the south-east dock', radius: 0.6 },
+  },
+};
+// All 29 places (+4 secrets) with the v3 fields applied, for tools and the Journal (always computed; copies).
+export const PLACES_V3 = [
+  ...MOSSMERE_V3.places.map((p) => ({ ...v3clone(p), zone: 'mossmere' })),
+  ...PLACES.map((p) => v3syncPlace(v3clone(p))),
+];
+export const PLACE_V3_BY_ID = Object.fromEntries(PLACES_V3.map((p) => [p.id, p]));
+
+// ---- Conditions: one system, three archetypes, per-lake looks (brief §7.1). Rolled each calm, seeded by
+// expedition, day and lake; Murk names tomorrow's at dawn; the Map Table shows day 1's for every lake.
+export const CONDITIONS = {
+  odds: { none: 40, hush: 20, drip: 20, mist: 20 },
+  archetypes: {
+    hush: { favour: 0.2, waitMult: 1.2, sightRangeMult: 2 },
+    drip: { waitMult: 0.8, commonMult: 1.3, rhythmMult: 0.7 },
+    mist: { rarity: 0.08, gloomInCalm: 0.3, beaconMult: 1.5 },
+  },
+  budget: { calls: 4, lowCalls: 2 }, movesGeometry: false,
+  looks: {
+    mossmere:   { hush: { name: 'Mirror Hush', swell: 0.2, reflections: 'sharp' }, drip: { name: 'Drizzle', streaks: 300, streaksLow: 120, aqueduct: 25 },
+      mist: { name: 'Moonmist', mistCards: 3, moonfall: 30 } },
+    sporewood:  { hush: { name: 'Damp Hush', greenhouse: 'fogged, every row glows dimly' }, drip: { name: 'Spore-fall', spores: 2, ventMult: 2 },
+      mist: { name: 'Bloom-haze' } },
+    glasswater: { hush: { name: 'Clear Hush', shafts: 1.5 }, drip: { name: 'Shard-chime', chord: true, cascadeThaw: 40 }, mist: { name: 'Prism-fog' } },
+    paleabyss:  { hush: { name: 'Breathless', ash: 'still' }, drip: { name: 'Ash-fall', ash: 2, breathingDeep: 1.5 }, mist: { name: 'Pall', fog: 1.3 } },
+  },
+};
+
+// ---- Rumours (brief §7.0): 24, 6 per lake; tiers vague → the place → the condition. Murk gives one per visit
+// when you sell at least one fish (he prefers undiscovered places and unsolved conditions); the Well of Ledgers
+// adds its own. Pin one at a time; solving one gives +3 Memories and a Journal stamp. Every kept species has one.
+export const RUMOURS = [
+  // The Mossmere
+  { id: 'r_cupped_hands', zone: 'mossmere', place: 'cupped_hands', species: 'cupbearer', tiers: ['When the old aqueduct coughs, the stone hands overflow.', 'East of the bridge a giant holds out its hands. Something tiny lives in the bowl.', 'Cast into the bowl while it is full. In Drizzle it fills every few breaths.'] },
+  { id: 'r_gatehouse', zone: 'mossmere', place: 'gatehouse_door', species: 'old_portcullis', tiers: ['Something in the Gatehouse still keeps the gate.', 'The Gatehouse door is flooded. Cast through it, not at it.', 'Listen for the chains. Ease off when they clank, or they take your line.'] },
+  { id: 'r_span', zone: 'mossmere', place: 'under_the_span', species: 'bridgechain_sturgeon', tiers: ['The bridge kept its chain. Something else kept the bridge.', 'Thread the arches of the Toppled Bridge with a clean cast.', 'It only comes up through the arches when the water stills to a mirror.'] },
+  { id: 'r_market', zone: 'mossmere', place: 'ferry_market', species: null, tiers: ['Twice a day the moon looks in on the old market.', 'Between the two Sisters the water goes clear as glass when the moon-shaft swings.', 'In Moonfall you can see them circling. Pick the one you want.'] },
+  { id: 'r_buoys', zone: 'mossmere', place: 'buoy_lights', species: 'gloam_eel', tiers: ['The harbour lights never went out. They just went under.', 'Along the west shore, two rows of buoys still burn beneath the water.', 'Only at night. The eels follow the rows like a road home.'] },
+  { id: 'r_cistern', zone: 'mossmere', place: 'moon_cistern', species: null, phase: 4, tiers: ['There is a moon behind the falling water.', 'Bubbles rise along the east cliff, by the dock no one uses.', 'Sail into the Sluice Veil. It is only water.'] },
+  // Sporewood Pools
+  { id: 'r_harp', zone: 'sporewood', place: 'gill_harp', species: 'harpstring_eel', tiers: ['Somewhere in the Pools a harp still knows one song.', 'The Gill Harp sings when its curtains are played in order.', 'While it sings, the striped eels leave the strings.'] },
+  { id: 'r_veil', zone: 'sporewood', place: 'veilwater', species: 'hushcap_koi', tiers: ['A koi that only glows in the dark it keeps.', 'The Veilwater, past the Gill Crown, hides behind a veil.', 'Light the spent sporelights and the veil burns away. Then it comes up to look.'] },
+  { id: 'r_sun', zone: 'sporewood', place: 'drowned_greenhouse', species: 'the_remembered_sun', phase: 4, tiers: ['The gardeners kept one warm thing down here.', 'In the Drowned Greenhouse, along the Lit Row.', 'A clean cast down the very middle of the row, while it is lit.'] },
+  { id: 'r_lullaby', zone: 'sporewood', place: 'lullaby', species: 'sleepspore_jelly', tiers: ['Some fish sleep with their mouths open.', 'Under the lily-caps of the Lullaby you can see the sleepers.', 'Cast softly beside the one you want. A hard cast wakes them all.'] },
+  { id: 'r_cup', zone: 'sporewood', place: 'mothers_cup', species: 'velvet_ray', tiers: ['The Mother breathes, and big things breathe with her.', 'At the rim of the Mother\'s Cup the rays grow old.', 'Fish the exhale, when the spores come down and the rises ring.'] },
+  { id: 'r_vault', zone: 'sporewood', place: null, species: null, phase: 4, secret: 'seed_vault', tiers: ['The gardeners left seed for a spring that never came.', 'Past the Rootmat Shallows, where no raft goes.', 'A pole would get you through the mat.'] },
+  // Glasswater Vault
+  { id: 'r_unreflected', zone: 'glasswater', place: 'mirror_nave', species: 'the_unreflected', tiers: ['In the Nave, one fish has no reflection.', 'The Mirror Nave shows two of everything. Almost everything.', 'Cast where the reflection swims, not where the fish seems to be.'] },
+  { id: 'r_footnote', zone: 'glasswater', place: 'well_of_ledgers', species: 'the_footnote', tiers: ['Every ledger has something at the very bottom.', 'The Well of Ledgers goes down further than the ledgers do.', 'Only a plumb-perfect cast reaches the bottom ledger.'] },
+  { id: 'r_rainglass', zone: 'glasswater', place: 'stilled_cascade', species: 'rainglass_darter', tiers: ['Rain fell into the cascade the moment it froze.', 'Under the Stilled Cascade, while the light lasts.', 'In Shard-chime the falls thaw for a while. Be there.'] },
+  { id: 'r_sexton', zone: 'glasswater', place: 'bell_window', species: 'the_sexton', phase: 4, tiers: ['Someone still rings the hour in the Vault.', 'Under the Bell-Chapel Window, where the rope hangs.', 'Pull the rope. While the Struck Hour lasts, it answers.'] },
+  { id: 'r_hymnal', zone: 'glasswater', place: 'broken_hymnal', species: 'vesper_gar', phase: 4, tiers: ['A chord that was never finished.', 'At the Broken Hymnal the chimes keep trying.', 'At night the gars come to the chord. Strike on the chime.'] },
+  { id: 'r_stacks', zone: 'glasswater', place: null, species: null, phase: 4, secret: 'unlit_stacks', tiers: ['There is a door written in light no one can read.', 'Under the Ledger Stair.', 'Some glass shows what lamps cannot.'] },
+  // The Pallid Deep
+  { id: 'r_clapper', zone: 'paleabyss', place: 'sunken_belfry', species: 'the_clapper', tiers: ['When the bell rings below, everything listens.', 'The Sunken Belfry rings from underneath.', 'Strike when it tolls. It gives no plunge.'] },
+  { id: 'r_wax', zone: 'paleabyss', place: 'bier_barge', species: 'wax_bearer', tiers: ['The dead were sent off with wax on their brows.', 'In the hold of the Bier Barge.', 'Give the dead something first. The hold opens until dusk.'] },
+  { id: 'r_fare', zone: 'paleabyss', place: 'ferry_slip', species: 'the_unpaid_fare', tiers: ['A fare still waits for a ferry.', 'At the Empty Ferry Slip, at the lake\'s edge.', 'Only at dusk, and only the first cast.'] },
+  { id: 'r_candlewake', zone: 'paleabyss', place: 'chain_garden', species: 'candlewake_sturgeon', phase: 4, tiers: ['Its scutes are candles nobody lit.', 'In the Chain Garden, where the thing below turns.', 'At night, during the Turn, cast at the chains.'] },
+  { id: 'r_namesake', zone: 'paleabyss', place: 'long_pier', species: 'the_namesake', phase: 4, tiers: ['Every name on the pier was somebody\'s.', 'By the Long Pier of Names.', 'Relight three candle-rafts in a day, and one more name comes up to be read.'] },
+  { id: 'r_hold', zone: 'paleabyss', place: null, species: null, phase: 4, secret: 'lantern_hold', tiers: ['The great lantern had a hold, and the hold had a key.', 'Behind the Sunken Belfry.', 'Strike the right note at the Belfry.'] },
+];
+// Today's rumour: one per real date at the Map Table, always a holdsGiants place, often its resident (+0.3 there that day).
+export const TODAYS_RUMOUR = { perRealDay: 1, giantsOnly: true, residentChance: 0.6, favour: 0.3,
+  lines: ['An Elder {species} turns at {place}.', 'Something old feeds at {place} tonight.', '{place} is holding a giant. Murk swears it.'] };
+
+// ---- Tackle: persistent, per slot, bought and fitted at the Gear Bench (brief §5.6). `hold` is the automatic-fishing term
+// (CATCH_V3: Rod, Line and Reel are the global gear). castMax, hookWindow and creelSize are ABSOLUTE (they replace the STATS base;
+// Wicks, outfit, relics and Boons add on top). T2–T4 need a proof catch; T3 needs the Sporewood Waystone lit, T4 the Glasswater one.
+// (D1′: the manual reel's per-tier stats (slack grace, shock, pips, line strength, reel speed, sweet band, drag presets and absorb)
+// and the reel-sim tables (rating, gate, legends, targets) are retired.)
+export const TACKLE = {
+  slots: ['rod', 'line', 'reel', 'creel'],
+  rod: [
+    { tier: 0, id: 'willow_switch', name: 'Willow Switch', hold: 0, castMax: 16, hookWindow: 1.00, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'ashwood_rod', name: 'Ashwood', hold: 2, castMax: 17.5, hookWindow: 1.04, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'whalebone_rod', name: 'Whalebone', hold: 5, castMax: 19, hookWindow: 1.08, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'glassreed_rod', name: 'Glassreed', hold: 8, castMax: 20.5, hookWindow: 1.12, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'lantern_spine', name: 'Lantern-Spine', hold: 12, castMax: 22, hookWindow: 1.16, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+  ],
+  line: [
+    { tier: 0, id: 'twine', name: 'Twine', hold: 0, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'braided_gut', name: 'Braided Gut', hold: 2, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'waxed_silk', name: 'Waxed Silk', hold: 5, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'glass_gut', name: 'Glass-Gut', hold: 9, clear: true, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'silverthread', name: 'Silverthread', hold: 13, clear: true, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+  ],
+  reel: [
+    { tier: 0, id: 'wooden_winch', name: 'Wooden Winch', hold: 0, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'brass_spool', name: 'Brass Spool', hold: 2, price: 120, proof: null, onSale: 'start' },
+    { tier: 2, id: 'clockwork_reel', name: 'Clockwork', hold: 5, price: 450, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'whisper_drag', name: 'Whisper Drag', hold: 8, price: 1400, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'tidewheel', name: 'Tidewheel', hold: 12, price: 3200, proof: 'glasswater_trophy', onSale: 'glasswater' },
+  ],
+  creel: [
+    { tier: 0, id: 'wicker_creel', name: 'Wicker', creelSize: 4, liveWell: 1, nights: 3, price: 0, proof: null, onSale: 'start' },
+    { tier: 1, id: 'lidded_creel', name: 'Lidded', creelSize: 5, liveWell: 1, nights: 3, price: 70, proof: null, onSale: 'start' },
+    { tier: 2, id: 'double_creel', name: 'Double', creelSize: 6, liveWell: 2, nights: 4, price: 270, proof: 'mossmere_prize', onSale: 'start' },
+    { tier: 3, id: 'wellbox', name: 'Wellbox', creelSize: 7, liveWell: 2, nights: 4, price: 840, proof: 'sporewood_trophy_or_glasswater_prize', onSale: 'sporewood' },
+    { tier: 4, id: 'ferry_hamper', name: 'Ferry Hamper', creelSize: 8, liveWell: 3, nights: 5, price: 1920, proof: 'glasswater_trophy', onSale: 'glasswater' },
+  ],
+  proofs: {
+    mossmere_prize: [{ zone: 'mossmere', class: 'prize' }],
+    sporewood_trophy_or_glasswater_prize: [{ zone: 'sporewood', class: 'trophy' }, { zone: 'glasswater', class: 'prize' }],
+    glasswater_trophy: [{ zone: 'glasswater', class: 'trophy' }],
+  },
+  clearWater: { zones: ['glasswater'], belowLineTier: 3, waitMult: 1.12, favour: -0.1 },
+  lostLureFrac: 0,               // automatic fishing: a snapped line costs only the bait; a lure is never lost (a dice loss must not tax the giants' lures; was 0.25)
+  catalogue: { rod: 5170, line: 5170, reel: 5170, creel: 3100, total: 18610 },
+  reference: { mossmere: 'reedjaw_pike', sporewood: 'mildew_angler', glasswater: 'mirror_pike', paleabyss: 'gilt_eyed_eel' },
+};
+// ---- Outfit: the four all-mode per-run upgrades, now persistent (brief §5.6). Effects are per level, in STATS units.
+export const OUTFIT = [
+  { id: 'chimney', name: 'Thick-Glass Chimney', from: 'lantern_chimney', maxLevel: 3, prices: [80, 240, 600], onSale: 'start', effects: { maxOil: 15, oilDrain: -0.0085 },
+    desc: 'Max oil +15 and oil burn −5% per level.' },
+  { id: 'brazier', name: 'Rendering Brazier', from: 'raft_brazier', maxLevel: 3, prices: [80, 240, 600], onSale: 'start', effects: { oilYieldMult: 0.10, foodMult: 0.10 },
+    desc: 'Oil and food from rendering and eating +10% per level.' },
+  { id: 'oars', name: 'Long Oars', from: 'raft_oars', maxLevel: 3, prices: [80, 240, 600], onSale: 'start', effects: { moveSpeed: 0.5, pickupRadius: 0.5 },
+    desc: 'Raft speed +0.5 and pickup radius +0.5 per level.' },
+  { id: 'boots', name: 'Cork-Soled Boots', from: 'boots_cork', maxLevel: 3, prices: [80, 240, 600], onSale: 'sporewood', effects: { stride: 0.35 },
+    desc: 'Stride +0.35 m/s on foot per level.' },
+];
+// ---- Lures: permanent tackle from P3 (brief §5.3); per-run at 40% from Murk in P1–P2 runs (AUTOFISH.runLures). You equip a lure or a
+// bait; under automatic fishing a snapped line never loses the lure (TACKLE.lostLureFrac 0).
+export const LURES = [
+  { id: 'feather_fly', name: 'Feather Fly', depth: 'surface', family: 'insect', attract: 2, favour: 0, riseWaitMult: 0.5, price: 120, onSale: 'start' },   // 40 → 120 with AF: +5 Hold on every insect feeder
+  { id: 'glimmer_spoon', name: 'Glimmer Spoon', from: 'lure_glimmer', depth: 'mid', family: 'predator', attract: 2.5, favour: 0.2, price: 90, onSale: 'start' },
+  { id: 'bone_jig', name: 'Bone Jig', depth: 'bottom', family: 'bottom', attract: 2.5, favour: 0.2, price: 120, onSale: 'start' },
+  { id: 'moth_popper', name: 'Moth Popper', depth: 'surface', family: null, night: true, attract: 2, favour: 0.2, price: 260, onSale: 'sporewood' },
+  { id: 'lantern_lure', name: 'Lantern Lure', depth: 'midDeep', family: 'glow', attract: 2.5, favour: 0.4, price: 1200, onSale: 'glasswater' },
+  // the giants' lures (automatic fishing, DESIGN §25.6.3): one per lake, +10 Hold on three named giants (CATCH_V3.items), nothing else
+  { id: 'bell_spinner', name: 'Harbour-Bell Spinner', depth: 'mid', family: null, species: ['reedjaw_pike', 'weeping_carp', 'bridgechain_sturgeon'], attract: 1.5, favour: 0, price: 220, onSale: 'start',
+    desc: "A clapper from a drowned harbour bell. The moat's old giants still come when it rings." },
+  { id: 'sporelamp_fly', name: 'Spore-Lamp Fly', depth: 'surface', family: null, species: ['mildew_angler', 'nightbloom_carp', 'velvet_ray'], attract: 1.5, favour: 0, price: 480, onSale: 'sporewood',
+    desc: 'A fly tied around one soft lit spore. The old ones of the Pools rise to it as if to a memory.' },
+  { id: 'mirror_shard', name: 'Mirror Shard', depth: 'midDeep', family: null, species: ['mirror_pike', 'blind_scrivener', 'shardspine_eel'], attract: 1.5, favour: 0, price: 950, onSale: 'glasswater',
+    desc: "A sliver of the Vault's glass. It shows a fish itself, and the oldest cannot look away." },
+  { id: 'ferry_coin', name: "Ferryman's Coin", depth: 'deep', family: null, species: ['gilt_eyed_eel', 'candlewake_sturgeon', 'shroud_ray'], attract: 1.5, favour: 0, price: 1600, onSale: 'paleabyss',
+    desc: 'The fare nobody paid. The great ones of the Deep still come to collect it.' },
+];
+// The five combat upgrades stay per expedition as Murk's combat kit, sold only in combat modes at 40% (brief §3.6, §9.3).
+export const COMBAT_KIT = { ids: ['lantern_mantle', 'lantern_lens', 'lantern_striker', 'raft_hull', 'raft_hearth'], priceMult: 0.4, modes: ['lantern', 'gloomtide'] };
+
+// =====================================================================================
+// Automatic fishing (v3; the user's direction of 2026-11-05, DESIGN §25.6, CONTRACT §13.7). Always exported, read only
+// when V3_ENABLED (fishing, progression, ui, tools); v1 (flag off) keeps today's hold-to-reel game bit-identical.
+//   p = max( floor, cap[class] · σ( scale · (Hold − Fight) ) )          σ(x) = 1 / (1 + e^−x); every cap < 1, so p < 1 always
+//   Hold  = wick + tackle (TACKLE[slot][tier].hold, weighted by the fish's style; fractional tiers interpolate, P1–P2 runs use
+//           upgradeHold) + one bait OR lure (only on the fish it helps; a per-run upgrade lure never stacks with it: the larger counts)
+//           + strike + buffs (relics ≤ 3, run buffs ≤ 4, together ≤ 6) + Marked Fish (once) + legend wounds
+//   Fight = lake + rarity + style + headline + kept + fouled + class (+ the lake's Elder step + the Elder rarity step, Elder and Ancient)
+// One roll per hooked fish, at the strike, from the fish that bit; the play (the automatic reel-in) performs that result.
+// =====================================================================================
+export const CATCH_V3 = {
+  scale: 0.1,                     // logits per Hold point: +10 roughly doubles low odds, ≈ +24 points at even odds, little near the cap
+  floor: 0.01,                    // every hooked fish keeps a sliver of a chance (a starter-tackle Elder is a 1% story, never 0%); 0.02 hid tackle steps in the log
+  cap: { small: 0.95, keeper: 0.95, prize: 0.93, trophy: 0.88, elder: 0.78, ancient: 0.5, legend: 0.5 },   // never 100%; giants never better than a coin flip
+  wick: 10,                       // the Wick's own craft (every Wick the same; quirks are buffs)
+  // ---- Fight: the fish
+  lake: { cove: -12, mossmere: 0, sporewood: 7, glasswater: 16, paleabyss: 24 },   // Wanderers use the lake they are hooked in
+  rarity: { common: 0, uncommon: 4, rare: 8 },
+  style: { steady: 0, darter: 0, sinker: 1, leaper: 1, thrasher: 2, runner: 2, sulker: 2 },
+  headline: 2,                    // the lake's reference species (TACKLE.reference: Reedjaw Pike, Mildew Angler, Mirror Pike, Gilt-Eyed Eel)
+  kept: -2,                       // place-kept fish (solving the place earns a fairer fight)
+  fouled: 3, fouledSpecies: ['old_portcullis', 'candlewake_sturgeon'],   // fish that live among chains (the Gatehouse Door, the Chain Garden)
+  class: { small: -10, keeper: -6, prize: 7, trophy: 15, elder: 24, ancient: 28 },   // "bigger is harder" (the user's answer 2); Small / Keeper eased so a hook lands ≈ 8 in 10 (AF review)
+  elderStep: { cove: 0, mossmere: 12, sporewood: 7, glasswater: 3, paleabyss: 2 },   // early water keeps its oldest fish hard (Q3); the Gilt-Eyed Eel stays the hardest regular fish
+  elderRarity: { common: 2, uncommon: 4, rare: 6 },
+  // ---- Hold: the Wick and the kit (tackle Hold per tier lives on TACKLE[slot][tier].hold: 0 / 2 / 5 / 8–9 / 12–13)
+  emphasis: {                     // the slot a fish tests (weights average 1, so a matched set is almost style-blind); also the loss cause
+    leaper: { rod: 1.6, line: 0.7, reel: 0.7 }, runner: { rod: 0.7, line: 0.7, reel: 1.6 },
+    thrasher: { rod: 0.7, line: 1.6, reel: 0.7 }, sinker: { rod: 0.7, line: 1.6, reel: 0.7 }, sulker: { rod: 0.7, line: 1.6, reel: 0.7 },
+    steady: { rod: 1, line: 1, reel: 1 }, darter: { rod: 1, line: 1, reel: 1 },
+  },
+  strike: { clean: 4, struck: 2, early: 0, late: 0 },     // AUTOFISH.strike has the windows; 'struck' is the log's reference strike; a mistimed tap is "a bit lower" (−2 vs the log)
+  // the specific gear: one bait OR one lure is equipped; it adds Hold only to the fish it helps (nothing for anything else)
+  //   attract: BAITS[].bonus.attract ∪ species whose `bait` is this one · all: every fish · night: night-only species, at night
+  //   family: species of that FISH_FAMILIES tag · species: the named species only
+  items: {
+    mireworm:      { kind: 'bait', hold: 5, attract: true },
+    lumen_moss:    { kind: 'bait', hold: 5, attract: true },
+    spore_cake:    { kind: 'bait', hold: 5, attract: true },
+    ember_roe:     { kind: 'bait', hold: 6, attract: true },   // still favour +0.35, so it also brings bigger fish
+    glass_larva:   { kind: 'bait', hold: 5, attract: true },
+    shimmerfly:    { kind: 'bait', hold: 2, all: true },       // the one global bait
+    wick_worm:     { kind: 'bait', hold: 4, attract: true },   // §24's place-kept fish
+    cut_strip:     { kind: 'bait', hold: 4, family: 'predator' },
+    feather_fly:   { kind: 'lure', hold: 5, family: 'insect' },
+    glimmer_spoon: { kind: 'lure', hold: 6, family: 'predator' },
+    bone_jig:      { kind: 'lure', hold: 6, family: 'bottom' },
+    moth_popper:   { kind: 'lure', hold: 6, night: true },
+    lantern_lure:  { kind: 'lure', hold: 8, family: 'glow' },
+    bell_spinner:  { kind: 'lure', hold: 10, species: ['reedjaw_pike', 'weeping_carp', 'bridgechain_sturgeon'] },   // the giants' lures (one per lake)
+    sporelamp_fly: { kind: 'lure', hold: 10, species: ['mildew_angler', 'nightbloom_carp', 'velvet_ray'] },
+    mirror_shard:  { kind: 'lure', hold: 10, species: ['mirror_pike', 'blind_scrivener', 'shardspine_eel'] },
+    ferry_coin:    { kind: 'lure', hold: 10, species: ['gilt_eyed_eel', 'candlewake_sturgeon', 'shroud_ray'] },
+    lure_glimmer:  { kind: 'upgrade', holdPerLevel: 2, family: 'predator' },   // the per-run Glimmer Spoon (UPGRADES; P1–P2 runs, The Long Descent), levels 1–3: loadout.upgrade, never stacked with the item (max)
+  },
+  // buffs: relics at most +3, run buffs (Well-fed, Boons, a Wick's quirk) at most +4, all together at most +6 Hold. Owned relics are in
+  // the log's figures (display.reference.buffs 'relics'); run buffs are not. Strike-window buffs add no Hold (AUTOFISH.strike.windowBuffs).
+  buffs: {
+    cap: 6, relicCap: 3, runCap: 4, wellFed: 2,   // Well-fed replaces reelSpeed +0.08 / sweetZone +0.01
+    boons: { steady_reel: { perLevel: 1 }, gilded_hook: { hold: 2 }, patient_line: { perLevel: 1, styles: ['leaper', 'runner'] } },
+    relics: { seven_knots: { perLevel: 1 }, steady_hook: { perLevel: 1 }, measuring_cord: { level: 2, hold: 2, fromClass: 'prize' } },
+    wicks: { ashwick: { hold: 3, on: 'firstHookEachNight' } },   // Burned Once (was: the first surge telegraphed 0.3 s longer)
+  },
+  markedFish: 6,                  // a re-hooked Marked Fish remembers the hook and is tired: +6 Hold, once (T5 reports the first-Elder hour; raise to 9 before touching Elder odds)
+  legend: {                       // legends: their own Fight, the legend cap, no bait or lure Hold (the legend bait is the ticket)
+    fight: { belled_matriarch: 16, drifting_grove: 28, glass_sovereign: 40, lantern_swallower: 56 },      // persistent tackle (expeditions, P3+)
+    fightRun: { belled_matriarch: 14, drifting_grove: 22, glass_sovereign: 30, lantern_swallower: 36 },   // per-run gear (P1–P2 runs, The Long Descent: mods.perRun)
+    style: { belled_matriarch: 'steady', drifting_grove: 'leaper', glass_sovereign: 'leaper', lantern_swallower: 'sinker' },
+    woundPerEscape: 6, woundCap: 18,          // each escape: +6 Hold on the next attempt, up to +18, kept in meta until landed (The Long Descent: per descent, in run)
+    woundScope: { expedition: 'meta.legendWounds', run: 'meta.legendWounds', descent: 'run.legendWounds' },
+    growthPerLanding: 2, growthCap: 10,       // each landing makes it older and heavier (the +7% weight rule): +2 Fight, up to +10
+  },
+  gloomtide: { slamPartsLine: true },   // Gloomtide (and The Long Descent) only: a hand slam that lands during a play parts the line
+  // the economy: automatic plays are shorter, so more fish land per day; value, food, oil and fish XP are multiplied per lake so
+  // Shells, food and oil per in-lake day stay at ECONOMY_V3.income (tools/sim/catch-v3.mjs prints it; the balance sim T3 owns it)
+  economy: { norm: { cove: 1, mossmere: 0.78, sporewood: 0.72, glasswater: 0.64, paleabyss: 0.56 }, appliesTo: ['value', 'food', 'oil', 'fishXp'], from: 'AF', fishXpOwner: 'combat.fishXpForMode' },
+  // the logs (the only place a % is ever shown): on-time strike, owned relics in (no run buffs), rounded DOWN so a cap is never printed
+  display: { round: 'floor', reference: { strike: 'struck', buffs: 'relics', marked: false }, unseen: '?', unreachable: '—' },
+  // targets (validate-data and tools/sim/catch-v3.mjs check them)
+  targets: {
+    relicHoldByTier: [0, 1, 2, 3, 3],    // the owned relic Hold a player has at each matched tier (in the log; the targets below use it)
+    commonsT0: [0.75, 0.9],              // Mossmere commons, Small and Keeper, matched T0, no item: ≈ 8 in 10, never guaranteed
+    elderT0Max: 0.1,                     // every Elder at matched T0, on-time strike, no buffs, with or without any one item
+    headlineElderEarlyMax: 0.1,          // Reedjaw Pike and Mildew Angler Elders on T0–T2, no item
+    headlineElderT4Item: [0.45, 0.7],    // the early lakes' headline Elders (Reedjaw, Mildew Angler, and Mirror Pike) on T4 with their best item and T4's relics
+    deepHeadlineT4Item: [0.3, 0.45],     // the Gilt-Eyed Eel: the endgame's hardest regular fish, deliberately below the band, never out of reach
+    ancientMax: 0.5, legendMax: 0.5,     // never better than a coin flip, whatever you bring
+    familyLureGain: 10, giantsLureGain: [15, 25],   // average points on targets (Prize / Trophy on the lake's own tackle)
+    tutorial: [0.85, 0.95],              // the Quayling, Small, matched T0, on-time strike
+    levelGain: 1,                        // every per-run rod / line / reel level raises the Reedjaw Pike's Trophy chance (others at 0) by ≥ 1 point
+    perRunSwallower: { R3L2E3: [0.15, 0.25], T4Max: 0.45 },   // the Lantern-Swallower on per-run gear (first attempt, no wounds)
+    noviceCleanSmall: 0.2,               // a novice (median reaction 0.36 s, touch) strikes Clean on ≥ 20% of Small bites (AUTOFISH.strike)
+  },
+};
+
+export const AUTOFISH = {
+  // ---- the strike: the one input after the cast (DESIGN §25.6.4). Windows by size class, never by species.
+  strike: {
+    window: { small: 0.6, keeper: 0.7, prize: 0.8, trophy: 0.85, elder: 0.9, ancient: 0.9, legend: 1.0 },   // s after the "!"
+    // win = clamp(window[class] × getStats().hookWindow × (1 + bait.bonus.hookWindow) × place.hookWindowMult + place.hookWindowAdd
+    //            (+ a wounded legend's windowBonus), clamp). hookWindow is the additive multiplier (Rod, Boons, relics, Wicks, perks, Spore
+    //            Cake); BALANCE.bite.holdMult is not applied on the AF path (its 10% is in the table). Never by species.
+    rodMult: 'TACKLE.rod[].hookWindow', windowBuffs: ['hungry_waters', 'feather_touch', 'gilded_hook', 'steady_hook', 'lure_feather'],
+    clamp: [0.35, 1.4], cleanFrac: 0.4, cleanMin: 0.3, earlyGrace: 0.3, lateGrace: 0.3,
+    lastDip: 0.25,                // every class tell ends with the same 0.25 s last dip before the "!", so Clean is a rhythm to learn
+    latencyComp: { touch: 0.07, mouse: 0.03, key: 0.02 },   // s subtracted from the tap time before grading (input and display latency)
+    priority: 'bite',             // while fishing.state is 'bite', the pointer and Space / Enter go to the strike first in every mode (F stays Flare)
+    reaction: { novice: [0.36, 0.3], average: [0.3, 0.28], expert: [0.24, 0.25] },   // [median s, log-σ] after the "!" (catch-v3's strike model)
+    grades: ['clean', 'struck', 'early', 'late'], reference: 'struck', streak: 'clean',   // the perfect-hook streak counts Clean strikes
+    ring: { default: 'firstExpedition', options: ['always', 'firstExpedition', 'never'], startPx: { phone: 64, desktop: 80 }, widthPx: 2 },
+    showStruckWord: 20,           // "Struck" is printed under the float for the first 20 strikes; Clean / Early / Late always
+    haptic: { clean: [12, 40, 12], struck: [15], early: [8], late: [8], loss: [40],
+      bite: { small: [10], keeper: [15], prize: [20], trophy: [20, 60, 20], elder: [35, 60, 35], ancient: [35, 60, 35] } },
+  },
+  // ---- the play: the automatic reel-in, planned from size class and z only (planPlay), generated before the outcome is applied
+  play: {
+    small:   { dur: [2, 3],   runs: [0, 0], surges: [0, 0], glimpses: [0, 0], lastStand: 0, still: 0, tow: 0,   bend: 0.25, shake: 0,    music: 'calm' },
+    keeper:  { dur: [3, 5],   runs: [1, 1], surges: [0, 1], glimpses: [1, 1], lastStand: 0, still: 0, tow: 0,   bend: 0.45, shake: 0.04, music: 'calmPulse' },
+    prize:   { dur: [5, 8],   runs: [1, 2], surges: [1, 2], glimpses: [1, 2], lastStand: 0, still: 0, tow: 0.2, bend: 0.65, shake: 0.08, music: 'reelLow' },
+    trophy:  { dur: [8, 12],  runs: [2, 2], surges: [2, 3], glimpses: [2, 3], lastStand: 0, still: 0, tow: 0.6, bend: 0.8,  shake: 0.12, music: 'reelMid' },
+    elder:   { dur: [12, 20], runs: [3, 3], surges: [3, 5], glimpses: [3, 4], lastStand: 1, still: 0, tow: 1.5, bend: 0.95, shake: 0.18, music: 'reelFull', pass: true },
+    ancient: { dur: [20, 30], runs: [4, 4], surges: [4, 6], glimpses: [4, 5], lastStand: 2, still: 1, tow: 2.5, bend: 1.0,  shake: 0.22, music: 'reelHeart', pass: 'longerThanRaft' },
+    legend:  { dur: [30, 60], authored: true },
+    jitter: [0.92, 1.08],         // dur = lerp(min, max, z's place in its class band) × U(jitter)
+    firstGlimpse: { keeper: [0.7, 0.85], prize: [0.35, 0.5], trophy: [0.3, 0.45], elder: [0.25, 0.4], ancient: [0.2, 0.35] },   // the class estimate stamps here (Prize+)
+    lastStandAt: { elder: [[0.55, 0.7]], ancient: [[0.55, 0.65], [0.8, 0.88]] },
+    beat: { take: [0.3, 0.8], gain: [0.5, 2], run: [0.6, 4], hold: [0.5, 2], surge: [0.3, 0.8], glimpse: [0.6, 1.5], leap: [0.35, 1.2],
+      lastStand: [2, 4], still: [1.5, 1.5], lift: [0.6, 1.2], loss: [0.4, 1], scare: [0.5, 1.2] },
+    // the fitted tackle shows in every play (planned from the mean fitted tier, which the player knows; never from species or outcome)
+    tackle: { durPerTier: -0.05, bendPerTier: -0.04, strainPitchPerTier: -1, models: 'fitted' },
+    // scares: a slack moment or a surface head-shake that recovers, planned before the outcome (count by class); a lost play with a
+    // scare inside its loss window loses on the scare with loss.onScare
+    scare: { small: [0, 0], keeper: [0, 1], prize: [1, 1], trophy: [1, 2], elder: [1, 2], ancient: [2, 2] },
+    // a place's own beat replaces one gain beat when the fish is hooked there (P2: the Mossmere's places; §24's with §24)
+    placeBeats: { under_the_span: 'grind', lily_maze: 'lilies', gatehouse_door: 'chains', chain_garden: 'chains', ferry_market: 'glassClear', mirror_nave: 'glassClear' },
+    // fully automatic after the strike (the user's decision 3, DESIGN §25.0.2c: "Strike, then automatic", no cut): nothing the player
+    // does during a play changes the odds or ends it early. There is no cut (no glyph, no key, no 'cut' loss cause) and no leash.
+    inputs: {
+      pan: 20,                    // drag orbits the camera ±20° in yaw and springs back
+      hurry: { classes: ['small', 'keeper'], mult: 2.5, fromRun: 2 },   // from expedition 2 (P1–P2: meta.runs ≥ 2); speeds the play, never ends it
+      endsEarly: false,           // no input ends a play; the one outside event is Gloomtide's hand slam (CATCH_V3.gloomtide)
+    },
+    // the anchor (replaces the 2 m leash): from the strike until the card or the got-away note (fishing.state reeling / landing / lost)
+    // the raft (or the planted Wick on foot) is anchored in EVERY night mode: movement input is ignored and not buffered, nothing in
+    // combat moves it (no knockback, slam knock or shove), and only the play's own tow (play[class].tow, planned from class and z) moves
+    // it. Gloomtide: the same anchor, so a telegraphed hand slam is answered with fire, not feet (aura, weapons, zaps, Flare work as
+    // usual; hits cost Embers, without knockback), and a slam that lands parts a non-legendary line ('staggered'). `hub`: the same anchor
+    // at the Landing, where the First Evening's run-less play has no night mode.
+    anchor: { from: 'strike', until: ['card', 'gotAwayNote'], states: ['reeling', 'landing', 'lost'], modes: ['still', 'lantern', 'gloomtide'], hub: true,
+      moveInput: 'ignored', buffered: false, combatMoves: false, towOnly: true, gloomtide: { slamPartsLine: true, taps: 'zap', knockback: false } },
+  },
+  // legends: identity is known (legend pool + legend bait), so their real model shows and their plays are authored set pieces
+  legendPlays: {
+    belled_matriarch:  { dur: 36, set: ['take', 'toll', 'run', 'toll', 'circle', 'lastStand', 'lift'] },
+    drifting_grove:    { dur: 44, set: ['take', 'bloomingDive', 'leap', 'run', 'bloomingDive', 'leap', 'lift'], leaps: [0.4, 0.8] },
+    glass_sovereign:   { dur: 50, set: ['take', 'leap', 'shatterRun', 'leap', 'hold', 'leap', 'lift'], leaps: [0.25, 0.55, 0.85] },
+    lantern_swallower: { dur: 60, set: ['take', 'emberSurge', 'graspingDark', 'run', 'emberSurge', 'graspingDark', 'still', 'lastStand', 'lift'] },
+  },
+  // ---- leaps (the user's follow-up: "Some fish species would jump out the water so keep that for certain fish"). Per species only the
+  // chance that a play (Keeper+) leaps at all (leaps[id]); how many leaps and where they fall come from ONE class-level table shared by
+  // every leaping species, because a per-species count or window was a species signature (the AF review). A leap is a backlit
+  // silhouette of the night-ink proxy at presentLength (never the species' own outline): no colour, pattern, glow or eye-shine.
+  // Several species leap in every water (leapRule), so a leap never pins one.
+  leap: {
+    kind: { keeper: 'skip', prize: 'leap', trophy: 'leap', elder: 'breach', ancient: 'breach' },
+    count: { keeper: [[1, 1]], prize: [[1, 0.75], [2, 0.25]], trophy: [[1, 0.6], [2, 0.4]], elder: [[1, 0.5], [2, 0.35], [3, 0.15]], ancient: [[2, 0.6], [3, 0.4]] },
+    perClassMax: { small: 0, keeper: 1, prize: 2, trophy: 2, elder: 3, ancient: 3 },
+    when: [0.15, 0.85], minGap: 0.12,   // one window for every leaper and class; each leap at random inside it
+    slowmo: { seconds: 0.25, scale: 0.35, fromClass: 'prize' }, silhouette: { mesh: 'proxy', length: 'presentLength', fill: 0x04050a, rim: 'keyLight', spray: [0xeae4d3, 0xffb347] },
+  },
+  leaps: {   // chance per play (Keeper+) that the play has leaps
+    gloam_eel: 0.6, reedjaw_pike: 0.3, bridgechain_sturgeon: 0.35, lampsipper: 0.3, candlefin_koi: 0.25, dusk_minnow: 0.15,
+    weeping_carp: 0.15, mossback_perch: 0.08, the_remembered_sun: 0.6, velvet_ray: 0.25, nightbloom_carp: 0.2, hushcap_koi: 0.2,
+    harpstring_eel: 0.15, threadling_eel: 0.1, plumgill_perch: 0.1, sporebelly_puffer: 0.12, mildew_angler: 0.05, vesper_gar: 0.4,
+    mirror_pike: 0.3, rainglass_darter: 0.25, shardspine_eel: 0.2, the_unreflected: 0.2, prism_minnow: 0.15, the_sexton: 0.1,
+    glassgill_perch: 0.12, glassblown_puffer: 0.08, shroud_ray: 0.45, wax_bearer: 0.45, candlewake_sturgeon: 0.35, gilt_eyed_eel: 0.15,
+    ossuary_fry: 0.15, the_clapper: 0.15, the_namesake: 0.15, pallid_wraithfin: 0.15, funeral_veil: 0.1, the_unpaid_fare: 0.05,
+    pilgrim_salmon: 0.5, hearthfish: 0.45,
+  },
+  // the leap ambiguity rule (validate-data): in every lake × hour × depth band × bait or lure, over the species that can bite there
+  // (open water; each kept place with its kept species at × keptWeight), weighted by roll weight × leap chance: the species that
+  // can leap number 0 or ≥ 2, and none makes up more than maxShare of the expected leaps (maxShareItem when a bait or lure tilts
+  // the pool: a chosen tilt is the player's own targeting, and two attract-able leapers cannot both stay under 70%). A leap never
+  // pins one species.
+  leapRule: { bands: [[0, 0.34], [0.33, 0.67], [0.66, 1]], hours: ['calm', 'dusk', 'gloomtide'], classes: ['keeper', 'prize', 'trophy', 'elder'], maxShare: 0.7, maxShareItem: 0.8, keptWeight: 8, minLeapersPerLake: 5 },
+  // the same test for the bite itself (biteRule): over the species that can bite in a lake × hour × depth band × bait or lure × class,
+  // weighted by roll weight × the class's share at μ 0.4 (open water, z ≤ 2.64; giant water for Elders), there are 0 or ≥ 2 species
+  // and none above maxShare (maxShareItem with a chosen bait or lure). `accepted` lists the cells the rule knowingly lets through, each
+  // with its reason (the water's own character, read before the cast: e.g. a deep pool at dusk that mostly holds perch).
+  biteRule: { classes: ['small', 'keeper', 'prize', 'trophy', 'elder'], mu: 0.4, maxShare: 0.75, maxShareItem: 0.85,
+    accepted: [   // every class of these cells (prefix match), in any phase's roster: a perch bait or lure in perch water, chosen and read before the cast
+      ...['calm', 'dusk', 'gloomtide'].flatMap((h) => ['mireworm', 'glimmer_spoon'].map((it) => ({ cell: `sporewood · ${h} · 0.66–1 · ${it}`,
+        reason: `${it === 'mireworm' ? 'Mire Worms' : 'the predator lure'} in the Pools' deep water: the Plumgill Perch's own ${it === 'mireworm' ? 'bait' : 'prey'} where it is the common fish` }))),
+      { cell: 'glasswater · gloomtide · 0.66–1 · glass_larva', reason: "Glass Larvae in the Vault's deep water at night: the Glassgill Perch's own bait where it is the common fish" },
+    ] },
+  // signs: a sign kind may tilt its pre-rolled fish (rise: surface feeders; glow: night fish; nervous / strike: predators × 3; bubbles:
+  // bottom × 2), but where the tilted pool at that point would have < minSpecies species or a top share above maxShare, fishing pre-rolls
+  // from the blind pool instead (the kind still shows; its tilt is dropped there). Checked at runtime on every pre-roll; validate-data
+  // reports how many cells fall back.
+  signRule: { minSpecies: 2, maxShare: 0.8, fallback: 'blindPool' },
+  // ---- the loss: decided at the strike, shown on a readable moment in the second half of the play (outcome-blind first half)
+  loss: {
+    minAt: 0.5, quietBeat: 0.6,   // no loss before half the planned play; after a loss, 0.6 s with no UI, then the got-away note
+    at: { snapped: [0.55, 0.85], thrown: [0.5, 0.9], spat: [0.88, 0.95], spooled: [0.5, 0.8], fouled: [0.5, 0.8] },
+    byStyle: {                    // ordinary-beat causes, by the slot the fish tests (rod → thrown, reel → spooled, line → snapped)
+      leaper: { thrown: 0.6, snapped: 0.25, spooled: 0.15 }, runner: { spooled: 0.6, snapped: 0.25, thrown: 0.15 },
+      thrasher: { snapped: 0.6, thrown: 0.25, spooled: 0.15 }, sinker: { snapped: 0.6, thrown: 0.25, spooled: 0.15 },
+      sulker: { snapped: 0.6, thrown: 0.25, spooled: 0.15 }, steady: { thrown: 0.4, snapped: 0.4, spooled: 0.2 },
+      darter: { thrown: 0.5, snapped: 0.3, spooled: 0.2 },
+    },
+    byClass: {                    // which causes a class can have, and the spat weight added to the style's
+      small: { only: ['spat', 'thrown'] }, keeper: { only: ['spat', 'thrown'] },
+      prize: { no: ['spooled'], spat: 0.1 }, trophy: { no: ['spooled'], spat: 0.1 }, elder: { spat: 0.05 }, ancient: { spat: 0.05 },
+    },
+    onLeap: { leaper: 0.6, other: 0.35 },   // a lost play with a leap in the loss window throws the hook on the leap with this chance
+    onScare: 0.4,                            // a lost play with a scare in the loss window loses on the scare (thrown or spat) with this chance
+    mistimedSpat: 2, chainFouled: 0.5,       // Early / Late strikes double the spat weight; at a foul place half of losses are fouled
+    external: ['staggered'],                 // the one event that ends a play outside the roll: Gloomtide's hand slam (CATCH_V3.gloomtide); no player input ends a play
+    // the draw order at the strike is fixed and unconditional, so a land and a loss on the same seed share a plan: [planSeed, u, causeU, momentU]
+    draws: ['planSeed', 'u', 'causeU', 'momentU'],
+    hint: { snapped: 'line', thrown: 'rod', spooled: 'reel', spat: 'strike', fouled: 'place', staggered: null },
+  },
+  // ---- what a hooked fish looks like until the reveal: one generic night-ink proxy for every species. Its length is presentLength(lake,
+  // z): a stylised ladder by size class (× the lake, stretched a little by z inside the class), never the species' true length, which
+  // with the class tell was a species fingerprint (the AF review). Class is honest at every stage; length is honest from the reveal on.
+  // It drives everything length-scaled before the reveal: the proxy, shadow, splash, wake, spray, glimpse rings, leap height / arc / slap,
+  // every pitch or weight of sound, the Wick's effort, rise-ring radius, boil ellipse, glow-trail brightness, visible / pre-rolled /
+  // resident proxies, fishing:reel.length and signs[].prerolled. Legends (exempt) show their real model at true length.
+  proxy: { aspect: 4.2, fill: 0x04050a, rim: 'keyLight', length: 'class', minPx: 24, ringBelowMin: true, oneMesh: true, light: false,
+    ladder: { small: 0.25, keeper: 0.4, prize: 0.6, trophy: 0.9, elder: 1.5, ancient: 2.8 },   // m at the lake's × 1 (an Ancient's pass is longer than the 2.6 m raft)
+    lakeMult: { cove: 0.55, mossmere: 1, sporewood: 1.1, glasswater: 1.2, paleabyss: 1.35 }, zStretch: 0.12, wake: 'plain' },
+  revealWipe: 0.35,               // at the scoop (plan fraction 1.0, after the latest spat) the ink lifts off in a brush wipe, the proxy eases to true length and
+                                  // the real model appears (createFish is first called here); fishing:caught fires when the wipe ends
+  // ---- the landing's payoff (the user's request of 2026-11-13: "I want it to feel more like a win when you catch one"). Class only
+  // until the reveal (nothing here knows a species); bigger is grander, a Small stays quick. Per class:
+  //   wipe        the reveal's length (s of game time; the ink floods into the fish's true colours nose to tail, a band of light ahead)
+  //   slowmo      [s, scale] as the fish breaks the surface (ctx.game.slowmo; 0 s = none)
+  //   drops       light-catching droplets off the fish as it clears the water
+  //   glory       the soft radial bloom + slow light rays behind the revealed fish (× its length; 0 = none). A camera-facing glow,
+  //               never a ring on the water and never round the raft
+  //   embers      pale-gold and lavender motes rising from the glory
+  //   bloom       render.pulse bloom at the reveal; kick: fov push-in (deg, negative = in); shake: a small camera hit at the stamp
+  //   push        the camera's dolly push-in on its framing through the reveal (share of the distance; render.push)
+  //   flame       the Wick's head flame flaring as it lifts the fish (0..1.5); glow: the fish's own glow igniting (× its glow)
+  //   haptic      navigator.vibrate patterns (ms) at the reveal and at the stamp (phones; guarded, off with reduced motion)
+  // special: a new species or a legend at the reveal, a personal best / class first / Old Ledger at the stamp: added on top.
+  landing: {
+    small:   { wipe: 0.35, slowmo: [0, 1],       drops: 10, glory: 0.5,  embers: 4,  bloom: 0.05, kick: -1.2, push: 0.12, shake: 0.05, flame: 0.35, glow: 1.6, haptic: [12], stampHaptic: [8] },
+    keeper:  { wipe: 0.42, slowmo: [0.12, 0.5],  drops: 14, glory: 0.65, embers: 6,  bloom: 0.07, kick: -1.8, push: 0.18, shake: 0.07, flame: 0.45, glow: 1.8, haptic: [14], stampHaptic: [10] },
+    prize:   { wipe: 0.55, slowmo: [0.3, 0.35],  drops: 22, glory: 0.85, embers: 12, bloom: 0.1,  kick: -2.8, push: 0.28, shake: 0.12, flame: 0.7,  glow: 2.2, haptic: [18, 40, 22], stampHaptic: [16] },
+    trophy:  { wipe: 0.7,  slowmo: [0.42, 0.28], drops: 30, glory: 1.05, embers: 18, bloom: 0.14, kick: -3.8, push: 0.33, shake: 0.17, flame: 0.9,  glow: 2.6, haptic: [22, 40, 30], stampHaptic: [24] },
+    elder:   { wipe: 0.9,  slowmo: [0.6, 0.22],  drops: 40, glory: 1.3,  embers: 26, bloom: 0.18, kick: -4.8, push: 0.38, shake: 0.24, flame: 1.15, glow: 3.0, haptic: [30, 50, 40, 50, 60], stampHaptic: [30, 40, 30],
+      pull: -0.3, gloryHold: 1.0, gloryBright: 0.15 },
+    ancient: { wipe: 1.0,  slowmo: [0.7, 0.2],   drops: 44, glory: 1.45, embers: 30, bloom: 0.21, kick: -5.4, push: 0.42, shake: 0.28, flame: 1.3,  glow: 3.2, haptic: [30, 50, 40, 50, 80], stampHaptic: [30, 40, 40],
+      pull: -0.36, gloryHold: 1.3, gloryBright: 0.2 },
+    // the climax fires at the ceremony's pose, once the trophy camera frames the held fish; an Elder or an Ancient adds a step a
+    // Trophy does not get: the camera draws back (pull, a negative push) to take in a glory held longer (gloryHold s) and brighter
+    special: { glory: 0.3, embers: 10, bloom: 0.06, flame: 0.2, glory2: 0.35 },   // glory2: the second bloom at the stamp for a record
+    // the show (AUTOFISH.show): the climax fires at the present, on the picture actors names (the sphere round the Wick and its fish,
+    // radius R). The glory is sized to it (R × (size + perGlory × glory)) and set R × back behind it, a touch softer than the
+    // trophy shot's (the lens is close); it holds for holdShare of the show's hold, then fades through the rest of the hold and
+    // fadePause of the pause: by the card it is gone, and the pause adds nothing
+    // (the lens is a metre or two away: at the trophy shot's strength the glory, the fish's own held light and the flare bleached
+    // a legend to a cream cut-out. So the strength climbs less with the class (perGloryStrength), an Elder's extra brightness is
+    // halved (brightShare), the light the fish holds after its reveal is halved (flood) and its glow ignites to glowCap at most;
+    // lake: where the billboard meets the water it thins away over that share of its size, never a straight bright edge)
+    show: { size: 1, perGlory: 0.25, strength: 0.25, perGloryStrength: 0.07, brightShare: 0.5, flood: 0.5, glowCap: 2.2, lake: 0.35, rise: 0.3, holdShare: 0.45, fadePause: 0.8, back: 0.9 },
+    colors: { gold: 0xf3dca4, lavender: 0xc9b8f0, pink: 0xf0b8d8, stone: 0xece6d6, amber: 0xffc27a, ink: 0x0c0b14 },
+  },
+  // ---- the show (the user's request of 2026-11-13: "When a fish is caught, it should be an animation of our character holding the fish
+  // and showing it to us. Then after a pause the fish card opens up."). It replaces the measuring ceremony's poses, cord and overlay
+  // (docs/v3/show/SPEC.md, DESIGN §25.6.8, CONTRACT §13.7b): after the reveal the Wick turns to the lens and presents the fish like an
+  // angler's photograph, flank to the camera, its face and flame in the frame; a still pause; then the card. Nothing is written on the
+  // screen from the fish leaving the water until the card. Events, saves and the frozen world keep their meaning (fishing:caught →
+  // fish:measured → fish:landed, once per fish; ctx.cinematic from fishing:caught until the card).
+  // Three owners (SPEC §6): THE SEAM (frozen: both lanes read it, only the stage changes it) · LANE A (the Wick and the fish: actors
+  // retunes) · LANE B (the sequence, the camera, the card and the sound: fishing / render / ui / audio retune).
+  show: {
+    // ================= THE SEAM =================
+    // phases of fishing.view.show.phase. 'reveal' is AUTOFISH.landing's wipe (T0 = the fish breaks the surface: fishing:landing);
+    // 'lift' the swing-in, the turn to the lens and the present (it ends on the present: the fish thrust at the lens);
+    // 'hold' the fish alive in the grip with the glory at its height; 'pause' the still; 'card' the catch card is up.
+    phases: ['reveal', 'lift', 'hold', 'pause', 'card'],
+    // real seconds AFTER the reveal, by class (a legend plays the ancient row). T0 → card = the reveal's real length (landing[class].wipe
+    // under its slow-motion beat: data.showPlan) + lift + hold + pause; validated against `about` (± tolerance) and `max`.
+    beats: {
+      small:   { lift: 0.45, hold: 0.5,  pause: 0.7 },   // 0.35 + 1.65 = 2.0
+      keeper:  { lift: 0.5,  hold: 0.42, pause: 0.7 },   // 0.48 + 1.62 = 2.1
+      prize:   { lift: 0.6,  hold: 0.85, pause: 0.8 },   // 0.75 + 2.25 = 3.0
+      trophy:  { lift: 0.8,  hold: 0.9,  pause: 0.8 },   // 1.0  + 2.5  = 3.5
+      elder:   { lift: 1.1,  hold: 1.6,  pause: 0.9 },   // 1.37 + 3.6  = 4.97
+      ancient: { lift: 1.2,  hold: 1.6,  pause: 0.9 },   // 1.56 + 3.7  = 5.26
+    },
+    about: { small: 2.0, keeper: 2.0, prize: 3.0, trophy: 3.5, elder: 5.0, ancient: 5.0 }, tolerance: 0.3,   // s from T0 to the card
+    max: { small: 2.5, keeper: 2.5, prize: 3.5, trophy: 4.0, elder: 6.0, ancient: 6.0 },
+    minPause: 0.6,                                    // the still is never shorter (a tap may still hurry past it: `hurry`)
+    // during an active swarm window every class plays these (their sum = BALANCE.ceremony.cinematic.duringSwarm, today's 1.2 s rule:
+    // the arena is never hidden for longer than it is today)
+    swarm: { lift: 0.4, hold: 0.2, pause: 0.6 },
+    // a tap (pointer, Space, Enter) from T0 on hurries the show to the card: the reveal is never cut (the species shows, fishing:caught
+    // fires); the rest of the lift runs × liftRate; then the card opens once the fish has been presented for `hold` s, or for
+    // `protectedHold` s when the catch is a first-ever species or a personal best (progression.measure's records, known at the present)
+    hurry: { from: 'T0', cutsReveal: false, liftRate: 2.5, hold: 0.3, protectedHold: 0.8, protected: ['isNew', 'pb'] },
+    valve: 8,                                         // s of the real clock from T0: fishing opens the card whatever state the show is in
+    // what fires at the present (the end of the lift): progression.measure (fish:measured, then fish:landed; main saves) and the
+    // landing's climax (AUTOFISH.landing: the glory, the flame's flare, the bloom, the kick, the haptic). ctx.cinematic: fishing:caught → card
+    at: { measure: 'present', climax: 'present', cinematicFrom: 'caught', cinematicTo: 'card' },
+    // the pose by the fish's TRUE length (m), then by class and shape (data.showPoseFor). The Wick is ≈ 1.03 m to the top of its head on
+    // the raft (0.85 × 1.22): one hand held out to the lens · both hands pushed forward · hugged and heaved, tail on the deck · hung
+    // head-up from the rod · laid alongside the raft with the Wick standing over it
+    poses: [{ id: 'pinch', below: 0.40 }, { id: 'both', below: 0.90 }, { id: 'hug', below: 1.50 }, { id: 'hang', below: 2.20 }, { id: 'alongside', below: Infinity }],
+    // a Trophy or bigger is never a one-hand pinch; an Elder or an Ancient cannot be lifted, so it hangs from the rod instead of the
+    // hug; a long thin fish cannot be stood up either: in the hug's band it is DRAPED over both hands (thinDrape: its head up at one
+    // hand, its tail hanging off the other; hung edge-on from a rod it is a grey blade), an Elder's hangs in a slow S; every legend
+    // lies alongside
+    poseRules: { noPinchFrom: 'trophy', noHugFrom: 'elder', thin: ['eel'], thinDrape: 'both', legend: 'alongside' },
+    poseNames: { pinch: 'showPinch', both: 'showBoth', hug: 'showHug', hang: 'showHang', alongside: 'showAlongside' },   // actors.setPose names
+    // ================= LANE A: the Wick and the fish (actors retunes; world metres, seconds) =================
+    // grip, by pose (src/actors-show.js lays each one out on a ghost of the rig, then locks the hands on by IK). reach = how far in
+    // front of the Wick's face plane the fish's middle is held, toward the lens (the fisherman's trick: a fish under tinyBelow m
+    // comes right up to it); the arm decides how much of it there is (a sleeve stretches to 2.6 × its length, no further). On a wide
+    // screen a pinched fish is held up beside the cheek, on an upright one under the chin, so the lens can close in on the two.
+    // A fish under `tinyBelow` is held out at arm's length beside the cheek on its own hand's side (tinyAt: [how far out from the
+    // head's middle, how far under it], in head radii; an upright frame has no room beside the head: off the shoulder, under the
+    // chin), the sky and the water behind it: never before the dark of the face, never at the mouth (that read as eating).
+    // both: height 'chin' = its back just under the chin (chinOver m over it), the whole face above.
+    // spread = each hand's distance from the fish's middle as a share of its length, the pair clamped to spreadClamp m apart.
+    // hug: tilt = its lean from the deck (deg) over the near shoulder, stood on its tail (the last tenth bent flat on the planks),
+    // heaved up through `heave` degrees by the present. hang: gap = the most it stands off the Wick's body (m), lean = the planted
+    // rod's lean from upright (deg, as the geometry falls: the butt before the near foot, the tip over the fish), its tail
+    // tailClear m off the planks, lying out along them when the fish is longer than the tip is high; one hand keeps the rod, the
+    // other rests on the fish. alongside: the fish lies in the water against the deck's lens-ward edge (within squareWithin degrees
+    // of square to the lens: along it, nosed in up to noseIn; otherwise against the lens-left edge of the lens-most corner, turned
+    // up to `turn` degrees), nothing of it over the planks (chinOnDeck 0: its chin is lifted TO the edge, in the neck), its flank
+    // tipped flankUp up to the lens; the Wick stands inset m in from the edge with a hand on its brow. rod = where the rod is:
+    // 'planted' upright by its butt in the other hand, 'stowed' (set down on the bow rest during the lift), 'raised' with the fish
+    // on its tip. NOTHING is ever held above the Wick's head: its flame is there.
+    grip: {
+      pinch:     { hands: 1, reach: 0.30, reachTiny: 0.36, tinyBelow: 0.15, height: 'cheek', heightUpright: 'chin', heightTiny: 'cheek', tinyAt: { wide: [0.95, -0.1], upright: [0.3, 0.95] }, rod: 'planted' },
+      both:      { hands: 2, reach: 0.40, spread: 0.31, spreadClamp: [0.13, 0.44], height: 'chin', chinOver: 0.03, rod: 'stowed' },
+      hug:       { hands: 2, tilt: 70, heave: 18, tail: 'deck', side: 'whereItCameUp', rod: 'stowed' },
+      hang:      { hands: 2, tail: 'clear', tailClear: 0.04, gap: 0.12, fore: 0.34, lean: [3, 30], side: 'whereItCameUp', rod: 'raised' },
+      alongside: { hands: 1, stand: true, touch: 'brow', chinOnDeck: 0, inset: 0.24, flankUp: 30, squareWithin: 12, noseIn: 18, turn: 16, rod: 'planted' },
+    },
+    // facing: the Wick turns its body to the lens (env.camYaw) within faceWithin degrees by the present (hang and alongside stand
+    // a little toward the fish: the body threeQuarter degrees off, the head to the lens; at 30 / 35 it looked at its fish, not at
+    // us); the fish's flank within flankWithin of square-on
+    facing: { faceWithin: 12, threeQuarter: { hang: 18, alongside: 20 }, flankWithin: 15, turnRate: 9 },
+    // weight and life, by class: overshoot = the present's travel past the hold point (share of the lift's travel, settling in settle s);
+    // twitch = [peak struggle 0..1, s between flaps] through the hold, the first flap firstFlap s after the present (so every class
+    // flaps at least once before its pause); pauseStill = the struggle's ceiling during the pause (a still, not a freeze: breath and
+    // flame only); drips = drops falling off the fish through the hold; strain = the Wick's lean, braced legs and
+    // tremor (0..1); dip = how far the raft's deck edge sinks toward the fish as its weight comes aboard (m); flame = the head flame's
+    // pride through the hold (the pose's `flame`, under flareFlame's burst at the present); bob = the proud little bounce (m)
+    life: {
+      small:   { overshoot: 0.18, twitch: [0.9, 0.45],  drips: 3,  strain: 0,    dip: 0,     flame: 0.25, bob: 0.02 },
+      keeper:  { overshoot: 0.15, twitch: [0.8, 0.5],   drips: 5,  strain: 0,    dip: 0.01,  flame: 0.35, bob: 0.02 },
+      prize:   { overshoot: 0.12, twitch: [0.7, 0.7],   drips: 8,  strain: 0.2,  dip: 0.02,  flame: 0.5,  bob: 0.015 },
+      trophy:  { overshoot: 0.08, twitch: [0.55, 0.9],  drips: 12, strain: 0.65, dip: 0.045, flame: 0.65, bob: 0.01 },
+      elder:   { overshoot: 0.05, twitch: [0.4, 1.2],   drips: 16, strain: 0.85, dip: 0.06,  flame: 0.9,  bob: 0.008 },
+      ancient: { overshoot: 0.05, twitch: [0.35, 1.3],  drips: 18, strain: 1,    dip: 0.07,  flame: 1.0,  bob: 0.008 },
+      settle: 0.28, firstFlap: 0.2, pauseStill: 0.12, swingIn: 0.4, takeAt: 0.62,      // shares of the lift: the fish swings in on the line, the hands take it, then the present
+    },
+    // ================= LANE B: the sequence, the camera, the card and the sound (fishing / render / ui / audio retune) =================
+    // the show camera is one rig with the play's (no cut): it takes over at T0 and eases with spring ω `settle` (1/s) so that it has
+    // arrived (< 5 % of its travel left) by the present. It FITS the points actors.getShowFocus() returns (`keep`: the fish's box, the
+    // Wick's head and flame, its feet or the rod tip where listed) inside the frame's safe area (`margin`, each edge) at the pose's fov
+    // and elevation, and never comes nearer than minLens to any of them. The yaw is the play's (BALANCE.cameras.trophy's landmark swing
+    // with a place): the Wick turns, the camera does not orbit. Portrait uses fovPortrait; an alongside fish longer than rakeAbove m on
+    // a portrait screen is filmed along its length from the head end (`rake` degrees off broadside) so it is never cropped.
+    camera: {
+      // (as built: render blends the fitted pose over the play's rig with one eased weight timed from fishing.view.show, so the lens
+      // has arrived EXACTLY when the fish is presented, whatever the class, a hurry or a swarm window; `settle` / `settleSwarm` are the
+      // spring a chase would need, kept as the validator's floor)
+      from: 'T0', settle: { small: 6, keeper: 6, prize: 4.5, trophy: 3.6, elder: 3, ancient: 3 }, settleSwarm: 8,
+      margin: { landscape: 0.08, portrait: 0.06 }, minLens: 0.35, floor: 0.45,
+      // the frame keeps a little more room at its foot (the hands under the fish) and the flame's tip is kept as well as its core
+      // (flameTip × the head's radius above the core); follow = the spring ω (1/s) that carries the fitted target (the hand-over
+      // from the reveal's fit to the pose's never jumps); at the present the landing's kick and bloom are scaled (presentKick,
+      // presentBloom: the lens is already close) and an Elder's pull-back is a breath (`breath` × landing.pull)
+      // finRoom widens the fish's box past its named points (fins, a flapping tail); maxSpeed (m/s) is the most a far jump of the
+      // target may move the lens at its peak (the leviathan's fit after the reveal's guess, a phone's rake); the fitted target is live through the reveal,
+      // the lift and (for the longer holds) into the hold, and frozen settleBefore s before the pause (never sooner than settleAfter s after the present):
+      // followStill carries what is left, and the still is still. The frozen framing rides the Wick's feet on the swell; the raft's
+      // rocking sways the head and the fish a little inside it (the margins are that room)
+      headroom: 0, footroom: 0.04, flameTip: 0.5, finRoom: 1.35, follow: 10, followStill: 22, maxSpeed: 12, settleAfter: 0.12, settleBefore: 0.4, presentKick: 0.5, presentBloom: 0.6, breath: 0.2,
+      pose: {
+        pinch:     { elev: 8,  fov: 44, fovPortrait: 58, keep: ['fish', 'head', 'flame'], tinyFov: 52, tinyFlameTip: 0, tinyElev: -5 },   // (a tiny fish: the lens down at the hand's height and right up to it, the flame's core kept, not its tip; an upright frame keeps the tip)
+        both:      { elev: 7,  fov: 52, fovPortrait: 60, keep: ['fish', 'head', 'flame', 'hands'], footroom: 0, flameTip: 0, lowElev: -9, lowAbove: 0.95 },   // (an angler's photograph: near eye level, wide and close so the fish held out is a third of the frame, the hands at the foot, the flame's core at the top; a flame more than lowAbove m over the catch (the Taper) is filmed from below, up its stovepipe)
+        hug:       { elev: 10, fov: 44, fovPortrait: 62, keep: ['fish', 'head', 'flame', 'feet'] },
+        hang:      { elev: 6,  fov: 46, fovPortrait: 64, keep: ['fish', 'head', 'flame', 'feet'], headroom: 0.015 },   // (a fish hung 2 m up sways with the raft's rocking: a little more room over it; the line runs out of the top of the frame: the rod's tip is not kept, the fish is)
+        alongside: { elev: 12, fov: 48, fovPortrait: 66, keep: ['fish', 'head', 'flame', 'feet', 'body'], footroom: 0, craneAbove: 4, craneElev: 40, rakeAbove: 3.2, rake: 55, marginPortrait: 0.1 },   // (a low lens along the flank; nothing under the surface is framed; the Wick's whole body is kept, a tenth of an upright frame clear of its edge)
+      },
+      still: 0.02,                                    // during the pause the lens moves less than this share of its distance per second
+      // while the card is up the framing holds (a phone lifts the subject into the open top; a wide screen's card is docked at
+      // the right, over landscapeSide of the frame's width, and the picture is fitted into the left beside it, like a caption's photograph)
+      behindCard: { hold: true, portraitUp: 0.24, landscapeSide: 0.5 },
+      // the way back to play once the card has closed: s, or outPerM s per metre of the way when that is longer (a phone's play
+      // camera stands 20 m off). It runs at an even rate of ZOOM (render-camera showOutEase: the lens's distance grows geometrically,
+      // eased in and out), so the lake settles in around the raft instead of the picture whipping away in the first third of a second
+      out: 1.4,
+      outPerM: 0.1,
+    },
+    // the card opens from where the fish is held (its box's centre projected to the screen is the unfold's origin; a phone's card still
+    // rises from the foot). What the measuring overlay said moves onto the card or goes: the length counts up beside the class stamp,
+    // which presses after it (the cord's ticks and the seal's stamp sound here); your best and the Old Ledger are two knots on the
+    // card's ruler (marks, no words); the record is the card's kicker (as now). No banner, no overlay, no toast before the card.
+    // (countFrom: the count starts this long after the card begins to open, once its ink has unfolded enough to read; stampAt is
+    // measured from there)
+    card: { opensFrom: 'fish', unfold: 0.32, countFrom: 0.2, count: 0.5, stampAt: 0.55, knots: ['pb', 'ledger'], phone: 'foot' },
+    // sounds (all original, synthesised): the swell and the class chime stay on fishing:landing / fishing:caught; `lift` a wet haul
+    // by class as the fish swings in; `present` the flourish on the present (with the record chime for a record or a new species);
+    // `flap` a wet slap on each twitch; `drip`; the cord's ticks and the seal's stamp move to the card's count
+    sound: { lift: 'show_lift', present: 'show_present', flap: 'show_flap', drip: 'show_drip', count: 'cord_tick', stamp: 'seal_stamp', record: 'record_chime' },
+    hud: 'hiddenFromT0',                              // the HUD, toasts, tips and banners stay off the picture from T0 until the card
+  },
+  // ---- let it pass: a passed Prize+ bite lingers, so passing on a size hint is a real bet (change the bait or lure, cast back)
+  letPass: { classes: ['prize', 'trophy', 'elder', 'ancient'], lingers: 45, radius: 6, rebite: 0.5, keeps: ['speciesId', 'z'], once: true, refund: true, favour: 0.15 },
+  // ---- the got-away note (the user's answer 4): after the fish is gone, never during the play, never a %
+  gotAway: { estimate: 0.08, word: 'near', round: [[20, 1], [100, 5], [Infinity, 10]], roundLb: [[10, 1], [100, 5], [1000, 25], [Infinity, 100]], toast: ['small', 'keeper', 'prize'], toastSec: 2.5, cardSec: 7.5,
+    markedFrom: { openWater: 'elder', place: 'trophy' }, journalLast: 5, glimpsed: true, oddsLink: 'whenIdle', pinsGearCompare: true },
+  // ---- the Set Out card's tackle rating, in words only (computed from catchChance against the lake's reference species)
+  rating: { holdsAt: 0.5, words: [[0.4, 'a coin flip'], [0.15, 'a long shot'], [0.05, 'rarely held'], [0, 'beyond this tackle']] },
+  logLock: true,                  // the log (Journal, gear log) cannot be opened from the cast until the line is back (the card or the got-away note shows)
+  logLockRoutes: ['KeyJ', 'pauseJournal', 'ledgerEntry', 'gearBench', 'murkLureRows', 'murkBaitRows', 'feLogGlyph', 'gotAwayLink'],
+  // the measuring cord, from the reveal on, carries two knots: your PB (oxblood) and the Old Ledger (black); passing your PB plays a sting
+  // and a Small / Keeper ceremony stretches to 2.4 s when it happens
+  ceremony: { cordMarks: ['pb', 'ledger'], pbSting: true, pbStretch: 2.4 },
+  // P1–P2 runs: every lure (the giants' lures included) is sold by Murk per run at 40% of its persistent price, from its lake's lighting
+  // (onSale); the run keeps it until it ends; one bait OR one lure is equipped. From P3 lures are persistent (Gear Bench, meta.lures).
+  runLures: { phases: [1, 2], priceMult: 0.4, seller: 'murk', scope: 'run', ids: 'LURES' },
+  // catch quality (Fine, Shimmering) no longer comes from reel skill: the strike, a live sign, a Clean Cast, bait or relic shimmer.
+  // QUALITY's thresholds (Fine 0.45, Shimmering 0.78) and its small random upgrades stay. A clean strike off a Clean Cast is Fine.
+  quality: { strike: { clean: 0.35, struck: 0.15, early: 0, late: 0 }, sign: 0.15, rareSign: 0.25, cleanCast: 0.1, shimmer: 'bait + relic (as v1)' },
+  text: {
+    strike: { clean: 'Clean', struck: 'Struck', early: 'Early', late: 'Late' }, strikeLine: 'Strike: {grade}',
+    estimate: 'by the look of it: {class}',
+    kicker: 'THE ONE THAT GOT AWAY', size: '{a} {class}, near {size}.', stillOut: "It's still out there, {place}.", stillOutWater: "It's still out there, in that deep water.",
+    oddsLink: 'Odds in your log',
+    toast: '{a} {species} {cause}.',
+    cause: {
+      snapped: 'It parted the line.', snappedLong: 'It parted the line on its last run.', thrown: 'It threw the hook.',
+      thrownLeap: 'It threw the hook mid-leap.', spat: 'It spat the hook at the raft.', spooled: 'It took every turn of line on the reel.',
+      fouled: 'It wrapped the line on the chains.', staggered: 'The line parted when you staggered.',
+    },
+    toastCause: { snapped: 'parted the line', thrown: 'threw the hook', spat: 'spat the hook', spooled: 'stripped the reel', fouled: 'fouled the line', staggered: 'parted the line' },
+    hint: { line: 'Heavier line holds the long runs.', rod: 'A stiffer rod sets the hook deeper.', reel: 'A bigger reel carries more line.',
+      strike: 'A clean strike holds better.', place: 'Here, the chains take their share.' },
+    rating: 'Against the {species}: holds {held}s. {next}s are {word}.', ratingNone: 'Against the {species}: even Smalls are {word}.',
+    log: { title: 'Your odds', with: 'With the {item}:', strike: 'A clean strike adds a little; an early or late one costs a little.',
+      gloomtide: 'Gloomtide: a hand slam that lands parts the line.', unseen: 'Land or lose one to learn its odds.', marked: '{name}, {class}, near {size}' },
+    gear: { tackle: '+{hold} Hold on every fish · counts ×1.6 against {styles}.', item: '+{hold} Hold against {targets}.', none: 'Helps nothing you have met yet.',
+      compare: '{name} ({class}): {from} → {to} with this.', lastAway: 'The {name} that {cause} ({class})' },
+    logLocked: 'Reel in first.',
+    // (D1′: the automatic-fishing tips moved into TIPS_V3 as directed tips: af_changed, af_letpass, af_strikeReminder, af_hurry)
+  },
+  // ---- the time model of one cast (s) and an average player (tools/sim/catch-v3.mjs; the pacing and balance sims).
+  // `ceremony` is the landing as the player sits through it: from the fish breaking the surface to the card (the reveal + the show,
+  // AUTOFISH.show; = data.showPlan(class).total, validated). It was the measuring ceremony alone (1.2 / 1.2 / 2.4 / 3.5 / 5 / 5).
+  time: { cast: 1.8, wait: 7.5, strike: 0.6, lostNote: 1.6, card: 2.0, ceremony: { small: 2.0, keeper: 2.1, prize: 3.0, trophy: 3.5, elder: 4.97, ancient: 5.26 } },
+  // hurry: the share of Small and Keeper plays hurried (× 2.5) from the 2nd run with the show tapped through to tapTo s (the reveal,
+  // the lift at show.hurry.liftRate, show.hurry.hold; validated against data.showPlan(class, {hurried: true}))
+  player: { strike: { clean: 0.35, struck: 0.5, early: 0.075, late: 0.075 }, letPass: 0.08, fishSecPerDay: 144, hurry: 0.5, tapTo: 0.9 },
+};
+
+// The First Evening: the opening and its tutorial at the Landing (DESIGN §25.4.8; the user's request of 2026-11-05). Always
+// exported; read by the FE build (src/first-evening.js and its seams). FE-D1 (done): the Quayling is a phase-1 species (cove-only:
+// in no lake's pool), the lines are TEXT_V3.firstEvening and the tips are directed TIPS_V3 entries (shown by the director as
+// `firstEvening:line {kind: 'tip', key}`, never by a bus trigger in a lake).
+export const FIRST_EVENING = {
+  phase: 1, after: 'AF', shipsWith: 'AF',   // one release gate: no user-facing build carries AF without FE (else fallback F0)
+  budget: { reference: 54.5, skipFraming: 45.5, targetMax: 75, slowReaderMax: 90, toCard: 50, toLake: 60 },   // s from Begin (validated)
+  steps: ['framing', 'wake', 'cast', 'wait', 'strike', 'play', 'measure', 'odds', 'gate', 'plan', 'setout'],
+  stepSec: { framing: 9, wake: 8, cast: 3, wait: 2.5, strike: 0.5, play: 2.5, measure: 5, odds: 6, gate: 8, plan: 4, setout: 6 },   // the reference player
+  // what each step must fit (validated: stepSec ≥ max(anim, murkAt + the Murk line's hold), the director never cuts a line short;
+  // a Murk line may play over an animation or an action, never over the strike window)
+  stepAnim: { framing: 9, wake: 3.4, cast: 3, wait: 2.5, strike: 0.5, play: 2.5, measure: 5, odds: 0, gate: 8, plan: 4, setout: 6 },
+  stepMurk: { wake: { key: 'murkWake', at: 1.2, then: 0.8 }, odds: { key: 'murkOdds', at: 0 }, gate: { key: 'murkGate', at: 0 }, setout: { key: 'murkFirstOil', at: 0.5 } },
+  shot: [   // render 'prologue' keyframes (render convention; yaw 0 = north), one continuous move with no cuts
+    { t: 0.0, focus: [6, 0, -18],      elev: 14, dist: 34,  aimY: 5, fov: 46 },
+    { t: 3.0, focus: [-4, 0.6, -4],    elev: 18, dist: 18,  aimY: 2, fov: 46 },
+    { t: 6.2, focus: [-18, 0.6, -4.5], elev: 16, dist: 6.5, aimY: 1, fov: 42 },
+  ],
+  lines: { hold: 2.6, fade: 0.4, murkHold: 2.4, murkPerChar: 0.05, maxChars: 90 },
+  ember: { x: 6.75, z: -34, y: -1.5, at: 0.8, pulse: 1.2, hideWhen: 'swallowerHome', before: 'channelCard' },   // the great lantern's last ember, a sprite in front of the channel-mouth card
+  wake: { candle: { x: -18.6, z: -2.4 }, seconds: 2.6, lanternStart: 0.7, wipe: 0.8, raftAt: 'cove_jetty', coldCandles: ['taper', 'stub', 'tallow', 'ashwick', 'wayfarer'] },
+  // the first tip shows when the float settles (before any nibble can be tapped), not on the first nibble
+  waitTipOn: 'floatSettled',
+  bite: { nibbleAt: [1.2, 1.8], biteAt: [2.5, 3.5], retryBiteAt: [1.5, 2.5], retryNibbles: 0, maxLosses: 3 },   // waits and presentation only
+  tutorialApi: { accepts: ['nibbleAt', 'biteAt', 'retryBiteAt', 'retryNibbles', 'strikeRing', 'estimate'], rejects: ['outcome', 'sizeClass', 'chance', 'z', 'speciesId'] },
+  strikeRing: 'firstExpedition', estimate: { plays: 2, classes: ['small', 'keeper'] },
+  odds: { glow: 5, glowUntil: 'logOpened', opens: { section: 'odds', species: 'quayling' } },
+  // the cove is closed (COVE.arena.closure): breakwaters east and west, and a soft wall across the arch span that only a glide passes.
+  // The auto-sail (FE-S1) steers straight to each `via` point, then to `joinAt` (a straight line from the west end of the post's reach
+  // would clip the quay); the glide then runs [joinAt, ...COVE.setOutPath.slice(glideFrom)], so it never doubles back past the jetty.
+  // Validated (FE-T1): from every closed-cove raft-water point within the post's 5 m reach the lane stays on raft water and clears the
+  // jetty, Murk's barge and the Waystones by the raft radius + 0.3 m, and so does the join into the glide.
+  gate: { post: 'map_table', via: [[-3, 11.5]], joinAt: [8, 7], glideFrom: 1, softWall: 'COVE.arena.closure.softWall' },
+  // Set Out from the post: an input-locked auto-sail to joinAt at raft speed (during Murk's line), then the 3 s glide along COVE.setOutPath
+  setOut: { autoSail: 'raftSpeed', glide: 3, skippable: false, lanternTo: 1.0, lanternOver: 0.8, character: 'wick', nightMode: 'still', outing: 'first' },
+  // every later P1–P2 run sets out from the Landing too (never a cold start): title → New Descent → the raft at the jetty → the glide
+  // (skippable after the first) with one Murk line; a snuff cuts to the hearth for 3 s before the Snuffed summary
+  everyRun: { from: 'cove_jetty', glide: 3, skippableAfterFirst: true, murk: ['murkRun1', 'murkRun2', 'murkRun3', 'murkRun4'] },
+  snuffed: { hearth: 3, line: 'snuffedLine' },
+  resume: { beforeCatch: 'cast', afterCatch: 'gate', framingReplays: false },
+  skip: { confirmSec: 2.5, to: 'plan', grants: false },
+  legacy: { when: 'meta.firstEvening === undefined && (meta.runs > 0 || a non-cove journal entry)', sets: { done: true, legacy: true }, firstBiteTip: 'af_changed',
+    offer: { text: 'legacyOffer', runs: 'replay', dismiss: 'notNow', once: true } },   // a title ribbon on a legacy save's first v3 boot
+  replay: { from: 'settings', sandbox: true, grants: false, writes: false, endsAt: 'gate' },
+  marksSeen: ['cast_basics', 'nibble_wait', 'miss_early', 'miss_late', 'sail_basics'],
+  firstLight: true,               // the Quayling counts for First Light (+5 Memories), as §18.1 meant for minute one
+  text: {
+    lore: ['The great lantern fell, and the kingdom followed it into the lake.', 'Its last candles came ashore here. They fish to stay lit.', 'You are one of them.'],
+    murkWake: "Awake, little Wick? You're guttering. Fish make oil; oil makes light.",
+    murkWakeP3: "Water's that way.",
+    murkSpooked: 'Too keen. It felt you. Again.',
+    murkPassed: "It let go. Bait's still on. Again.",
+    murkLost: ['Happens to all of us. Again.', 'Twice. The water keeps score. Once more.', "Some nights. Come on, the chart won't read itself."],
+    murkOdds: 'Your odds are in the log. Better tackle, better odds. Never certain.',
+    murkGate: "The real water's through the gate. Chart's on the table.",
+    murkFirstOil: "First oil's on me. The rest you fish for.",
+    murkReplay: "Same as it ever was. The gate's where you left it.",
+    murkRun1: 'Mind the oil. The water keeps what it takes.', murkRun2: 'Bring me something with a story.',
+    murkRun3: "The big ones come up at dusk. They always did.", murkRun4: 'Back already? Good. Out you go.',
+    snuffedLine: 'Murk found your raft drifting.',
+    legacyOffer: 'A new first evening (1 min)', notNow: 'Not now',
+    outingLines: ['Every night of your first outing is still.', 'The dark is patient with new flames.'],
+    skip: 'Skip', skipConfirm: 'Skip the first evening?', replay: 'Replay the first evening', logGlyph: 'Odds are in the log',
+  },
+  tips: {
+    fe_walk: 'Walk with WASD or the left stick. Tap a glow to walk there.',   // P3 (on foot)
+    fe_cast: 'Hold on the water. Let go to cast.',
+    fe_wait: 'Wait for it to go under.',
+    fe_strike: { touch: 'Now. Tap.', desktop: 'Now. Click.' },
+    fe_play: "The line does the rest. You'll know what it is when it's in.",
+    fe_sail: { desktop: 'Sail with WASD or the left stick.', touch: 'Sail with the left stick.' },
+  },
+};
+
+// The opening cut scene, "One Warm Light" (DESIGN §25.4.9; docs/v3/intro/SPEC.md is the binding build document; CONTRACT §13.13).
+// 18 s, skippable, plays once on a fresh save's first new game and ends inside the first run. Always exported; read only by the v3
+// build (src/intro.js the director, src/intro-stage.js the set and picture, src/ui-intro.js the words and the Skip word, the audio
+// cue). Every time is in seconds on the cut scene's own timeline. Camera poses and set positions are metres from a named anchor:
+// 'S' = the raft's spawn (world.getSpawn()), 'G' = the Sunken Gate (the Mossmere's hero landmark, beyond the north shore),
+// [anchor, east, up, south] (so -z is north, toward the gate, as everywhere in the game).
+// THREE BLOCKS, three owners (SPEC §8): `shared` is frozen (the lead / the merge agent only); lane A (set and picture) may retune
+// the LANE A block, lane B (director and flow) the LANE B block, each inside the validator's rules (tools/validate-data.mjs).
+export const INTRO = {
+  // >>> INTRO shared (frozen)
+  phase: 1, id: 'one_warm_light',
+  length: 18,                       // s, first frame → `intro:done` (validated 15–20)
+  beats: [                          // contiguous, 0 → length
+    { id: 'lit',   t0: 0,    t1: 5.0 },    // the lit kingdom: the great lantern over the lake, every window amber, all of it in the mirror
+    { id: 'fall',  t0: 5.0,  t1: 8.2 },    // a chain parts; the lantern drops to meet its reflection; the windows go out behind it; hard cut on contact
+    { id: 'below', t0: 8.2,  t1: 12.4 },   // ink: the ember sinks, a pale flank too big for the frame takes it and carries it off (wordless)
+    { id: 'wick',  t0: 12.4, t1: 14.6 },   // the surface, now: a spark, the Wick's flame catches, gutters, catches; its lantern takes
+    { id: 'home',  t0: 14.6, t1: 18.0 },   // the crane back into the play camera; control begins
+  ],
+  text: [                           // at most 4 lines, each at most 60 characters, one at a time, present tense
+    'A kingdom hangs a great lantern over its lake.',
+    'The lantern falls. The kingdom follows.',
+    'Its last candles fish to stay lit.',
+    'You are one of them.',
+  ],
+  // the screen band the words own (fractions of the viewport height, top → bottom): lane B draws them there and nowhere else, lane A
+  // keeps the lantern, its mirror image, the ember and the Wick's flame out of it
+  words: { band: { landscape: [0.86, 0.95], portrait: [0.90, 0.97] }, size: { desktop: 19, phone: 18 }, minSize: 16, maxLines: 2, maxChars: 60 },
+  // the opening ink dip over the title frame (lane B's DOM veil): [t, opacity]. The stage shows nothing and leaves the title camera
+  // alone before `swapAt` (inside the full ink), so the set never pops in over the title
+  veil: [[0, 0], [0.35, 1], [0.6, 1], [1.4, 0]], swapAt: 0.45,
+  cut: { at: 8.2, kind: 'hard', reduced: 'dip' },   // the one hard cut (contact → ink); a 0.3 s dip under reduced motion / reduced flashing
+  // <<< INTRO shared
+
+  // >>> INTRO LANE A (set and picture): src/intro-stage.js, src/intro-models.js
+  cameras: {
+    portraitBelow: 0.9,             // viewport aspect under which the `portrait` values apply (blended from 1.1 down to 0.9)
+    takes: [
+      // the gate take: low over the water on the play axis, 9 m north of the raft (the raft is behind the lens). One legible move:
+      // it starts low and wide, cranes up 1.4 m and tilts up as it pushes in 8.5 m (the rocks of the foreground slide against the
+      // gate), so the towers' spires come in by 1.5 s and stand in frame through the lit beat; the lantern's mirror image (its cap
+      // and all) stays above the words band the whole push (frac 0.84 at most to 5.9 s; tools: the fixer's frame check)
+      { id: 'gate', from: 0.45, to: 8.2, keys: [
+        { t: 0.45, pos: ['S', 0, 1.2, -9],    look: ['G', 0, -4, 0],   fov: 54, portrait: { look: ['G', 0, 2.5, 0], fov: 64 } },
+        { t: 3.0,  pos: ['S', 0, 2.0, -13.5], look: ['G', 0, 3.5, 0],  fov: 54, portrait: { look: ['G', 0, 3, 0], fov: 62 } },
+        { t: 5.0,  pos: ['S', 0, 2.6, -17.5], look: ['G', 0, 3.0, 0],  fov: 53, portrait: { look: ['G', 0, 3, 0], fov: 61 } },
+        { t: 5.9,  pos: ['S', 0, 2.6, -18.7], look: ['G', 0, 0.5, 0],  fov: 50, portrait: { look: ['G', 0, 2.5, 0], fov: 60 } },
+        { t: 8.2,  pos: ['S', 0, 2.2, -21.5], look: ['G', 0, -2.6, 0], fov: 38, portrait: { look: ['G', 0, 0, 0], fov: 50 } },
+      ] },
+      // the shoulder take (under the ink card until the Wick's spark): behind and right of the Wick, the dark gate beyond
+      // (portrait: nearly straight behind it, so the Wick stands whole in the lower-left third of a frame only 2.4 m wide there)
+      { id: 'shoulder', from: 8.2, to: 14.6, keys: [
+        { t: 8.2,  pos: ['S', 2.6, 2.6, 5.2],   look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.72, 2.6, 5.4], look: ['S', -0.2, 2.4, -30], fov: 52 } },
+        { t: 14.6, pos: ['S', 2.75, 2.7, 5.5],  look: ['S', -0.4, 2.0, -30], fov: 40, portrait: { pos: ['S', 0.8, 2.7, 5.7], look: ['S', -0.2, 2.4, -30], fov: 52 } },
+      ] },
+      // the crane home: the weight of the stage's pose goes 1 → 0 into render's own settled `sail` rig, then 1.8 s at rest
+      // (at rest from 16.2: the raft has risen clear of the words band by about 15.7, where the last line comes in under it)
+      { id: 'home', from: 14.6, to: 18, rig: 'sail', blend: [14.6, 16.2], ease: 'inOutSine' },
+    ],
+  },
+  set: {
+    // the great lantern hangs over the LAKE (the gate stands behind the cliff ring: anything falling there would vanish behind
+    // rock), 44 m in front of the gate on the play axis, on three chains that run up out of frame. `at` is its middle; `height`
+    // its cage, foot to cap
+    lantern: { at: ['G', 0, 14.2, 44], height: 7.6, radius: 2.9, glow: 2.6, halo: { size: 30, opacity: 0.55 }, chains: 3, chainTop: 48,
+      // its pool and gold path on the water (world.setIntroWaterLight). On the low tier (no mirror) the streak IS the lantern's
+      // reflection, a little calmer so it stays gold. Where the lake is a mirror (medium, high) the reflection itself carries the
+      // gold and the pool is off (`intensityMirror` 0): seen from 2 m up, 60 m away, a pool is one flat mustard band along the far
+      // shore, and any fainter it turns olive over the violet water
+      water: { intensity: 14, intensityMirror: 0, radius: 27, streak: 2, streakLow: 0.75 } },
+    // "then": three columns of nine slits on each tower; the lake's own eight candle slits and three braziers are "now" and stay lit
+    windows: { perTower: 27, cols: 3, rows: 9, y0: 4, dy: 3.4, size: [0.8, 1.8], glow: 2.0 },
+    // the chain parts (the lantern lurches `lurch` rad), the drop starts, the foot meets the water (the middle is then `restY`
+    // over it) and it plunges on at `sink` m/s (about the speed it fell at), tipping forward a further `tip` rad as it goes under;
+    // its chain stubs slump onto the roof in `slump` s
+    fall: { part: 5.6, drop: 5.9, contact: 7.9, tilt: 0.22, restY: 4.0, lurch: 0.06, sink: 12, tip: 0.38, slump: 0.18 },
+    // the dark comes down the towers with the lantern: the top row starts to gutter at `from` of the fall, the lowest at `to`
+    // (every window is out by the contact); no two windows of a row go at once (`jitter` s)
+    dark: { follows: 'lantern', gutter: 0.35, from: 0.02, to: 0.6, jitter: 0.1 },
+    memory: { linger: 1.2, rise: 5, fade: 0.5, tiers: ['medium', 'high'] },   // mirror-only twins: the reflections stay lit a beat and sink
+    // the contact: the flash, one widening ring, and a crown of drops thrown up round the lantern's foot (part of the set, so a
+    // seek shows it as a play does: `crown` drops, `height` and `reach` in m, `life` s)
+    contact: { flash: 0.3, ring: { r: [2, 30], life: 1.6 }, splash: 4, crown: { drops: 40, height: [3.5, 8], reach: [2.5, 7], life: 1.2 } },
+    // picture fractions from the top-left; the flank's `frame` is its girth in picture heights (landscape, portrait): more than
+    // the picture holds, so it is a wall with one eye and one belly line; `rise`: how far above the ember its middle line passes (girths)
+    // `motes`: silt, few and soft and slow; `bubbles`: a short trail rising from the ember while it sinks
+    below: { ember: { from: [0.5, 0.12], to: [0.5, 0.46], size: [0.14, 0.03], sinkUntil: 10.0 }, motes: 34, bubbles: 14,
+      flank: { length: 22, girth: 5.2, enter: 9.4, eye: 10.2, cover: 10.4, leave: 11.8, out: 12.2, portraitAngle: 28, frame: [1.15, 0.5], rise: [0.13, 0.12] } },
+    wick: { spark: 12.5, flame: [[12.5, 0], [12.6, 0.25], [12.8, 0.9], [13.05, 0.3], [13.4, 1]], lantern: [13.5, 14.2], lift: [12.6, 13.8] },
+    // fishing: the Wick's line is out from its rod in the bow holder to a float on the water `at` (from S); the float's small pale
+    // light takes with the Wick's lantern; it dips once as the harp's first note sounds (`dip`), sending one slow ring out over the
+    // water round the float (never round the raft); the line and the float fade as control begins (`out`), the rod stowed as in play
+    float: { at: ['S', -1.2, 0, -15], light: [13.6, 14.3], dip: 14.6, ring: { r: [0.3, 3.2], life: 2.6 }, out: [17.0, 17.8] },
+    colors: { glass: 0xed9e3b, halo: 0xed9e3b, window: 0xed9e3b, iron: 0x0a0818, ring: 0xf0d49c, ember: 0xe8862e, emberDeep: 0xb8501e,
+      flank: 0xd6d6e4, flankShade: 0x433e74, glint: 0xe8be77, ink: 0x0a0c19, inkTop: 0x3e2568, spark: 0xffd9a0 },   // (inkTop is the lake's violet-dusk as the frame's grade leaves it: under the Mossmere's grade #251E5C came out a pure blue, hue 240; this one lands at hue 252, between the lake's water and its sky)
+    budget: { calls: 30, triangles: 10000, textures: 2, lights: 0, shadowMaps: 0, prebuildMs: 60 },   // the set's own cost in any frame, every pass (the hard ceiling is 60 / 40,000)
+  },
+  // <<< INTRO LANE A
+
+  // >>> INTRO LANE B (director and flow): src/intro.js, src/ui-intro.js, main.js, audio
+  lines: [                          // i → text[i]; `at` the fade-in starts, `out` the line is gone; none in `below`
+    { i: 0, at: 1.2,  out: 5.0 },
+    { i: 1, at: 5.45, out: 8.1 },      // in with the chain's spark (5.6): the words land with the fall, not before it
+    { i: 2, at: 12.5, out: 14.85 },    // with the catching flame and the line in the water; gone before the crane carries the raft under the words
+    { i: 3, at: 15.7, out: 17.85 },    // as the play camera settles: the raft has just risen clear of the band, the line sits under it (1.35 s at full)
+  ],
+  lineFade: 0.4,
+  skip: { guard: 0.5, showAt: 0.6, target: 44, keys: ['Escape', 'Enter', 'NumpadEnter', 'Space'], word: 'Skip',
+    wordFade: 0.3,                  // the Skip word comes in over 0.3 s from showAt (there by 0.9 s)
+    wordOut: 0.15,                  // … and goes over the film's last 0.15 s, with the last line, the camera at rest (the keys skip to the very end)
+    poke: 2,                        // a press anywhere else only brightens the Skip word for this long
+    veilIn: 0.25, veilOut: 0.35,    // beats lit / fall / below: ink closes, the stage jumps to its end state, ink opens on the play frame
+    finish: 0.5, finishFrom: 'wick',   // beats wick / home: no veil; the remaining timeline plays out in `finish` s
+    soundFade: 0.25,
+    after: 0.6 },                   // after a skip's hand-off the skip keys are swallowed this long (a double Esc never opens the pause menu)
+  clock: { maxDt: 0.1, valve: 25, valveDt: 0.25 },   // real elapsed time, clamped per frame; ends by itself after `valve` s of visible time
+  stills: [                         // reduced motion: one still per beat (the stage at that time), cross-faded at the beat changes
+    { beat: 'lit', t: 3.6 }, { beat: 'fall', t: 7.2 }, { beat: 'below', t: 10.5 }, { beat: 'wick', t: 14.2 }, { beat: 'home', t: 17.9 },
+  ],
+  stillFade: 0.5,
+  // reduced flashing (and reduced motion): the one hard cut becomes an ink dip of `cutDip` s centred on it; under reduced motion
+  // the cross-fade into `below` lasts `cutDip` too (SPEC section 3)
+  calm: { cutDip: 0.3 },
+  // one cue in D Dorian (the Mossmere's key), 58 BPM at the end; sections start when the director's clock crosses their mark
+  // (src/intro.js soundEvents), so a paused timeline pauses the score. midi numbers; gains in dB below full scale on the cue's own
+  // bus (src/audio-intro.js; tools/audio-render.mjs --set=intro renders it offline and measures the peak)
+  sound: {
+    titleFade: 0.3, skipFade: 0.25, bus: 'music', peakDb: -6, voices: 12,
+    wet: 0.5,                       // the cue's send to the cavern reverb
+    endRing: 3.2,                   // the last harp note rings this long after `intro:done` before the cue's nodes are released
+    marks: [
+      { id: 'drone',   t: 0.0,  to: 8.2,  what: 'bowed drone', notes: [38, 45], db: -18, swell: 1.2, cents: 6, lowpass: 420 },
+      { id: 'bell',    t: 1.0,  what: 'one great bell', notes: [50], db: -14, decay: 6, partials: [1, 2.0, 2.4, 3.0, 4.5] },
+      { id: 'glass',   t: 1.4,  to: 5.9,  what: 'glass chord', notes: [62, 69, 76], db: -20, attack: 0.4, partials: [1, 2.76, 5.4] },
+      { id: 'ping',    t: 5.6,  what: 'the chain parts', hz: [2200, 1600], db: -16, dur: 0.08 },
+      { id: 'fallBend', t: 5.9, to: 7.9, what: 'the top voice falls a fifth, the drone a semitone', bend: { from: [76, 38], to: [69, 37] } },
+      { id: 'impact',  t: 7.9,  what: 'sub thump and a low bell; a 300 Hz lowpass closes in 0.15 s', notes: [33], hz: [80, 40], db: -12.6, lowpass: 300, over: 0.15 },
+      { id: 'deep',    t: 8.2,  to: 12.4, what: 'sub drone under the lowpass', notes: [26, 33], db: -20 },
+      { id: 'ember',   t: 9.0,  what: 'ember_swell (audio-af.js)', sfx: 'ember_swell', volume: 0.8 },
+      { id: 'groan',   t: 9.6,  what: 'one slow, patient groan', hz: [70, 52], dur: 2.5, db: -18 },
+      { id: 'spark',   t: 12.5, what: 'a tiny tick; the lowpass opens to 6 kHz over 0.8 s', lowpass: 6000, over: 0.8, db: -22 },
+      { id: 'flame',   t: 12.8, what: 'flame_catch (audio-af.js)', sfx: 'flame_catch', volume: 0.8 },
+      { id: 'harp',    t: 14.6, what: 'solo harp: the first four notes of the Mossmere motif', notes: [62, 65, 69, 67], beat: 1.034, db: -15, decay: 1.2 },
+    ],
+    into: 'calm',                   // the last harp note rings into the lake's calm bed (same key, same tempo)
+  },
+  // the trigger (A3): once, on a fresh save's first new game, straight from the title's primary button
+  // (`bypasses`: under the loop the trigger is New Descent → Start)
+  trigger: { fresh: 'meta.runs === 0 && !meta.intro.seen', button: 'Begin', bypasses: 'newdescent', debugOptIn: ['GW_INTRO', '?intro=1', "debug.intro('auto', true)"],
+    prewarm: { after: 0.5, tries: 16 },  // the fresh title asks the stage to build in idle time, this long after it opens (the stage takes 10 slices, 9 on low: the models, one per part, the lake's arena; an idle period may take several)
+    replay: { word: 'Prologue', hint: 'Watch the opening again', where: 'title', writes: false, veil: 0.3 } },   // (`veil`: a replay on another lake puts it back under this much ink)
+  // game.startNewRun({character, nightMode, __intro: true}). `grade`: 'ink' = the lake's own grade goes on under the opening ink (the film
+  // is graded as the run is, nothing shifts at the hand-off); 'ease' = the film keeps the title's grade and the lake's eases in as control begins
+  handoff: { character: 'wick', nightMode: 'still', at: 'intro:done', event: { intro: true }, grade: 'ink' },
+  // when the cove ships (world.SUPPORTS_COVE): the same film dressed at the sea-gate, handing to the First Evening's wake at the hearth;
+  // its lines replace FIRST_EVENING.text.lore (the Lantern Line's three) and the `framing` step is not played. Not built.
+  cove: { endsIn: 'firstEvening:wake', wickAt: 'FIRST_EVENING.wake.candle', replaces: 'FIRST_EVENING.text.lore', skipsStep: 'framing',
+    text: { 2: 'Its last candles come ashore here, to fish and stay lit.' } },
+  // <<< INTRO LANE B
+};
+
+// ---- The expedition (brief §3.2–§3.5, §3.8). Phase names stay internal (`gloomtide` = night).
+export const EXPEDITION = {
+  phases: { calm: 180, dusk: 20, gloomtide: 90, dawn: 10 }, calmByMode: { raft: 180, mixed: 180, foot: 185 },
+  arrivalHush: 30, hushOn: ['firstDay', 'firstCalmAfterGate'], dayMinutes: 5, day1Minutes: 5.5,
+  murk: { day1ArriveAt: 20, warnAt: 0.85, sells: ['sell', 'bait', 'supplies', 'ledger'], combatKit: 'combatModes', tackle: false },
+  // Set Out is two steps (CONTRACT §13.1, §13.4): the Map Table confirm stores a plan (meta.pendingSetOut; the chosen Waystone
+  // flares); Board (or "Set Out now") walks the Wick to the raft, boards and glides COVE.setOutPath; at the arch line
+  // game.setOut(plan) runs. Board is refused without a plan. The tray = meta.tray, filled at home (Murk's bait and supplies,
+  // owned lures) and moved into the run at createExpedition; nothing in it comes back (it ends with the expedition).
+  setOut: { needs: 'litWaystone', chooses: ['zone', 'character', 'nightMode', 'tray'], card: ['forecast', 'rumour', 'residents', 'marked', 'tackleRating'], glide: 3, autoWalk: 6,
+    plan: 'meta.pendingSetOut', boardNeedsPlan: true, trigger: 'archLine', tray: { bait: 'counts', supplies: 'counts', lure: 'owned id or null', equipped: 'bait or lure id' } },
+  firstOuting: { zone: 'mossmere', character: 'wick', nightMode: 'still', modeCards: false, line: 'Every night of your first outing is still.' },
+  homeward: {
+    // beside (not on) the dock, stand or lamp: ≥ 1.5 m from stands, slots, lamps, posts and buoys and ≥ 3.8 m from a barge pad
+    // (validated). r 0.6 lantern-stone: raft lakes add a collision circle; walking lakes a walk BLOCK (h 1.4). Raft builds of the
+    // §24 lakes use RAFT_FALLBACK_V3[zone].homeward.
+    stones: { mossmere: { x: 27.9, z: 39, at: 'beside the south-east dock' }, sporewood: { x: 21.1, z: 30, at: 'at the landward end of the Copse Jetty' },
+      glasswater: { x: 3.2, z: 18, at: 'beside the Skiff Steps' }, paleabyss: { x: 4, z: 26, at: 'beside the Cairn Plaza lamp' } },
+    radius: 0.6, block: { h: 1.4 }, clearOf: { stand: 1.5, post: 1.5, lamp: 1.5, buoy: 1.5, bargePad: 3.8 },
+    minPathFromSpawn: 25, range: 4, hold: 1, phases: ['calm', 'dawn'], rideHome: { phases: ['calm'], whileMoored: true },
+  },
+  gates: { open: 'forever', toll: 'once', tolls: { sporewood: 180, glasswater: 420, paleabyss: 900 },
+    deeper: { phases: ['calm', 'dawn'], oneWay: true, needsLitWaystone: true, tally: 10, tallyNeedsFullCalm: true } },
+  deepStarts: { picks: { sporewood: 3, glasswater: 6, paleabyss: 9 }, draftLevels: { sporewood: 9, glasswater: 18, paleabyss: 28 }, draftNonAngler: true,
+    heatOffset: { lantern: [0, 2, 4, 6], gloomtide: [0, 4, 8, 12] } },
+  linger: { fromNight: 4, heat: 1, modes: ['lantern', 'gloomtide'] },
+  snuffed: { lastFlicker: 12, gutter: 25, wake: 'hearth', secondWickPerExpedition: 1, line: 'Murk found your raft drifting.',
+    keeps: ['records', 'shells', 'memories', 'tackle', 'outfit', 'lures', 'relics', 'wicks', 'challenges', 'waystones', 'gates', 'shortcuts', 'knownPlaces', 'tallyPosts', 'residents', 'markedFish'],
+    loses: ['creel', 'marked'], tallyMult: 0.5, ends: ['bait', 'supplies', 'combatKit', 'level', 'boons', 'kindles', 'heartwax', 'waylamps', 'astir', 'farWater'] },
+  tally: { perDawn: 3, perStillNight: 1, perLanternSwarmNight: 4, gloomtide: { base: 3, perZone: 1 }, perLakeCrossed: 10, perLedger: 2, snuffedMult: 0.5, memMultAppliesTo: 'tally' },
+  homecoming: { glide: 2, moor: 2, skippable: true, order: 'biggestFirst', actions: ['hang', 'pond', 'sell'], hangReplaces: 'longerOrHigherClass',
+    firstMount: { prize: 2, trophy: 6, elder: 15 }, summary: ['days', 'nights', 'fish', 'pbs', 'classFirsts', 'places', 'tally', 'markedCreated', 'nextGoal'] },
+  save: { every: 30, onPhase: true, onHidden: true, onPagehide: true, pos: ['x', 'z', 'y', 'mode', 'mooring'], gutterOnLoad: 'snuffed', snap: 'walkGridFor' },
+  length: { days: [3, 5], minutes: [16, 26], oneDay: 6 },
+};
+// ---- The Long Descent: today's one-way roguelite as the prestige mode (brief §3.9; open question 2 = per-run gear).
+export const LONG_DESCENT = {
+  unlock: { waystonesLit: 4 }, nightMode: 'gloomtide', startZone: 'mossmere', oneWay: true, win: 'lantern_swallower',
+  phases: 'BALANCE.phases', heat: 'difficultyFor', farWater: false,
+  purse: { start: 20, separate: true }, tackle: 'UPGRADES', startRod: 'twig', persistentTackle: false, persistentOutfit: false,
+  marked: false, mounts: false, victoryMount: { species: 'lantern_swallower', chain: 'gilded' },
+  counts: ['journal', 'records', 'seals', 'elderLog', 'places', 'challenges', 'memories'],
+  rewards: { firstWinMemories: 200, cosmetic: 'ashen_cloak', stone: 'a gilded fifth stone in the sea-gate', records: ['fewestDays', 'deepestSnuff'] },
+};
+
+// ---- Economy (brief §9). Persistent Shells; income per in-lake day (average player, Lantern).
+export const ECONOMY_V3 = {
+  persistentShells: true, welcomePurse: 200, startShells: 20, daysPerHour: 10.7,
+  income: {   // landed = eaten + marked + sold; fish = sold × perFish; gross = fish + ledger; net = gross − bait; netHour = net × daysPerHour
+    mossmere:   { landed: 5.0, eaten: 1.2, marked: 0.3, sold: 3.5, perFish: 17, fish: 60, ledger: 15, gross: 75, bait: 8, net: 67, netHour: 717 },
+    sporewood:  { landed: 4.6, eaten: 1.4, marked: 0.3, sold: 2.9, perFish: 35, fish: 102, ledger: 25, gross: 127, bait: 16, net: 111, netHour: 1188 },
+    glasswater: { landed: 4.2, eaten: 1.8, marked: 0.3, sold: 2.1, perFish: 69, fish: 145, ledger: 40, gross: 185, bait: 38, net: 147, netHour: 1573 },
+    paleabyss:  { landed: 3.8, eaten: 1.8, marked: 0.3, sold: 1.7, perFish: 114, fish: 194, ledger: 60, gross: 254, bait: 55, net: 199, netHour: 2129 },
+  },
+  modeMult: { still: 1.03, lantern: 1.0, gloomtide: 0.92 }, qualityMult: 1.15,
+  spans: { mossmere: [0, 1.5], sporewood: [1.5, 4.5], glasswater: [4.5, 8.5], paleabyss: [8.5, Infinity] },
+  // §9.2: purchases in a sensible order, each placed at the first moment cumulative net covers it (validated ±0.1 h). Automatic
+  // fishing (DESIGN §25.10.2) adds the four giants' lures and the expected legend attempts (3 / 3 / 3 / 4 baits, CATCH_V3.legend wounds);
+  // the AF review buys the Feather Fly (120) and the Harbour-Bell Spinner while still in the Mossmere, before the toll.
+  timeline: [
+    [0.6, ['rod:1', 'line:1', 'reel:1', 'creel:1']], [0.7, ['lure:feather_fly']], [1.0, ['lure:bell_spinner']], [1.2, ['bait:heartmoss', 'bait:heartmoss', 'bait:heartmoss']],
+    [1.5, ['toll:sporewood']], [1.6, ['outfit:chimney:1', 'outfit:brazier:1']], [2.0, ['line:2']], [2.4, ['reel:2']], [2.7, ['rod:2']], [3.0, ['creel:2']],
+    [3.2, ['lure:glimmer_spoon', 'lure:bone_jig']], [3.4, ['bait:glowcap_bulb', 'bait:glowcap_bulb', 'bait:glowcap_bulb']],
+    [3.8, ['lure:sporelamp_fly']], [3.9, ['outfit:oars:1', 'outfit:boots:1']], [4.2, ['pond:2']], [4.5, ['toll:glasswater']],
+    [4.8, ['outfit:chimney:2', 'outfit:brazier:2']], [5.7, ['line:3']], [6.6, ['reel:3']], [7.2, ['lure:mirror_shard']],
+    [7.5, ['bait:prism_moth', 'bait:prism_moth', 'bait:prism_moth']], [8.1, ['toll:paleabyss']], [8.9, ['rod:3']], [9.4, ['lure:moth_popper', 'creel:3']],
+    [10.9, ['line:4']], [11.6, ['lure:ferry_coin']], [12.2, ['bait:last_candle', 'bait:last_candle', 'bait:last_candle', 'bait:last_candle']], [13.7, ['reel:4']],
+    [15.2, ['rod:4']], [15.5, ['outfit:oars:2', 'outfit:boots:2']], [16.6, ['outfit:chimney:3', 'outfit:brazier:3', 'outfit:oars:3', 'outfit:boots:3']],
+    [17.2, ['pond:3']], [17.7, ['lure:lantern_lure']], [18.6, ['creel:4']],
+  ],
+  mainSinks: 32510, meetsAt: 18.6, tolerance: 0.1,
+  pond: { tier1: { slots: 3, free: 'firstLivePrize' }, tiers: [{ tier: 2, price: 300, slots: 5, needsNamed: 15 }, { tier: 3, price: 1200, slots: 6, r: 4.0, needsWaystone: 'glasswater' }], maxLength: 1.4, r: 2.8 },
+  legendBaits: { heartmoss: 40, glowcap_bulb: 90, prism_moth: 170, last_candle: 320 },
+  chum: { id: 'murks_chum', name: "Murk's Chum", price: 30, perVisit: 1, sign: 'nervous', time: 30, replaces: 'tide_chart' },
+  cutStrip: { strips: 3, predatorAttract: 2, favour: 0.3, free: true },
+  cosmetics: { range: [200, 1500], total: 6000, fishingPower: false },
+  sellAtHome: true, sellInLake: true,
+};
+// ---- Memories (brief §9.4): discoveries bank instantly; the expedition tally is paid on return (× 0.5 if snuffed).
+export const MEMORIES_V3 = {
+  newSpecies: 3, classFirst: { prize: 1, trophy: 4, elder: 12 }, firstAncientPerLake: 10,
+  firstMount: { prize: 2, trophy: 6, elder: 15 }, firstRelease: { prize: 1, trophy: 3, elder: 8 },
+  place: { found: 2, mastered: 10 }, rumourSolved: 3, oldLedger: 5, legend: { first: 15, rematch: 8 },
+  challenges: { total: 1171, v1: 831, tier4: 185, tier5: 155 },   // the brief prints 1,170; 831 + 185 + 155 = 1,171
+  // the one-time pool: 48 species' class rewards minus the Lampwarden's Elder ones (it caps at Trophy: −12 −15 −8); the brief's ≈ 4,600 → ≈ 4,550
+  pool: { total: 4550, parts: { challenges: 1171, species: 159, classFirsts: 804, firstMounts: 1089, firstReleases: 568, places: 348, rumours: 72, oldLedger: 240, legends: 60, ancients: 40 } },
+  // P1–P2 (today's run structure, before the expedition tally): discoveries bank instantly (new species, class firsts, first
+  // releases, places, rumours, Old Ledger); the death screen still pays v1 memoriesFor(summary) with its species row removed
+  // (new species already paid) and its nights row replaced per night by the v3 tally's values (a still night 1, a Lantern swarm
+  // night 4, Gloomtide v1's nightBase + perZone). Relic costs, shelves and the relic cuts stay v1 until P3 (RELICS_V3 is P3 data).
+  interim: { phases: [1, 2], instant: ['newSpecies', 'classFirst', 'firstRelease', 'place', 'rumourSolved', 'oldLedger'], runSummary: 'memoriesFor',
+    drop: ['newSpecies'], nights: { still: 1, lanternStill: 1, lanternSwarm: 4, gloomtide: 'v1' }, relics: 'v1' },
+  perHour: { target: [120, 180], stillWithin: 0.15, midGame: { lantern: 143, still: 127 } },
+  shelves: { fishing: { costMult: 0.55, levels: 46, base: 8800 }, gloom: { costMult: 0.7, levels: 14, base: 3125 } },
+  gloomRelics: ['salt_glass_lens', 'first_wick_stub', 'tinderbox', 'barnacle_cloak', 'ember_in_resin'],
+  cut: ['old_debt', 'waystone_sporewood', 'waystone_glasswater', 'waystone_paleabyss'], refundOnMigration: true,
+  lanterns: 'totalRelicLevels',
+};
+// D1′: v3 wording for the Boons, relics, per-run tackle and Wicks whose text or effects named a reel stat (reel speed, line strength, the sweet band,
+// slack grace). Their Hold lives in CATCH_V3.buffs (Boons, relics) or upgradeHold (per-run rod / line / reel levels); v3 builds also
+// drop the dead reel stats from their effects, so no effect line names one (v1, flag off, keeps every text and effect).
+export const DESC_V3 = {
+  boons: {
+    steady_reel: { desc: '+1 Hold on every fish per level.', effects: {} },
+    gilded_hook: { desc: 'Rarer fish, a longer strike window, +2 Hold, and Old Murk pays 15% more.' },
+  },
+  relics: {
+    seven_knots: { desc: 'Each knot was tied by a different Wick. None have come undone. +1 Hold on every fish per level.', effects: {} },
+    steady_hook: { desc: 'Blunted with use. It still remembers exactly when to bite. A wider strike window and +1 Hold per level.', effects: { hookWindow: 0.08 } },
+  },
+  upgrades: {
+    rod_whalebone: { desc: 'Feels every twitch. More time to strike, and the hook stays set through the leaps.', effects: { hookWindow: 0.12 } },
+    line_gut: { effects: {} }, line_silver: { effects: {} }, reel_brass: { effects: {} },
+    reel_drag: { desc: 'A soft brake. A running fish no longer strips the reel so easily.', effects: {} },
+  },
+  characters: {   // every Wick holds a fish the same (CATCH_V3.wick); a Wick's fishing edge is its quirk
+    taper: { desc: 'Tall and thin. Casts far and finds rare fish, but its light burns weak and it carries little oil.',
+      effects: { castMax: 4, hookWindow: 0.10, rarityBonus: 0.04, auraDps: -0.4, maxOil: -10 } },
+    ashwick: { effects: { auraDps: 0.8, damageMult: 0.15, critChance: 0.05, zapDamage: 3, zapCost: -0.3, hookWindow: -0.15, maxOil: -15, creelSize: -1 } },
+  },
+  deadStats: ['reelSpeed', 'lineStrength', 'sweetZone', 'slackTime'],   // v1 reel stats that v3 fishing never reads
+};
+const RELIC_NEW_V3 = [
+  { id: 'measuring_cord', name: 'Measuring Cord', icon: 'cord', maxLevel: 2, costs: [60, 180], effects: {}, special: 'measuringCord', unlock: 'first_prize', shelf: 'fishing',
+    desc: 'A knotted cord that has measured a great many fish. L1: the bite tell also names the size class. L2: +2 Hold on Prize and bigger.' },
+  { id: 'murks_spyglass', name: "Murk's Spyglass", icon: 'spyglass', maxLevel: 1, costs: [150], effects: {}, special: 'spyglass', unlock: 'old_ledger_five', shelf: 'fishing',
+    desc: 'The forecast reaches two days ahead in every lake, and the Map Table marks the residents you know about.' },
+  { id: 'rumour_shell', name: 'Rumour Shell', icon: 'shell', maxLevel: 2, costs: [120, 300], effects: {}, special: 'rumourShell', unlock: 'ten_trophies', shelf: 'fishing',
+    desc: 'Hold it to your ear and the water talks. +1 rumour tier per visit to Murk, per level.' },
+];
+// Relic shelves: costs × 0.55 (Fishing & Exploration) or × 0.7 (Gloom), rounded to 5; cut relics refunded on migration.
+export const RELICS_V3 = v3uniq(RELICS, WALK_RELICS, RELIC_NEW_V3)
+  .filter((r) => !MEMORIES_V3.cut.includes(r.id))
+  .map((r) => {
+    const shelf = MEMORIES_V3.gloomRelics.includes(r.id) ? 'gloom' : 'fishing';
+    const out = { ...v3clone(r), shelf, baseCosts: r.costs.slice(), costs: r.costs.map((c) => Math.max(5, Math.round((c * MEMORIES_V3.shelves[shelf].costMult) / 5) * 5)) };
+    if (DESC_V3.relics[r.id]) Object.assign(out, DESC_V3.relics[r.id]);   // D1′: Hold (CATCH_V3.buffs.relics) instead of line strength / the sweet band
+    if (r.id === 'second_wick') out.perExpedition = 1;
+    if (r.id === 'remembrance') out.memMultOn = 'tally';
+    if (WALK_RELICS.some((w) => w.id === r.id)) out.needsWalk = true;
+    return out;
+  });
+// ---- The Angler pool (brief §4.4): 9 existing fishing, movement and oil Boons + 6 new. No Boon adds favour or opens a place.
+export const ANGLER_POOL = ['steady_reel', 'hungry_waters', 'lucky_knot', 'gutsfire', 'lantern_on_the_line', 'gilded_hook', 'swift_oars', 'slow_burn', 'brighter_wick',
+  'long_cast', 'patient_line', 'feather_touch', 'night_eyes', 'wanderers_stride', 'quiet_hands'];
+export const BOONS_V3 = [
+  { id: 'long_cast', name: 'Long Cast', icon: 'cast', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { castMax: 1.5 }, unlock: null, tags: ['fishing', 'angler'],
+    desc: '+1.5 m cast range per level.', lore: 'Farther out, the water has not heard of you yet.' },
+  { id: 'patient_line', name: 'Patient Line', icon: 'line', rarity: 'common', maxLevel: 3, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'angler'],
+    desc: '+1 Hold per level against leapers and runners.', lore: 'A slack line is only a line that is waiting.' },   // the Hold: CATCH_V3.buffs.boons (was slack grace +0.2 s)
+  { id: 'feather_touch', name: 'Feather Touch', icon: 'hook', rarity: 'common', maxLevel: 3, kind: 'stat', effects: { hookWindow: 0.06 }, unlock: null, tags: ['fishing', 'angler'],
+    desc: '+0.06 hook window per level.', lore: 'Strike the way you would wake a friend.' },
+  { id: 'night_eyes', name: 'Night Eyes', icon: 'eye', rarity: 'rare', maxLevel: 1, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'night', 'angler'],
+    proc: { on: 'night', levels: [{ glowTrailRangeMult: 1.5, nightBiteSpeed: 0.10 }] },
+    desc: 'Glow trails show from 50% farther, and every bite at night comes 10% sooner.', lore: 'The dark is full of small lights, once you stop looking for big ones.' },
+  { id: 'wanderers_stride', name: "Wanderer's Stride", icon: 'boots', rarity: 'common', maxLevel: 2, kind: 'stat', effects: { stride: 0.3 }, unlock: null, tags: ['movement', 'foot', 'angler'],
+    proc: { on: 'foot', levels: [{ footOilMult: 0.9 }, { footOilMult: 0.8 }] },
+    desc: '+0.3 m/s on foot and 10% less oil burned on foot, per level.', lore: 'Walk as if the road were glad of you.' },
+  { id: 'quiet_hands', name: 'Quiet Hands', icon: 'hand', rarity: 'rare', maxLevel: 1, kind: 'stat', effects: {}, unlock: null, tags: ['fishing', 'angler'],
+    proc: { on: 'cast', levels: [{ cleanAt: 0.88 }] },
+    desc: 'The Clean Cast window widens: a charge of 0.88 or more counts as clean.', lore: 'Steady hands, quiet water.' },
+];
+// ---- Wicks (brief §4.5): every quirk gains a fishing half (all modes); the combat half is today's quirk. Either-path unlocks.
+export const CHARACTERS_V3 = {
+  wick:     { fishing: { id: 'curious_eyes', name: 'Curious', desc: 'Places reveal from 16 m, not 8. The first new species each day gives +1 reroll.', revealRadius: 16, newSpeciesReroll: 1 } },
+  taper:    { fishing: { id: 'anglers_ember', name: "Angler's Ember", desc: 'Fish give double XP.', fishXpMult: 2 } },
+  stub:     { fishing: { id: 'quick_feet', name: 'Quick Feet', desc: '+0.4 m/s on foot. A cast within 5 s of stopping counts as Clean from a charge of 0.8.', stride: 0.4, cleanAfterStop: 5, cleanAt: 0.8 } },
+  tallow:   { fishing: { id: 'slow_melt_oil', name: 'Slow Melt', desc: 'Oil burns 20% slower on foot.', footOilMult: 0.8 } },
+  ashwick:  { fishing: { id: 'burned_once', name: 'Burned Once', desc: '+3 Hold on the first fish hooked each night.', firstHookHold: 3 } },   // CATCH_V3.buffs.wicks.ashwick (was: the first surge telegraphed 0.3 s longer)
+  wayfarer: { fishing: { id: 'shore_sense', name: 'Shore Sense', desc: 'On foot, signs show from 50% farther. The first sister-candle lit in each lake costs no oil.', signRangeMult: 1.5, firstShareFree: true }, needsWalk: true },
+};
+
+// ---- Challenges (brief §3.6, §11): today's 30 + §24's tier IV (10) + tier V "The Measure" (8) = 48. "Run" and
+// "descent" scope become "expedition". Nine combat-only goals move to the Gloom tab and unlock only combat things.
+// `alt` = an either-path requirement (any mode). tab: fishing (tiers I–III) | paths (IV) | measure (V) | gloom.
+export const GLOOM_TAB = ['break_a_hand', 'gloombreaker', 'untouched', 'bonfire_night', 'full_flame', 'lamplighter', 'four_silences', 'held_the_crossing', 'far_from_any_candle'];
+const CHALLENGE_REWRITES_V3 = {
+  first_dawn:         { desc: 'Spend your first night out.', type: 'nightsOut', params: { n: 1 }, scope: 'expedition' },
+  ember_hoard:        { desc: 'Reach level 8 in one expedition.', scope: 'expedition' },
+  three_nights:       { desc: 'Spend 3 nights out in one expedition.', type: 'nightsOut', params: { n: 3 }, scope: 'expedition' },
+  steady_hands:       { desc: 'Land 25 fish.' },
+  gloombreaker:       { desc: 'Disperse 500 gloomlings.' },
+  unwarded:           { desc: 'Silence a Warden, or land 3 night-only species at Prize or better.', alt: { type: 'nightSpeciesClass', params: { n: 3, class: 'prize' } } },
+  down_the_sluice:    { name: 'Down the Sluice', desc: 'Light the Sporewood Waystone.', type: 'lightWaystone', params: { zone: 'sporewood' } },
+  long_vigil:         { desc: 'Spend 5 nights out in one expedition.', type: 'nightsOut', params: { n: 5 }, scope: 'expedition' },
+  untouched:          { desc: 'Endure a swarm night (night 2 or later) without losing an Ember.', scope: 'expedition' },
+  bonfire_night:      { desc: 'Disperse 200 gloomlings in a single night.', scope: 'expedition' },
+  full_flame:         { scope: 'expedition' },
+  night_angler:       { desc: 'Land 3 fish during a single night.', scope: 'expedition' },
+  perfect_10_run:     { desc: 'Set 10 perfect hooks in one expedition.', scope: 'expedition' },
+  kindled:            { desc: 'Reach level 15 in one expedition.', scope: 'expedition' },
+  heavy_catch:        { desc: 'Land a non-legendary fish over 33 lb 0 oz.', params: { lb: 33, excludeLegendary: true } },   // the card's own figure (fmtWeight)
+  catch_100:          { desc: 'Land 100 fish.' },
+  shells_1000_run:    { desc: 'Earn 1000 Shells in one expedition.', scope: 'expedition' },
+  kindle_one:         { desc: 'Kindle a weapon, or raise an Angler Boon to level 5.', scope: 'expedition', alt: { type: 'boonLevel', params: { pool: 'angler', level: 5 } } },
+  lamplighter:        { desc: 'Disperse 2500 gloomlings.' },
+  into_the_vault:     { name: 'Into the Vault', desc: 'Light the Glasswater Waystone.', type: 'lightWaystone', params: { zone: 'glasswater' } },
+  pallid_arrival:     { desc: 'Light the Pallid Deep Waystone.', type: 'lightWaystone', params: { zone: 'paleabyss' } },
+  many_flames:        { desc: 'Land a Trophy in the Glasswater Vault with 3 different Wicks.', type: 'classZoneCharacters', params: { zone: 'glasswater', class: 'trophy', n: 3 } },
+  light_comes_up:     { desc: 'Land the Lantern-Swallower.', type: 'catchSpecies', params: { id: 'lantern_swallower' } },
+  complete_chronicle: { desc: 'Name every species in the Journal.', params: { n: 53 } },
+  shared_flame:       { desc: 'Share your flame with 4 sister-candles in one expedition.', scope: 'expedition' },
+  the_long_way_round: { desc: 'Open 3 shortcuts.', scope: 'total' },
+  held_the_crossing:  { scope: 'expedition' },
+  far_from_any_candle:{ desc: "Endure a swarm night on foot in the Glasswater Vault or deeper without standing in a sister-candle's light.", scope: 'expedition' },
+  every_candle:       { desc: 'Share your flame with every sister-candle in the Glasswater Vault in one expedition.', scope: 'expedition' },
+  every_still_place:  { desc: 'Master every Place in the three lower lakes.', params: { n: 21 } },
+};
+const CHALLENGES_T5 = [
+  { id: 'first_prize', tier: 5, name: 'First Prize', desc: 'Land your first Prize.', type: 'classCatch', params: { class: 'prize', n: 1 }, scope: 'total', reward: { unlock: 'relic:measuring_cord', memories: 5 } },
+  { id: 'first_trophy', tier: 5, name: 'First Trophy', desc: 'Land your first Trophy.', type: 'classCatch', params: { class: 'trophy', n: 1 }, scope: 'total', reward: { unlock: null, memories: 10 } },
+  { id: 'first_elder', tier: 5, name: 'First Elder', desc: 'Land your first Elder.', type: 'classCatch', params: { class: 'elder', n: 1 }, scope: 'total', reward: { unlock: null, memories: 20 } },
+  { id: 'ten_trophies', tier: 5, name: 'Ten Trophies', desc: 'Land 10 Trophies.', type: 'classCatch', params: { class: 'trophy', n: 10 }, scope: 'total', reward: { unlock: 'relic:rumour_shell', memories: 15 } },
+  { id: 'a_full_board', tier: 5, name: 'A Full Board', desc: 'Land a Prize of every non-legendary species in one lake.', type: 'lakeSet', params: { class: 'prize' }, scope: 'total', reward: { unlock: 'cosmetic:rod_tassel', memories: 30 } },
+  { id: 'elders_everywhere', tier: 5, name: 'Elders of Every Water', desc: 'Land an Elder in every lake.', type: 'elderEveryLake', params: { n: 4 }, scope: 'total', reward: { unlock: null, memories: 40 } },
+  { id: 'old_ledger_five', tier: 5, name: 'Older Than the Ledger', desc: 'Beat 5 Old Ledger records.', type: 'oldLedger', params: { n: 5 }, scope: 'total', reward: { unlock: 'relic:murks_spyglass', memories: 20 } },
+  { id: 'brought_home', tier: 5, name: 'Brought Home', desc: 'Bring 3 marked fish home from one expedition.', type: 'markedHome', params: { n: 3 }, scope: 'expedition', reward: { unlock: null, memories: 15 } },
+];
+export const CHALLENGES_V3 = v3uniq(CHALLENGES, WALK_CHALLENGES, CHALLENGES_T5).map((c) => {
+  const out = { ...v3clone(c), ...v3clone(CHALLENGE_REWRITES_V3[c.id] || {}) };
+  if (CHALLENGE_REWRITES_V3[c.id]?.params) out.params = { ...v3clone(c.params || {}), ...CHALLENGE_REWRITES_V3[c.id].params };
+  if (out.params && 'lb' in out.params) delete out.params.kg;   // a target in pounds replaces the v1 kg (the Heavyweight)
+  if (out.scope === 'run') out.scope = 'expedition';
+  out.tab = GLOOM_TAB.includes(c.id) ? 'gloom' : c.tier === 5 ? 'measure' : c.tier === 4 ? 'paths' : 'fishing';
+  if (c.tier === 4) out.needsWalk = true;
+  return out;
+});
+export const CHALLENGE_TABS_V3 = { fishing: 'Fishing', paths: 'Paths Underfoot', measure: 'The Measure', gloom: 'Gloom' };
+// Cosmetics (never fishing power): Gloom-tab and Measure rewards, the descent's cloak, Murk's post-game shelf.
+export const COSMETICS_V3 = [
+  { id: 'rod_tassel', name: 'Knotted Rod Tassel', kind: 'rod', unlock: 'a_full_board' },
+  { id: 'ashen_cloak', name: 'Ashen Cloak', kind: 'cloak', unlock: null, source: 'longDescentWin' },
+  { id: 'oxblood_pennant', name: 'Oxblood Pennant', kind: 'pennant', unlock: null, price: 400 },
+  { id: 'slate_dye', name: 'Slate Cloak Dye', kind: 'dye', unlock: null, price: 300 },
+  { id: 'amber_glass', name: 'Amber Lantern Glass', kind: 'lanternGlass', unlock: null, price: 600 },
+];
+// ---- Murk's Ledger (brief §10): 3 persistent requests; one refreshes per completed in-lake day, a lapsed slot after a
+// real day; combat requests only in combat modes. +2 tally Memories each.
+export const LEDGER = {
+  slots: 3, refreshPerInLakeDay: 1, lapseAfterRealDay: true, tally: 2,
+  templates: [
+    { id: 'l_class', type: 'class', text: 'Bring me a {class} {species}. Alive or not, I want to see it.', class: ['prize', 'trophy'], base: 40, perClass: { prize: 1, trophy: 2.2 }, weight: 3 },
+    { id: 'l_variety', type: 'variety', text: 'Three different fish from {zone}, in one expedition.', n: 3, base: 45, weight: 2 },
+    { id: 'l_condition', type: 'condition', text: 'Land something in {weather}. The water talks then.', base: 35, weight: 2 },
+    { id: 'l_release', type: 'release', text: 'Let a {class} go. The lake keeps count.', class: ['prize', 'trophy'], base: 30, weight: 1 },
+    { id: 'l_home', type: 'bringHome', text: 'Bring a marked fish home. I want to see it on your wall.', base: 50, weight: 2 },
+    { id: 'l_ledger', type: 'oldLedger', text: 'Beat one of my old figures. Any species.', base: 60, weight: 1 },
+    { id: 'l_place', type: 'place', text: 'Two fish from {place}.', n: 2, base: 40, weight: 2 },
+    { id: 'l_slay', type: 'slay', text: 'Thin the swarm by {n}.', n: [60, 120], base: 30, weight: 1, modes: ['lantern', 'gloomtide'] },
+    { id: 'l_warden', type: 'warden', text: 'Silence the Warden of {zone}.', base: 80, weight: 1, modes: ['lantern', 'gloomtide'] },
+  ],
+  inLakeBounties: { fishingShare: 0.85, combatTemplates: 'combatModes' },
+};
+
+// ---- The Landing: a walkable 3D cove (brief §3.7). Not in ZONES or ZONE_BY_ID; entered by
+// zone:change {zone: 'cove', hub: true}. x east, z south (−z = north, up-screen); y = walk height (m).
+export const COVE = {
+  id: 'cove', index: -1, hub: true, theme: 'cove', name: 'The Landing',   // theme 'cove': world-layout / world-art build no Mossmere set-pieces here (themeOf must not clamp −1 to the Mossmere)
+  subtitle: 'A Drowned Ferry Cove', mode: 'foot',   // world.getMode() returns COVE.v0.mode ('raft') while §24's foot core is not in the build
+  description: 'An old ferry landing tucked under the kingdom\'s outer wall: a sheltered pocket of still water behind a broken sea-gate. The ferrymen pinned their best catches to the harbour wall. It is bare now.',
+  arena: {
+    // shoreNotch (CONTRACT §13.8): a = centre angle in degrees, atan2(z, x) convention (270 = north at x 0); w = metres of arc at R;
+    // depth = water depth along it; len = metres it runs beyond R (the cliff ring and its collision open over that width).
+    // a 278° puts the notch at x ≈ 6, so the channel runs straight north through the arch (legs x −3 / 15, centre x 6).
+    radius: 42, seed: 7707, layout: 'cove', shallows: [0.2, 0.5], channel: [0.6, 1.0], shoreNotch: [{ a: 278, w: 14, depth: 0.8, len: 12 }],
+    parallax: 3, parallaxLow: 2, stalactites: true, shafts: 2,
+    islands: [], pillars: [], deepPools: [], legendPool: null, gate: null,
+    spawn: { x: -18, z: -2.5, yawDeg: 180, mode: 'foot', at: 'hearth' }, jettySpawn: { x: 3, z: 2, yawDeg: 0, mode: 'foot' },
+    spawnMode: 'foot', docks: [{ x: 4, z: -6.5 }],
+    walk: {
+      cell: 0.5,
+      shapes: [
+        { id: 'cv_quay', name: 'The Lower Quay', kind: 'rect', x: -17, z: 1, w: 26, d: 14, y: 0.6, tag: 'ground' },
+        { id: 'cv_gallery', name: 'The Lower Gallery', kind: 'rect', x: -19.75, z: -10, w: 27.5, d: 8, y: 1.8, tag: 'ground' },
+        { id: 'cv_upper', name: 'The Upper Gallery', kind: 'rect', x: -19.75, z: -18.25, w: 27.5, d: 5.5, y: 6.0, tag: 'ground' },
+        { id: 'cv_ramp', name: 'The Quay Ramp', kind: 'path', pts: [[-10, -2.5, 0.6], [-10, -6.5, 1.8]], w: 3, tag: 'ramp' },
+        { id: 'cv_stair', name: 'The Silted Stair', kind: 'path', pts: [[-32, -7.5, 1.8], [-32, -17.5, 6.0]], w: 2.4, tag: 'ramp', needs: 'cove_stair' },   // brief: (−32, −6) → (−32, −16); 1.5 m north so its foot clears the gallery's south edge (§24 body erosion)
+        { id: 'cv_jetty', name: 'The Jetty', kind: 'path', pts: [[-4, 2], [4, 2]], w: 2.6, y: 0.6, tag: 'jetty' },
+        { id: 'cv_customs', name: 'The Customs Steps', kind: 'path', pts: [[-4, -3], [0, -5]], w: 2.4, y: 0.6, tag: 'jetty' },
+      ],
+      holes: [{ id: 'cv_pond', name: 'The Keep-Pond', kind: 'disc', x: -16, z: 3.5, r: 2.8, rTier3: 4.0, depth: 0.7 }],
+      blocks: [
+        { id: 'b_table', kind: 'rect', x: -9, z: 2, w: 2.2, d: 1.4, h: 0.9 },
+        { id: 'b_lectern', kind: 'disc', x: -6.5, z: -2, r: 0.4, h: 1.0 },
+        { id: 'b_hearth', kind: 'disc', x: -18, z: -4.6, r: 0.8, h: 0.9 },
+        { id: 'b_bench', kind: 'rect', x: -26, z: -5.4, w: 2.4, d: 0.8, h: 1.0 },
+        { id: 'b_trials', kind: 'rect', x: -23, z: -5.7, w: 1.6, d: 0.4, h: 1.0 },
+      ],
+    },
+    shortcuts: [{ id: 'cove_stair', name: 'The Silted Stair', opens: 'glasswaterLit' }],
+    moorings: [{ id: 'cove_jetty', name: 'The Jetty', stand: { x: 3.5, z: 2 }, slot: { x: 7, z: 2 }, yawDeg: 90, bell: false }],   // the slot clears the jetty by the raft radius (validated); the raft spawns here in raft mode
+    // the cove is closed to the raft (validated: no raft path from the mooring crosses archLineZ): the drowned outer wall's foot runs
+    // as low breakwaters (cheap ink geometry, raft obstacles) from the galleries to the west leg, from the east leg to the cliff, and
+    // west of the galleries to the cliff; the arch span itself is a soft wall that only a glide passes
+    closure: {
+      breakwaters: [{ id: 'bw_west_leg', pts: [[-6, -15], [-3, -18]], w: 1.2, h: 0.8 }, { id: 'bw_east', pts: [[15, -18], [36.4, -21]], w: 1.2, h: 0.8 },
+        { id: 'bw_far_west', pts: [[-33.5, -16], [-41, -16]], w: 1.2, h: 0.8 }],
+      softWall: { pts: [[-3, -18], [15, -18]], passes: 'glide' },
+    },
+  },
+  lowSouth: { dist: 14, max: 1.0, halfW: 4 },          // nothing above 1 m within 14 m south of any walkway (validated)
+  walkSpeed: 5.04, tapToWalk: true,                   // = §24's BALANCE.walk.speedMult 0.84 × raft speed 6 (the brief's 5.2 used an older 0.86)
+  stations: [
+    { id: 'map_table', name: 'Map Table', x: -9, z: 2, pill: 'Plan', opens: 'setOut', chart: 512 },
+    { id: 'lectern', name: 'Journal Lectern', x: -6.5, z: -2, pill: 'Journal', opens: 'journal' },
+    { id: 'hearth', name: 'Hearth', x: -18, z: -4.5, pill: 'Rest', opens: 'settings', light: 'accent1', respawn: true },
+    { id: 'trials', name: 'Trials Board', x: -23, z: -5.4, pill: 'Trials', opens: 'challenges' },
+    { id: 'gear_bench', name: 'Gear Bench', x: -26, z: -5, pill: 'Tackle', opens: 'tackle' },
+    { id: 'shrine', name: 'Shrine of Drowned Lanterns', x: -30, z: 0, pill: 'Shrine', opens: 'shrine', lanterns: 'totalRelicLevels' },
+    { id: 'murk', name: "Murk's Barge", x: 4, z: -6.5, pill: 'Trade', opens: 'shop', range: 5, tabs: ['sell', 'bait', 'supplies', 'ledger', 'rumours', 'cosmetics'] },
+    { id: 'raft', name: 'Raft', x: 7, z: 2, pill: 'Board', opens: 'setOutGlide', needs: 'pendingSetOut' },
+    // the walls: one station per wing, on its gallery facing the wall (range 4); taps on frames route through world.pickFrame
+    { id: 'wall_mossmere', name: 'Mossmere wing', x: -24.75, z: -11.5, pill: 'Look', opens: 'wall', range: 4, wing: 'mossmere' },
+    { id: 'wall_sporewood', name: 'Sporewood wing', x: -11.25, z: -11.5, pill: 'Look', opens: 'wall', range: 4, wing: 'sporewood' },
+    { id: 'wall_glasswater', name: 'Glasswater wing', x: -24, z: -18.5, pill: 'Look', opens: 'wall', range: 4, wing: 'glasswater', needs: 'cove_stair' },
+    { id: 'wall_paleabyss', name: 'Pallid wing', x: -12, z: -18.5, pill: 'Look', opens: 'wall', range: 4, wing: 'paleabyss', needs: 'cove_stair' },
+    { id: 'jetty', name: 'Jetty', x: 3, z: 2, pill: null, opens: 'coveFishing' },
+    { id: 'pond', name: 'Keep-Pond', x: -16, z: 3.5, pill: null, opens: 'pond', camera: 'pond' },
+  ],
+  // NNE of the jetty head (4, 2): 4.5 m away, 27° from up-screen (§24.5: cast water within ±50° of up-screen), clear of the
+  // Set Out path and 4.9 m from Murk's barge; the practice fight is a Reedjaw at z 1.4 that cannot escape, capped at 20 s
+  testBuoy: { x: 6, z: -2, r: 1.2, offDuring: 'firstEvening', phase: 3, rewards: false, practice: { kind: 'strikeFloat', biteEvery: [2.5, 3.5], grades: true, samplePlay: ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'], odds: false, fish: false } },   // automatic fishing: a practice float (strike timing + sample plays; no fish, no odds)
+  // scripted raft glides (player.glide): out under the arch through the Waystone sill's gap (W2 4.5 / W3 9 at z −15.3, stone r 0.4:
+  // 3.7 m clear), east of Murk's barge (≥ 3.9 m from its pad centre); Homecoming runs it backwards and moors at the jetty
+  setOutPath: [[7, 2], [11, 1], [11, -9], [6.75, -13], [6.75, -18], [6.75, -24]], archLineZ: -18, homeInPath: [[6.75, -24], [6.75, -13], [11, -9], [11, 1], [7, 2]],
+  homecoming: { spawn: 'raftAtMooring', skipped: 'jettySpawn' },
+  fishing: { species: ['quayling'], sale: false, memoriesFirstOnly: true },
+  seaGate: { legs: [{ x: -3, z: -18 }, { x: 15, z: -18 }], crown: 9.5, span: 16, legendsY: [3.5, 6.5], swallowerY: 7, build: 'taperTube' },
+  waystones: [
+    { zone: 'mossmere', x: 0, z: -15, colour: 0xb0603e, colour2: 0xa9b9f0, litAtStart: true, keepsake: 'a rust buoy-bell' },
+    { zone: 'sporewood', x: 4.5, z: -15.3, colour: 0xffb46a, keepsake: 'a potted amber glowcap', opensWing: 'sailcloth' },
+    { zone: 'glasswater', x: 9, z: -15.3, colour: 0x5cbcff, keepsake: 'a singing crystal on the Map Table', opensWing: 'stair' },
+    { zone: 'paleabyss', x: 13, z: -15, colour: 0xe8c66a, keepsake: '30 candle-rafts drifting in the cove', opensWing: 'sailcloth' },
+  ],
+  // The Long Wall: one framed slot per non-legendary species, a painted ruler 1.1 × the species' reach.
+  // the hearth (−18, −4.5) sits on the quay against the z −6 retaining wall; its chimney breast is a 3 m stretch of the LOWER WALL
+  // (x −19.5…−16.5) behind the Lower Gallery, carrying the stack to the Upper Gallery's parapet; both Wanderer frames hang on it,
+  // one above the other. The lower wings shrink to 10.5 m either side; the upper wings keep 12 m (the Pallid row needs 12.0 m).
+  walls: {
+    lower: { z: -14.5, x: [-30, -6], y: [1.8, 6.0], from: 'cv_gallery' },
+    upper: { z: -21.5, x: [-30, -6], y: [6.0, 10.0], from: 'cv_upper' },
+    chimney: { x: [-19.5, -16.5], wall: 'lower', wanderers: ['pilgrim_salmon', 'hearthfish'], stacked: true },
+  },
+  wings: {
+    mossmere: { wall: 'lower', x: [-30, -19.5], openAt: 'start' }, sporewood: { wall: 'lower', x: [-16.5, -6], openAt: 'sporewood', cover: 'sailcloth' },
+    glasswater: { wall: 'upper', x: [-30, -18], openAt: 'glasswater', cover: 'stair' }, paleabyss: { wall: 'upper', x: [-18, -6], openAt: 'paleabyss', cover: 'sailcloth' },
+  },
+  wing: { h: 3.6, rows: 3, gap: 0.4, rowGap: 0.15, largestLowest: true },   // each wing's width is its x span; frames pack in 2D (width and height)
+  // frame height by mount view: side profile (default) = ratio × reach + margin; rays dorsal-up (ratio 0.56); jellies hang bell-up
+  // (height 1.1 × reach + 0.15, width max(0.66, 0.6 × reach + 0.2)). The Wick silhouette (0.85 m) is painted at true height beside
+  // any frame shorter than it. Wanderer frames size from their largest reach over their lakes.
+  frameHeight: { margin: 0.2, min: 0.45, ratio: { minnow: 0.22, perch: 0.3, carp: 0.32, koi: 0.3, pike: 0.18, eel: 0.09, angler: 0.35, ray: 0.56, puffer: 0.45,
+    crayfish: 0.25, ghost: 0.25, sturgeon: 0.16, jelly: 1.1 }, views: { ray: 'dorsal', jelly: 'hanging' } },
+  frames: [   // by "said to reach" length (m); width = 1.1 × reach (the specimen board holds up to 4 small species of one lake)
+    { id: 'board', name: 'specimen board', maxReach: 0.6, width: 1.2, height: 0.6, holds: 4 },
+    { id: 'plaque', name: 'plaque', maxReach: 1.4, widthRange: [0.66, 1.54] },
+    { id: 'arch', name: 'arch', maxReach: 2.4, widthRange: [1.54, 2.64] },
+    { id: 'great', name: 'great arch', maxReach: Infinity, widthRange: [2.64, 4.1] },
+  ],
+  seals: { prize: 'inkStamp', trophy: 'oxbloodWax', elder: 'blackWaxRibbon', ancient: 'goldThread' },
+  rulerMarks: ['cm', 'classBands', 'oldLedger', 'wickSilhouette'], unknown: '?',
+  pond: { slots: [3, 5, 6], maxLength: 1.4, live: 6, liveLow: 2, swim: 0.6, gate: 'firstLivePrize', silt: 3 },
+  growth: [
+    { on: 'start', shows: 'one lit hearth, two bollard lanterns, the Mossmere Waystone, 11 "?" frames, sailcloth over the Sporewood wing, a silted stair and pond, the Willow Switch' },
+    { on: 'speciesNamed', shows: 'its frame inks the silhouette and name' },
+    { on: 'fishHung', shows: 'the fish at true size, a candle beneath it, the seal upgrades; Elders get a name card' },
+    { on: 'wingComplete', shows: 'the lintel lights in the lake colour; the Journal perk activates' },
+    { on: 'firstLivePrize', shows: 'the silt-gate beat (3 s): the pond clears, its floor lamp lights' },
+    { on: 'pondTier', shows: 'tier 2 steps and a second floor lamp; tier 3 a drowned-mosaic floor' },
+    { on: 'waystoneLit', shows: 'the stone glows, one more bollard lantern, a keepsake, that lake\'s wing opens' },
+    { on: 'legendHome', shows: 'it hangs under the sea-gate arch (the Lantern-Swallower along the lintel)' },
+    { on: 'relicLevel', shows: 'one drowned lantern relights' },
+    { on: 'tackleTier', shows: 'the rack, spools, reel and creel switch models; boots and chimney glass on pegs; the Long Oars on the raft' },
+    { on: 'wickUnlocked', shows: 'another Wick dozes by the hearth' },
+    { on: 'oldLedgerBeaten', shows: 'your name chalked over Murk\'s old figures' },
+    { on: 'placeFound', shows: 'the chart inks a vignette, a star when mastered' },
+    { on: 'wardenSilenced', shows: 'a keepsake on the mantel (cosmetic)' },
+    { on: 'swallowerLanded', shows: 'a warm shaft opens through the ceiling; every lamp burns gold; the title card changes' },
+  ],
+  visibleChanges: 150,
+  palette: { fog: 0x1d2230, fogDensity: 0.005, water: 0x1a1f2c, waterDeep: 0x06080d, foam: 0xd8dce6, glow: 0xffb347, accent: 0x8a3a3a,
+    ambient: 0x404659, ink: 0x04050a, far: 0x6d7894, light: 0xe2d6c4, lamp: 0xffd8a0 },
+  grade: { exposure: 1.0, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tint: 0x3a3048, tintAmount: 0.14, vignette: 0.27, saturation: 0.86, grain: 0.012 },
+  greenBudget: { what: 'verdigris on Murk\'s hand bell', maxChroma: 0.02, shotIncludes: 'murk' },
+  murkLook: { skin: 0x5a5444, moss: 0xb8b0a0, lichen: 0xc8c0b0, lamp: 0xffe2b0, tip: 'Sail to his lantern' },   // A10 (actors-merchant)
+  lights: { max: 4, list: ['wick', 'murk', 'hearth', 'waystone'], streaks: 6 },
+  budget: {
+    high: { post: 15, water: 4, cliffs: 5, stalactites: 3, quay: 2, walls: 3, gate: 4, lamps: 3, hearth: 3, furniture: 3, keepsakes: 4, mantel: 1, wicks: 2, particles: 3,
+      wickOnFoot: 15, raft: 4, murk: 8, mounts: 12, pond: 36, total: 130, cap: 140 },
+    low: { post: 10, water: 4, cliffs: 4, stalactites: 2, quay: 2, walls: 3, gate: 4, lamps: 3, hearth: 2, furniture: 3, keepsakes: 3, mantel: 1, wicks: 2, particles: 2,
+      wickOnFoot: 15, raft: 4, murk: 8, mounts: 9, pond: 12, total: 93, cap: 100 },
+    pointLights: 4, buildMs: { desktop: 150, phone: 600 }, mountLodTris: 600, mountLodFrom: 12,
+    // the mount batch is a near / far pair per wall: the wing in view at full detail (≤ 12 fish, ≈ 2.3k tris each with the outline)
+    // + every other mount and legend at LOD (≤ 600 tris, 1.2k with the outline); pairs swap by wing distance (no rebuild)
+    mountBatch: { near: 9, far: 3, maxTris: 80000, rebuildOn: ['homecoming', 'swap', 'pond:add', 'pond:release'] },
+  },
+  // the cove's land is built by direct extrusion of COVE.walk shapes (rect boxes, path ribbons, ramp wedges) in world-cove.js; it does
+  // not need §24's grid mesher. walkGridFor (data) gives collision and tap-to-walk.
+  land: 'extrude',
+  fallback: 'landingV0',
+  // Landing v0 (only while §24's foot controller is not in the build): world.getMode() = 'raft'; the Wick stays on the raft and
+  // every land station is offered from a pill post (a bollard lantern) on the quay's south parapet, within the raft's 5 m interact
+  // range of raft-reachable water (validated); the walls and the pond are shown by flying the wall / pond camera from a post; the
+  // layout, the land builder and every asset are the full Landing's, so v0 needs no rework when the foot core lands.
+  v0: {
+    mode: 'raft', range: 5,
+    posts: [
+      { id: 'shrine', x: -29, z: 7.6 }, { id: 'gear_bench', x: -25.5, z: 7.6 }, { id: 'trials', x: -22, z: 7.6 }, { id: 'hearth', x: -18.5, z: 7.6 },
+      { id: 'pond', x: -15.5, z: 7.6, camera: 'pond' }, { id: 'wall', x: -12, z: 7.6, camera: 'wall', opens: 'wall' }, { id: 'map_table', x: -9, z: 7.6 }, { id: 'lectern', x: -5.5, z: 7.6 },
+    ],
+    atWater: ['murk', 'raft', 'jetty'],
+  },
+};
+
+// ---- Save migration (brief Pg3, §13.1): keep the Journal, records, relics, Wicks and challenges; refund cut
+// relics; rename; a 200-Shell welcome purse; a run in progress ends at the next title as a "return home".
+export const RENAMES = {
+  version: 3,
+  species: { pale_leviathan: 'lantern_swallower' },
+  baits: { pale_marrow: 'last_candle' },                // the bait whose display name was "Drowned Marrow"
+  supplies: { tide_chart: 'murks_chum' },
+  names: { 'The Pale Leviathan': 'The Lantern-Swallower', 'Drowned Marrow': 'Last Candle', 'Landing of Last Rafts': 'Shore of Last Rafts', 'Tide Chart': "Murk's Chum" },
+  relicsRefunded: ['old_debt', 'waystone_sporewood', 'waystone_glasswater', 'waystone_paleabyss'],
+  upgradesToOutfit: { lantern_chimney: 'chimney', raft_brazier: 'brazier', raft_oars: 'oars', boots_cork: 'boots' },
+  upgradesToTackle: { rod_ashwood: 'rod', rod_whalebone: 'rod', line_gut: 'line', line_silver: 'line', reel_brass: 'reel', reel_drag: 'reel', creel_wicker: 'creel' },
+  upgradesToLures: { lure_glimmer: 'glimmer_spoon' },
+  upgradesCut: ['lure_feather', 'creel_frost'],
+  combatKit: ['lantern_mantle', 'lantern_lens', 'lantern_striker', 'raft_hull', 'raft_hearth'],
+  welcomePurse: 200, runInProgress: 'returnHome', keep: ['journal', 'records', 'relics', 'wicks', 'challenges', 'memories', 'settings'],
+  // Pg0 (P1): ids only (species, baits, supplies in journal keys, run.legendaries, run.bait, unlocks); marks meta.v3ids = true.
+  // Pg3 (P3): the rest, once. core.loadSave() returns the envelope {version, meta, run}; schema is never merged from defaultMeta.
+  pg0: ['species', 'baits', 'supplies'],
+  detect: { legacy: 'version < 3 && (meta.runs > 0 || journal not empty)', fresh: 'otherwise' },
+  fresh: { shells: 20, schema: 3, firstOutingDone: false },                    // a brand-new player: no welcome purse, the First Outing
+  legacy: { welcomePurse: 200, firstOutingDone: true, schema: 3,               // a veteran never replays the First Outing
+    runShells: 'addToMeta',                                                   // a v1 run in progress: its run.shells join meta.shells …
+    runTally: 'memoriesFor',                                                  // … and it is paid by v1 memoriesFor (it had no expedition tally)
+    gates: 'legendaryInJournal',                                              // gates (and Waystones) open only for lakes whose legendary meta.journal holds
+    tackle: 'none' },                                                         // v1 upgrades were per run: persistent tackle and outfit start at T0 / level 0 for everyone
+  // upgradesTo* say where each v1 catalogue entry went (validated: each maps once); they grant nothing on migration
+  metaAdds: ['shells', 'tackle', 'outfit', 'lures', 'mounts', 'pond', 'landing', 'waystones', 'shortcuts', 'residents', 'markedFish', 'elderLog', 'places', 'ledger'],
+};
+
+// ---- Player-facing text (brief §2, §3, §4, §5). Original wording only (brief §13.3).
+export const TEXT_V3 = {
+  hubName: 'The Landing', setOut: 'Set Out', returnHome: 'Return home', rideHome: 'Ride home', homecoming: 'Homecoming',
+  snuffedTitle: 'Snuffed', scorchedTitle: 'Scorched', stillnight: 'Stillnight', firstOuting: 'First Outing',
+  premise: "Long ago the Lamplit Kingdom hung a great lantern over its lake. When the lantern fell, the kingdom followed it into the water. The Wicks are what is left of its candles: small, stubborn flames with a lantern and a rod, setting out from an old ferry landing to fish the drowned dark. Somewhere below, the Lantern-Swallower carries the great lantern's last ember in its belly.",
+  modes: {
+    still: { name: 'Still', line: 'No swarm. Every night is yours to fish.' },
+    lantern: { name: 'Lantern', line: 'A light swarm on every other night, early on. It never costs a fish on your line.' },
+    gloomtide: { name: 'Gloomtide', line: 'The full swarm, every night. The old stakes.' },
+  },
+  classes: { small: 'Small', keeper: 'Keeper', prize: 'Prize', trophy: 'Trophy', elder: 'Elder', ancient: 'Ancient' },
+  quiet: 'The water here has gone quiet.', listless: 'It had grown listless. You let it go.', snuffedWake: 'Murk found your raft drifting.',
+  sank: 'Sank with the creel, night {n}', stirs: 'The Gloom stirs tonight.', lastLight: 'The big ones come up at dusk.',
+  markForHome: 'Mark for home?', liveWell: 'keeps {n} nights', farWater: 'Far Water', homewardDistance: 'Homeward stone {m} m',
+  watchLamp: 'Nearest watch-lamp {m} m · ≈ {s} s',
+  lampWatchStart: 'Lamp-watch. The Gloom keeps away tonight; fish within {m} m of the lamp.',   // survival, at dusk's end in a watch-lamp's pool
+  lampWatchLeave: 'You left the lamp-watch. The Gloom stirs.',                                 // survival, > 10 m out of the pool
+  lampWatchCast: 'On a lamp-watch you fish within {m} m of the lamp.',                          // fishing, a cast beyond the limit is refused
+  newBest: 'New best: {w} (was {was})', classFirst: 'First {class} {species}', oldLedger: 'Old Ledger beaten',
+  saidToReach: 'said to reach {w}',   // the Journal's Weight row: the ceiling (an Elder's), under the species' ordinary range
+  stillOutThere: 'still out there', resident: 'Resident', murkFrontYard: "Lives in my front yard. I don't buy those. The real water's through the gate.",
+  firstEvening: FIRST_EVENING.text,   // FE-D1: the opening's lore lines, Murk's lines, the ribbon and the Skip / Replay words (one source)
+  // (D1′: the near-miss card's line, its cause names and its tension tips are retired; the got-away note's words are AUTOFISH.text)
+  // the v3 HUD's and screens' copy (ui reads TEXT_V3.x ?? its own fallback): the float's favour, the class tells, the status line
+  hud: {
+    favourBands: ['the water gives nothing away', 'a little favour', 'the water favours you', 'the water leans your way', 'the water is with you', 'everything is in your favour'],
+    tellWords: {
+      doublePop: { word: 'a quick double pop', short: 'pop, pop' }, plunge: { word: 'a clean plunge', short: 'a plunge' },
+      dragUnder: { word: 'a slow drag under', short: 'a slow drag' }, flatSlide: { word: 'it lies flat, then slides', short: 'lies flat' },
+      dome: { word: 'the water domes', short: 'a dome' },
+    },
+    watchHere: "In the watch-lamp's light · stay till dusk ends",
+    lampWatch: 'Lamp-watch · the Gloom keeps away · fish within {m} m',
+    scorchedWatch: 'Scorched · held here till dawn · fish within {m} m',
+    stray: 'Stray no farther · the watch breaks at {m} m',
+    gutter: 'Guttering · {s} s · render a fish to relight',
+    gutterEmpty: 'Guttering · {s} s · the creel is empty: catch one, fast',
+  },
+  stillnightSub: 'Night Rise. The big ones come up',
+  swarmOpen: ['The Gloom Stirs', 'Guard your light. It passes before the night is out.'],
+  swarmClose: 'The swarm withdraws. The rest of the night is yours.',
+  lampWatchBanner: ['Lamp-watch', 'The Gloom keeps away tonight. Fish near the lamp.'],
+  nearMissKicker: 'The one that got away',
+  snuffedEpitaphs: [
+    'The oil ran out first. Then the light. Then the small flame that held the rod.',
+    'It guttered for a long while, and fished the whole time.',
+    'A thread of smoke over still water, and a rod still in the rest.',
+  ],
+};
+export const TIPS_V3 = [
+  { id: 'v3_walk', phase: 3, trigger: 'hub:enter', text: 'Walk the Landing. The jetty end glows: cast from it.' },
+  { id: 'v3_cast_cove', phase: 3, trigger: 'interact:change:jetty', text: 'Hold on the water to cast.' },
+  { id: 'v3_favour', phase: 1, trigger: 'fishing:cast', text: 'The notches on your float show how much the water favours you.' },
+  { id: 'v3_mark', phase: 3, trigger: 'fish:measured', text: 'Mark a Prize or bigger for home. It must survive the nights.' },
+  { id: 'v3_farwater', phase: 3, trigger: 'farwater:dawn', text: 'Far Water: the fishing gets better, the way home costs more.' },
+  { id: 'v3_resident', phase: 2, trigger: 'resident:show', text: 'A resident giant showed itself. Cast within 3 m, quickly.' },
+  // automatic fishing (moved from AUTOFISH.text.tips by D1′). Directed tips: the module that knows the moment emits `tip:show {id}`
+  // (ui keys it as `tip:show:<id>`), so today's manual-reel code, which never emits it, never shows them:
+  //   af_changed: progression or the First Evening, at a legacy save's first v3 bite (FIRST_EVENING.legacy.firstBiteTip)
+  //   af_letpass: fishing, at the first Prize+ tell · af_hurry: fishing, at the first Small / Keeper play from the 2nd run
+  //   af_strikeReminder: the First Evening, at the first lake bite after a fumbled tutorial strike
+  { id: 'af_changed', phase: 1, trigger: 'tip:show:af_changed', text: 'Tap when it goes under. The line does the rest now; your odds are in the log.' },
+  { id: 'af_letpass', phase: 1, trigger: 'tip:show:af_letpass', text: "Let a big one go, change your lure, cast back. It's still there." },
+  { id: 'af_strikeReminder', phase: 1, trigger: 'tip:show:af_strikeReminder', text: 'Tap when it goes under.' },
+  { id: 'af_hurry', phase: 1, trigger: 'tip:show:af_hurry', text: 'Hold to hurry a small fish in. It changes nothing but the wait.' },
+  // the First Evening's tips (FE-D1), one source (FIRST_EVENING.tips): the director shows each as `firstEvening:line {kind: 'tip', key}`
+  // in its own step (allowsTip), and ui marks it seen; `touch` is the phone wording. fe_walk waits for P3 (on foot).
+  ...Object.entries(FIRST_EVENING.tips).map(([id, t]) => ({ id, phase: id === 'fe_walk' ? 3 : 1, trigger: `firstEvening:line:${id}`, directed: 'firstEvening',
+    text: typeof t === 'string' ? t : t.desktop, ...(typeof t === 'string' ? {} : { touch: t.touch }) })),
+];
+export const MERCHANT_LINES_V3 = {
+  frontYard: ["Lives in my front yard. I don't buy those. The real water's through the gate."],
+  forecast: ['{weather} in {zone} tomorrow.', 'Tomorrow brings {weather}. Plan for it.'],
+  stirs: ['The Gloom stirs tonight.', 'Something wakes in the dark tonight. Keep your light close.'],
+  homeward: ['The stone by the dock points home. Hold to it when you are done.', 'I cast off at the bell. Ride with me, or find your own way.'],
+  ledger: ['Another figure beaten. I will need more chalk.', 'Your name looks better on the board than the old one did.'],
+};
+
+// =====================================================================================
+// THE FULL HOLD (docs/loop/SPEC.md, slice-1a/PLAN.md §3.1): catch, keep, sell, upgrade. Plain data and pure helpers, always
+// exported (tools read them in any build) and never read by built code off the loop (LOOP_ENABLED, PARKED above). Every word on
+// screen is SPEC §8's or a built word §8 names. The numbers are the sim's (tools/sim/clams.mjs, the balancing run of WICKS §3.5).
+// =====================================================================================
+export const LOOP = {
+  // ---- what a fish sells for (SPEC §4.1): max(1, round(tier × rarity × body(L50) × clamp(e^(perZ·z)) × classBonus × priceFactor))
+  value: { perZ: 0.9, clamp: [0.4, 30], classBonus: { trophy: 1.25, elder: 1.6 },
+    rarity: { common: 1, uncommon: 2.4, rare: 5.5, epic: 12 }, body: { ref: 45, exp: 0.5, clamp: [0.6, 1.6] }, legendRematch: 0.4 },
+  priceFactor: 1,                    // the balancing job's one common price factor (WICKS §3.2): ×1.0 in 1a, tuned in 1b
+  // ---- a lure's cast (the user, 17 Nov 2026): the line comes back by itself at `pace` m/s; each second the hook table's odds at the area
+  // under the lure are drawn and the fish strikes at takeChance(strike, its grade); at `inAt` m from the raft it comes in quietly
+  lureCast: { pace: 1.2, strike: 0.05, inAt: 2.4 },   // (the user: "auto reels in slowly": about 12 s for a 14 m cast; the strike halved so a cast's chance stays as fitted)
+  // ---- the hold (SPEC §3.1, §4.2): holdSlots is the bought count (3–8) for every Wick; a Wick's slots are wickSlots / loopSlots
+  // (Hold 4 at 20, the user's yes of 17 Nov 2026, SPEC §16: doubled by LOOP.cost.shipped it is 40, within the first trip's ~41)
+  hold: { start: 3, max: 8, shelfMax: 6,             // shelfMax: the shelf's last hold step (1a: Hold 5, PLAN CHOICE 11; M1 step 3a: Hold 6, the Wellbox, M1 §2.5)
+    // (the user, 17 Nov 2026: "I want buying more fish slots to be really expensive. Make it 400 to start": the shelf shows base × 2)
+    ladder: [{ slots: 4, price: 200, name: 'Lidded Creel' }, { slots: 5, price: 500, name: 'Double Creel' },
+      { slots: 6, price: 1000, name: 'Wellbox' }, { slots: 7, price: 2000, name: 'Ferry Hamper' },
+      { slots: 8, price: 3500, name: 'Harbour Chest' }], startName: 'Wicker Creel' },
+  // ---- the water goes quiet (SPEC §3.3): good bites an evening; open water one per slot of the hold, plus openExtra
+  water: { good: { day: 2, old: 3, night: 2, crown: 2 }, openPerSlot: 1, openExtra: 1,
+    stale: { favour: -0.15, floor: -1.2, wait: 0.3, waitMax: 2.2 } },
+  letGo: { favour: 0.2, cap: 0.4, refund: 1 },        // let go forgives (SPEC §3.2): the bite back, +0.2 favour there, to +0.4
+  evening: { day: 40, dusk: 20, night: null, nightLook: 90 },   // SPEC §3.4; night null = no end (never read through num())
+  // the roster's hour strings only (SPEC §3.4); a built string ('calm', 'gloom', 'dawn') keeps the built timeOk rule (PLAN CHOICE 24)
+  hours: { day: ['calm', 'dusk'], dusk: ['dusk', 'gloomtide'], night: ['gloomtide'], 'day,dusk': ['calm', 'dusk'],
+    'dusk,night': ['dusk', 'gloomtide'], any: ['calm', 'dusk', 'gloomtide', 'dawn'] },
+  // ---- tackle (SPEC §4.3): one price per tier per slot; T0–T4 are TACKLE as built, T5 and T6 are new
+  tackle: { price: [0, 50, 300, 1200, 6000, 32000, 100000], extraHold: { rod: [15, 18], line: [16, 19], reel: [15, 18] },
+    names: { 5: ['Bellwether', 'Starthread', 'Moonwheel'], 6: ['Crown-Reed', 'Kingshair', 'Last Wheel'] },
+    shelfAt: [1, 1, 1, 2, 3, 4, 9] },               // the water (catalogue order) whose map puts a tier on the shelf; 1 = the start
+                                                     // (v8: T6 with the slot-9 map, the Waxen Reef, SPEC decision 37; no 1a shelf change)
+  // ---- v8, the three keys to a new water (SPEC §5.5 (g)): the data shape only; inert in 1a (only the Mossmere is open)
+  access: {
+    gear: { sporewood: 'rod:1' },                    // a water's gear key, as a shelf buy id; each later slice adds the waters it ships
+    list: { kinds: ['open', 'day', 'old'], plainBaitOnly: true },   // the list rule (SPEC §5.5 (c)); members are computed, never listed
+    pull: { perEvening: 1, cap: 6, keeperFloor: -0.25, floorFrom: 1, sureFrom: 8 },   // the pull (SPEC §5.5 (d)); read from slice 1b
+  },
+  waters: { mossmere: { order: 1, tier: 7, prices: { day: 60, old: 150, night: 260, crown: 500 } } },
+  // ---- M1 step 2 (SPEC §13, decision 39): the last water that ships. No lake map past it is offered and no sheet past it is drawn.
+  shipped: 'sporewood',
+  // the Mossmere's open water as SPECIES_LOOP ships it (M1.md §2.3), in the Journal's order: the roster's eight on built plans and the
+  // three built species the roster keeps (`kept`; the Lampsipper's phase-2 record lifted past the loop's phase pin)
+  // (M1 step 3a: twelve with the Kissmark Trout, on its new plan; the places' own fish and giants follow them in SPECIES_LOOP, from
+  // LOOP.places' `own` and `giant` in the Chart's order)
+  species: { mossmere: ['dusk_minnow', 'mossback_perch', 'gutter_crayfish', 'likely_chub', 'overbold_bass', 'rustfin_sucker', 'lampsipper',
+    'weeping_carp', 'candlefin_koi', 'milkeye_perch', 'kissmark_trout', 'reedjaw_pike'] },
+  kept: ['gutter_crayfish', 'candlefin_koi', 'lampsipper', 'bridgechain_sturgeon'],   // M1 step 3a: + the Bridgechain (phase 2, lifted)
+  leaps: { overbold_bass: 0.3 },     // a roster fish's leap chance (AUTOFISH.leaps under the loop): the bass "jumps on the first run"
+  // the visit home and the trip's fixed times (the sim's; T37 measures them). show 0: AUTOFISH.time.ceremony holds the show (PLAN CHOICE 15)
+  time: { out: 14, between: 8, raftSpeed: 6, home: 2, sale: 5.8, shop: 16, pass: 0.9, show: 0 },
+  // ---- the five Wicks (docs/loop/WICKS.md §2, §5; the values of the balancing run as the lead ruled them, §3.5): one passive each,
+  // always on, fishing only. `stats` is added on a trip after the tackle's absolute values (PLAN CHOICE 31); Stub's light is the look
+  wicks: {
+    order: ['wick', 'taper', 'stub', 'tallow', 'ashwick'],
+    wick:    { passive: 'curious', firstMult: 1.4, firstFloor: 0.4, stats: {} },                                    // a kept first sells ×1.4, at least 0.4 × the tier
+    taper:   { passive: 'long_reach', firstBites: 1, perWater: false, giantShare: 1.3, giantCap: 0.12, stats: {} },  // the first bite of each evening is never common
+    stub:    { passive: 'moth_bright', waitMul: 0.78, quietStep: 0.08, quietWait: false, stats: { lightRadius: 1.5 } },   // quick bites; lively quiet water
+    tallow:  { passive: 'broad_back', slots: 1, good: 1, everyWater: true, stats: {} },                         // one more slot at every step (to 9); +1 good bite everywhere
+    ashwick: { passive: 'burns_back', hold: 4, stats: {} },                                                      // a fish that gets away comes back once, tired (+4, the run cap)
+  },
+  // ---- the opening's tutorial at home (docs/loop/OPENING.md §6, PLAN §5.5): seconds, metres, the Mossmere's glide out
+  tutorial: { arrive: 3, out: 3, chartWait: 3, slotInk: 0.25, castTipAfter: 1.5, outDist: 15,
+    outPath: { mossmere: [[24, 38], [16, 25.3]] }, budget: { reference: 20, tapThrough: 8, max: 45 } },
+  // ---- M1 step 3a (SPEC §5.1–§5.2, M1.md §2.4; docs/loop/m1-step3a/PLAN.md §3.1): the Mossmere's four places, in the Chart's order
+  // (day, old, night, crown). Their geometry, name, landmark, look and build are MOSSMERE_V3.places' records of the same id (loopPlace
+  // merges them; the apply block copies them into the arena through LOOP_PLACE_KEYS); this table holds only what the loop decides: the
+  // kind, the map's price (LOOP.waters[water].prices[kind]), the fish its card names, its giant, its own fish, the open-water fish it
+  // draws (× weight) and its crown's legend. Never in LOOP.waters[w].places (a lake map's places, migrateLoop rule 5; PLAN CHOICE 1).
+  places: {
+    // `out`: a place's own glide out from the Jetty when the straight one toward its centre would graze a pillar (PLAN CHOICE 7; the
+    // Lily Maze's passes the statue at (8, 36) within 0.5 m of its collision, so it bends south of it: 15.3 m, 4.6 m clear; loopSailPlan)
+    lily_maze:      { water: 'mossmere', kind: 'day',   price: 60,  card: 'candlefin_koi',     draws: { candlefin_koi: 3, weeping_carp: 1.5 },
+      out: [[24, 38], [18, 32.5], [11, 31]] },
+    under_the_span: { water: 'mossmere', kind: 'old',   price: 150, card: 'thousandcast_pike', giant: 'thousandcast_pike', own: ['bridgechain_sturgeon'] },
+    buoy_lights:    { water: 'mossmere', kind: 'night', price: 260, card: 'hullkiss_lamprey',  giant: 'hullkiss_lamprey' },
+    bell_pool:      { water: 'mossmere', kind: 'crown', price: 500, card: 'belled_matriarch',  legend: 'belled_matriarch' },
+  },
+  // the place pool (the sim's, moved from tools/sim/clams.mjs's draft, T42): a common at a place ×common; a day water's open uncommon
+  // and rare ×dayDraw; a fish of a kind of place (the Gloam Eel's night water) ×kindWeight; a place's own fish a rare's weight × kept
+  // (weight × live); the place favour base + its kind's window (day +0.55 … crown +0.35, SPEC §3.3)
+  place: { common: 0.5, dayDraw: 1.5, kindWeight: 2.5, kept: { weight: 3, live: 0.5 },
+    favour: { base: 0.15, window: { day: 0.4, old: 0.4, night: 0.3, crown: 0.2 } } },
+  // the rare giants (SPEC §3.5, decision 7; M1.md §2.4): a fixed share of the bites at its own place (inHour in its hours, offHour outside
+  // them: more in its hour, never none), +favour, never Small (minZ), +10 Fight over a rare (+2 more as an Elder); a lost giant is a
+  // Marked Fish at its place (+6 Hold on its next hook, once, for every Wick)
+  giant: { share: { inHour: 0.06, offHour: 0.025 }, favour: 0.3, minZ: -0.25, fight: 10, elderFight: 2, markedHold: 6 },
+  legendBait: { mossmere: { id: 'heartmoss', price: 60 } },   // a legend's bait, one try (SPEC §4.6); the built BAITS row keeps its own price
+  lift: { thin: 3, title: 1.2, back: 0.6 },                    // the first evening's lift, in seconds (SPEC §5.1 rule 7)
+  // the giant's back in a standing bank: every 25–45 s for 2 s, "on clear nights" (SPEC §5.1 rule 6; the loop has no weather: PLAN CHOICE 10)
+  giantBack: { every: [25, 45], dur: 3, phases: ['gloomtide'], places: ['under_the_span', 'buoy_lights'] },   // (3 s: the fix pass; 2 s read as a blink)
+  mist: { inside: 0.35, ease: 0.8 },   // a bank's whole opacity while the raft is inside its footprint, and the ease (s): never a clearing
+  // the rest of the harbour re-dress (DESIGN §25.8's W9 but Under the Span's arches): on in the loop since the user's yes (17 Nov 2026,
+  // SPEC §16; M1 §8 question 2); the dev URL flag ?redress=0 (core.js, read once beside ?loop; PLAN CHOICE 13) shows the old harbour.
+  redress: LOOP_ENABLED && globalThis.GW_REDRESS !== false,
+  // the Mossmere's wildlife (the user, 18 Nov 2026: "wildlife that lives on this lake that we dont interact with"; actors-wildlife.js,
+  // actors-heron.js): art only, never in the fish pool, no odd changed. ?wild=0 (core.js, as ?redress) shows the lake without them.
+  wildlife: {
+    on: LOOP_ENABLED && globalThis.GW_WILD !== false,
+    // wick-moths: wax-white forewings, ash-violet hindwings, lit only by the lamp they circle (no glow of their own)
+    moths: { count: { high: 48, medium: 24, low: 0 }, span: 0.1, slots: 8, reach: 45, next: 9, cycle: [14, 22], raftShare: 0.2,
+      fore: 0xf2ecdc, hind: 0x9a90b4, lampCol: 0xffe2c0, amb: 0.14, minY: 0.65,
+      // per lamp kind: [lift of the orbit's centre over the lamp, orbit radius, rest radius, rest height under the centre]
+      kinds: { raft: [0.34, 0.55, 0.07, -0.14], post: [0.16, 0.5, 0.17, 0.1], buoy: [0.36, 0.45, 0.07, -0.16], cap: [1.5, 0.7, 0.1, -0.3], barge: [0.16, 0.34, 0.08, 0.06], slit: [0.1, 0.6, 0.05, 0] } },
+    // lampbills: round little diving birds in pairs and threes (slate-violet, a candle-wax shield on brow and bill, lobed grey feet),
+    // drawn `scale`× the model's 30 cm so they read from the play and home cameras
+    lampbills: { count: { high: 8, medium: 8, low: 0 }, scale: 1.45, speed: 0.3, dip: [0.9, 1.3], act: [5, 11], diveP: 0.4, dive: [3, 6], surface: [3, 5],
+      flee: 10, keep: 3, fleeFar: [5, 7], cool: 6, range: 1.5, body: 0x7a74a0, shield: 0xf2e8d0, feet: 0x8d8a99,
+      // beats (x, z, loop r, birds; they keep within r + range): the lee of Mossbell Isle and the open water by the old pylon east of the
+      // gate's lane in the play camera's northern view (the Elder Sister's lee lay behind the Span from it), and the open water past
+      // Murk's raft in the home's view (about 18 m beyond its look point, right of Murk on every screen shape); every point 6 m and more
+      // off the mooring, the glide-in, the places and the gate's lane. Each sleeps at its roost
+      groups: [{ x: -19.5, z: 20, r: 2.6, n: 3, roost: { x: -21.5, z: 18.5 } }, { x: 3, z: 50, r: 1.8, n: 2, roost: { x: 4, z: 49 } },
+        { x: 12, z: -26, r: 2.4, n: 3, range: 1.2, roost: { x: 13.4, z: -24.6 } }] },
+    // the heron, made to count: bigger with a darker back, spots in the north half of the view and on the islands' shores the raft
+    // sails past (their south faces), and at night a still roost, head sunk, in profile at the foot of the Drowned Gatehouse's broken
+    // south rim (in the shallows: the play camera looks down on the water, so a ledge would be out of its frame); 8 m and more off the
+    // Gatehouse Door; the raft at 8 m sends it to the other
+    heron: { scale: 1.3, back: 0x6c6886, northZ: 0, isles: ['Mossbell Isle', 'Stair Isle', 'Drowned Gatehouse', 'Root Isle'], isleOff: [1.2, 2.0],
+      roost: [{ x: 15.3, z: -7.4, yaw: -1.75 }, { x: 28.8, z: -7.1, yaw: 1.6 }] },
+  },
+  // the Mossmere's ambient (the look audit's §3 additions; src/world-ambient.js): art only, as the wildlife, under the loop on the
+  // Mossmere. ?wild=0 (GW_WILD) turns the moving ones off (the candle-boats and the slits' flicker); the drowned debris is the lake's own
+  ambient: {
+    on: LOOP_ENABLED && globalThis.GW_WILD !== false,
+    // candle-boats: paper boats each carrying a candle, drifting slowly on the outflow to the Moss Sluice along `lines` (x, z points; the
+    // last one at the gate's broken stone ring, its lip); each gutters out over its last `gutter` m, sinks, and after `wait` s another is
+    // launched at its line's head (`off` m to either side). The raft within `keep` m pushes a boat aside. Every line point is 6 m and
+    // more off the places, the mooring, the glide-in and the gate's lane (Sluice Run). The flame a soft warm point, never in the mirror
+    boats: { count: { high: 6, medium: 4, low: 0 }, order: [0, 1, 2, 0, 1, 0], speed: [0.17, 0.25], off: 1.1, gutter: 3.5, sink: 3, wait: [3, 9],
+      keep: 5, len: 0.6, flame: 0xffbf78, size: 0.65, paper: 0xd6cbb6, wax: 0xeee4cc,
+      lines: [[[40, -26], [28, -33], [17, -40], [8, -45.5]], [[22, -51], [13, -49.5], [7.6, -47.4]], [[-28, -43], [-17, -43.5], [-8, -46.6]]] },
+    // the gate towers' eight candle slits flicker, and every `every` s one goes out and is lit again `out` s later (nobody keeps them)
+    slits: { flicker: 0.24, every: [16, 36], out: [3, 6] },
+    // drowned debris in the empty middle-east water (the audit's #11): a half-sunk rowboat and four rooftops breaking the surface, a
+    // drowned street. In the lake's obstacles under the loop (the raft sails round them; no foam ring), 8 m and more off every place,
+    // every gap between them, the islands, pillars and docks 4 m and more (the raft is 3.2 m across). r: the collision circle
+    debris: [
+      { kind: 'roof', x: 38, z: -8, yaw: 0.35, w: 3.6, l: 3.4, top: 0.7, r: 2.2 },
+      { kind: 'roof', x: 40, z: 0.5, yaw: 0.2, w: 3.8, l: 4.2, top: 1.0, r: 2.4, chimney: true },
+      { kind: 'roof', x: 38, z: 9, yaw: -0.15, w: 3.2, l: 3.4, top: 0.55, r: 2.0, broken: true },
+      { kind: 'roof', x: 31, z: 3, yaw: 1.75, w: 2.4, l: 2.6, top: 0.4, r: 1.6 },
+      { kind: 'rowboat', x: 46, z: -7, yaw: 2.4, len: 3, r: 1.5 },
+    ],
+  },
+  // Murk's prices (the user, 16 Nov 2026: "The cost of items in murks shop should be way higher", then "For now just double the original
+  // costs ill playtest and tell you how it is"): every shelf price (tackle, hold, maps, lures, tins, raft, home) is its base × factor,
+  // applied once by progression-loop's mapCards and shelfItems; nothing earned changes. A preset GW_LOOP_COST (a positive number) sets
+  // it, so a build or a preview can play at ×2 while the tests keep base prices (WATERCRAFT.md §8, step P, settles the default).
+  cost: { factor: (Number(globalThis.GW_LOOP_COST) > 0 ? Number(globalThis.GW_LOOP_COST) : 1) },
+  // ---- M1 step 5a, the home barge (SPEC §6.1, §6.5; M1.md §4 step 5): the Slow Hearth, about 12 × 3.6 m, its hull a row of keel
+  // circles in the lake's obstacles (the raft's collision, the water's foam and the validator read them), Murk's barge its own
+  barge: { length: 12, beam: 3.6, keel: { n: 5, r: 1.8, step: 2.4 }, murkR: 2.4,
+    // the glide in (the sail home, the film's hand-off): its last stretch is the mooring's lane, so it reaches the stern from open
+    // water; `reach` m of it at most in the sail home's 2 s (twice the raft's speed; past that the glide begins `reach` m out)
+    reach: 24, arc: ['mossmere'] },   // arc I's stones on the sill, in road order (the reach's waters as each ships)
+  // one mooring per water (SPEC §6.5): the Mossmere's is the Jetty, docks[0]; the raft's tie-up at the stern IS docks[dock] (PLAN
+  // CHOICE 44's place); hull {x, z, yaw} the Slow Hearth's centre and heading (yaw 0: the bow faces −Z), murk Murk's barge (his
+  // facing in the docks' convention), lane the glide in's points before the tie-up (the glide out, reversed), cam the home camera
+  // (pos, look, fov; `portrait` for a screen taller than wide, its lens keeping its across angle from the aspect `across` on, and
+  // in the blend band closing by `tight` with its look `lift` m higher, eased in from `across` on;
+  // `blend` the aspects W / H between which the two ease into each other, a tablet held sideways, a 4:3 or a square window:
+  // homeCamAt)
+  mooring: {
+    mossmere: { dock: 0, hull: { x: 18.03, z: 44.46, yaw: 2.396 }, murk: { x: 13.2, z: 42.75, yaw: -1.35 }, lane: [[20.8, 32.9]],
+      cam: { pos: [23.01, 5.5, 27.28], look: [18.96, 1.3, 41.24], fov: 38, portrait: { pos: [28.77, 8.5, 24.32], look: [19.98, 1.3, 40.14], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } },
+  },
+};
+export const TEXT_LOOP = {   // every word is SPEC §8's (or a built word §8 names); the plan's few are the lead's, approved (PLAN §7.2)
+  holdFull: "Hold's full.", home: 'Home', keep: 'Keep', letGo: 'Let go', sold: 'Sold', yours: 'Yours.', odds: 'Odds ›',
+  sail: 'Sail', resume: 'Resume', continue: 'Continue', next: 'Next: {name} · {price}', holdName: 'Hold {n}',
+  tabs: { tackle: 'Tackle', raft: 'Raft', bait: 'Bait', maps: 'Maps', home: 'Home', giants: 'Giants' },   // giants: the ★ tab's accessible name only (PLAN CHOICE 25)
+  jetty: { murk: 'Murk', chart: 'Chart', journal: 'Journal', wall: 'The Long Wall' },   // (wall: the doorway's accessible name only, SPEC §6.3's; no word is drawn under it)
+  shelf: { hold: 'One more slot.', rod: 'Holds every fish better. Casts farther.', line: 'Lands bigger fish.', reel: 'More line for the big ones.',
+    heartmoss: 'For the Belled Matriarch. One try.' },   // a legend's bait (SPEC §8.4)
+  // the place maps' lines (SPEC §5.2's table), one per place, each ≤ 8 words
+  maps: { lily_maze: 'Koi glow under the pads like lanterns.', under_the_span: 'The bridge kept its chain. Something kept it.',
+    buoy_lights: 'The harbour lights went under, still lit.', bell_pool: 'The moon looks in on the old bell.' },
+  murk: { empty: 'Nothing? The water keeps its own counsel. Go again.',
+    wake: "Awake, little Wick? Good. Fish sell. Clams buy. That's the whole of it.",
+    firstChart: 'Three slots in that hold. Fill them and come home.',
+    firstChartBy: { tallow: 'Four slots in that hold. Fill them and come home.' },   // the Wick's own count (WICKS §2.4)
+    firstSale: "Clams. Spend them here. I'm the only shop left.",
+    firstQuiet: 'Quiet water. Move on, or go home.',
+    firstLetGo: 'Let one go and the water remembers.',
+    firstTrophy: "Now that's a fish.",
+    sailOut: ['Bring me something with a story.', 'The big ones come up at dusk. They always did.', 'Back already? Good. Out you go.'],
+    // M1 step 3a: SPEC §8.6's lines, exactly (each said once a save)
+    firstMap: "It's in the mist. Go and look.", firstGiant: 'That one had a name before you met it.',
+    legendFirst: "Her. You brought me her. Sit down, I'll count it twice.", listComplete: "Every fish in this water. I'll write that down." },
+  // the opening (SPEC §8.5): the user's New Descent and Start; Back; the five passives' names and lines (WICKS §2, one line each;
+  // the names shown and four lines made plainer for the user's "more obvious what it does", 16 November 2026, WICKS §7.4)
+  newDescent: 'New Descent', start: 'Start', back: 'Back',
+  passives: { wick: 'Curious', taper: 'Long Reach', stub: 'Moth-Bright', tallow: 'Broad Back', ashwick: 'Burns Back' },
+  wicks: { wick: 'New kinds and new bests sell higher.', taper: 'Evenings start with a rarer fish.', stub: 'Fish bite sooner and keep biting.',
+    tallow: 'One more slot in the hold.', ashwick: 'A fish that gets away comes back.' },
+  comingSoon: 'Coming soon',   // the sealed sheet of a water past LOOP.shipped (SPEC §5.4; M1.md §3.3), on the drawn Chart
+  introLine3: 'Its last candles fish from lamp to lamp.',   // the film's line 3 under the loop (LORE §12; the apply block sets it)
+  // Settings under the loop (PLAN CHOICE 43, SPEC §8.5): the word itself, the strike ring's first option and the hurry row's line
+  settings: { label: 'Settings', ringFirst: 'First evening',
+    hurry: 'From your second evening, press anywhere to hurry a small fish in.' },
+  forget: { row: 'Clams, gear, the Journal. There is no undo.', confirm: 'Every clam, every piece of gear and every name in the Journal will be lost.' },
+};   // no tagline: §8.5 gives none, so the loop's title draws none (the lead's ruling, PLAN §7.2)
+// the polish audit (batch 3): the catch card on a near-square or upright screen that is not a phone's (700 px wide or more, narrower
+// than 1.2 × its height, 480 px high or more) sits at the foot, over `lowFoot` of the frame's height; the show fits the Wick's face
+// and the fish into the open top above it (ui-screens' gw-cc-low, render's cardLow)
+LOOP.showCard = { lowFoot: 0.45 };
+// >>> MVP teach (the user's play-test, 16 November 2026: "add a one-time teaching moment for both"): the float's two marks, each
+// explained once by an ink caption with a leader to it (src/ui-teach.js; ≤ 6 words, no number). The quiet water is Murk's firstQuiet.
+TEXT_LOOP.teach = { notches: 'How big they run here.', dots: 'Good bites left here tonight.' };
+TEXT_LOOP.hookSet = 'Hook set';   // the word under the float on a Clean strike (the user's yes, 17 Nov 2026; SPEC §16)
+// <<< MVP teach
+// >>> heart (the user's ask, 17 Nov 2026: "if an elder or an ancient takes your bait ... it makes your heart race"): the moment the
+// hook is set on an Elder or an Ancient, once per fish (src/ui-heart.js; fishing:hookset). A few words low on the screen (≤ 3 words,
+// the class's own label), a soft low double thump (sfx heart_hook) fast at first and slowing, the frame's edges darkening on each
+// beat (off with reduced motion), a short double buzz on phones. Nothing for Small, Keeper, Prize or Trophy; nothing changes the catch.
+// `beats`: the gap (s) from one beat to the next, `first` → `last` over `n` beats; `gap` the lub-dub's spacing (s); `pitch`, `volume`
+// the thump's; `edge` the vignette's darkest (0–1) on a beat, `decay` its fade (s); `words` the words' hold and fade (s).
+LOOP.heart = {
+  elder:   { n: 6, first: 0.5, last: 0.95, gap: 0.19, pitch: 1, volume: 0.5, edge: 0.5, decay: 0.42 },
+  ancient: { n: 6, first: 0.66, last: 1.25, gap: 0.25, pitch: 0.74, volume: 0.58, edge: 0.6, decay: 0.55 },
+  words: { hold: 2, fade: 0.6 },
+  buzz: [30, 80, 45],
+};
+TEXT_LOOP.heart = { elder: 'An Elder.', ancient: 'Something ancient.' };
+// <<< heart
+// >>> the first-play guide (the user's ask, 17 Nov 2026: "some nice text boxes that appear to walk you through what you're doing and
+// why ... breaking the 4th wall and just talking to you like a person"): src/ui-guide.js shows each box once, at its moment. Plain
+// words, not the game's voice; each at most 30 words. `tackle` and `away` are written for the start kit of docs/loop/GEAR-GATES.md
+// (worms and the Bent Spoon; a fish over the gear's cap gets away), so they match at that merge (the tackle box waits for a save
+// that owns a lure and a bait). `touch` holds a box's words on a touch screen where they differ (the cast box's sailing).
+TEXT_LOOP.guide = {
+  tag: 'Guide', ok: 'Got it', skip: 'Skip the guide',
+  boxes: {
+    welcome: "Welcome! This is a calm fishing game, and you can't lose. Catch fish, sell them for clams, and spend clams on better gear to catch bigger, rarer fish.",
+    chart: 'This is your chart of the lake. Press SAIL to head out and fish. Later, Murk sells maps to new spots, each with its own fish.',
+    cast: 'Sail with WASD to reeds, lily pads or stones, where fish gather. To cast, press on the water and let go as the swinging aim reaches your spot.',
+    bite: 'Wait through small twitches. When the float goes right under, press once: stop the swinging needle in the bright notch for a clean strike, and the fish holds better.',
+    fight: 'Hooked! The fight plays out by itself, so just watch. Better rods and lines land big fish more often.',
+    card: "Keep it to sell to Murk at home (the number is what he'll pay), or let it go. Your hold only fits a few fish.",
+    tackle: "This tin changes what's on your hook. Worms are bait: cast and wait. The spoon is a lure: it swims back by itself, and hunting fish chase it.",
+    home: 'Your hold is full. Press HOME to sail back and sell your catch to Murk. Next time, hold HOME to head back early.',
+    murk: 'Murk buys the fish you bring home. Press MURK to spend clams on better gear for bigger fish. The line at the bottom shows what to save for next.',
+    away: 'That one got away! Big fish can break free, and some are too big for your gear. Better line and lures will hold them.',
+  },
+  touch: { cast: 'Sail with the stick, bottom left, to reeds, lilies or stones, where fish gather. To cast, press on the water and let go as the swinging aim reaches your spot.' },
+  settings: { group: 'Guide', tips: 'Guide tips', tipsSub: 'Short notes for your first play', replay: 'Replay guide', replaySub: 'Show every note again', replayBtn: 'Replay' },
+};
+// <<< the first-play guide
+
+// >>> M1 step 4 (lane 4: the tins and lures, the raft, Murk's orders; docs/loop/M1.md §4 step 4, SPEC §4.4, §4.5, §6.3, §7, §8.4).
+// Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; LOOP and TEXT_LOOP are not in the v3
+// fingerprint). The values are the sim's draft tables (tools/sim/clams.mjs: familyLures, giantsLures, baitRule, bait, tinSize, raft,
+// home.orders); tools/tests/loop-4.test.mjs checks they agree. `with` is the water (catalogue order) whose map puts a level on the
+// shelf (SPEC §4.7's "on the shelf with", decision 38): 1 the start; Keel III the Pallid Deep's (4), Order Board III Glasswater's (3).
+LOOP.lures = {
+  // the start kit's lure (GEAR-GATES.md §2.1, the user's "start off with one lure … low quality"): free, never on the shelf (`start`)
+  bent_spoon:    { water: 'mossmere', price: 0, start: true },
+  // the Mossmere's four (SPEC §4.4): three family lures (+5 / +6 Hold on their family, drawn × their built `attract`) and its giants'
+  // lure, re-aimed at its giants (+10 Hold on the fish named, its giants' share × `share`); bought once and kept for good
+  feather_fly:   { water: 'mossmere', price: 50,  family: 'insect' },
+  glimmer_spoon: { water: 'mossmere', price: 90,  family: 'predator' },
+  bone_jig:      { water: 'mossmere', price: 110, family: 'bottom' },
+  bell_spinner:  { water: 'mossmere', price: 180, giants: ['thousandcast_pike', 'hullkiss_lamprey', 'reedjaw_pike'], share: 1.5, hold: 10 },
+};
+// every tin of a water costs grade × its value tier, rounded to 5 (the Mossmere's 10); a tin holds `tin` baits; every tin gives `favour`
+// (every fish runs bigger) and +Hold on the fish that favour it (the larger of the lure's and the bait's, never both)
+LOOP.baitRule = { grade: 1.5, favour: 0.3, tin: 10 };
+LOOP.tins = { mossmere: ['mireworm', 'lumen_moss'] };   // the Mossmere's tins, in the shelf's order (SPEC §4.5: both "first on the shelf with the Mossmere")
+// Cut Strip (SPEC §3.2, §4.5): holding Let go on a Small or a Keeper cuts it into `strips` (free; +0.3 favour and +4 Hold on predators)
+LOOP.cut = { strips: 3, classes: ['small', 'keeper'], hold: 0.6 };
+LOOP.raft = {
+  oars:    { prices: [60, 300], with: [1, 1], speed: 1.5 },               // raft speed +1.5 m/s a level (6 → 9)
+  keel:    { prices: [100, 600, 3000], with: [1, 1, 4], favour: 0.1 },   // every fish runs a little bigger: favour +0.1 everywhere a level
+  lantern: { prices: [100, 500], with: [1, 1], favour: 0.1, light: 0.15 },   // night fish bigger (+0.1 after dark a level); the light 15% farther a level
+};
+LOOP.home = Object.assign(LOOP.home || {}, {
+  // Murk's Order Board (SPEC §6.3): 1 / 2 / 3 orders on the bounty engine's shape (progression-loop's orders; src/loop-gear.js)
+  orders: { prices: [70, 400, 4000], with: [1, 1, 3], count: [1, 2, 3] },
+});
+// the orders' rules (SPEC §6.3): two in three ask for a common or uncommon fish; never a giant or the legend; never expiring; every fish
+// that fills one sells for `double` × at the tally. Kinds: `count` ("2 Dusk Minnows"), `class` ("a Prize Weeping Carp"), `heavy` ("a
+// Reedjaw Pike over 9 lb 0 oz": data.weightTarget of the fish's weight at z `heavyZ`, checked on the ounces the card shows)
+LOOP.orders = { common: 2 / 3, double: 2, count: { common: [2, 3], uncommon: [1, 2], rare: [1, 1] }, kinds: { count: 0.6, class: 0.2, heavy: 0.2 },
+  rareKinds: { count: 0.6, heavy: 0.4 }, cls: 'prize', heavyZ: 0.35 };
+// the words (SPEC §8.4's lines, §8.6's line; the names the shelf's cards carry, SPEC §4.7's table). The order phrases are composed of
+// these, the species' names and data.fmtWeight's figures (ui-gear.js orderPhrase; ui-loop's textAllowed reads them)
+Object.assign(TEXT_LOOP.shelf, {
+  feather_fly: '+5 Hold against insect eaters.', glimmer_spoon: '+6 Hold against predators.', bone_jig: '+6 Hold against bottom feeders.',
+  bell_spinner: 'For the Thousandcast Pike.',
+  mireworm: 'For the Mossmere.', lumen_moss: 'The Gloam Eel bites on nothing else.', cut_strip: 'Holds predators better.',
+  oars: 'Faster.', keel: 'Bigger fish.', lantern: 'Bigger fish at night.', orders: 'Orders pay double.',
+});
+TEXT_LOOP.gearNames = { oars: ['Oars I', 'Oars II'], keel: ['Keel I', 'Keel II', 'Keel III'], lantern: ['Lantern I', 'Lantern II'],
+  orders: ["Murk's Order Board I", "Murk's Order Board II", "Murk's Order Board III"] };
+TEXT_LOOP.murk.firstSmall = 'Small ones make good bait. Press and hold \u201cLet go\u201d.';
+// the first trip's cast word under the loop (the polish pass: "Hold" is the Hold stat's word, so the gesture says press)
+TEXT_LOOP.castTip = 'Press on the water. Let go to cast.';
+TEXT_LOOP.orderWords = { a: 'a', an: 'an', over: 'over' };
+// Murk says a new order once (the user, 17 Nov 2026: the board never said what he wants): on buying the board and at a visit home;
+// the Journal's word on a species page an open order names (src/loop-gear.js orderSayLine; ui-loop's textAllowed reads `line`)
+TEXT_LOOP.orderSay = { line: 'Bring me {order}.', and: 'and', wants: 'Murk wants one.' };
+// the items' names as the shelf, the slots and the gear log show them (the built LURES / BAITS names, SPEC §4.4, §4.5)
+TEXT_LOOP.gearItems = { feather_fly: 'Feather Fly', glimmer_spoon: 'Glimmer Spoon', bone_jig: 'Bone Jig', bell_spinner: 'Harbour-Bell Spinner',
+  mireworm: 'Mire Worms', lumen_moss: 'Lumen Moss', cut_strip: 'Cut Strip', bent_spoon: 'Bent Spoon' };
+// <<< M1 step 4 (lane 4)
+// >>> TK, the tackle tin (the user's words of 16 November 2026: "We should have an option to equip bait or change lures whilst out on the
+// lake"; src/ui-tackle.js, CONTRACT §14.19). Few words: the tin's name, the drawer's two rows, its two empties, the one line while a fish
+// is on. The items' names are TEXT_LOOP.gearItems' (and the built BAITS' for the legend's ball); no odds, no likes, no percentage.
+TEXT_LOOP.tackle = { tin: 'Tackle', bait: 'Bait', lure: 'Lure', bare: 'Bare hook', none: 'No lure', after: 'After this fish.' };
+// <<< TK
+
+// >>> WC-1 (docs/loop/WATERCRAFT.md rev. 2 §3.9, §8.1; SPEC v8.7 §8.11, decisions 93–104). Additive: LOOP.cost (Murk's price factor, read
+// by the sim now and applied in the game by the integrator's step P), loopCost and nice, loopLight's export, and the watercraft words.
+// None of these is in the v3 fingerprint (LOOP and TEXT_LOOP are read only under data.LOOP_ENABLED).
+// Murk's price = nice(base × factor); a consumable (a tin, a legend's bait) × consumables. The factor the game ships at is `shipped`:
+// the user, 16 Nov 2026, "For now just double the original costs ill playtest and tell you how it is" (×2; WATERCRAFT.md §8 designed
+// ×3 and the sim fits ×4: the lead's step P may change this one number). Which factor a load plays at (loopCostFactor): a preset
+// GW_LOOP_COST (a positive number) wins; else a browser page plays at its ?cost=N or at `shipped`; node tools and tests keep the base
+// prices (×1) unless they preset GW_LOOP_COST, and the sim's M1 view reads `shipped`. Other keys of a LOOP.cost the build holds stay.
+export const LOOP_COST_SHIPPED = 2;
+/** Pure: the price factor a load plays at, from its globals ({GW_LOOP_COST, document, location}). */
+export function loopCostFactor(g = globalThis) {
+  const preset = Number(g?.GW_LOOP_COST);
+  if (preset > 0) return preset;
+  if (typeof g?.document === 'undefined' || typeof g?.location?.search !== 'string') return 1;
+  let q = null;
+  try { q = new URLSearchParams(g.location.search); } catch { q = null; }
+  const n = q && q.has('cost') ? Number(q.get('cost')) : NaN;
+  return n > 0 ? n : LOOP_COST_SHIPPED;
+}
+LOOP.cost = Object.assign({ consumables: 1 }, LOOP.cost || {}, { factor: loopCostFactor(), shipped: LOOP_COST_SHIPPED });
+// the shelf's one line for each tin and lure (SPEC §8.11, replacing lane 4's family lines; the Spinner's as built)
+Object.assign(TEXT_LOOP.shelf, {
+  mireworm: 'Nearly every fish takes a worm.', lumen_moss: 'For the Gloam Eel and the Candlefin Koi.', cut_strip: 'Meat, for the hunters.',
+  feather_fly: 'For Dusk Minnows, Chub, Lampsippers and Koi.', glimmer_spoon: 'Flash, for pike and the big hunters.', bone_jig: 'Hopped deep, for big perch and bass.',
+  bell_spinner: "For the Mossmere's giants.",
+});   // (the polish audit, batch 3: each ≤ 8 words, none repeats another; the Fly's and the Moss's fish are LOOP.items' own)
+// the gear log's words (SPEC §8.11): the Who bites block and a tin's or lure's Hold line (WC-3 renders them)
+TEXT_LOOP.log = Object.assign(TEXT_LOOP.log || {}, {
+  whoBites: 'Who bites', bare: 'Bare hook', under: '<1%', unmet: 'and {n} you have not met',
+  gear: '+{n} Hold on the fish it suits ({m} you have met).',
+});
+// <<< WC-1
+
+// >>> GEAR-GATES (docs/loop/GEAR-GATES.md; the user, 17 Nov 2026: "start off with one lure and some bait … Certain fish we shouldn't be
+// able to access without certain lures or bait … the standard fish … Capped at a certain size"). Loop-only keys and words (LOOP and
+// TEXT_LOOP are not in the v3 fingerprint); the Bent Spoon's LURES and CATCH_V3.items rows are added in the loop's apply block.
+// the start kit (§2.1): a fresh save owns the Bent Spoon and one tin of Mire Worms at its first water, fitted
+LOOP.start = { lures: ['bent_spoon'], bait: { mireworm: 10 }, fit: 'mireworm' };
+// the bare hook (§2.2): on a trip with nothing on the hook the wait is × waitMult before the 2–25 s clamp (never a legend's cast or the
+// tutorial's), and its fish run small (a favour term)
+LOOP.bare = { waitMult: 2.5, favour: -0.5 };
+// the gear's size caps (§4.1, watercraft.gearCap): the landed class is the lowest of the fish's grade on the hook ([stray 'keeper'],
+// takes it, likes it, the right bait), the free hooks' ceiling and the line's (Twine, Line T1, T2 and up); capZ still applies on top. A
+// fish over the cap hooks, then gets away (fishing: its land chance 0); on evening 1 and in the tutorial it lands at the cap instead
+// (`firstEvening`), and Ashwick's comeback of a cap loss returns at the cap (`ashwick`)
+LOOP.gearCap = {
+  grade: [null, 'keeper', 'prize', 'elder'],
+  item: { bare: 'keeper', bent_spoon: 'keeper', cut_strip: 'prize' },
+  line: ['prize', 'trophy', 'elder'],
+  firstEvening: 'cap', ashwick: 'cap',
+};
+// the words (§4.3, §5.1): the got-away line on a cap loss (in the "Hook set" slot; it names the gear, never the fish), Murk's once-line,
+// and the logs' lines (the Journal's species page, the sheet's pinned fish, the gear log)
+TEXT_LOOP.gate = {
+  upTo: 'Lands up to {class}.', needs: 'Needs {item}.',
+  // the Journal's hint on a card the save cannot catch yet (progression-loop.needsHint): an unmet fish's generic words, and the line's
+  hint: { lure: 'Needs a lure.', bait: 'Needs bait.', line: 'Needs a better line.' },
+  away: { line: 'Too heavy for your line.', bare: 'Too big for a bare hook.', bent_spoon: 'Too big for the Bent Spoon.', cut_strip: 'Too big for Cut Strip.',
+    lure: 'It wants a better lure.', bait: 'It wants a better bait.' },
+};
+TEXT_LOOP.murk.firstAway = 'Lost a big one? Better gear holds them.';
+// <<< GEAR-GATES
+
+// ---- The loop's pure helpers (PLAN §3.1, WICKS §5). Each reads only LOOP and the built size model; the sim calls the same ones.
+/** A fish's clams (SPEC §4.1) on the built size: max(1, round(tier × rarity × body(sizeL50) × clamp(e^(perZ·z)) × classBonus ×
+ *  priceFactor)). No quality, no streak, no lake normaliser. A legend returns null (she is priced by her crown, progression-loop). */
+export function fishClams(sp, z, { zone = sp?.zone, tier = LOOP.waters[zone]?.tier } = {}) {
+  if (!sp || sp.rarity === 'legendary') return null;
+  const V = LOOP.value, zz = Number(z) || 0, t = Number(tier);
+  if (!(t > 0) || !sp.size) return null;
+  const B = V.body, body = Math.min(B.clamp[1], Math.max(B.clamp[0], (sizeL50(sp, zone) / B.ref) ** B.exp));
+  const m = Math.min(V.clamp[1], Math.max(V.clamp[0], Math.exp(V.perZ * zz)));
+  return Math.max(1, Math.round(t * (V.rarity[sp.rarity] ?? 1) * body * m * (V.classBonus[sizeClassOf(zz)] ?? 1) * (LOOP.priceFactor ?? 1)));
+}
+/** The bite-count key (PLAN CHOICE 16): a place's id, or `open:<zoneId>` for open water. */
+export function loopWaterKey(placeId, zoneId) { return placeId ? String(placeId) : `open:${zoneId}`; }
+/** A Wick id of LOOP.wicks.order, else 'wick' (the one implementation: main, loop-rules and progression read it). */
+export function loopWickId(id) { return LOOP.wicks.order.includes(id) ? id : 'wick'; }
+/** M1 step 2 (SPEC §13 rule 3, decision 39): the catalogue order of the last water that ships (LOOP.shipped; 1 = the Mossmere). */
+export function loopShippedOrder() { return Number(LOOP.waters[LOOP.shipped]?.order) || 1; }
+/** Is a water inside what ships? A water past LOOP.shipped is sealed: no lake map for it is offered, no sheet drawn, no trip sails there. */
+export function loopShipped(waterId) { const o = Number(LOOP.waters[waterId]?.order); return Number.isFinite(o) && o <= loopShippedOrder(); }
+/** A Wick's slots for a bought hold (WICKS §2.4): holdSlots + the Wick's `slots` (Tallow 1, the rest 0). Numbers only. */
+export function wickSlots(holdSlots, wickId) { return (Number(holdSlots) || 0) + (LOOP.wicks[loopWickId(wickId)]?.slots || 0); }
+/** wickSlots on a save's meta.loop (its bought holdSlots); the Wick defaults to the save's own. */
+export function loopSlots(metaLoop, wickId = metaLoop?.wick) { return wickSlots(metaLoop?.holdSlots ?? LOOP.hold.start, wickId); }
+/** Good bites a water gives each evening (SPEC §3.3, WICKS §2.4): open water wickSlots × openPerSlot + openExtra + the Wick's `good`;
+ *  a place LOOP.water.good[kind], plus the Wick's `good` where its `everyWater` (Tallow's). holdSlots is the bought count. */
+export function goodBitesFor({ kind = 'open', holdSlots = LOOP.hold.start, wickId = null, extra = 0, place = null } = {}) {
+  const W = LOOP.water, K = LOOP.wicks[loopWickId(wickId)];
+  // (LOST-TACKLE §5.1: a place with its own `good`, Veilback Brook's 1, gives that in place of its kind's)
+  const own = typeof place === 'string' ? LOOP.places?.[place]?.good : undefined;
+  if (kind !== 'open' && Number.isFinite(own)) return own + (K?.everyWater ? K.good || 0 : 0);
+  // (M1 step 5c: `extra` is a bite part's +1 at its own water's open water, loop-finds.findBiteBonus; 0 elsewhere and by default)
+  if (kind === 'open') return Math.round(wickSlots(holdSlots, wickId) * W.openPerSlot) + W.openExtra + (K?.good || 0) + Math.max(0, Math.round(Number(extra) || 0));
+  return (Number(W.good[kind]) || 0) + (K?.everyWater ? K.good || 0 : 0);
+}
+/** The quiet terms of a bite `over` bites past a water's good bites (SPEC §3.3; the caller counts over, PLAN CHOICE 17): favour
+ *  −0.15 a bite to −1.2 and waits ×(1 + 0.3·over) to ×2.2; Stub (WICKS §2.3) −quietStep a bite and no slower waits. */
+export function quietTerms(over, wickId = null) {
+  const S = LOOP.water.stale, K = LOOP.wicks[loopWickId(wickId)] || {}, n = Math.max(0, Number(over) || 0);
+  const step = K.quietStep != null ? -K.quietStep : S.favour;
+  return { over: n, favour: n > 0 ? Math.max(S.floor, step * n) : 0, waitMult: K.quietWait === false ? 1 : Math.min(S.waitMax, 1 + S.wait * n) };
+}
+// >>> M1 step 5c (lane 5C: the Mossmere's finds; docs/loop/FINDS.md §10, §5.1, §9; SPEC §4.10, decisions 49–57). Additive: a new LOOP
+// key and new TEXT_LOOP words, read only under data.LOOP_ENABLED (LOOP and TEXT_LOOP are not in the v3 fingerprint). The rules are
+// src/loop-finds.js's (pure); findShares below is the one function the snag roll draws from and the catalogue prints.
+LOOP.finds = {
+  snag: { perBite: 0.05, firstEvening: 0, legendCast: 0 },   // a snag in place of a fish: 1 bite in 20 (est.); never evening 1 or a legend's cast
+  kind: { share: 0.35, step: 0.15, cap: 0.8 },                // of snags, while the water has an unowned part or look (the soft guarantee)
+  parts: { bait: 1, order: 1, bite: 1 },                      // each kind's effect at its own water, capped at one (FINDS §3.2)
+  grades: { plain: { share: 0.54, x: 2 }, fine: { share: 0.29, x: 6 }, precious: { share: 0.12, x: 15 },   // shares of ALL the water's
+    rare: { share: 0.04, x: 50 }, jackpot: { share: 0.01, x: 250 } },                                     // snags (revision 3)
+  haul: { pinch: 2, both: 3, alongside: 4 },                  // s: the slow steady wind, never lost
+  hold: { pinch: 1.2, both: 1.5, alongside: 1.8, jackpot: 2.6 },   // the show's held beat, s (the jackpot a giant's longer beat)
+  tin: 10,                                                    // a tin's baits when LOOP.baitRule (step 4) is not in this build
+  // the Mossmere's eleven (FINDS §5.1): five treasures, three parts (one of each effect), three looks (one per wearer). `size` the
+  // prop's length in metres (the show holds it at its own size), `slot` where a part or a look goes, `bait` the bait part's tin
+  items: [
+    { id: 'tin_spoon', water: 'mossmere', kind: 'treasure', grade: 'plain', pose: 'pinch', size: 0.2 },
+    { id: 'door_ring', water: 'mossmere', kind: 'treasure', grade: 'fine', pose: 'both', size: 0.26 },
+    { id: 'salt_lens', water: 'mossmere', kind: 'treasure', grade: 'precious', pose: 'both', size: 0.2 },
+    { id: 'two_headed_coin', water: 'mossmere', kind: 'treasure', grade: 'rare', pose: 'pinch', size: 0.12 },
+    { id: 'toll_purse', water: 'mossmere', kind: 'treasure', grade: 'jackpot', pose: 'both', size: 0.28 },
+    { id: 'buoy_bell', water: 'mossmere', kind: 'part', effect: 'order', slot: 'bow_post', pose: 'both', size: 0.3 },
+    { id: 'gate_glass', water: 'mossmere', kind: 'part', effect: 'bite', slot: 'cabin_windows', pose: 'both', size: 0.3 },
+    { id: 'moat_bollard', water: 'mossmere', kind: 'part', effect: 'bait', slot: 'stern_deck', pose: 'alongside', size: 0.62, bait: 'mireworm' },
+    { id: 'rod_tassel', water: 'mossmere', kind: 'look', slot: 'wick_rod', wearer: 'wick', pose: 'pinch', size: 0.2 },
+    { id: 'toll_vane', water: 'mossmere', kind: 'look', slot: 'raft_stern_post', wearer: 'raft', pose: 'both', size: 0.4 },
+    { id: 'lily_boxes', water: 'mossmere', kind: 'look', slot: 'barge_window_boxes', wearer: 'barge', pose: 'both', size: 0.46 },
+  ],
+};
+// the words (FINDS §9): each find's name and one line, the catalogue row's heading, Murk's three once-lines
+TEXT_LOOP.finds = {
+  snags: 'Snags', biteIn: '1 bite in {n}',
+  items: {
+    tin_spoon: { name: 'Bent Tin Spoon', line: 'Someone ate every meal with this, slowly.' },
+    door_ring: { name: 'Brass Door-Ring', line: 'Off a door four Wicks tall.' },
+    salt_lens: { name: 'Salt-Glass Lens', line: 'Fitted to a lantern long since drowned.' },
+    two_headed_coin: { name: 'Two-Headed Coin', line: 'Lucky, they said. Heads every time.' },
+    toll_purse: { name: "The Toll-Keeper's Purse", line: 'Full. Nobody came to collect.' },
+    buoy_bell: { name: 'Rust Buoy-Bell', line: 'It rang the boats home once.' },
+    gate_glass: { name: 'Gate Lamp-Glass', line: "Amber, from the Gate's drowned lamps." },
+    moat_bollard: { name: 'Moat Bollard', line: 'Carved stone. Boats tied here for centuries.' },
+    rod_tassel: { name: 'Knotted Rod Tassel', line: 'Every knot, a fish someone was proud of.' },
+    toll_vane: { name: 'Toll-Tower Vane', line: 'It still points into the wind.' },
+    lily_boxes: { name: 'Night-Lily Window Boxes', line: 'A window box, still flowering.' },
+  },
+};
+Object.assign(TEXT_LOOP.murk, { firstTreasure: 'The water keeps what it takes. Mostly.', firstPart: "That'll fit her. I'll see to it by morning.",
+  firstJackpot: "Somebody's whole fortune. Now it's yours." });
+/** M1 step 5c (FINDS §10): the share of the water's next snag for each of its finds as the save stands (pure; loop-finds.js). */
+export function findShares(meta, D = { LOOP, TEXT_LOOP }, waterId = 'mossmere', opts = {}) { return findSharesOf(meta, D, waterId, opts); }
+// <<< M1 step 5c (lane 5C)
+// >>> Lost tackle (docs/loop/LOST-TACKLE.md §2, §3, §6; lane L1): old fishing gear from the water, a fourth kind of find. Additive,
+// loop-only (LOOP and TEXT_LOOP are not in the v3 fingerprint). Each piece is 1% of its water's snags; the soft guarantee climbs the
+// Veil Angler's Notebook +5 points a snag to 40% (meta.loop.finds.tackleMiss) and leaves the other five at 1% (loop-finds.findShares).
+LOOP.finds.items.push(
+  { id: 'lamp_pole', water: 'mossmere', kind: 'tackle', slot: 'rod', pose: 'alongside', size: 3.0 },
+  { id: 'belfry_winch', water: 'mossmere', kind: 'tackle', slot: 'reel', pose: 'both', size: 0.24 },
+  { id: 'ferry_thread', water: 'mossmere', kind: 'tackle', slot: 'line', pose: 'both', size: 0.14 },
+  { id: 'guard_button', water: 'mossmere', kind: 'tackle', slot: 'lure', pose: 'pinch', size: 0.06 },
+  { id: 'veil_notebook', water: 'mossmere', kind: 'tackle', slot: 'notebook', pose: 'both', size: 0.22 },
+  { id: 'lily_notebook', water: 'mossmere', kind: 'tackle', slot: 'notebook', pose: 'both', size: 0.18 },
+);
+LOOP.finds.tackle = { each: 0.01, guarantee: { item: 'veil_notebook', step: 0.05, cap: 0.4 }, partCap: 0.8 };
+// each piece's stats (§3.2, §4; lanes L3 and L4 read them): `reveals` is the place the piece's tally adds to meta.loop.places.revealed
+LOOP.lostTackle = {
+  lamp_pole: { slot: 'rod', castMax: 26, hookWindow: 1.0, hold: 0 },
+  belfry_winch: { slot: 'reel', playMult: 0.6, hold: 2 },
+  ferry_thread: { slot: 'line', waitMult: 0.8, hold: 2, cap: 'trophy' },
+  guard_button: { slot: 'lure' },
+  veil_notebook: { slot: 'notebook', boost: { kissmark_trout: 1.2 },   // (×1.2, not the design's ×1.6: the pacing gate's room, §11.2; the user's knob)
+    guest: { id: 'rosefleck_trout', from: 'glasswater', areas: ['inflow'], lights: ['day', 'dusk'], share: 0.04 }, reveals: 'veilback_brook' },
+  lily_notebook: { slot: 'notebook', boost: { weeping_carp: 1.5, candlefin_koi: 1.5 },
+    guest: { id: 'nightbloom_carp', from: 'sporewood', areas: ['pads'], lights: ['night'], share: 0.03 } },
+};
+// the words (§6.1): the name, `does` (the card's one plain line) and `line` (the owner's, in the catalogue and the log)
+Object.assign(TEXT_LOOP.finds.items, {
+  lamp_pole: { name: "Lamplighter's Pole", does: 'Casts farther than any rod sold.', line: 'It lit the drowned buoys, once.' },
+  belfry_winch: { name: 'Belfry Winch', does: 'Brings every fish in quicker.', line: "Cut from the belfry's clockwork." },
+  ferry_thread: { name: "Ferrywife's Thread", does: 'Fish bite sooner on it.', line: 'Spun on the ferry between rows.' },
+  guard_button: { name: "Gate-Guard's Button", does: 'Most fish take it. Never giants.', line: "Off a gate guard's coat, drilled." },
+  veil_notebook: { name: "The Veil Angler's Notebook", does: 'Trout notes, and a hidden water.', line: 'Fished the Veil every day, it says.' },
+  lily_notebook: { name: "The Lily Gardener's Notebook", does: 'Carp notes, and one far carp.', line: 'Every carp in the moat, by name.' },
+});
+TEXT_LOOP.murk.firstTackle = 'Somebody fished here before you.';   // once, at the first piece's tally (§6.1)
+// <<< Lost tackle (lane L1)
+// >>> Lost tackle, lanes L3–L5 (LOST-TACKLE.md §2.1, §3.2, §4, §6): the found lure owned as a bought one (never on the shelf: `found`),
+// the tin's Kit row, the guests' records (the apply block: the converter's, with their home water as zone and `guestOf`), the logs' words
+LOOP.lures.guard_button = { water: 'mossmere', price: 0, found: true };   // (the shelf skips `found` lures, as it skips `start`)
+TEXT_LOOP.gearItems.guard_button = "Gate-Guard's Button";
+TEXT_LOOP.tackle.kit = 'Kit';   // the tin's third row: the found rod, line and reel, shown once one is owned (§2.1)
+// the gear log's effect lines (§6.2; logs only: numbers here and nowhere on the HUD, the shelf or a card)
+TEXT_LOOP.lost = { log: { cast: 'Casts {m} m.', play: 'Plays {x}× as long.', wait: 'Bites come {p}% sooner.', likes: 'Liked by {n} fish here.',
+  boost: '{fish} come more often.', guest: '{fish} bite at {where}, {lights}.', reveals: 'Shows the way to {place}.' },
+  where: { inflow: 'the Sluice Veil', pads: 'the lily beds' }, lights: { day: 'day', dusk: 'dusk', night: 'night', and: 'and' },
+  places: { veilback_brook: 'Veilback Brook' } };
+// the guests' roster records (§4.2; the converter in the apply block): their home water's zone, `guestOf` the water they visit
+LOOP.guests = { mossmere: ['rosefleck_trout', 'rainglass_darter', 'nightbloom_carp'] };
+// <<< Lost tackle, lanes L3–L5
+// >>> Lost tackle (lanes W and C; LOST-TACKLE §5): Veilback Brook, the stream behind the Sluice Veil. A place of the loop's own, `secret`:
+// never a map card and never on the Chart until the Veil Angler's Notebook comes home (its tally adds it to meta.loop.places.revealed and
+// to maps.places, so from then on it is an owned place like any other, free). Its geometry record joins MOSSMERE_V3.places only under the
+// loop (the v3 fingerprint never sees it); the arena's shoreNotch (the cut behind the Veil, always built) is its `needs`. `only`: its pool
+// is its own fish and its draws, nothing else of the open water; `good` its good bites an evening (goodBitesFor's `place`); `glide` the
+// Sail's glide in through the Veil (loop-home: the raft set at its first point, then the glide).
+LOOP.places.veilback_brook = { water: 'mossmere', kind: 'day', secret: true, revealedBy: 'veil_notebook', price: 0, good: 1, only: true,
+  own: ['rosefleck_trout', 'rainglass_darter'], draws: { dusk_minnow: 1.5 },   // (the owner's pacing choice: a quieter brook, no Kissmark among its draws; LOST-TACKLE §11.2)
+  glide: [[45, 0], [50, 0.25], [58.6, 4], [68.5, 5]], glideSec: 4.5 };   // (north of the east dock's posts, clear of the drowned roof, through the Veil, 10 m in)
+const VEILBACK_V3 = Object.freeze({ id: 'veilback_brook', name: 'Veilback Brook', access: 'raft', stand: null, secret: true, x: 66, z: 4.5, phase: 2,
+  water: { kind: 'path', pts: [[60, 4.1], [75, 5.1]], w: 5, depth: [0.5, 0.7] }, landmark: { x: 74, y: 2, z: 5 },
+  // the cut (CONTRACT §13.8's shoreNotch): a° from +x toward +z, w m wide, len m past the arena's radius; `pool` where it widens (along
+  // the cut, 0..1) and how wide; `end` the culvert's half-width
+  needs: { shoreNotch: { a: 3.9, w: 6, depth: 0.6, len: 18, pool: { at: [0.46, 0.76], w: 8.4 }, end: 2.4 }, veil: 'mist' },
+  lore: 'Behind the falling water, the old cut still runs.', look: 'a reed-banked brook under broken arches' });
+if (LOOP_ENABLED && !MOSSMERE_V3.places.some((p) => p.id === VEILBACK_V3.id)) MOSSMERE_V3.places.push(v3clone(VEILBACK_V3));
+TEXT_LOOP.murk.brook = 'Water behind the Veil. Always said so.';   // once, as home opens after the notebook's tally (§5.2)
+// <<< Lost tackle (lanes W and C)
+/** Taper's first bite over a whole pool (WICKS §2.2): `pool` the species, `weights` theirs. While firstBite, the commons are zeroed
+ *  when the uncommon-and-rare rest keeps at least signRule.minSpecies kinds and none above signRule.maxShare (the hidden-info rule);
+ *  otherwise the same array comes back (the rule waits). Every other Wick, or no first bite: the same array. Zeroed weights keep the
+ *  one draw, so the RNG count is unchanged. */
+export function wickPoolWeights(wickId, pool, weights, { firstBite = false, signRule = AUTOFISH.signRule } = {}) {
+  if (LOOP.wicks[loopWickId(wickId)]?.passive !== 'long_reach' || !firstBite || !Array.isArray(pool) || !Array.isArray(weights)) return weights;
+  const keep = weights.map((w, i) => (pool[i]?.rarity === 'common' ? 0 : w)), tot = keep.reduce((a, b) => a + b, 0), by = new Map();
+  pool.forEach((s, i) => { if (keep[i] > 0) by.set(s.id, (by.get(s.id) || 0) + keep[i]); });
+  if (!tot || by.size < signRule.minSpecies || Math.max(...by.values()) / tot > signRule.maxShare + 1e-12) return weights;
+  return keep;
+}
+/** The glide out of a Sail (PLAN CHOICE 38): from the dock to T.outPath[lake]'s last point when the lake has one, else T.outDist m
+ *  toward the lake's centre. `path` is every point of the glide (from first); yaw faces the way the raft travels (player.heading). */
+export function sailPlan(dock, centre = { x: 0, z: 0 }, T = LOOP.tutorial, lake = null) {
+  const P = lake ? T?.outPath?.[lake] : null, pt = (q) => ({ x: Number(q[0]), z: Number(q[1]) });
+  const from = dock && Number.isFinite(Number(dock.x)) ? { x: Number(dock.x), z: Number(dock.z) } : P?.length ? pt(P[0]) : { x: 0, z: 0 };
+  let path;
+  if (Array.isArray(P) && P.length >= 2) path = [from, ...P.slice(1).map(pt)];
+  else {
+    const cx = Number(centre?.x) || 0, cz = Number(centre?.z) || 0, d = Math.hypot(cx - from.x, cz - from.z), s = d > 0 ? Math.min(Number(T?.outDist) || 0, d) / d : 0;
+    path = [from, { x: from.x + (cx - from.x) * s, z: from.z + (cz - from.z) * s }];
+  }
+  const to = path[path.length - 1], a = path[path.length - 2];
+  return { from, to, yaw: Math.atan2(-(to.x - a.x), -(to.z - a.z)), path };
+}
+/** M1 step 3a (PLAN CHOICE 7): the glide out of a Sail toward a water or a place of it, from the dock. A place: its own authored glide
+ *  (LOOP.places[id].out, [[x, z], …], the first point the dock) when it has one, else T.outDist m toward its centre; no place (or one
+ *  LOOP.places does not hold): the water's glide (sailPlan with the lake: its outPath, else toward the lake's centre). validate-data
+ *  --loop proves every one clears each island and pillar by the raft's radius + 0.3 m. */
+export function loopSailPlan(dock, { water = 'mossmere', place = null } = {}, T = LOOP.tutorial) {
+  const P = place ? LOOP.places?.[place] : null, rec = P ? loopPlaceRecord(place) : null;
+  if (!P || !rec) return sailPlan(dock, { x: 0, z: 0 }, T, water);
+  if (Array.isArray(P.out) && P.out.length >= 2) return sailPlan(dock, { x: rec.x, z: rec.z }, { ...T, outPath: { [place]: P.out } }, place);
+  return sailPlan(dock, { x: rec.x, z: rec.z }, T, null);
+}
+
+// >>> M1 step 5b (LANE 5B-TOW): the opening at the Landing and the tow (OPENING.md §6.2 rev. 5, SPEC §6.5, M1.md §2.1, §2.13).
+// The tow is one Chart component every water's first tow reuses (src/loop-tow.js, src/ui-tow.js): its leg on the drawn Chart (the
+// road's piece, the raft's mark towing the barge's on a line, Murk's alongside), one ink dip into the water, then the glide in to the
+// mooring in the water. Seconds and metres; no word of its own (it is felt, never read). Read only under the loop.
+export const LOOP_TOW = {
+  opening: true,                     // the opening starts at the Landing and plays the first tow (false: 5a's hand-off glide)
+  // the leg: `base` s, plus `crossing` s for each lock flight, fall or sea passage on it, never more than `max`; reduced motion inks
+  // it at once and holds `reducedHold` s
+  leg: { base: 4, crossing: 0.5, max: 6, reducedHold: 1.5 },
+  dip: 0.6,                          // the ink dip into the water (in and out; held at full until the water's first frame is drawn)
+  glide: 3,                          // the glide in, the raft at the barge's stern, Murk alongside
+  // the opening's two beats before the tow, on the Chart at the Landing: `dip` the film's last frame into the sheet; `arrive` the
+  // picture alone (a tap ends it early); the wake: the Wick's mark kindles over `kindle` s with Murk's line; `wakeAfter` s after the
+  // line ends (or a tap once it shows) the tow begins
+  landing: { dip: 0.6, arrive: 1.5, kindle: 0.8, wakeAfter: 1 },
+  // each water's leg of the Lamp Road, as the Chart's live layer draws it (CHART_ART.live.pieces): the piece, its direction (the
+  // Sluice Run runs down to the Landing, so the tow goes up it, `reverse`), and the crossings on it as fractions of the way
+  legs: {
+    mossmere: { from: 'landing', piece: 'sluiceRun', reverse: true, crossings: [{ kind: 'locks', at: 0.3 }, { kind: 'fall', at: 0.78 }] },
+  },
+  // the glide in on each water: `d` m out along the barge's own line from its mooring (it comes in bow first, the raft at its stern
+  // on a short line, Murk's barge alongside, all moving as one), eased to rest in `glide` s
+  glideIn: { mossmere: { d: 14, line: 3 } },   // (the raft leads on a `line` m tow line ahead of the bow: loop-tow.towLeadPose)
+  // the glide in's camera: the mooring's own framing drawn back `pull` times its distance at the dip, dollying in as they arrive
+  // (the portrait pose drawn back 1.9 times, turned 30° west round its look point: its straight line back crosses an island; the
+  // landscape's turned 40° west, so Murk's moored barge no longer stands between the lens and the raft leading on its line: east,
+  // the island at (34, 20) blocks the view and the barge's own hull hides the raft)
+  cam: { pull: 2.2, turn: -40, portrait: { pull: 1.9, turn: -30 } },
+};
+LOOP.tow = LOOP_TOW;
+/** The leg's seconds (SPEC §6.5): base + crossing a crossing, at most max; reduced motion its hold. Pure. */
+export function towLegSeconds(leg, { reduced = false } = {}, T = LOOP_TOW) {
+  if (reduced) return Number(T.leg.reducedHold) || 1.5;
+  const n = Array.isArray(leg?.crossings) ? leg.crossings.length : 0;
+  return Math.min(Number(T.leg.max) || 6, (Number(T.leg.base) || 4) + n * (Number(T.leg.crossing) || 0.5));
+}
+/** A water's tow: {water, leg (LOOP_TOW.legs[water]) | null, legS, dip, glide, total}; null for a water with no leg. Pure. */
+export function towPlan(waterId, { reduced = false } = {}, T = LOOP_TOW) {
+  const leg = T.legs?.[waterId] || null;
+  if (!leg) return null;
+  const legS = towLegSeconds(leg, { reduced }, T), dip = Number(T.dip) || 0.6, glide = reduced ? 0 : Number(T.glide) || 3;
+  return { water: waterId, leg, legS, dip, glide, total: legS + dip + glide };
+}
+/**
+ * The glide in's poses (SPEC §6.5): the mooring M (loopMooring's) moved `d` m back along the barge's line, eased to rest. u 0..1 →
+ * {hull: {x, z, yaw}, murk: {x, z, yaw} | null, raft: {x, z, yaw}, stern: {x, z}} (the raft travels the way the barge's bow faces,
+ * so its heading is the barge's yaw). `ease` false: u is already the way travelled (the raft's own glide eases it). Pure.
+ */
+export function towGlidePose(M, u, { d = 14, ease = true } = {}, B = LOOP.barge) {
+  if (!M?.hull || !M?.raft) return null;
+  const k = Math.min(1, Math.max(0, Number(u) || 0)), e = ease ? 1 - (1 - k) * (1 - k) * (1 - k) : k;   // (ease out: it slows into its berth)
+  const yaw = M.hull.yaw, fx = -Math.sin(yaw), fz = -Math.cos(yaw), back = (1 - e) * (Number(d) || 0);
+  const at = (p) => ({ x: p.x - fx * back, z: p.z - fz * back });
+  const half = (Number(B?.length) || 12) / 2;
+  const hull = { ...at(M.hull), yaw };
+  return { hull, murk: M.murk ? { ...at(M.murk), yaw: M.murk.yaw } : null, raft: { ...at(M.raft), yaw }, stern: { x: hull.x - fx * half, z: hull.z - fz * half } };
+}
+/** Is the opening's tow still to play? (a loop block whose tutorial is not done and whose barge has not been towed to its first water) */
+export function towOpeningDue(metaLoop, waterId = 'mossmere', T = LOOP_TOW) {
+  if (!LOOP_ENABLED || T?.opening !== true || !metaLoop || typeof metaLoop !== 'object') return false;
+  if (metaLoop.tutorial && metaLoop.tutorial.done === true) return false;
+  const towed = Array.isArray(metaLoop.barge?.towed) ? metaLoop.barge.towed : [];
+  return !towed.includes(waterId) && !!T.legs?.[waterId];
+}
+// <<< M1 step 5b (LANE 5B-TOW)
+
+// ---- M1 step 3a (docs/loop/m1-step3a/PLAN.md §3.1): the places, the place pool and the giants' share. Pure: each reads only LOOP,
+// MOSSMERE_V3's place records and RARITY_WEIGHTS; the sim's poolFor (tools/sim/clams.mjs, fixed in the seam) is the same rule.
+/** The fields a loop place keeps of its MOSSMERE_V3 record (PLAN §2.1 item 3): its geometry and its look, never a v3 rule (`rule`,
+ *  `attract`, `maxClass`, `giantsKept`, `holdsGiants`, `giantsWhile`, `giantsDuring`, `reveal`, `tally`, `tallyAt`, `legend`, `night`,
+ *  `phase`: PLAN CHOICE 2). The apply block's arena records are these plus the loop's `kind` and the zone. */
+export const LOOP_PLACE_KEYS = Object.freeze(['id', 'name', 'x', 'z', 'access', 'stand', 'water', 'landmark', 'look', 'build']);
+const loopPlaceRecord = (id) => {
+  // (LAKE 2, lane D1: a later water's place records are its own table's, SPOREWOOD_LOOP.places; the Mossmere's are MOSSMERE_V3's)
+  const src = MOSSMERE_V3.places.find((p) => p.id === id) || SPOREWOOD_LOOP.places.find((p) => p.id === id), L = LOOP.places?.[id];
+  if (!src || !L) return null;
+  const out = {};
+  for (const k of LOOP_PLACE_KEYS) if (src[k] !== undefined) out[k] = v3clone(src[k]);
+  return { ...out, kind: L.kind, zone: L.water };
+};
+/** A place of the loop: LOOP.places[id] over its MOSSMERE_V3 record, a fresh object: {id, name, x, z, access, stand, landmark, look,
+ *  build, area (the footprint: the record's `water` geometry), zone and water (the water's id), kind, price, card, giant?, own?,
+ *  draws?, legend?}; null for an id LOOP.places does not hold. */
+export function loopPlace(id) {
+  const rec = loopPlaceRecord(id);
+  if (!rec) return null;
+  const { water: area = null, ...geo } = rec;
+  return { ...geo, area, ...v3clone(LOOP.places[id]) };
+}
+/** The places of a water in the Chart's order (day, old, night, crown): LOOP.places' order. */
+export function loopPlaceIds(waterId = 'mossmere') { return Object.keys(LOOP.places || {}).filter((id) => LOOP.places[id]?.water === waterId); }
+// a game phase in the sim's words (the evening's calm is its day; a night place is a place from the gloomtide)
+const LOOP_LIGHT = { calm: 'day', dawn: 'day', day: 'day', dusk: 'dusk', gloomtide: 'night', night: 'night' };
+// >>> WC-1: the light a phase is in the sim's (and watercraft's) words, and Murk's price (WATERCRAFT.md §8.1)
+/** A game phase as the loop's light: 'day' | 'dusk' | 'night' (calm, dawn, day → day; gloomtide, night → night). */
+export function loopLight(phase) { return LOOP_LIGHT[phase] ?? 'day'; }
+/** A price made nice (WATERCRAFT.md §8.1): to 5 under 100, to 10 under 1,000, to 50 under 10,000, to 100 above. */
+export function nice(x) {
+  const v = Math.max(0, Number(x) || 0), step = v < 100 ? 5 : v < 1000 ? 10 : v < 10000 ? 50 : 100;
+  return Math.round(v / step) * step;
+}
+/** Murk's price of a base price (SPEC §4.2–§4.8, M1 §2.5): nice(base × LOOP.cost.factor); a consumable (a tin, a legend's bait)
+ *  nice(base × LOOP.cost.consumables) (its base at 1). The game applies it once, where a price is made (step P); the sim reads it now. */
+export function loopCost(base, { consumable = false } = {}) {
+  const C = LOOP.cost || { factor: 1, consumables: 1 }, b = Number(base) || 0;
+  const f = consumable ? Number(C.consumables ?? 1) : Number(C.factor ?? 1);
+  return f === 1 ? b : nice(b * f);
+}
+// <<< WC-1
+// the built species' hour words (the sim's BUILT_TIME): calm is day and dusk, gloom night, dawn day; the roster's are HOUR_WINDOWS
+const LOOP_BUILT_HOURS = { calm: ['day', 'dusk'], gloom: ['night'], dawn: ['day'] };
+/** A species' hour window in the sim's words (['day', 'dusk'], ['dusk', 'night'], ['day', 'dusk', 'night'] …): a roster `time` (a
+ *  LOOP.hours key) by HOUR_WINDOWS, a built `time` by the built timeOk words; anything else every light. A fresh array. */
+export function loopHours(sp) {
+  const t = sp?.time;
+  return (HOUR_WINDOWS[t] || LOOP_BUILT_HOURS[t] || HOUR_WINDOWS.any).slice();
+}
+/** A giant's share of the bites at its place (SPEC §3.5, decision 7): LOOP.giant.share.inHour in its hours, offHour outside them; a Wick
+ *  with a giantShare (Taper) × it, never above its giantCap. `phase`: 'calm' | 'dusk' | 'gloomtide' (or the sim's day / dusk / night). */
+export function giantShare(sp, phase, wickId = null) {
+  const G = LOOP.giant.share, light = LOOP_LIGHT[phase] ?? 'day', K = LOOP.wicks[loopWickId(wickId)];
+  const share = loopHours(sp).includes(light) ? G.inHour : G.offHour;
+  return K?.giantShare ? Math.min(K.giantCap ?? 1, share * K.giantShare) : share;
+}
+/**
+ * The bites a cast can draw at a place, or in open water (placeId null): the sim's pool rule (clams.mjs poolFor, as fixed in the seam:
+ * PLAN CHOICE 27) on the game's records, with no lure and no pull (3a). `species` is SPECIES (only those of the place's water, or of
+ * `water`, count). Open-water fish bite everywhere (a common at a place ×LOOP.place.common; a day water's uncommon and rare ×dayDraw,
+ * or the place's `draws`); a place's own fish (a record with that `place`) a rare's weight × kept.weight × kept.live there only; a fish
+ * of a kind of place (`kind`, the Gloam Eel's 'night') ×kindWeight at a place of that kind only; a fish that bites on one bait only needs
+ * it (×1.5 on it); "best at night" ×1.5 after dark; a fish outside its hours never, but when little of this hour bites (under a common's
+ * weight) the water's open fish still do; a legend never (her sure bite is her own). The giant is a fixed share of the rest
+ * (giantShare: its inHour share in its hours, its offHour share outside them). A night place before 'gloomtide' is open water
+ * (PLAN CHOICE 3). A record with no `kind` (or kind 'open') and no `place` is open water.
+ * Returns {list: [[sp, w], …] (the rest: every fish but the giant), giant: {sp, share, weight} | null (weight = rest × share / (1 −
+ * share), drawn last), tot (the rest and the giant), place (the place id the pool is, or null: open water)}.
+ */
+export function placePool(species, { placeId = null, phase = 'calm', bait = null, wickId = null, water = null } = {}) {
+  const PL = LOOP.place, RW = RARITY_WEIGHTS, light = LOOP_LIGHT[phase] ?? 'day', def = LOOP.places?.[placeId] || null;
+  const P = def && !(def.kind === 'night' && light !== 'night') ? { id: placeId, ...def } : null;
+  const zone = water || def?.water || 'mossmere';
+  const all = (Array.isArray(species) ? species : []).filter((s) => s && s.zone === zone && s.rarity !== 'legendary' && !s.cove);
+  const open = (s) => !s.place && (!s.kind || s.kind === 'open');
+  const list = [];
+  let giant = null, rest = 0;
+  // (LOST-TACKLE §5.1: a place `only` (Veilback Brook) bites its own fish and its draws, nothing else of the open water; its own fish may
+  // be a far water's guest, found by id whatever its zone)
+  const only = P?.only === true ? new Set([...(P.own || []), ...Object.keys(P.draws || {})]) : null;
+  if (only) for (const id of P.own || []) { const g = (Array.isArray(species) ? species : []).find((s) => s?.id === id); if (g && !all.includes(g)) all.push(g); }
+  for (const s of all) {
+    if (s.bait && s.bait !== bait) continue;
+    if (only && !only.has(s.id)) continue;
+    if (s.giant) { if (P && s.place === P.id) giant = s; continue; }   // a giant reaches its share whatever the hour (the fixed sim)
+    if (!loopHours(s).includes(light)) continue;
+    let w;
+    if (only && (P.own || []).includes(s.id)) w = (RW.rare ?? 6) * PL.kept.weight * PL.kept.live;
+    else if (s.place) { if (!P || s.place !== P.id) continue; w = (RW.rare ?? 6) * PL.kept.weight * PL.kept.live; }
+    else if (!open(s)) { if (!P || P.kind !== s.kind) continue; w = (RW[s.rarity] ?? 6) * (s.rarity === 'common' ? PL.common : PL.kindWeight); }
+    else w = (RW[s.rarity] ?? 6) * (P?.draws?.[s.id] ?? (P?.kind === 'day' && s.rarity !== 'common' ? PL.dayDraw : 1)) * (P && s.rarity === 'common' ? PL.common : 1);
+    if (s.bestNight && light === 'night') w *= 1.5;
+    if (bait && s.bait === bait) w *= 1.5;
+    list.push([s, w]); rest += w;
+  }
+  if (rest < (RW.common ?? 70)) for (const s of all) {   // little of this hour here: the water's open fish still bite (nothing ever stops biting)
+    if (!open(s) || s.giant || loopHours(s).includes(light) || (s.bait && s.bait !== bait) || (only && !only.has(s.id))) continue;
+    const w = RW[s.rarity] ?? 6; list.push([s, w]); rest += w;
+  }
+  let g = null;
+  if (giant && rest > 0) { const share = giantShare(giant, phase, wickId); g = { sp: giant, share, weight: rest * share / (1 - share) }; }
+  return { list, giant: g, tot: rest + (g ? g.weight : 0), place: P ? P.id : null };
+}
+
+/**
+ * M1 step 5a (SPEC §6.5): a water's mooring, resolved on its lake's docks ([{x, z, yaw}] or world.getDocks()' {position, yaw}).
+ * → null when the water has none, else {water, dock, raft: {x, z, yaw} (the stern's tie-up, docks[dock]), hull: {x, z, yaw},
+ * murk: {x, z, yaw}, lane: [{x, z}], cam, circles: the hulls' obstacle circles [{x, z, r, kind: 'hull' | 'murk'}]}.
+ */
+export function loopMooring(waterId, docks = [], B = LOOP.barge, M = LOOP.mooring) {
+  const m = M?.[waterId];
+  if (!m || typeof m !== 'object') return null;
+  const ds = Array.isArray(docks) ? docks : [];
+  const d = ds[Number(m.dock) || 0];
+  const dx = Number(d?.position?.x ?? d?.x), dz = Number(d?.position?.z ?? d?.z);
+  if (!Number.isFinite(dx) || !Number.isFinite(dz)) return null;
+  const hull = { x: Number(m.hull.x), z: Number(m.hull.z), yaw: Number(m.hull.yaw) || 0 };
+  const murk = m.murk ? { x: Number(m.murk.x), z: Number(m.murk.z), yaw: Number(m.murk.yaw) || 0 } : null;
+  const K = B?.keel || { n: 5, r: 1.8, step: 2.4 }, fx = -Math.sin(hull.yaw), fz = -Math.cos(hull.yaw);
+  const circles = [];
+  for (let i = 0; i < K.n; i++) { const s = (i - (K.n - 1) / 2) * K.step; circles.push({ x: hull.x + fx * s, z: hull.z + fz * s, r: K.r, kind: 'hull' }); }
+  if (murk) circles.push({ x: murk.x, z: murk.z, r: Number(B?.murkR) || 2.4, kind: 'murk' });
+  return {
+    water: waterId, dock: Number(m.dock) || 0, raft: { x: dx, z: dz, yaw: Number(d?.yaw) || 0 }, hull, murk,
+    lane: (Array.isArray(m.lane) ? m.lane : []).map((q) => ({ x: Number(q[0]), z: Number(q[1]) })), cam: m.cam || null, circles,
+  };
+}
+
+/**
+ * The home camera at a screen's aspect W / H (M1 step 5a; the integration's fix for a tablet held sideways, a 4:3 or a square
+ * window): the mooring's `portrait` pose below `blend[0]`, its landscape pose from `blend[1]`, and between them the two eased into
+ * each other (pos, look and fov together), so the raft, the Wick, the barge and Murk stay in frame at every shape of screen.
+ * pull 0..1 (a tow's glide in): the pose drawn back `pull` times its distance and turned `turn`° round its look point, the tow's
+ * landscape and portrait settings (LOOP.tow.cam) eased by the same weight. → {pos, look, fov, k} (k 0 the portrait pose … 1 the
+ * landscape); null without a pose. Pure: render's homePose and the validator's frame check share it.
+ */
+export function homeCamAt(cam, aspect, { pull = 0, tow = null } = {}) {
+  if (!cam || !Array.isArray(cam.pos) || !Array.isArray(cam.look)) return null;
+  const P = cam.portrait && Array.isArray(cam.portrait.pos) && Array.isArray(cam.portrait.look) ? cam.portrait : null;
+  const [b0, b1] = Array.isArray(cam.blend) ? cam.blend.map(Number) : [0.85, 1.7];
+  const a = Number(aspect), u = !P ? 1 : !(a > b0) ? 0 : a >= b1 ? 1 : (a - b0) / (b1 - b0);
+  const k = u * u * (3 - 2 * u);
+  const mix = (p, q) => p.map((v, i) => Number(q[i]) + (Number(v) - Number(q[i])) * k);
+  const pos = P ? mix(cam.pos, P.pos) : cam.pos.map(Number), look = P ? mix(cam.look, P.look) : cam.look.map(Number);
+  // (the portrait pose's lens on a wider screen keeps its across angle from `P.across` (an aspect) on, so a square window frames the
+  // barge as the phone does instead of widening round it)
+  const pf = P ? Number(P.fov) || 45 : 0, ac = P && Number(P.across) > 0 && a > Number(P.across) ? Number(P.across) : 0;
+  // (in the blend band the portrait lens closes by `P.tight` and its look rises `P.lift` m, so a square or near-square window holds
+  // the group a little larger and lower, less empty water under it: the weight rises from `across` and goes with the
+  // landscape pose's own weight, so a phone held upright (under `across`) and a wide screen (from blend[1]) are exactly as before;
+  // eased in over 0.4 of an aspect from `across`, so the pose never jumps as a window is dragged wider)
+  const a0 = Number(P?.across) > 0 ? Number(P.across) : b0 - 0.1, v = P ? Math.min(1, Math.max(0, (a - a0) / 0.4)) : 0;
+  const wb = (v * v * (3 - 2 * v)) * (1 - k), tight = 1 - (1 - (Number(P?.tight) || 1)) * wb, lift = (Number(P?.lift) || 0) * wb;
+  if (lift) look[1] += lift;
+  const pfov = ac || tight !== 1 ? 2 * Math.atan(Math.tan(pf * Math.PI / 360) * (ac ? ac / a : 1) * tight) * 180 / Math.PI : pf;
+  const fov = P ? pfov + ((Number(cam.fov) || 45) - pfov) * k : Number(cam.fov) || 45;
+  const w = Math.min(1, Math.max(0, Number(pull) || 0));
+  if (w > 0) {
+    const TL = tow || {}, TP = TL.portrait || TL, by = (f, d) => (Number(TP[f]) || d) + ((Number(TL[f]) || d) - (Number(TP[f]) || d)) * k;
+    const K = 1 + (Math.max(1, by('pull', 2.2)) - 1) * w, r = (by('turn', 0) * Math.PI / 180) * w;
+    const ox = pos[0] - look[0], oz = pos[2] - look[2];
+    return { pos: [look[0] + (ox * Math.cos(r) - oz * Math.sin(r)) * K, look[1] + (pos[1] - look[1]) * K, look[2] + (ox * Math.sin(r) + oz * Math.cos(r)) * K], look, fov, k };
+  }
+  return { pos, look, fov, k };
+}
+
+// >>> M1 step 5b (lane 5b-home: the barge's side; docs/loop/M1.md §2.5, §2.6, §4 step 5b; SPEC §4.7, §6.3, §6.4, §8.4, §8.6).
+// Additive: new LOOP keys and new TEXT_LOOP words only (read only under data.LOOP_ENABLED; neither is in the v3 fingerprint, and
+// TEXT.loop is set only under the loop). `with` is the water (catalogue order) whose map puts a level on the shelf (SPEC §4.7,
+// decision 38): 1 the start; Glasswater 3, the Pallid Deep 4, the reaches' first lakes 5, 9 and 13. src/home-shelf.js reads them.
+LOOP.home = Object.assign(LOOP.home || {}, {
+  // the Bait Bed (SPEC §6.3): each evening you set out with at least `floor` of the water's plain bait (its first tin), free
+  baitBed: { prices: [120, 700, 9000], with: [1, 1, 4], floor: [3, 6, 10] },
+  // the Long Wall: one wing a reach (four waters each), the best print of every fish of its waters at true size (SPEC §6.4)
+  wall: { prices: [250, 30000, 80000, 150000], with: [1, 5, 9, 13] },
+  // Barge lights (was Landing lights): looks only (I lanterns on the rails; II the roof's edge; III a beacon on the bow)
+  lights: { prices: [200, 1200, 14000], with: [1, 3, 4] },
+});
+// the looks M1 sells (SPEC §6.3: COSMETICS_V3's first three, the start's), each worn where it says; the six dearer ones wait for their waters
+LOOP.looks = {
+  slate_dye:       { price: 300, with: 1, on: 'wick' },   // the Wick's cloak in slate
+  oxblood_pennant: { price: 400, with: 1, on: 'raft' },   // the raft's pennant dyed oxblood (undyed bone-grey cloth until then)
+  amber_glass:     { price: 600, with: 1, on: 'raft' },   // the raft lantern's glass in deep amber
+};
+// the gallery (SPEC §6.3, §6.4): wing N hangs the prints of the reach's four waters (catalogue order 4N−3 … 4N)
+LOOP.gallery = { perWing: 4 };
+Object.assign(TEXT_LOOP.shelf, { baitBed: 'Free bait every evening.', wall: 'Your best prints, on the wall.' });   // SPEC §8.4 (lights, looks: no line)
+TEXT_LOOP.homeNames = {   // the shelf's names for the home items (SPEC §4.7, M1.md §2.5: "Barge lights", not "Landing lights")
+  baitBed: ['Bait Bed I', 'Bait Bed II', 'Bait Bed III'],
+  wall: ['The Long Wall, wing I', 'The Long Wall, wing II', 'The Long Wall, wing III', 'The Long Wall, wing IV'],
+  lights: ['Barge lights I', 'Barge lights II', 'Barge lights III'],
+};
+TEXT_LOOP.lookNames = { slate_dye: 'Slate Cloak Dye', oxblood_pennant: 'Oxblood Pennant', amber_glass: 'Amber Lantern Glass' };   // COSMETICS_V3's names
+TEXT_LOOP.tabs.prints = 'Prints';   // the Journal's Prints page (SPEC §8.8's tab row)
+TEXT_LOOP.murk.shelfBare = "Shelf's bare. Keep the rest; the road goes on.";   // the last item of the shelf bought (SPEC §8.6; M1.md §2.5)
+// <<< M1 step 5b (lane 5b-home)
+// >>> Murk's catalogue (the user's words of 16 November 2026: the shelf as a printed brochure browsed page by page; src/ui-catalogue-murk.js):
+// its name on the running head and the cover, and the order line under a marked item. Every other word in the book is the shelf's.
+TEXT_LOOP.goods = { name: "Murk's Goods", buy: 'Buy · {price}' };
+// <<< Murk's catalogue
+// >>> the Wick's sheet (docs/loop/SHEET.md v2 §6; SPEC §8.12, the user's answers 41–43): "{name}'s Sheet" on the pause menu and the
+// Journal's first tab; two heads; the passives' exact numbers (templates filled from LOOP.wicks, never typed); the few effect words; the
+// moves; the size lines' labels; the user's "where you last cast" (Q41: the area never named); accessible names only for the rest.
+TEXT_LOOP.sheet = {
+  title: "{name}'s Sheet", buffs: 'Buffs', odds: 'Odds',
+  exact: {
+    wick: 'Each sells ×{mult}, at least {floor} more. Never a giant.',
+    taper: 'First bite never a common fish. Giants ×{share} as often, to {cap}.',   // ({cap} is filled as a percentage)
+    stub: 'Bites sooner ×{sooner}. Quiet water costs ×{quiet} as much, and never slows them.',
+    tallow: '+{good} good bite at every water and place, too.',
+    ashwick: 'Once, tired: +{hold} Hold when it bites again. Never a giant.',
+  },
+  cast: 'Casts {m} m · {n} longer to strike',   // ({n} is filled as a percentage)
+  hookSet: 'Hook set: Hold +{hold}',   // the Tackle section's quiet line: what a Clean strike adds (CATCH_V3.strike.clean, never typed)
+  bigger: { predator: 'Bigger predators.', bottom: 'Bigger bottom feeders.' },
+  giants: 'Giants ×{k}.', rarer: 'Rarer fish.', sooner: 'Bites sooner ×{k}.', good: 'Good bites',
+  move: '{what} {from} → {to}', moveNext: '{what} {from} → {to} with this.',
+  family: { predator: 'Predators:', bottom: 'Bottom feeders:' },
+  lastCast: 'Where you last cast',
+  quiet: 'Quiet water',   // a buff's source on a trip (the float's quiet term)
+  hours: { day: 'Day', dusk: 'Dusk', night: 'Night' }, fresh: 'New', pinned: 'Pinned', tipped: 'Tipped', notches: '{n} of {of}',
+};
+// <<< the Wick's sheet
+
+// >>> LAKE 2, lane D1 (docs/loop/LAKE2.md §9; §5 as the user's answers of 17 Nov 2026 amend it): Sporewood Pools under the loop, as data
+// only. Additive: new LOOP keys and entries, new TEXT_LOOP words, and (in the apply block, under the loop only) Sporewood's fish and its
+// items' built-shaped rows. LOOP.shipped stays 'mossmere', so no lake map, sheet, shelf card or trip reaches any of it: every reader of a
+// shared table (LOOP.lures, .tins, .places, .legendBait) already keeps to the owned and shipped waters, and lane D2 threads the water
+// through the rest (the carry, the reset at the tow, the per-water shelf, holdOf, the line's cap by lineAt).
+// Sporewood's water: catalogue order 2, its value tier (the sim's draft 11; the Mossmere's 7), its place maps' prices by kind, its lake
+// map (1,400 base, 2,800 as Murk asks: LAKE2 §8), its plain bait (its first tin; the list's bait rule) and the two places its lake map
+// opens (the day water and the old water: migrateLoop rule 5's list, listFor's `opens`)
+// (LAKE 2, lane D2: the value tier 12, not the draft's 11: the user's answer 2's knob "Sporewood's early prices and values". Measured on
+// clams.mjs --shipped=sporewood, the first evening earns 62% of the Mossmere's last trip at 12, 57% at 11; LAKE2 §8.4)
+LOOP.waters.sporewood = { order: 2, tier: 12, prices: { night: 1200, crown: 2200 }, lake: 1400, plainBait: 'spore_cake',
+  places: [{ id: 'lullaby', kind: 'day' }, { id: 'gill_harp', kind: 'old' }] };
+// its four places (§3.2), in the Chart's order (day, old, night, crown). `lake`: opened by the lake map (no map of its own, never a map
+// card: price 0); `out` the glide out from the mooring (LOOP.mooring.sporewood's raft first), every West Pool place through the neck.
+// Their geometry, name and landmark are SPOREWOOD_LOOP.places' records (loopPlace merges them, as MOSSMERE_V3's for the Mossmere);
+// lane W1 fits both to the outline shore. The Nightbloom Carp is night water's own kind of fish (its `kind`), so it reaches the
+// Veilwater by LOOP.place.kindWeight, as the Gloam Eel the Buoy Lights
+Object.assign(LOOP.places, {
+  lullaby:     { water: 'sporewood', kind: 'day', price: 0, lake: true, card: 'sleepspore_jelly', own: ['sleepspore_jelly'], draws: { velvet_ray: 3 },
+    out: [[36.59, 32.5], [42.4, 30.8], [44, 18], [24, 10], [8, 7.5], [0, 6.5], [-12, 4], [-30, -14], [-46, -31]] },
+  gill_harp:   { water: 'sporewood', kind: 'old', price: 0, lake: true, card: 'harpstring_eel', giant: 'harpstring_eel', draws: { cindertail_catfish: 2 },
+    out: [[36.59, 32.5], [42.4, 30.8], [44, 18], [24, 10], [8, 7.5], [3.5, 6.8]] },
+  veilwater:   { water: 'sporewood', kind: 'night', price: 1200, card: 'festival_puffer', giant: 'festival_puffer',
+    out: [[36.59, 32.5], [42.4, 30.8], [44, 18], [24, 10], [8, 7.5], [0, 6.5], [-14, 9], [-34, 8], [-52, 24], [-68, 30], [-84, 36.5]] },
+  mothers_cup: { water: 'sporewood', kind: 'crown', price: 2200, card: 'drifting_grove', legend: 'drifting_grove', out: [[36.59, 32.5], [42.4, 30.8], [46, 18], [47.5, 11]] },
+});
+/** Sporewood's place records under the loop (LAKE2 §3.2, §3.4): the geometry loopPlace merges under LOOP.places' fields (LOOP_PLACE_KEYS),
+ *  as MOSSMERE_V3.places' for the Mossmere. Fitted to the built outline shore by lane W1 (each disc in open water, its bank's feather clear
+ *  of the banks but the Gill Harp's, which fills the neck); the landmarks the Lily Cove's head, the Veil across the inlet's mouth, the
+ *  Mother Cap on the Mother's Foot. Never in a v3 build. */
+export const SPOREWOOD_LOOP = Object.freeze({
+  places: Object.freeze([
+    { id: 'lullaby', name: 'The Lullaby', access: 'raft', stand: null, x: -51.5, z: -35, water: { kind: 'disc', x: -51.5, z: -35, r: 7, depth: [0.3, 0.55] },
+      landmark: { x: -53, y: 1.5, z: -40 }, look: 'lily rafts over a sleeping cove' },
+    { id: 'gill_harp', name: 'The Gill Harp', access: 'raft', stand: null, x: 0, z: 6.5, water: { kind: 'disc', x: 0, z: 6.5, r: 4.5, depth: [0.5, 0.65] },
+      landmark: { x: 0, y: 6, z: 6.5 }, look: 'cap gills hanging over the neck like strings' },
+    { id: 'veilwater', name: 'The Veilwater', access: 'raft', stand: null, x: -86, z: 38, water: { kind: 'disc', x: -86, z: 38, r: 5, depth: [0.4, 0.7] },
+      landmark: { x: -80, y: 2.5, z: 35 }, look: 'a backwater behind a curtain of moss' },
+    { id: 'mothers_cup', name: "The Mother's Cup", access: 'raft', stand: null, x: 48, z: 6, water: { kind: 'disc', x: 48, z: 6, r: 6, depth: [0.8, 1] },
+      landmark: { x: 59, y: 18, z: 12 }, look: 'a deep well under the Mother Cap' },
+  ].map((p) => Object.freeze(p))),
+});
+// the open water's nine (§2.1, the list: open water and the Lullaby's and the Gill Harp's fish on Spore Cake, computed by listFor), in the
+// Journal's order; the places' own fish and giants and the legend follow them in SPECIES (the apply block)
+LOOP.species.sporewood = ['netcloud_fry', 'falsesmile_barb', 'capshell_crayfish', 'threadling_eel', 'cindertail_catfish', 'velvet_ray', 'lostsea_mackerel',
+  'downcast_catfish', 'mildew_angler'];
+LOOP.kept.push('capshell_crayfish', 'mildew_angler', 'sleepspore_jelly');   // the three built species Sporewood keeps (§2.1), as built but…
+// … a kept fish's terms at its water under the loop (its built record otherwise): the Sleepspore Jelly is the Lullaby's own and bites on
+// Amber Larvae only (its built Lumen Moss is the Mossmere's)
+LOOP.keptAs = { sleepspore_jelly: { place: 'lullaby', bait: 'amber_larvae' } };
+// the built species of a water this edition leaves out of the loop's pool, its list and its Journal page (§2.2: a second puffer, a second
+// koi, a fourth perch-built fish): their SPECIES_V3 records stay for the flag-off game
+LOOP.leftOut = { sporewood: ['sporebelly_puffer', 'plumgill_perch', 'hushcap_koi'] };
+LOOP.legendBait.sporewood = { id: 'glowcap_bulb', price: 250 };   // the Drifting Grove's bait, one try (SPEC §4.6), the built Glowcap Bulb
+// ---- the gear loop across waters (LAKE2 §5, the user's words of 17 Nov 2026: "at the next lake you lose everything you bought but keep
+// permanently a portion of the stats you got"; the user's answer 1: the raft's parts and the hold's slots are bought gear too)
+// Each water's own bought gear: its tackle tiers per slot (level 0 the start piece, shared by every water and never bought: it travels),
+// its hold ladder and its raft's parts. A tier's `hold` is the piece's own Hold, added to the carry (holdOf = the carry + the fitted piece);
+// a rod's `cast` the metres it casts beyond the start rod's LOOP.carry.castFrom, its `hookWindow` as TACKLE's. The Mossmere's tiers are
+// TACKLE T0–T2 at LOOP.tackle's prices (read from them, so the two never drift), its ladder LOOP.hold's to shelfMax, its raft LOOP.raft.
+// Sporewood's (§7.1, in its own materials: stalk, cap, root, moth silk, amber) do the same jobs; their names are TEXT_LOOP.gearItems'.
+{
+  const tierOf = (slot, t) => ({ id: TACKLE[slot][t].id, hold: TACKLE[slot][t].hold, ...(slot === 'rod' ? { cast: TACKLE.rod[t].castMax - TACKLE.rod[0].castMax, hookWindow: TACKLE.rod[t].hookWindow } : {}),
+    price: LOOP.tackle.price[t], ...(t === 0 ? { start: true } : {}) });
+  const start = (slot) => tierOf(slot, 0);
+  LOOP.gear = {
+    mossmere: { rod: [0, 1, 2].map((t) => tierOf('rod', t)), line: [0, 1, 2].map((t) => tierOf('line', t)), reel: [0, 1, 2].map((t) => tierOf('reel', t)),
+      hold: { ladder: LOOP.hold.ladder.filter((s) => s.slots <= LOOP.hold.shelfMax), shelfMax: LOOP.hold.shelfMax }, raft: LOOP.raft },
+    sporewood: {
+      rod:  [start('rod'), { id: 'stalkwood', hold: 3, cast: 2, hookWindow: 1.04, price: 300 }, { id: 'amberheart', hold: 6, cast: 4, hookWindow: 1.08, price: 1400 }],
+      line: [start('line'), { id: 'rootthread', hold: 3, price: 300 }, { id: 'mothsilk', hold: 7, price: 1400 }],
+      reel: [start('reel'), { id: 'capwheel', hold: 3, price: 300 }, { id: 'burlwheel', hold: 6, price: 1400 }],
+      // the hold's steps on Sporewood's shelf (a step at or under the slots a save brings is never offered), to Hold 7 (the user's yes)
+      hold: { ladder: [{ slots: 4, price: 300, id: 'bark_creel', name: 'Bark Creel' }, { slots: 5, price: 500, id: 'rootwoven_creel', name: 'Rootwoven Creel' },
+        { slots: 6, price: 1000, id: 'mossbed_basket', name: 'Mossbed Basket' }, { slots: 7, price: 2000, id: 'gardeners_hamper', name: "Gardener's Hamper" }], shelfMax: 7 },
+      // the raft's parts on Sporewood's shelf: each level's job as LOOP.raft's (oars +speed, keel +favour, lantern +night favour and light),
+      // `with` Sporewood's catalogue order; their names TEXT_LOOP.gearNamesAt.sporewood
+      // (the prices: LAKE2 §8.3's measured walk, the empty shelf inside its 3–5 h with the creels and the raft bought again)
+      raft: { oars: { prices: [100, 500], with: [2, 2] }, keel: { prices: [200, 900], with: [2, 2] }, lantern: { prices: [200, 800], with: [2, 2] } },
+    },
+  };
+}
+// the carried portion (LAKE2 §5.3 as the user's answers amend it): at each first tow to a new water, of the gear bought at the water left,
+// `share` is kept for good, on top of what earlier tows carried. Whole-number stats (each tackle slot's Hold, the rod's cast in metres
+// beyond castFrom, the hold's bought slots) round up: carry += ceil(x × share). The raft's parts carry their bought levels × share,
+// unrounded (each level's stat, LOOP.raft's: oars +1.5 m/s, keel +0.1 favour, lantern +0.1 at night and +15% light). Lures and tins stay
+// at their water; found things, the barge's home items and the Wick's own things travel whole (§5.2)
+LOOP.carry = { share: 1 / 3, round: 'up', castFrom: TACKLE.rod[0].castMax, tackle: ['rod', 'line', 'reel'], cast: true, slots: true, raft: ['oars', 'keel', 'lantern'] };
+// the first evenings at a water reached by a tow (the user's answer 2: "Sporewood's first evenings must not punish"; LAKE2 §8.3): over
+// its first `evenings` evenings there a fish over the gear's size cap lands at the cap (GEAR-GATES' first-evening rule, `cap`), and the
+// water's Fight term (CATCH_V3.lake) is eased by `fight[k]` on its k-th evening, then whole. Measured on the scratch sim (§8.3): the first
+// evening at Sporewood loses one hooked fish in five and earns 73% of the Mossmere's last trip (119% of its clams a minute)
+LOOP.arrival = { evenings: 3, cap: 'cap', fight: [-10, -6, -3] };
+// Sporewood's lures (§5.6, §7.1): its free start lure, its three of the Mossmere's jobs (`family` the job: the insect fly, the hunting
+// lure, the bottom lure) and its giants' lure, the built Spore-Lamp Fly re-aimed at its giants (+10 Hold on them, their share ×1.5)
+Object.assign(LOOP.lures, {
+  seedpod_twirl: { water: 'sporewood', price: 0, start: true },
+  spore_moth:    { water: 'sporewood', price: 240, family: 'insect' },
+  ember_minnow:  { water: 'sporewood', price: 400, family: 'predator' },
+  root_jig:      { water: 'sporewood', price: 440, family: 'bottom' },
+  sporelamp_fly: { water: 'sporewood', price: 1000, giants: ['harpstring_eel', 'festival_puffer'], share: 1.5, hold: 10 },
+});
+LOOP.tins.sporewood = ['spore_cake', 'amber_larvae'];   // its plain bait first (the Bait Bed's, the list's), then its glow and night bait
+// the start kit at a water reached by a first tow (GEAR-GATES §2.1's shape): its free lure and a tin of its plain bait, fitted
+LOOP.start.sporewood = { lures: ['seedpod_twirl'], bait: { spore_cake: 10 }, fit: 'spore_cake' };
+// the line's cap by its total Hold (§5.6: GEAR-GATES §4.1's line term, one rule for every water): Prize below `trophy`, Trophy below
+// `elder`, else Elder, on the fitted line's Hold plus the carry. The Mossmere's reproduces Twine · Line T1 · T2 (Hold 0 · 2 · 5) exactly;
+// at Sporewood the carried +2 alone fishes at Prize, Rootthread lifts it to Trophy (2 + 3), Mothsilk to Elder (2 + 7)
+LOOP.gearCap.lineAt = { mossmere: { trophy: 2, elder: 5 }, sporewood: { trophy: 4, elder: 7 } };
+LOOP.gearCap.item.seedpod_twirl = 'keeper';   // the free Twirl lands up to Keeper, as the Bent Spoon
+// the home barge's mooring at Sporewood (§3.5): the Slow Hearth in Rootfoot cove, its bow west, the raft at its stern on the root-post
+// jetty (the lake's docks[dock], which lane W1 builds there), Murk's barge east of it; the home camera looks north-west across the East
+// Pool, the Mother Cap on the right and the neck's mouth on the left. The design's figures: lane W1 fits them to the built shore and
+// validate-data's mooring checks run on them once Sporewood's arena has its outline
+// (lane W1 fitted it to the built shore: the Mossmere's own mooring, its raft, Murk, lane and both camera poses, turned and set down with
+// the barge's bow north-west into the East Pool, so every frame check it passes there holds here; the home view looks across the barge
+// toward the neck's mouth)
+LOOP.mooring.sporewood = { dock: 0, hull: { x: 32, z: 25, yaw: 0.55 }, murk: { x: 34.96, z: 20.82, yaw: -3.196 }, lane: [[42.37, 30.81]],
+  cam: { pos: [47.18, 5.5, 34.46], look: [34.85, 1.3, 26.77], fov: 38, portrait: { pos: [48.46, 8.5, 40.81], look: [35.63, 1.3, 28.05], fov: 62, across: 0.75, tight: 0.86, lift: 0.8 }, blend: [0.85, 1.7] } };
+// the words (§5.2, §5.6, §6.4, §6.5, §7.1): the items' names, the shelf's lines (each ≤ 8 words, no odds), the place maps' lines, Murk's
+// three lines at Sporewood, the leaving card, the map card's line, the carried line (logs only) and the new water's guide box
+Object.assign(TEXT_LOOP.gearItems, {
+  seedpod_twirl: 'Seedpod Twirl', spore_cake: 'Spore Cake', amber_larvae: 'Amber Larvae', spore_moth: 'Spore Moth', ember_minnow: 'Ember Minnow',
+  root_jig: 'Root Jig', sporelamp_fly: 'Spore-Lamp Fly', rootthread: 'Rootthread', mothsilk: 'Mothsilk', stalkwood: 'Stalkwood', amberheart: 'Amberheart',
+  capwheel: 'Capwheel', burlwheel: 'Burlwheel',
+});
+TEXT_LOOP.gearNamesAt = { sporewood: { oars: ['Capleaf Oars I', 'Capleaf Oars II'], keel: ['Root Keel I', 'Root Keel II'], lantern: ['Glowcap Lantern I', 'Glowcap Lantern II'] } };
+Object.assign(TEXT_LOOP.shelf, {
+  spore_cake: 'Nearly everything here eats it.', amber_larvae: 'For the Jelly and the night carp.',
+  rootthread: 'Twisted root hair. Lands bigger fish.', mothsilk: 'Lands the biggest fish.', stalkwood: 'Light, and springs back.', amberheart: 'Amber at the heart. It holds.',
+  capwheel: 'Turned from a shelf cap.', burlwheel: 'Cut from a root burl.',
+  spore_moth: 'Skates the top, for small risers.', ember_minnow: 'Wobbles warm, for the hunters.', root_jig: 'Hopped on the bottom, for rays.',
+  sporelamp_fly: "For the Pools' giants.", glowcap_bulb: "For the Mother's Cup. One try.",
+});
+TEXT_LOOP.shelfAt = { sporewood: { hold: 'Room for one more.', oars: 'Faster through the neck.', keel: 'Rides low. Bigger fish.', lantern: 'Glowcap light. Bigger fish at night.' } };
+Object.assign(TEXT_LOOP.maps, { lullaby: 'Something sleeps under every lily raft.', gill_harp: 'The gills hang down. One of them hums.',
+  veilwater: 'Behind the moss, a lantern floats.', mothers_cup: 'The Mother breathes. Big things breathe with her.',
+  sporewood: 'A harp in the Pools knows one song.' });   // (`sporewood`: the lake map's own line, its card's)
+TEXT_LOOP.murk.at = { sporewood: { map: 'New water, new tackle. Your hands keep a third.', home: 'Spore Cake on the hook. They like it sweet here.',
+  away: 'Lost a big one? Rootthread holds them.' } };   // (map: the lake map bought; home: the first evening home there; away: its first cap loss)
+// the leaving card (§5.2, before the first Sail for a water not yet towed to): its title, four lines and two buttons; `carry` below
+// shows what the hands keep, in figures, under `keeps`
+TEXT_LOOP.leave = { title: 'To {water}', stays: 'Bought tackle, raft parts and creels stay here.', keeps: 'Your hands keep a third of it.',
+  wait: 'Lures and bait wait here.', come: 'Found things come with you.', tow: 'Tow', notYet: 'Not yet' };
+TEXT_LOOP.mapLeaves = 'Moving on leaves bought gear behind.';   // under the lake map's price on its card (the shelf, the catalogue)
+TEXT_LOOP.carry = 'Carried {r} · {l} · {c}';   // rod · line · reel (the Wick's sheet at Tackle, the Tackle screen's head; logs only)
+TEXT_LOOP.guide.newWater = "New water: new gear, lures and bait at Murk's.";   // one box, at the first cast at a new water (ui-guide.js)
+// <<< LAKE 2, lane D1
+
+// >>> LAKE 2, lane S (docs/loop/LAKE2.md §7.3; FINDS §5.2): Sporewood's five treasures, one a grade, sold to Murk at Sporewood's value
+// tier by FINDS §4.2's rule (24 · 72 · 180 · 600 · 3,000 at tier 12); the jackpot is 1% of its snags. Its barge parts, looks and lost
+// tackle are later (§10): until then a snag at Sporewood brings up a treasure (findShares: no part or look to share with). `size` the
+// prop's length in metres, `pose` the show's hold (models-finds.js draws them; ui-finds.js their ink)
+LOOP.finds.items.push(
+  { id: 'seed_jar', water: 'sporewood', kind: 'treasure', grade: 'plain', pose: 'pinch', size: 0.15 },
+  { id: 'skep_lid', water: 'sporewood', kind: 'treasure', grade: 'fine', pose: 'both', size: 0.34 },
+  { id: 'gardeners_trowel', water: 'sporewood', kind: 'treasure', grade: 'precious', pose: 'pinch', size: 0.28 },
+  { id: 'cloche_handle', water: 'sporewood', kind: 'treasure', grade: 'rare', pose: 'pinch', size: 0.1 },
+  { id: 'seedkeeper_casket', water: 'sporewood', kind: 'treasure', grade: 'jackpot', pose: 'both', size: 0.3 },
+);
+Object.assign(TEXT_LOOP.finds.items, {
+  seed_jar: { name: 'Seed Jar', line: 'Still sealed. Still waiting for spring.' },
+  skep_lid: { name: 'Bee-Skep Lid', line: 'Woven straw. The bees left long ago.' },
+  gardeners_trowel: { name: "Gardener's Trowel", line: 'Brass, worn bright on one side.' },
+  cloche_handle: { name: 'Cloche Handle', line: 'From a glass bell over seedlings.' },
+  seedkeeper_casket: { name: "The Seed-Keeper's Casket", line: 'Every seed the gardens ever kept.' },
+});
+// <<< LAKE 2, lane S
+
+// >>> LAKE 2, lane W1 (docs/loop/LAKE2.md §1A (2), §3.1, §3.5): Sporewood Pools' natural basin, the arena the loop builds it from. Under the
+// loop only (the apply block puts it in ZONES[1].arena; the flag-off game keeps its own Sporewood, twoBasins and its round Cap Reefs).
+// `outline`: the shore, a closed centripetal Catmull-Rom curve through these 49 points (world metres, x east, z toward the camera at the
+// spawn; clockwise from the neck's north bank): two pools of different size joined by a bent neck 11 m wide at x = 0, Lily Cove, the
+// Fern Bluff, the West Point, the Veil inlet, the Reed Flats, Harp Point, the Tongue (a spit from the East Pool's north shore), the Seep,
+// Rootfoot cove. (The design's 45, the Veil inlet drawn as a real backwater: a mouth 12 m wide behind which a pocket holds the
+// Veilwater, its three points become seven.) `banks`: the bank's [top (m above the water), shelf (m of shallows off it)] at each control point, eased between them:
+// the Fern Bluff 5–7 m, the West Point 2, the Veil inlet's sides 3, the Reed Flats 0.3–0.8 over a 14 m shelf, the neck 2–3 over 3 m,
+// the East Pool's north shore 4–6 with the Tongue low at its tip, the Seep's ravine 3, Rootfoot Landing 0.8. `islands`: six, of six
+// sizes, each its own irregular outline, its top and its shelf (the Mother's Foot set 3 m east of the design's so the Mother's Cup, the
+// sinkhole under the Mother Cap, is all water). `bowls` the two pools' floors and the neck's channel; the Cup a deep pool, its lip
+// under the water (never a ring drawn on it); `gate` null: no gate here, the legend's water its hidden one (no standing stones)
+export const SPOREWOOD_ARENA = Object.freeze({
+  layout: 'outline', seed: 2711, noise: 0.05, baseDepth: 0.42, depthShare: [30, 42, 28],
+  outline: [[-6, -2], [-12, -10], [-18, -22], [-28, -30], [-40, -33], [-46, -42], [-58, -46], [-66, -38], [-70, -28], [-82, -24], [-86, -12], [-80, -2],
+    [-84, 8], [-78, 20], [-82, 29], [-88, 30], [-93, 34], [-94, 40], [-89, 45], [-82, 45], [-77, 40], [-64, 40], [-50, 37], [-40, 42], [-30, 33], [-18, 26], [-10, 14], [0, 12], [10, 15],
+    [16, 24], [26, 30], [34, 38], [46, 34], [56, 30], [68, 22], [76, 10], [78, -4], [74, -18], [80, -28], [70, -34], [58, -32], [46, -30], [45, -14],
+    [40, -28], [32, -32], [22, -26], [12, -14], [6, -4], [0, 1]],
+  banks: [[2.5, 3], [3, 4], [3.5, 6], [3, 7], [2, 6], [1.2, 5], [1.5, 5], [3, 5], [5, 5], [7, 4], [6, 4], [2, 4],
+    [2.5, 6], [2, 6], [3, 3], [3, 3], [3, 3], [3, 3], [2.5, 3], [2, 4], [1.5, 6], [0.4, 14], [0.5, 14], [0.3, 14], [0.6, 12], [0.8, 8], [2, 4], [2.5, 3], [2.5, 3],
+    [1.6, 5], [1.2, 6], [0.8, 5], [1, 6], [1.6, 6], [2.5, 6], [3, 6], [3.5, 6], [3, 5], [3, 3], [4.5, 4], [5.5, 4], [5, 4], [0.8, 3],
+    [5, 4], [6, 4], [4.5, 5], [3.5, 4], [3, 3], [2.5, 3]],
+  islands: [
+    { name: 'Mossback Isle', kind: 'moss', x: -50, z: -6, r: 6.5, h: 4, shelf: 4,
+      outline: [[-58, -7], [-56, -10.5], [-51, -11.5], [-46, -10], [-42.5, -7.5], [-42, -4], [-45, -1.5], [-50, -0.5], [-54.5, -2], [-57.5, -4]] },
+    { name: "The Mother's Foot", kind: 'cap', x: 59, z: 12, r: 4.2, h: 2.2, shelf: 3,
+      outline: [[55, 9.6], [57.8, 8.2], [61, 8.2], [64, 9.4], [64.6, 11.4], [63.4, 13.6], [61.8, 15.4], [59.8, 15], [58.4, 16.6], [55.8, 15.8], [54.2, 13.4], [55.2, 11.6]] },
+    { name: 'Rootknot', kind: 'roots', x: 22, z: -12, r: 2.6, h: 1.1, shelf: 2.5,
+      outline: [[19.4, -12.4], [18.4, -14.2], [20.2, -15.4], [22.4, -15.2], [24.6, -14], [25.2, -12], [24.2, -10.4], [22.8, -11.2], [21.8, -9.6], [20.2, -10.2]] },
+    { name: 'The Two Stools', kind: 'stool', x: -28, z: 14, r: 2.3, h: 0.8, shelf: 2.5,
+      outline: [[-30.8, 13], [-29.4, 11.8], [-27.4, 11.9], [-25.8, 12.8], [-25.4, 14.4], [-26.4, 15.9], [-28.4, 16.4], [-30.4, 15.8], [-31.6, 14.4]] },
+    { name: 'The Two Stools', kind: 'stool', x: -24, z: 19.5, r: 1.8, h: 0.7, shelf: 2.5,
+      outline: [[-25.4, 19.2], [-24.6, 17.9], [-23, 17.7], [-22, 18.7], [-21.5, 20.3], [-22.2, 21.5], [-23.8, 21.6], [-25.1, 20.8]] },
+    { name: 'The Tussock', kind: 'tussock', x: -62, z: 22, r: 1.4, h: 0.6, shelf: 2,
+      outline: [[-63.3, 21.6], [-62.3, 20.7], [-60.9, 20.8], [-60.1, 21.8], [-59.9, 23], [-61, 23.7], [-62.4, 23.6], [-63.3, 22.8]] },
+  ],
+  bowls: [{ name: 'West Pool', x: -46, z: 4, r: 32, depth: 0.8 }, { name: 'East Pool', x: 40, z: -4, r: 26, depth: 0.85 }, { name: 'the neck', x: 0, z: 6, r: 10, depth: 0.6 }],
+  deepPools: [{ name: "The Mother's Cup", x: 48, z: 6, r: 6, depth: 1 }],
+  legendPool: { x: 48, z: 6, r: 3.2, name: "The Mother's Cup" },
+  pillars: [],
+  gate: null,
+  spawn: { x: 44, z: 17, yaw: 0.9 },
+  // docks[0]: Rootfoot Landing's root-post jetty, the raft's tie-up at the Slow Hearth's stern (LOOP.mooring.sporewood); `pad` the m it
+  // keeps off the bank (the jetty is near the bank, as the Mossmere's Jetty)
+  docks: [{ x: 36.59, z: 32.5, yaw: -1.2827, pad: 3 }],
+});
+// the open water's glide out of a Sail from Rootfoot Landing (the places' own are LOOP.places[id].out): out along the mooring's lane and
+// north round Murk's barge into the East Pool
+LOOP.tutorial.outPath.sporewood = [[36.59, 32.5], [42.4, 30.8], [42, 20]];
+// <<< LAKE 2, lane W1
+
+// >>> LAKE 2, lane C (docs/loop/LAKE2.md §6.2, §6.3; SPEC §6.5): the road in. Sporewood's leg of the Lamp Road (the Chart's live piece
+// 'lockwaterA', sailed against the Lockwater's flow, up from the Mossmere's south end through a short reach of rapids, then one kingdom
+// lock: 4 s + 2 × 0.5 s), and its glide in to Rootfoot Landing: the Slow Hearth lies bow out into the East Pool, so it comes in `astern`,
+// the raft towing it in by its stern on the line from the pool, Murk's barge alongside, and the raft ends at the stern's tie-up
+LOOP.tow.legs.sporewood = { from: 'mossmere', piece: 'lockwaterA', reverse: true, crossings: [{ kind: 'fall', at: 0.24 }, { kind: 'locks', at: 0.51 }] };
+LOOP.tow.glideIn.sporewood = { d: 14, line: 3, astern: true };
+// <<< LAKE 2, lane C
+
+// >>> LAKE 2, lane W2 (docs/loop/LAKE2.md §1A, §3.3–§3.6; WATERS §3, §5, §6): Sporewood's look, its landmarks' and its life's figures.
+// Read only under the loop (world-flora.lushLook, world-art, actors-wildlife, world-ambient, render): the flag-off game and the Mossmere
+// (lush 0, no look) never reach any of it, so their programs and geometry stay as they are (outline-shore.test.mjs part 1).
+// ZONE_LOOKS[zone]: `lush` (WATERS' step / 15; Sporewood takes step 5's at once, the user's binding words), the leaf keys on the step-5
+// track (inside its neon cap: saturation ≤ 0.45, value ≤ 0.70), `mossG` / `mossGHi` laid at `mossAmt` over the built violet moss on
+// every upward bank top, root and stalk foot, `bloom` the flowers (cream, rose), `fireflies` (no light), `albedo` the leaves' reflectance
+// under the vault (as world-art's ALBEDO), `flora` the kit's counts on high (medium ×0.7, low ×0.4; §1A's table), `haze` the spore-haze
+// (rose-cream, under 1.2 m in the coves and the Reed Flats from dusk), `mist` the places' banks in its tint and sitting lower, `dapple`
+// the moon coins' mask on the water (a static low-frequency pattern; `k` how dark between them), `weed` the shallows' film; `gain` and
+// `floor` (below) carry the leaf keys through the night's light
+export const ZONE_LOOKS = Object.freeze({
+  sporewood: Object.freeze({
+    lush: 0.33, step: 5,
+    leafDark: 0x2c3e30, leaf: 0x4a5c40, leafHi: 0x727e56, moss2: 0x46523e, mossG: 0x46503c, mossGHi: 0x66704f, mossAmt: 0.6,
+    bloom: Object.freeze([0xf0e0d0, 0xeeb0c8]), fireflies: 0xe0e49c, albedo: 1.25,
+    // (under Clear Night's violet light, ambient and shadow split-tone an olive albedo renders violet-grey: `gain` (linear, per channel)
+    // carries the leaf track's colours through it, so a lit leaf lands on its own key; `floor` the green-violet floor the kit's leaves
+    // and the moss take in their shadows, WATERS §5.2's "flora floor tint", by day; `night` its floor and the moon's translucency through
+    // the leaves at night (WATERS §3.2: at night the lushness is the silhouettes, the emitters and the moon's light through the leaves))
+    // (LAKE 2, the art pass: the light is cream-gold now, not violet, so the gain that carried the leaves through it is all but neutral:
+    // moss, sage, olive and bottle green, never lime; the user's "more green than the Mossmere but not lots and lots of green yet")
+    gain: Object.freeze([0.98, 1.1, 0.92]), floor: 0.17, night: Object.freeze({ floor: 0.3, trans: 1.23 }),
+    flora: Object.freeze({ moss: 420, ferns: 150, reeds: 360, pads: 150, flowers: 30, strands: 90, bushes: 40, trees: 6, crowns: 40, capTrees: 14, fireflies: 120 }),
+    tiers: Object.freeze({ high: 1, medium: 0.7, low: 0.4 }),
+    // (LAKE 2, the art pass: the haze and the places' banks a warm cream with a breath of rose, slate-grey in their shade and blue-grey at
+    // night, never lavender)
+    haze: Object.freeze({ tint: 0xe4dac6, top: 1.2, amt: 0.42, from: 0.25 }),
+    mist: Object.freeze({ lit: 0xe6dfcc, litN: 0x8a98a8, shade: 0x9a9c9e, shadeN: 0x2a3a4a, low: 0.7 }),
+    dapple: Object.freeze({ k: 0.42, scale: 0.075 }), weed: Object.freeze({ color: 0x3e4a3c, k: 0.32 }),
+    // >>> LAKE 2, the art pass (LAKE2 §9.11; the user's words: "too purple", "day, dusk and night look alike", then "possibly too much
+    // green ... more green than the moss mere but not lots and lots of green yet"): Sporewood's own air under the loop, led by Clear Night
+    // and never green: a blue-teal and slate air, cream light, a dark teal water; the green is the leaves' and the moss's own, muted.
+    // `palette` and `grade` are laid over ZONES' Sporewood in the loop's apply block (the flag-off game keeps the ember garden's); `kit`
+    // the banks', the stalks' and the roots' tones in place of world-art's violet ones; `lights` the three lights (world.js blends them
+    // by the hour: the day's cream-gold light with the soft green-gold under the caps and a warm haze, the dusk's amber-rose low light
+    // with long shadows and the flowers opening, the night's deep blue-teal carried by the glowcaps and the fireflies). Purple gone; plum
+    // only as an accent (the cap-rim window's nebula, a few flowers). Clear Night's darkness and its amber, rose, plum and cream stay.
+    air: Object.freeze({
+      palette: Object.freeze({ fog: 0x26343f, water: 0x203444, waterDeep: 0x060f14, foam: 0xdcdcd4, ambient: 0x3a4a5a, ink: 0x060c12, far: 0x8e9cae,
+        light: 0xece2cc, lamp: 0xe6dcbc, nebula: 0xa47a86 }),
+      grade: Object.freeze({ tint: 0x3a4250, tintAmount: 0.14, saturation: 1, exposure: 1.06, bloomThreshold: 0.88 }),
+      kit: Object.freeze({ rock: 0x1e2226, rockHi: 0x3a3e3c, moss: 0x2e3c30, mossHi: 0x4e5a44, wood: 0x2e2218, stone: 0x50545a, iron: 0x0e1014, bone: 0xd6caae, organic: 0xc6b898,
+        cap: 0x6e4a24, capHi: 0xc49448 }),
+      // (each light: fog the air and the sky's base, horizon the sky's low band, key and keyI the moon's or the sun's colour and strength,
+      // amb and ambI the fill, water and deep the water's own colour, tint and tintAmt the grade's, exposure, sat, stars (× the palette's), neb
+      // (the plum nebula in the cap-rim window, × the built: an accent, never the sky),
+      // glow (the glowcaps' and the gills' light), elev (the key's elevation × this: the dusk's low light, long shadows), leaf (the
+      // leaves' light through them))
+      lights: Object.freeze({
+        day: Object.freeze({ fog: 0x3e5462, horizon: 0xd4c8aa, key: 0xf4e6c4, keyI: 2.8, amb: 0x52606e, ambI: 0.95, water: 0x1e3a48, deep: 0x08161c,
+          tint: 0x4c5052, tintAmt: 0.12, exposure: 1.18, sat: 1.0, stars: 0.03, neb: 0.25, glow: 0.7, elev: 1, leaf: 1.2 }),
+        // (dusk: the sky and the key amber-rose, the fill and the shadows blue-slate, so the lit leaves turn olive-bronze and the shade
+        // stays cool, WATERS §3.2's dusk)
+        dusk: Object.freeze({ fog: 0x2e3442, horizon: 0xf0a070, key: 0xffb88a, keyI: 2.6, amb: 0x3a4a52, ambI: 0.7, water: 0x1a3242, deep: 0x08101a,
+          tint: 0x5a4038, tintAmt: 0.05, exposure: 0.98, sat: 1.1, stars: 0.12, neb: 0.4, glow: 1.15, elev: 0.35, leaf: 1.5 }),
+        night: Object.freeze({ fog: 0x0c2630, horizon: 0x163444, key: 0xa4b4c0, keyI: 0.6, amb: 0x16303a, ambI: 0.36, water: 0x0a1e2a, deep: 0x02080c,
+          tint: 0x1e3038, tintAmt: 0.3, exposure: 0.8, sat: 0.92, stars: 0.65, neb: 0.3, glow: 1.8, elev: 1, leaf: 0.85 }),
+      }),
+    }),
+    // <<< LAKE 2, the art pass
+  }),
+});
+// the camera on a water's open water (LAKE2 §1A (3)): Sporewood's lower and closer (the sail framings' distance × eye, the fov + fov°);
+// in the neck (within r m of x, z) it tucks closer still (× neck.eye), so the fronds and the gill strings pass across the top of the
+// frame; and a little steeper (elev − neck.elev°, here −5: 5° steeper), so the neck's south bank (2.5 m, the lens's side) stays out of the
+// foot of the frame (the design's "lower" put that bank's top across the lower third)
+LOOP.camera = { sporewood: { eye: 0.8, fov: 4, neck: { x: 0, z: 6.5, r: 16, eye: 0.84, elev: -5 } } };
+// Sporewood's wildlife (§3.6; art only, never in the fish pool, ?wild=0 off): the spore moths are the wick-moths in Sporewood's colours
+// (forewings cream, hindwings amber with a plum eye-spot) round the Lantern Stalks' glowcaps; the lily frogs keep the lampbills' ways
+// (pairs and threes, they sit on the lily rafts and plop in as the raft comes within `flee` m, coming up on another raft), a squat frog
+// `scale`× the model's 12 cm: moss-green back, cream throat, amber eyes. Their beats sit on the lily rafts, 6 m and more off the places,
+// the mooring and the glides (validate-data checks)
+LOOP.wildlife.sporewood = {
+  moths: { fore: 0xf0e2c8, hind: 0xe8ac4c, eye: 0x5a2c56 },
+  frogs: { count: { high: 8, medium: 8, low: 0 }, scale: 1.6, speed: 0.06, dip: [0.5, 0.8], act: [6, 14], diveP: 0.25, dive: [2.5, 4.5], surface: [2.5, 4.5],
+    flee: 10, keep: 4, fleeFar: [5, 7], cool: 8, range: 1.2, body: 0x566e48, throat: 0xf0e2c8, eye: 0xe8ac4c,
+    groups: [{ x: -54, z: 31.5, r: 1.6, n: 3, roost: { x: -55, z: 32.5 } }, { x: -40, z: 34.5, r: 1.4, n: 2, roost: { x: -40.6, z: 35.4 } },
+      { x: -48, z: 31.5, r: 1.2, n: 3, roost: { x: -48.6, z: 32.2 } }] },
+};
+// Sporewood's ambient (§3.6): drifting gill-flakes, the candle-boats' lines with no flame: pale ochre flakes of cap gill turning slowly
+// on the outflow to the Root Weir on the Reed Flats, sinking there; the raft within `keep` m pushes one aside
+LOOP.ambient.sporewood = {
+  // (LAKE 2, the art pass: fewer, smaller and a dull matte ochre, so no flake reads as gold on the water)
+  flakes: { count: { high: 4, medium: 3, low: 0 }, order: [0, 1, 0, 1], speed: [0.14, 0.22], off: 1.2, gutter: 3, sink: 3, wait: [2, 6],
+    keep: 4, len: 0.3, color: 0x86704a, size: 0.28,
+    lines: [[[-20, 22], [-28, 29.5], [-44, 36.5], [-57, 37], [-64, 38.2]], [[-30, 23.5], [-46, 26.5], [-58, 33], [-64, 37]]] },
+};
+// <<< LAKE 2, lane W2
+
+// >>> LAKE 2, lane G (docs/loop/LAKE2.md §5.5; the user's words of 17 Nov 2026: "you can change rods and reels at your leisure in an options
+// menu"): the Tackle screen's few words. Its title is the tin's own (TEXT_LOOP.tackle.tin), its Lure and Bait rows the drawer's; the fitted
+// piece's log line is "+{n} Hold." with the built "Casts {m} m." (TEXT_LOOP.lost.log.cast) and "Lands up to {class}." (TEXT_LOOP.gate.upTo)
+TEXT_LOOP.tackle.screen = { rod: 'Rod', line: 'Line', reel: 'Reel', done: 'Done', hold: '+{n} Hold.' };
+// <<< LAKE 2, lane G
+
+// ---- Pure v3 helpers (fishing, progression, ui, tools). Lengths in cm, weights in kg (the player reads pounds: fmtWeight below).
+const SZB = BALANCE_V3.size;
+/** L50 (cm) of a species in a lake (the Pilgrim Salmon grows each lake down). */
+export function sizeL50(sp, zone = null) {
+  const L = sp.size.L50;
+  return typeof L === 'number' ? L : (L[zone] ?? L[Object.keys(L)[0]]);
+}
+/** Length (cm) at size score z: L50 · e^(σz + tail · max(0, z − tailFrom)²). Legends use σ 0.02 and no tail. */
+export function sizeLength(sp, z, zone = null) {
+  const tail = sp.rarity === 'legendary' ? 0 : SZB.tail;
+  return sizeL50(sp, zone) * Math.exp(sp.size.sigma * z + tail * Math.max(0, z - SZB.tailFrom) ** 2);
+}
+/** Weight (kg) of a fish of length cm: W = k · L³ (k in g/cm³). */
+export function sizeWeight(sp, cm) { return (sp.size.k * cm ** 3) / 1000; }
+// ---- Weight for the player (docs/v3/pounds/SPEC.md). Internals stay kg; the player reads pounds and ounces.
+export const LB_PER_KG = 2.20462262185;              // 1 lb = 0.45359237 kg exactly
+export const OZ_PER_KG = 35.27396195;                // 16 × LB_PER_KG
+const QUARTERS = ['\u00bc', '\u00bd', '\u00be'];     // ¼ ½ ¾
+/** The ounces a weight reads as on screen, exactly the figure fmtWeight prints: quarters under 1 oz (never below ¼), whole ounces
+ *  to under 100 lb, whole pounds beyond. Every size comparison the player can see in v3 (a personal best, a heavy bounty, the
+ *  Heavyweight) is made on it, so the words, the card and the check can never disagree. 0 for no weight. */
+export function weightOz(kg) {
+  if (typeof kg !== 'number' || !Number.isFinite(kg) || kg <= 0) return 0;
+  const oz = kg * OZ_PER_KG;
+  const q = Math.round(oz * 4);                       // quarters
+  if (q < 4) return Math.max(1, q) / 4;
+  const w = Math.round(oz);                           // whole ounces (q ≥ 4 ⇒ w ≥ 1)
+  return w < 1600 ? w : Math.round(oz / 16) * 16;     // 100 lb and up: whole pounds
+}
+/** "¼ oz" … "15 oz" · "1 lb 0 oz" … "99 lb 15 oz" · "100 lb" … "7,055 lb"; "—" for no weight. Rounds once, to whole ounces
+ *  (under 1 oz to the nearest quarter, never below ¼), then carries: never "16 oz", "1 lb 16 oz" or "100 lb 0 oz". */
+export function fmtWeight(kg, { nbsp = false } = {}) {
+  const w = weightOz(kg);
+  if (!(w > 0)) return '\u2014';
+  const sp = nbsp ? '\u00a0' : ' ';
+  if (w < 1) return `${QUARTERS[w * 4 - 1]}${sp}oz`;
+  if (w < 16) return `${w}${sp}oz`;
+  if (w < 1600) return `${Math.floor(w / 16)}${sp}lb${sp}${w % 16}${sp}oz`;   // "4 lb 6 oz"
+  return `${(w / 16).toLocaleString('en-US')}${sp}lb`;
+}
+/** A fish's weight for the player: derived from its length with the species' k (so a retune reaches old saves), else the stored kg. */
+export function fishWeight(sp, fish) {
+  const L = Number(fish?.length);
+  if (sp?.size && L > 0) { const w = sizeWeight(sp, L); return w < 1 ? Math.round(w * 1000) / 1000 : Math.round(w * 100) / 100; }
+  return Number(fish?.weight) > 0 ? Number(fish.weight) : 0;
+}
+/** A "near" weight (the got-away note): friendly steps, never an exact figure. Returns the figure only ("6 oz", "3 lb", "20 lb",
+ *  "275 lb", "7,100 lb"); the caller adds AUTOFISH.gotAway.word. */
+export function fmtWeightNear(kg, steps = [[10, 1], [100, 5], [1000, 25], [Infinity, 100]]) {
+  if (!(kg > 0)) return '';
+  if (Math.round(kg * OZ_PER_KG) < 16) return fmtWeight(kg);
+  const lb = kg * LB_PER_KG;
+  const step = (steps.find(([below]) => lb < below) || steps[steps.length - 1])[1];
+  return `${Math.max(step, Math.round(lb / step) * step).toLocaleString('en-US')} lb`;
+}
+/** A round target for "over {w}" (a heavy bounty, a Murk's order): a round unit (whole ounces under 1 lb, half pounds from 1 to
+ *  3 lb, whole pounds beyond), never above capKg (the top Keeper's weight), and worded as the card words a weight (fmtWeight:
+ *  "6 oz", "1 lb 8 oz", "9 lb 0 oz"), so the player compares like with like. Returns {oz, kg, text}. */
+export function weightTarget(kg, capKg = Infinity) {
+  const oz = kg * OZ_PER_KG, cap = capKg * OZ_PER_KG;
+  const unit = oz < 15.5 ? 1 : oz < 47.5 ? 8 : 16;    // whole oz · half pound · whole pound
+  let t = Math.max(1, Math.round(oz / unit) * unit);
+  if (t > cap) t = Math.max(1, Math.floor(cap / unit) * unit);
+  return { oz: t, kg: t / OZ_PER_KG, text: fmtWeight(t / OZ_PER_KG) };
+}
+/** The card's length line: cm always (one decimal under 20 cm): "8.4 cm", "112 cm", "850 cm". */
+export function fmtCm(cm) { cm = Number(cm); if (!(cm > 0)) return '\u2014'; return cm < 20 ? `${Math.round(cm * 10) / 10} cm` : `${Math.round(cm)} cm`; }
+/** Size class id for z (Ancient is an Elder with isAncient(z)). */
+export function sizeClassOf(z) { return SIZE_CLASSES.find((c) => z < c.zMax).id; }
+export function isAncient(z) { return z >= SZB.ancient; }
+/** Highest z a species may roll (its maxClass cap; the size ceiling otherwise). */
+export function maxZFor(sp) { return SZB.classMaxZ[sp.maxClass] ?? SZB.reachZ; }
+/** "Said to reach" (cm): the length at the ceiling z (or the class cap). Legends: fully grown (× 1.5 weight). */
+export function reachOf(sp, zone = null) {
+  if (sp.rarity === 'legendary') return sizeL50(sp) * Math.cbrt(SZB.legend.growthCap);
+  return sizeLength(sp, maxZFor(sp), zone);
+}
+/** A species' weights for its Journal page (kg): {min, top, reach}. `min` is its smallest fish and `reach` what it is "said to
+ *  reach" (the ends of the derived `weight` pair); `top` is a top Trophy (z at `elsewhereMaxZ`, or the species' own class cap), the
+ *  most open water holds: Elders live only where giants do. Legends: first landing to fully grown. null with no weights. */
+export function weightSpan(sp) {
+  const w = sp?.weight;
+  if (!Array.isArray(w) || w.length < 2) return null;
+  if (!sp.size || sp.rarity === 'legendary') return { min: w[0], top: w[1], reach: w[1] };
+  const L50 = typeof sp.size.L50 === 'number' ? sp.size.L50 : Math.min(...Object.values(sp.size.L50));   // (as the derived pair: the smallest lake's)
+  const z = SZB.elsewhereMaxZ;
+  if (maxZFor(sp) <= z) return { min: w[0], top: w[1], reach: w[1] };   // capped at a Trophy or under: its ceiling is its top
+  const top = sizeWeight(sp, L50 * Math.exp(sp.size.sigma * z + SZB.tail * Math.max(0, z - SZB.tailFrom) ** 2));
+  return { min: w[0], top: Math.min(top, w[1]), reach: w[1] };
+}
+/** The float's favour notches (0–5) for μ. */
+export function favourNotches(mu) { let n = 0; for (const t of BALANCE_V3.favour.notches) if (mu >= t) n++; return n; }
+/** Class odds for z ~ N(μ, 1) truncated to [min, maxZ] (Elders capped where giants do not live). */
+export function classOdds(mu, maxZ = SZB.z.max) {
+  const erf = (x) => { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
+  const P = (a) => 0.5 * (1 + erf((Math.min(a, maxZ) - mu) / Math.SQRT2));
+  const lo = P(SZB.z.min), hi = P(maxZ), n = hi - lo, out = {};
+  let prev = lo;
+  for (const c of SIZE_CLASSES) { const p = P(c.zMax); out[c.id] = (p - prev) / n; prev = p; }
+  out.ancient = Math.max(0, hi - P(SZB.ancient)) / n;
+  return out;
+}
+/** Sale value (Shells) of a fish of size z (brief §6.2). opts: {zone, quality (QUALITY valueMult), streak}. */
+export function fishValueV3(sp, z, opts = {}) {
+  const V = SZB.value, cls = sizeClassOf(z);
+  const lakeMult = sp.valueByLake ? (ZONES.find((q) => q.id === opts.zone)?.valueMult ?? 1) : 1;
+  const sizeM = Math.min(V.clamp[1], Math.max(V.clamp[0], Math.exp(V.perZ * z)));
+  return Math.round(sp.value * lakeMult * V.factor * sizeM * (V.classBonus[cls] ?? 1) * (opts.quality ?? 1) * (opts.streak ?? 1));
+}
+/** Food or oil from a fish of size z; rendered oil also takes Far Water's render factor (opts.day). */
+export function fishYieldV3(sp, z, kind = 'oil', opts = {}) {
+  const Y = SZB.yield, m = Math.min(Y.clamp[1], Math.max(Y.clamp[0], Math.exp(Y.perZ * z)));
+  const fw = kind === 'oil' && opts.day ? farWaterFor(opts.day).render : 1;
+  return sp[kind] * Y.factor * m * (opts.quality ?? 1) * fw;
+}
+/** Far Water on expedition day d (brief §3.4). */
+export function farWaterFor(day = 1) {
+  const F = BALANCE_V3.farWater, d = Math.max(1, day | 0), out = d - 1;
+  const murk = F.murk.always.includes(d) || (d > Math.max(...F.murk.always) && d % 2 === 1);
+  return {
+    favour: Math.min(F.favourCap, F.favourPerDawn * out), shows: Math.min(F.showsCap, F.showsPerDawn * out), murk,
+    oilPrice: murk ? 1 + F.oilPrice.perDay * Math.max(0, d - F.oilPrice.from) : null,
+    render: Math.max(F.render.floor, 1 - F.render.perDay * out), nightBurn: 1 + F.nightBurn.perNight * Math.max(0, d - F.nightBurn.from),
+  };
+}
+/** Does the swarm come on night n (1-based) in this mode? (First Outing: never.) */
+export function swarmTonight(mode, night, outing = 'normal') {
+  if (outing === 'first') return false;
+  const m = BALANCE_V3.nightModes[mode]; if (!m) return false;
+  return m.swarmNights === 'all' || (m.swarmNights === 'even' && night % 2 === 0);
+}
+/** The swarm window (night k range) on night n, or null when the night is still. */
+export function swarmWindow(mode, night, outing = 'normal') { return swarmTonight(mode, night, outing) ? BALANCE_V3.nightModes[mode].window.slice() : null; }
+/** Expedition tally Memories (brief §9.4), paid on return; memMult (Remembrance) multiplies the tally only. */
+export function tallyFor(s = {}) {
+  const T = EXPEDITION.tally, lines = [];
+  lines.push({ id: 'dawns', value: T.perDawn * (s.dawns || 0) });
+  lines.push({ id: 'stillNights', value: T.perStillNight * (s.stillNights || 0) });
+  if (s.mode === 'gloomtide') lines.push({ id: 'swarmNights', value: (s.swarmNights || 0) * (T.gloomtide.base + T.gloomtide.perZone * (s.zoneIndex || 0)) });
+  else lines.push({ id: 'swarmNights', value: T.perLanternSwarmNight * (s.swarmNights || 0) });
+  lines.push({ id: 'lakesCrossed', value: T.perLakeCrossed * (s.lakesCrossed || 0) });
+  lines.push({ id: 'ledger', value: T.perLedger * (s.ledger || 0) });
+  const raw = lines.reduce((a, l) => a + l.value, 0) * (1 + (s.memMult || 0));
+  return { total: Math.round(raw * (s.snuffed ? T.snuffedMult : 1)), raw, lines };
+}
+/** The Long Wall frame for a species (brief §3.7.3): {id, width, height (m), reach (m), view}. Wanderers size from their largest reach. */
+export function frameFor(sp) {
+  const reachM = Math.max(...(sp.zones?.length ? sp.zones : [sp.zone]).map((z) => reachOf(sp, z))) / 100;
+  const f = COVE.frames.find((q) => reachM <= q.maxReach), H = COVE.frameHeight, shape = sp.model?.shape;
+  const view = H.views[shape] || 'side';
+  if (f.id === 'board') return { id: f.id, width: f.width, height: f.height, reach: v3r(reachM, 2), view };
+  if (view === 'hanging') return { id: f.id, width: v3r(Math.max(0.66, 0.6 * reachM + 0.2), 2), height: v3r(1.1 * reachM + 0.15, 2), reach: v3r(reachM, 2), view };
+  return { id: f.id, width: v3r(1.1 * reachM, 2), height: v3r(Math.max(H.min, (H.ratio[shape] ?? 0.3) * reachM + H.margin), 2), reach: v3r(reachM, 2), view };
+}
+/** Which seals a species can earn (brief §6.3): the Quayling none; a species capped below Elder loses its Elder seal. */
+export function sealsFor(sp) {
+  if (sp.cove || sp.rarity === 'legendary') return [];
+  const elderCut = SIZE_CLASSES.find((c) => c.id === 'trophy').zMax;   // z 2.65
+  return BALANCE_V3.records.seals.classes.filter((c) => c !== 'elder' || !(BALANCE_V3.records.seals.noElder.includes(sp.id) || (sp.maxClass && SZB.classMaxZ[sp.maxClass] < elderCut)));
+}
+/** The one place-membership helper for v3 consumers: the place of `zone` whose water contains (x, z), or null. Searches the zone's
+ *  arena.places (the Mossmere's v3 places from P2; §24's places in walking builds) and then §24's ARENA_V2 (v2's placeAt stays for v2). */
+export function placeAtV3(zone, x, z) {
+  const id = typeof zone === 'string' ? zone : zone?.id;
+  const list = ZONES.find((q) => q.id === id)?.arena?.places || ARENA_V2[id]?.places || [];
+  return list.find((p) => placeContains(p, x, z)) || null;
+}
+/** What the trophy camera frames at a place: its authored landmark, else its own centre 2 m up (§24's places), else null. */
+export function landmarkOf(place) {
+  if (!place) return null;
+  return place.landmark ? { ...place.landmark } : { x: place.x ?? place.water?.x ?? 0, y: 2, z: place.z ?? place.water?.z ?? 0 };
+}
+/** The stats of a fitted tackle loadout (P3's progression.getStats): TACKLE tier values REPLACE the STATS base for castMax, hookWindow
+ *  and creelSize (Wick, relics, Boons and outfit then add), plus the Creel's Live Well, and `hold` per slot for catchChance. */
+export function tackleStats(t = {}) {
+  const r = TACKLE.rod[t.rod | 0], l = TACKLE.line[t.line | 0], e = TACKLE.reel[t.reel | 0], c = TACKLE.creel[t.creel | 0];
+  return { castMax: r.castMax, hookWindow: r.hookWindow, creelSize: c.creelSize, liveWell: c.liveWell, nights: c.nights,
+    hold: { rod: r.hold, line: l.hold, reel: e.hold } };
+}
+/** P1–P2 and The Long Descent (per-run UPGRADES, no tiers): the effective tackle tier per slot from owned upgrade levels. Under
+ *  automatic fishing it gives the tackle rating's words only (catchRating); each slot's Hold comes from upgradeHold (every level counts). */
+export function upgradeTiers(levels = {}) {
+  const out = {};
+  for (const [slot, f] of Object.entries(upgradeTierFrac(levels))) out[slot] = Math.min(4, Math.floor(f + 1e-9));
+  return out;
+}
+/** The unrounded effective tier per slot: 4 × levels bought ÷ the slot's levels. */
+export function upgradeTierFrac(levels = {}) {
+  const T = BALANCE_V3.upgradeTiers, out = {};
+  for (const [slot, ids] of Object.entries(T.slots)) {
+    const n = ids.reduce((a, id) => a + (levels[id] | 0), 0), max = ids.reduce((a, id) => a + (UPGRADES.find((u) => u.id === id)?.maxLevel | 0), 0);
+    out[slot] = Math.min(4, (n * 4) / Math.max(1, max));
+  }
+  return out;
+}
+/** Tackle Hold of a (possibly fractional) tier: linear between TACKLE[slot][⌊t⌋].hold and the next tier's. */
+export function tackleHoldAt(slot, t) {
+  const T = TACKLE[slot], x = Math.max(0, Math.min(4, +t || 0)), i = Math.min(3, Math.floor(x + 1e-9)), f = x - i;
+  return T[i].hold + (T[i + 1].hold - T[i].hold) * f;
+}
+/** P1–P2 runs and The Long Descent: each slot's Hold from owned upgrade levels, interpolated (so every rod, line and reel level adds
+ *  Hold; the rounded tier still gives the rating). catchChance reads it through loadout.hold. */
+export function upgradeHold(levels = {}) {
+  const f = upgradeTierFrac(levels);
+  return { rod: tackleHoldAt('rod', f.rod), line: tackleHoldAt('line', f.line), reel: tackleHoldAt('reel', f.reel) };
+}
+
+// ---- Automatic fishing helpers (CATCH_V3). One formula for fishing's roll, the logs (Journal, gear log) and the tackle rating.
+// Loadout = {rod, line, reel, hold?: {rod, line, reel}, item?, itemLevel?, upgrade?: {id, level}} (tiers 0–4, fractional tiers
+// interpolate; `hold` overrides the tiers' Hold: P1–P2 runs and The Long Descent pass upgradeHold(run.upgrades); item = the one bait
+// or lure on the line AT THE CAST; upgrade = a per-run upgrade lure such as lure_glimmer, which never stacks with the item: the fish
+// gets the larger). Mods = {lake?, strike?: 'clean'|'struck'|'early'|'late' (default 'struck', the log's reference), buffs?: number |
+// {wellFed, boons, relics, character, firstHookTonight}, marked?, wounds?, landings?, night?, perRun?}. Pure: no state, no RNG.
+const CATCH_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+const CATCH_CLASS_MAX = { keeper: 1, prize: 2, trophy: 3, elder: 5 };
+// Under the loop an id resolves to the loop's own record first (SPECIES_BY_ID: the converter's roster fish, which SPECIES_V3_BY_ID lacks,
+// such as the Likely Chub or the Thousandcast Pike, or holds as built), so fishing's catchChance(sp.id, …) is the sim's land chance;
+// off the loop the built v3 record, as before (M1 step 3a: four step-2 fish and the three new ones read null by id before).
+const catchSp = (s) => (typeof s === 'string' ? (LOOP_ENABLED ? SPECIES_BY_ID[s] ?? SPECIES_V3_BY_ID[s] : SPECIES_V3_BY_ID[s]) : s) || null;
+export function catchHomeLake(sp) { sp = catchSp(sp); return sp ? (sp.zone || sp.zones?.[0] || null) : null; }
+/** Can this species be this class at all (species caps: the Quayling at Keeper, the Lampwarden at Trophy)? Legends: 'legend' only. */
+export function catchClassAllowed(sp, cls) {
+  sp = catchSp(sp); if (!sp) return false;
+  if (sp.rarity === 'legendary') return cls === 'legend';
+  const i = CATCH_CLASSES.indexOf(cls); if (i < 0) return false;
+  return !sp.maxClass || i <= (CATCH_CLASS_MAX[sp.maxClass] ?? 5);
+}
+const CATCH_ATTRACT = new Map();   // bait id → the species it helps (built on first use, after the v3 patch has run)
+const catchAttractSet = (id) => {
+  if (!CATCH_ATTRACT.has(id)) CATCH_ATTRACT.set(id, new Set([...([...BAITS, ...WALK_BAITS].find((b) => b.id === id)?.bonus?.attract || []), ...SPECIES_V3.filter((s) => s.bait === id).map((s) => s.id)]));
+  return CATCH_ATTRACT.get(id);
+};
+/** The Hold one bait or lure gives this species (0 if it does not help it). ctx: {night, itemLevel}. Legends take none. */
+export function catchItemHold(itemId, sp, ctx = {}) {
+  sp = catchSp(sp); const it = CATCH_V3.items[itemId];
+  if (!sp || !it || sp.rarity === 'legendary') return 0;
+  const hold = it.holdPerLevel ? it.holdPerLevel * Math.max(0, ctx.itemLevel ?? 1) : it.hold;
+  if (it.all) return hold;
+  if (it.species) return it.species.includes(sp.id) ? hold : 0;
+  if (it.night) return sp.night && (ctx.night ?? true) ? hold : 0;
+  if (it.family) return sp.family === it.family ? hold : 0;
+  if (it.attract) return catchAttractSet(itemId).has(sp.id) ? hold : 0;
+  return 0;
+}
+/** Every species (non-legendary, SPECIES_V3) an item helps: the gear log's list and validate-data's "every target exists". */
+export function catchItemTargets(itemId) { return SPECIES_V3.filter((s) => s.rarity !== 'legendary' && catchItemHold(itemId, s) > 0).map((s) => s.id); }
+/** The buffs' Hold for this fish: relics ≤ relicCap, run buffs (Well-fed, Boons, a Wick's quirk) ≤ runCap, together ≤ cap.
+ *  ctx: {wellFed, boons: {id: level}, relics: {id: level}, character, firstHookTonight}. */
+export function catchBuffHold(sp, cls, ctx = {}, style = catchSp(sp)?.style) {
+  const B = CATCH_V3.buffs; let run = ctx.wellFed ? B.wellFed : 0, rel = 0;
+  for (const [id, r] of Object.entries(B.boons)) { const lv = ctx.boons?.[id] | 0; if (lv && (!r.styles || r.styles.includes(style))) run += r.perLevel ? r.perLevel * lv : r.hold; }
+  for (const [id, r] of Object.entries(B.relics)) {
+    const lv = ctx.relics?.[id] | 0;
+    if (!lv || (r.level && lv < r.level) || (r.fromClass && (cls === 'legend' ? false : CATCH_CLASSES.indexOf(cls) < CATCH_CLASSES.indexOf(r.fromClass)))) continue;
+    rel += r.perLevel ? r.perLevel * lv : r.hold;
+  }
+  const q = B.wicks[ctx.character]; if (q && (q.on !== 'firstHookEachNight' || ctx.firstHookTonight)) run += q.hold;
+  return Math.min(B.cap, Math.min(B.relicCap ?? B.cap, rel) + Math.min(B.runCap ?? B.cap, run));
+}
+/** The whole computation: {p, hold, fight, cap, lake, style, terms} or null when the class is out of reach. */
+export function catchParts(spOrId, cls, loadout = {}, mods = {}) {
+  const C = CATCH_V3, sp = catchSp(spOrId); if (!sp) return null;
+  const legend = sp.rarity === 'legendary'; if (legend) cls = 'legend';
+  if (!catchClassAllowed(sp, cls)) return null;
+  const style = legend ? C.legend.style[sp.id] : sp.style, w = C.emphasis[style] || C.emphasis.steady;
+  const slotHold = (s) => (loadout.hold && Number.isFinite(loadout.hold[s]) ? loadout.hold[s] : tackleHoldAt(s, loadout[s] ?? 0));
+  const tackle = slotHold('rod') * w.rod + slotHold('line') * w.line + slotHold('reel') * w.reel;
+  const itemH = legend || !loadout.item ? 0 : catchItemHold(loadout.item, sp, { night: mods.night, itemLevel: loadout.itemLevel });
+  const upH = legend || !loadout.upgrade?.id ? 0 : catchItemHold(loadout.upgrade.id, sp, { night: mods.night, itemLevel: loadout.upgrade.level ?? 1 });
+  const item = Math.max(itemH, upH);
+  const strike = C.strike[mods.strike ?? C.display.reference.strike] ?? 0;
+  const buffs = mods.buffs && typeof mods.buffs === 'object' ? catchBuffHold(sp, cls, mods.buffs, style) : Math.min(C.buffs.cap, Math.max(0, +mods.buffs || 0));
+  const marked = mods.marked && !legend ? C.markedFish : 0;
+  const wounds = legend ? Math.min(C.legend.woundCap, (mods.wounds | 0) * C.legend.woundPerEscape) : 0;
+  const hold = C.wick + tackle + item + strike + buffs + marked + wounds;
+  const lake = mods.lake ?? catchHomeLake(sp);
+  let fight;
+  if (legend) fight = (mods.perRun ? C.legend.fightRun[sp.id] : C.legend.fight[sp.id]) + Math.min(C.legend.growthCap, (mods.landings | 0) * C.legend.growthPerLanding);
+  else {
+    fight = (C.lake[lake] ?? 0) + (C.rarity[sp.rarity] ?? 0) + (C.style[style] ?? 0) + (Object.values(TACKLE.reference).includes(sp.id) ? C.headline : 0)
+      + (sp.place ? C.kept : 0) + (C.fouledSpecies.includes(sp.id) ? C.fouled : 0) + C.class[cls];
+    if (cls === 'elder' || cls === 'ancient') fight += (C.elderStep[lake] ?? 0) + (C.elderRarity[sp.rarity] ?? 0);
+  }
+  const cap = C.cap[cls];
+  const p = Math.max(C.floor, cap / (1 + Math.exp(-C.scale * (hold - fight))));
+  return { p, hold, fight, cap, lake, style, terms: { wick: C.wick, tackle, item, strike, buffs, marked, wounds } };
+}
+/** The chance a hooked fish of this species and size class is landed (always < its cap < 1), or null when out of reach. */
+export function catchChance(speciesId, sizeClass, loadout = {}, mods = {}) { return catchParts(speciesId, sizeClass, loadout, mods)?.p ?? null; }
+/** The Journal's "Your odds" row: {small…ancient: p|null} (legends: {legend: p}), at the log's reference strike unless mods say otherwise. */
+export function catchOdds(speciesId, loadout = {}, mods = {}) {
+  const sp = catchSp(speciesId); if (!sp) return null;
+  if (sp.rarity === 'legendary') return { legend: catchChance(sp, 'legend', loadout, mods) };
+  return Object.fromEntries(CATCH_CLASSES.map((c) => [c, catchChance(sp, c, loadout, mods)]));
+}
+/** The best single bait or lure (by Hold) for a species among `ids` (default: every bait and lure): {id, hold}. */
+export function catchBestItem(sp, ids = Object.keys(CATCH_V3.items).filter((k) => CATCH_V3.items[k].kind !== 'upgrade'), ctx = {}) {
+  let best = { id: null, hold: 0 };
+  for (const id of ids) { const h = catchItemHold(id, sp, ctx); if (h > best.hold) best = { id, hold: h }; }
+  return best;
+}
+/** A probability as the logs print it: whole percent, rounded DOWN (so a cap is never printed); null stays null. */
+export function catchDisplay(p) { return p == null ? null : Math.floor(p * 100 + 1e-9); }
+/** The Set Out card's tackle rating in words: the largest class held ≥ 50% against the lake's reference species, and a word for the next. */
+export function catchRating(lake, loadout = {}, mods = {}) {
+  const ref = TACKLE.reference[lake]; if (!ref) return null;
+  const A = AUTOFISH.rating, cls = ['small', 'keeper', 'prize', 'trophy', 'elder'];
+  let held = null;
+  for (const c of cls) if ((catchChance(ref, c, loadout, { ...mods, lake }) ?? 0) >= A.holdsAt) held = c;
+  const next = held ? cls[cls.indexOf(held) + 1] ?? null : 'small';
+  const p = next ? catchChance(ref, next, loadout, { ...mods, lake }) : null;
+  const word = p == null ? null : A.words.find(([t]) => p >= t)[1];
+  return { reference: ref, held, next, word };
+}
+
+/** What the player sees of a hooked (or pre-rolled, visible, resident) fish before the reveal: the night-ink proxy's length in metres,
+ *  from the lake and z only (AUTOFISH.proxy: a stylised ladder by size class, stretched a little by z inside its class). Never takes a
+ *  species, so length can never name one; true length first shows at the reveal. */
+export function presentLength(lake, z) {
+  const P = AUTOFISH.proxy, cls = isAncient(z) ? 'ancient' : sizeClassOf(z);
+  const lo = cls === 'small' ? SZB.z.min : cls === 'ancient' ? SZB.ancient : SIZE_CLASSES[SIZE_CLASSES.findIndex((c) => c.id === cls) - 1].zMax;
+  const hi = cls === 'elder' ? SZB.ancient : cls === 'ancient' ? SZB.z.max : SIZE_CLASSES.find((c) => c.id === cls).zMax;
+  const t = Math.max(0, Math.min(1, (z - lo) / (hi - lo)));
+  return P.ladder[cls] * (1 + P.zStretch * (t - 0.5)) * (P.lakeMult[lake] ?? 1);
+}
+/** The leap distribution of a play by size class (shared by every leaping species): [[count, p], …]; Small never leaps. */
+export function leapCountsFor(sizeClass) { return AUTOFISH.leap.count[sizeClass] || []; }
+
+// ---- the show (AUTOFISH.show; docs/v3/show/SPEC.md). Pure helpers both lanes call, so the pose and the clock are decided in one place.
+export const SHOW_CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+/** The show's row for a landed fish: its size class, 'ancient' for an Ancient and for every legend (as AUTOFISH.landing's rows). */
+export function showClassOf({ sizeClass = 'keeper', ancient = false, legend = false } = {}) {
+  return legend || ancient ? 'ancient' : (SHOW_CLASSES.includes(sizeClass) ? sizeClass : 'keeper');
+}
+/** The reveal's real length (s) for a show class: AUTOFISH.landing[class].wipe seconds of game time under its slow-motion beat
+ *  ([real seconds, time scale]; the beat runs on the real clock, the wipe on the game's). */
+export function showRevealSeconds(cls) {
+  const L = AUTOFISH.landing[cls] || AUTOFISH.landing.keeper, [sec, scale] = L.slowmo || [0, 1];
+  const slowGame = sec * scale;
+  return L.wipe <= slowGame ? L.wipe / scale : sec + (L.wipe - slowGame);
+}
+/**
+ * The show's clock for a class: {cls, reveal, lift, hold, pause, show (lift + hold + pause), total (T0 → card)} in real seconds.
+ * {swarm: true} (an active swarm window) plays AUTOFISH.show.swarm for every class; {hurried: true} is a tap at T0 (the reveal
+ * whole, the lift at hurry.liftRate, then hurry.hold, or hurry.protectedHold with {protected: true}: a first-ever species or a personal best).
+ */
+export function showPlan(cls, { swarm = false, hurried = false, protected: prot = false } = {}) {
+  const S = AUTOFISH.show, c = SHOW_CLASSES.includes(cls) ? cls : 'keeper';
+  const B = swarm ? S.swarm : S.beats[c], reveal = showRevealSeconds(c);
+  let lift = B.lift, hold = B.hold, pause = B.pause;
+  if (hurried) { lift = B.lift / S.hurry.liftRate; hold = Math.min(B.hold + B.pause, prot ? S.hurry.protectedHold : S.hurry.hold); pause = 0; }
+  const r = (x) => Math.round(x * 1000) / 1000;
+  return { cls: c, reveal: r(reveal), lift: r(lift), hold: r(hold), pause: r(pause), show: r(lift + hold + pause), total: r(reveal + lift + hold + pause) };
+}
+/**
+ * The show's pose for a landed fish: 'pinch' | 'both' | 'hug' | 'hang' | 'alongside' (AUTOFISH.show.poses by TRUE length in metres,
+ * then poseRules): a Trophy or bigger is never a one-hand pinch; an Elder, an Ancient or a long thin fish (an eel) that would be
+ * hugged hangs from the rod instead; every legend lies alongside. `shape` is the species' model shape (FISH_SHAPES).
+ */
+export function showPoseFor(lengthM, { sizeClass = 'keeper', ancient = false, legend = false, shape = null } = {}) {
+  const S = AUTOFISH.show, R = S.poseRules;
+  if (legend) return R.legend;
+  const L = Number(lengthM);
+  let pose = (S.poses.find((p) => L < p.below) || S.poses[S.poses.length - 1]).id;
+  const rank = ancient ? SHOW_CLASSES.indexOf('ancient') : Math.max(0, SHOW_CLASSES.indexOf(sizeClass));
+  if (pose === 'pinch' && rank >= SHOW_CLASSES.indexOf(R.noPinchFrom)) pose = 'both';
+  if (pose === 'hug' && rank >= SHOW_CLASSES.indexOf(R.noHugFrom)) pose = 'hang';
+  else if (pose === 'hug' && R.thin.includes(shape)) pose = R.thinDrape || 'hang';
+  return pose;
+}
+
+// ---- Apply (only when the v3 build is active). Runs after the walking merge, before the lookup maps. Gated by V3_PHASE so each
+// phase's build carries exactly its data (DESIGN §25.14.1 "which data lands when"; validate-data runs a pass per phase):
+//   P1  BALANCE_V3 (minus V3_BLOCK_PHASE blocks), the 32 P1 lake species and the cove's Quayling (+ §24's 8 kept fish with §24), the renames
+//       (Pg0 migrates the ids), Murk's Chum, Angler Boons and tags, the Wicks' fishing halves, P1 tips, text, the Mossmere's rust
+//       accent and buoy watch-lamps, §24 place sync and watch lamps (when §24 is in), raft fallbacks (stopgap giants, watch lamps)
+//   P2  + residents / Marked Fish blocks, the Mossmere's 8 places, props and Moon-Eye crack, the sturgeon shape, species → 37
+//   P3  + farWater / liveWell, RELICS_V3 (cuts, shelves, costs), CHALLENGES_V3, Homeward stones, the welcome purse, species → 47
+//   P4  + the Moon Cistern and the six P4 species (→ 53)
+if (V3_ENABLED) {
+  const P = V3_PHASE;
+  const keepWalk = (x) => WALK_ENABLED || !x.needsWalk;
+  const walkPlace = new Set(PLACES.map((p) => p.id));
+  Object.assign(STATS, WALK_STATS);                                    // stride exists in v3 (Boots, Wanderer's Stride, Quick Feet) even without §24
+  for (const [k, v] of Object.entries(BALANCE_V3)) {                 // new blocks are assigned; an existing block (bite) gains the v3 keys only (validated)
+    if ((V3_BLOCK_PHASE[k] ?? 1) > P) continue;
+    if (BALANCE[k] && typeof BALANCE[k] === 'object' && !Array.isArray(BALANCE[k])) Object.assign(BALANCE[k], v); else BALANCE[k] = v;
+  }
+  // species: §24's kept fish come with §24's lake builds; everything else by phase; nothing kept at a §24 place without §24
+  SPECIES.length = 0;
+  SPECIES.push(...SPECIES_V3.filter((s) => (s.src === 'walk' ? WALK_ENABLED : s.phase <= P) && (WALK_ENABLED || !(s.src === 'walk' || (s.place && walkPlace.has(s.place))))));
+  if (P >= 2) FISH_SHAPES.push('sturgeon');
+  // renames (originality; Pg0 renames the ids in saves in P1) and the feeding-spot cut (Murk's Chum, the sign bounty)
+  for (const b of BAITS) if (b.id === 'pale_marrow') Object.assign(b, { id: 'last_candle', name: 'Last Candle', desc: 'A candle-end that never quite went out. Something in the deepest water remembers what it was for.' });
+  const tc = SUPPLIES.findIndex((s) => s.id === 'tide_chart');
+  if (tc >= 0) SUPPLIES.splice(tc, 1, { id: 'murks_chum', name: "Murk's Chum", price: 30, give: { chum: 1 }, limitPerVisit: 1, icon: 'bait',
+    desc: 'A pail of scraps. Your next cast stirs up nervous water for 30 s: a predator under a bait ball.' });
+  const sb = BOUNTIES.find((x) => x.id === 'spot_catch');
+  if (sb) Object.assign(sb, { type: 'signCatch', text: 'Catch {n} fish cast inside a sign on the water.' });
+  // pounds (docs/v3/pounds/SPEC.md §4.4): a fish's size is told in pounds; the heavy bounty's words and the Heavyweight's target
+  const hb = BOUNTIES.find((x) => x.id === 'heavy');
+  if (hb) Object.assign(hb, { text: 'Land a {species} over {w}.' });
+  const hc = CHALLENGES.find((c) => c.id === 'heavy_catch');
+  if (hc && P < 3) Object.assign(hc, { desc: 'Land a non-legendary fish over 18 lb 0 oz.', params: { lb: 18, excludeLegendary: true } });
+  if (P >= 3) { RELICS.length = 0; RELICS.push(...RELICS_V3.filter(keepWalk)); }
+  BOONS.push(...BOONS_V3);
+  for (const b of BOONS) if (ANGLER_POOL.includes(b.id) && !b.tags.includes('angler')) b.tags = [...b.tags, 'angler'];
+  // D1′: v3 wording and effects for the Boons, relics and per-run tackle that named a reel stat (DESC_V3)
+  for (const b of BOONS) if (DESC_V3.boons[b.id]) Object.assign(b, v3clone(DESC_V3.boons[b.id]));
+  for (const u of UPGRADES) if (DESC_V3.upgrades[u.id]) Object.assign(u, v3clone(DESC_V3.upgrades[u.id]));
+  if (P < 3) for (const r of RELICS) if (DESC_V3.relics[r.id]) Object.assign(r, v3clone(DESC_V3.relics[r.id]));
+  for (const c of CHARACTERS) if (CHARACTERS_V3[c.id]) c.fishing = v3clone(CHARACTERS_V3[c.id].fishing);
+  for (const c of CHARACTERS) if (DESC_V3.characters[c.id]) Object.assign(c, v3clone(DESC_V3.characters[c.id]));
+  if (P >= 3) {
+    CHALLENGES.length = 0;
+    CHALLENGES.push(...CHALLENGES_V3.filter(keepWalk));
+    BALANCE.economy.welcomePurse = ECONOMY_V3.welcomePurse;
+  }
+  { const chron = CHALLENGES.find((c) => c.id === 'complete_chronicle'); if (chron) chron.params = { ...chron.params, n: SPECIES.length }; }
+  TIPS.push(...TIPS_V3.filter((t) => (t.phase ?? 1) <= P));
+  { const mt = TIPS.find((t) => t.id === 'merchant'); if (mt) mt.text = `A bell across the water. Old Murk has moored. ${COVE.murkLook.tip}.`; }   // A10: his lamp is candle-warm now, not green
+  Object.assign(MERCHANT_LINES, MERCHANT_LINES_V3);
+  TEXT.v3 = TEXT_V3; TEXT.premise = TEXT_V3.premise; TEXT.challengeTabs = CHALLENGE_TABS_V3;
+  if (LOOP_ENABLED) {   // M1 step 2 (SPEC §13): the Mossmere's roster fish. The converter (src/roster-species.js) on the shipped roster
+    // records; the kept built species cloned (the Lampsipper lifted past the phase pin); every one at any depth (the converter's rule:
+    // the sim has no cast depth); SPECIES holds them in place of the built records of the same ids, ahead of the rest
+    Object.assign(BALANCE_V3.size.k, LOOP_BODY_K);
+    // M1 step 3a: the open water's twelve, then each place's own fish and its giant in the Chart's order (LOOP.places' own, giant): the
+    // Bridgechain (a kept built record, lifted past the phase pin, its `weather` dropped: the loop has none), the Thousandcast Pike and
+    // the Hullkiss Lamprey (the converter's epic giants, each with its `place`)
+    const placeFish = loopPlaceIds('mossmere').flatMap((p) => [...(LOOP.places[p].own || []), ...(LOOP.places[p].giant ? [LOOP.places[p].giant] : [])]);
+    const ids = [...LOOP.species.mossmere, ...placeFish], kept = new Set(LOOP.kept);
+    const conv = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
+      diff, art: ROSTER_ART, waters: ['mossmere'] });
+    const byId = new Map(conv.map((x) => [x.id, x]));
+    for (const id of ids) {
+      let x = byId.get(id);
+      if (kept.has(id)) {
+        x = { ...v3clone(SPECIES_V3_BY_ID[id]), depth: [0, 1], roster: false, ...(SPECIES_V3_BY_ID[id].phase > 1 ? { loopLift: true } : {}) };
+        delete x.weather;
+        if (ROSTER_ART[id]?.model) x.model = { ...x.model, ...v3clone(ROSTER_ART[id].model) };   // a kept fish's new plan (the Bridgechain's)
+      }
+      if (x) SPECIES_LOOP.push(v3fin(x));
+    }
+    const lifted = new Set(SPECIES_LOOP.map((x) => x.id));
+    const rest = SPECIES.filter((x) => !lifted.has(x.id));
+    SPECIES.length = 0;
+    SPECIES.push(...SPECIES_LOOP, ...rest);
+    // LOST-TACKLE §4.2: the guests a found notebook brings (the converter's records on their home water, `guestOf` the water they visit;
+    // never in SPECIES_LOOP, the list, a catch seal or M1's 47): each in its built record's slot of SPECIES (a new fish at the end), so a
+    // guest's Journal entry is its own id's when its home water ships. The trout plan and the carp plan's parameters (ROSTER_ART)
+    for (const [host, gids] of Object.entries(LOOP.guests || {})) {
+      const gs = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
+        diff, art: ROSTER_ART, ids: gids });
+      for (const id of gids) {
+        const x = gs.find((g) => g.id === id);
+        if (!x) continue;
+        if (ROSTER_ART[id]?.model) x.model = { ...x.model, ...v3clone(ROSTER_ART[id].model) };
+        Object.assign(x, { guestOf: host, depth: [0, 1], phase: 1 });   // (the loop's own record: inside the phase pin, as a new roster fish is)
+        delete x.place;   // (it bites where its notebook says, never at a place of its home water)
+        const y = v3fin(x), i = SPECIES.findIndex((q) => q.id === id);
+        if (i >= 0) SPECIES[i] = y; else SPECIES.push(y);
+      }
+    }
+    // a built record the loop keeps as built but for the water it bites in (the roster's `place`): the Gloam Eel's night water. Set on
+    // a copy in its own slot, so SPECIES' order is unchanged and SPECIES_V3's record is not touched; its bait, hours and size as built
+    for (const [id, kind] of Object.entries({ gloam_eel: 'night' })) {
+      const i = SPECIES.findIndex((x) => x.id === id);
+      if (i >= 0) SPECIES[i] = { ...v3clone(SPECIES[i]), kind };
+    }
+    Object.assign(AUTOFISH.leaps, LOOP.leaps);
+    // the three new plans (lamprey, sturgeon, trout; read only under the loop: PLAN CHOICE 14), the giants' Fight and the thin hang
+    for (const sh of ['lamprey', 'sturgeon', 'trout']) if (!FISH_SHAPES.includes(sh)) FISH_SHAPES.push(sh);
+    // an epic giant fights LOOP.giant.fight over a rare (+elderFight more as an Elder), as the sim's landP gives it. catchParts takes
+    // CATCH_V3.kept (−2) from every fish with a `place` (a place-kept fish); a giant's place is where it lives, not a kept fish's (the
+    // sim passes it none), so its rarity term carries that 2 back: its net Fight is the sim's rare + 10 (+ 2 as an Elder)
+    CATCH_V3.rarity.epic = CATCH_V3.rarity.rare + LOOP.giant.fight - CATCH_V3.kept;
+    CATCH_V3.elderRarity.epic = CATCH_V3.elderRarity.rare + LOOP.giant.elderFight;
+    if (!AUTOFISH.show.poseRules.thin.includes('lamprey')) AUTOFISH.show.poseRules.thin.push('lamprey');
+  }
+  if (LOOP_ENABLED) {   // the Full Hold's words, Ashwick's tired comeback (no `on`: getCatchBuffs names Ashwick only while a comeback
+    // bite is open; catchBuffHold is not edited, WICKS §2.5) and the film's line 3 under the loop (LORE §12, PLAN §2.2 item 26)
+    TEXT.loop = TEXT_LOOP;
+    CATCH_V3.buffs.wicks.ashwick = { hold: LOOP.wicks.ashwick.hold };
+    INTRO.text[2] = INTRO.cove.text[2] = TEXT_LOOP.introLine3;
+    FIRST_EVENING.tips.fe_cast = TEXT_LOOP.castTip;   // (the gesture says press: "Hold" is the Hold stat's word)
+    INTRO.lines[2].out = 15.2;   // line 3's longer words stay ≤ the A5 reading rate (17.4 a second; the gap to line 4 stays 0.5 s)
+  }
+  if (LOOP_ENABLED) {   // >>> M1 step 4 (lane 4; SPEC §4.4, §4.5, M1.md §2.3, §2.4): under the loop only, so no v3 table moves off it
+    // Cut Strip is a bait in the bag (free, never sold): a BAITS row of the loop's own, so the built cast spends it and a pass refunds it
+    if (!BAITS.some((b) => b.id === 'cut_strip')) BAITS.push({ id: 'cut_strip', name: 'Cut Strip', price: 0, count: LOOP.cut.strips, zoneMin: 0, unlock: null, legend: false, icon: 'strip', bonus: {} });
+    // every tin gives the same favour (SPEC §4.5: every fish runs bigger), read by fishing's cast terms as a bait's own term
+    for (const id of Object.values(LOOP.tins).flat()) BALANCE_V3.favour.tackle.bait[id] = LOOP.baitRule.favour;
+    // a tin's Hold goes to the fish that favour it: the roster's `favours` (the converter's `baits`), as the sim's itemHold reads them
+    for (const sp of SPECIES_LOOP) for (const id of sp.baits || []) {
+      const b = BAITS.find((x) => x.id === id && !x.legend);
+      if (b) { b.bonus = { ...b.bonus, attract: [...new Set([...(b.bonus?.attract || []), sp.id])] }; }
+    }
+    // GEAR-GATES §2.1: the start kit's Bent Spoon, a lure of the loop's own (no family, so its favour −0.25 is every fish's; +3 Hold on the
+    // fish it likes, filled from the hook table by the Wick's sheet block below)
+    if (!LURES.some((l) => l.id === 'bent_spoon')) LURES.push({ id: 'bent_spoon', name: 'Bent Spoon', depth: 'mid', attract: 1, favour: -0.25, price: 0, onSale: null });
+    if (!CATCH_V3.items.bent_spoon) CATCH_V3.items.bent_spoon = { kind: 'lure', hold: 3, species: [] };
+    // LOST-TACKLE §3.2: the found Gate-Guard's Button, a lure of the loop's own (no family, +0 Hold, strikes as slowly as the Bent Spoon)
+    if (!LURES.some((l) => l.id === 'guard_button')) LURES.push({ id: 'guard_button', name: "Gate-Guard's Button", depth: 'mid', attract: 1, favour: 0, price: 0, onSale: null });
+    if (!CATCH_V3.items.guard_button) CATCH_V3.items.guard_button = { kind: 'lure', hold: 0, species: [] };
+    // the Harbour-Bell Spinner re-aimed at the Mossmere's giants (SPEC §4.4: +10 Hold on the fish named)
+    CATCH_V3.items.bell_spinner = { ...CATCH_V3.items.bell_spinner, species: LOOP.lures.bell_spinner.giants.slice() };
+    { const l = LURES.find((x) => x.id === 'bell_spinner'); if (l) l.species = LOOP.lures.bell_spinner.giants.slice(); }
+    // the Belled Matriarch a catfish (ROSTER §3.1, M1.md §2.3): her plan only (models-fish.js `catfish`, read under the loop); her size,
+    // her Fight, her authored play (AUTOFISH.legend's take, toll, run, toll, circle, last stand, lift) and so her land chance as built
+    if (!FISH_SHAPES.includes('catfish')) FISH_SHAPES.push('catfish');
+    const mi = SPECIES.findIndex((x) => x.id === 'belled_matriarch');
+    if (mi >= 0) SPECIES[mi] = { ...v3clone(SPECIES[mi]), model: { ...SPECIES[mi].model, shape: 'catfish', whiskers: 2, head: 'shovel', tail: 'eel', bell: true } };
+  }   // <<< M1 step 4 (lane 4)
+  if (LOOP_ENABLED) {   // >>> the strike gauge (the user's yes and mini-game, 17 Nov 2026; SPEC §16): under the loop only, so the v3
+    // tables keep their fingerprint. A Clean strike sets the hook: +8 Hold (Struck stays +2). An ink needle sweeps the window beside
+    // the float (ui-hud-v3's gauge); Clean only inside one narrow gold notch, from `at` of the window and `width` of it wide (moderately
+    // hard), Struck in the rest of the pale band, Late after it; the latency compensation stays. The gauge replaces the ring aid (its
+    // setting is kept, harmless). The economy's average player strikes Clean less often (the notch is narrower), worth twice as much.
+    CATCH_V3.strike = { ...CATCH_V3.strike, clean: 8 };
+    AUTOFISH.strike.notch = { at: 0.22, width: 0.2 };
+    AUTOFISH.strike.gauge = { px: { phone: 96, desktop: 112 }, gap: 34 };   // the gauge's width beside the float and its gap (screen px)
+    AUTOFISH.strike.haptic = { ...AUTOFISH.strike.haptic, clean: [28, 30, 40] };   // "Hook set": a heavier buzz than Struck's [15]
+    AUTOFISH.text.hookSet = TEXT_LOOP.hookSet;
+    AUTOFISH.player.strike = { clean: 0.2, struck: 0.65, early: 0.075, late: 0.075 };
+    CATCH_V3.targets.noviceCleanSmall = 0.08;   // by reaction alone; timing the needle does better (the user's moderately hard Clean)
+  }   // <<< the strike gauge
+  if (LOOP_ENABLED) {   // >>> the Wick's sheet (SHEET.md §8.1, SPEC decision 108): on the Mossmere under the loop a tin's or lure's Hold helps
+    // the fish that like it or better (WATERCRAFT.md §3.7: watercraft.gradeTargets), as the sim's itemHold and WC-3's gear line already
+    // say. A loop-only data patch: catchItemHold's text is untouched (the v3 fingerprint hashes it); `species` is read before `family`,
+    // `night` and `attract`, which stay on the record for the sim's fallback. Every species with no hook row keeps the built rule (read
+    // here, before the patch). The Harbour-Bell Spinner keeps lane 4's named giants (set above).
+    for (const id of WC_HOOK_ITEMS) {
+      if (id === 'bare' || id === 'bell_spinner' || !CATCH_V3.items[id]) continue;
+      const rows = wcGradeTargets(id);
+      const rest = SPECIES.filter((s) => s.rarity !== 'legendary' && wcGradeOf(s.id, {}) === undefined && catchItemHold(id, s) > 0).map((s) => s.id);
+      CATCH_V3.items[id] = { ...CATCH_V3.items[id], species: [...rows, ...rest] };
+    }
+  }   // <<< the Wick's sheet
+  if (LOOP_ENABLED) {   // >>> LAKE 2, lane D1 (LAKE2.md §2, §5.6, §5.7, §7.1): Sporewood under the loop, as data, before its water ships.
+    // Nothing here is the Mossmere's: its SPECIES_LOOP, its pool, its hook table's targets and every item it sells are as they were.
+    // (lane F: Sporewood's three new plans, models-fish.js LOOP_SHAPES, are drawn shapes under the loop)
+    for (const sh of ['disc', 'bream', 'finlet']) if (!FISH_SHAPES.includes(sh)) FISH_SHAPES.push(sh);
+    // (1) Sporewood's items as built-shaped rows of the loop's own (the Spore-Lamp Fly, Spore Cake and the Glowcap Bulb are built rows):
+    // each lure does a Mossmere lure's job, so it takes that lure's draw and favour (the Moth the Feather Fly's, the Minnow the Glimmer
+    // Spoon's, the Jig the Bone Jig's, the free Twirl the Bent Spoon's); Amber Larvae a tin of the loop's own (sold by LOOP.tins' rule)
+    const like = (id) => LURES.find((l) => l.id === id) || {}, G = TEXT_LOOP.gearItems;
+    const swLures = [
+      { id: 'seedpod_twirl', like: 'bent_spoon', depth: 'mid' }, { id: 'spore_moth', like: 'feather_fly', depth: 'surface' },
+      { id: 'ember_minnow', like: 'glimmer_spoon', depth: 'mid' }, { id: 'root_jig', like: 'bone_jig', depth: 'bottom' },
+    ];
+    for (const { id, like: lk, depth } of swLures) {
+      if (LURES.some((l) => l.id === id)) continue;
+      const L = like(lk), fam = LOOP.lures[id]?.family ?? null;
+      LURES.push({ id, name: G[id], depth, ...(fam ? { family: fam } : {}), attract: L.attract ?? 1, favour: L.favour ?? 0, ...(L.riseWaitMult ? { riseWaitMult: L.riseWaitMult } : {}), price: 0, onSale: null });
+      const f = BALANCE_V3.favour.tackle.lure?.[lk];
+      if (Number.isFinite(f)) BALANCE_V3.favour.tackle.lure[id] = f;
+    }
+    if (!BAITS.some((b) => b.id === 'amber_larvae')) BAITS.push({ id: 'amber_larvae', name: G.amber_larvae, price: 0, count: LOOP.baitRule.tin, zoneMin: 1, zone: 'sporewood', unlock: null, legend: false, icon: 'worm', bonus: {} });
+    // (2) its fish (§2.1): the roster's on the converter, the three kept built species cloned (as the Mossmere's kept fish: any depth, the
+    // loop's own record, their terms at this water from LOOP.keptAs), each look merged from ROSTER_ART over a built model; the open water's
+    // nine in the Journal's order, then each place's own fish, giant and legend in the Chart's order. The Nightbloom Carp's record is its
+    // guest record already in SPECIES (one record: Sporewood's night-water fish and the Mossmere's guest). In SPECIES after SPECIES_LOOP, in
+    // place of the built records of the same ids; the species this edition leaves out (LOOP.leftOut) are out of the loop's SPECIES
+    for (const [w, open] of Object.entries(LOOP.species)) {
+      if (w === 'mossmere' || !Array.isArray(open)) continue;
+      const pf = loopPlaceIds(w).flatMap((p) => { const q = LOOP.places[p]; return [...(q.own || []), ...(q.giant ? [q.giant] : []), ...(q.legend ? [q.legend] : [])]; });
+      const ids = [...open, ...pf].filter((id, i, a) => a.indexOf(id) === i && !SPECIES.some((x) => x.id === id && x.guestOf));
+      const kept = new Set(LOOP.kept);
+      const conv = rosterSpecies(ROSTER_SHIPPED, SPECIES_V3, { k: BALANCE_V3.size.k, legendStyle: CATCH_V3.legend.style, items: rosterItemNames({ LURES, BAITS }),
+        diff, art: ROSTER_ART, waters: [w] });
+      const recs = [];
+      for (const id of ids) {
+        let x = conv.find((c) => c.id === id) || null;
+        if (kept.has(id) && SPECIES_V3_BY_ID[id]) {
+          x = { ...v3clone(SPECIES_V3_BY_ID[id]), depth: [0, 1], roster: false, ...(SPECIES_V3_BY_ID[id].phase > 1 ? { loopLift: true } : {}), ...v3clone(LOOP.keptAs?.[id] || {}) };
+          delete x.weather;
+        }
+        if (!x) continue;
+        if (!kept.has(id) && Number(x.phase) > 1) x.phase = 1;   // (a re-founded built record is the loop's own: inside the phase pin, as a new roster fish is)
+        if (SPECIES_V3_BY_ID[id] && ROSTER_ART[id]?.model) x.model = { ...x.model, ...v3clone(ROSTER_ART[id].model) };   // (a new fish's model is ROSTER_ART's already)
+        recs.push(v3fin(x));
+      }
+      const drop = new Set([...recs.map((x) => x.id), ...(LOOP.leftOut?.[w] || [])]), n0 = SPECIES_LOOP.length;
+      const rest = SPECIES.filter((x) => !drop.has(x.id));
+      SPECIES.length = 0;
+      SPECIES.push(...rest.slice(0, n0), ...recs, ...rest.slice(n0));
+    }
+    // (3) the Spore-Lamp Fly re-aimed at Sporewood's giants (as the Harbour-Bell Spinner at the Mossmere's: +10 Hold on the fish named)
+    { const sl = LOOP.lures.sporelamp_fly, l = LURES.find((x) => x.id === 'sporelamp_fly');
+      CATCH_V3.items.sporelamp_fly = { ...(CATCH_V3.items.sporelamp_fly || { kind: 'lure' }), hold: sl.hold, species: sl.giants.slice() };
+      if (l) l.species = sl.giants.slice(); }
+    // (4) the Hold a Sporewood item gives (the Wick's sheet's rule, SHEET.md §8.1): the fish of its water that like it or better on its
+    // water's hook table (grade 2 or 3); Cut Strip, every water's hook, adds Sporewood's to the Mossmere's. A new item's own Hold is its
+    // Mossmere twin's (the tins' 5, the Moth's 5, the Minnow's and the Jig's 6, the Twirl's 3)
+    const SWT = WC_TABLES.sporewood.hook.table, swFish = new Set(Object.keys(SWT));
+    const swTargets = (id) => Object.keys(SWT).filter((f) => SWT[f][id] === 2 || SWT[f][id] === 3);
+    const twin = { spore_cake: 'mireworm', amber_larvae: 'lumen_moss', spore_moth: 'feather_fly', ember_minnow: 'glimmer_spoon', root_jig: 'bone_jig', seedpod_twirl: 'bent_spoon' };
+    for (const [id, tw] of Object.entries(twin)) {
+      const T = CATCH_V3.items[tw] || {}, kind = T.kind || (LOOP.lures[id] ? 'lure' : 'bait');
+      CATCH_V3.items[id] = { kind, hold: Number(CATCH_V3.items[id]?.hold ?? T.hold ?? 5), species: swTargets(id) };
+    }
+    { const cs = CATCH_V3.items.cut_strip; if (cs) cs.species = [...(cs.species || []).filter((f) => !swFish.has(f)), ...swTargets('cut_strip')]; }
+  }   // <<< LAKE 2, lane D1
+  // the Mossmere: rust accent and buoy watch-lamps (P1); places, props and the Moon-Eye crack (P2; the Moon Cistern P4)
+  const moss = ZONES[0];
+  Object.assign(moss.palette, MOSSMERE_V3.palette);
+  if (!PARKED.watchLamps) moss.arena.watchLamps = v3clone(MOSSMERE_V3.watchLamps);
+  if (P >= 2) {
+    moss.arena.places = MOSSMERE_V3.places.filter((p) => (p.phase ?? 2) <= P).map((p) => ({ ...v3clone(p), zone: 'mossmere' }));
+    moss.arena.pillars.push(...MOSSMERE_V3.props.map((p) => ({ ...p })));
+    moss.arena.cracks = v3clone(MOSSMERE_V3.cracks);
+  }
+  // M1 step 3a (PLAN §2.1 item 3): the loop's four places in the arena (and so in PLACES): MOSSMERE_V3's records through the keep list
+  // (LOOP_PLACE_KEYS) with the loop's kind, so no built reader (capZ's maxClass, waterInfo's giant water, the loss's rule.foul) sees a
+  // v3 twist; the props, the cracks and the other places stay v3's phase 2
+  if (LOOP_ENABLED) moss.arena.places = loopPlaceIds('mossmere').map(loopPlaceRecord).filter(Boolean);
+  // LOST-TACKLE §5.3: the cut behind the Sluice Veil, always built (one deterministic geometry: nothing rebuilds at the reveal); its
+  // water and collision open only once its place is owned (world.setPlaces)
+  if (LOOP_ENABLED) moss.arena.shoreNotch = [{ ...v3clone(VEILBACK_V3.needs.shoreNotch), place: VEILBACK_V3.id }];
+  // raft fallbacks: a lake with no places in this build gets the stopgap giant water; §24's lakes without §24 get raft watch lamps
+  // and a raft Homeward stone (CONTRACT §13.8)
+  for (const z of ZONES) {
+    const F = RAFT_FALLBACK_V3[z.id], hasPlaces = (z.arena.places || []).length > 0;
+    if (!hasPlaces && F && !PARKED.giantSpots) z.arena.giantSpots = v3clone(F.giants);   // the loop: no Elder water in open water (SPEC §9)
+    if (z.id !== 'mossmere' && !WALK_ENABLED && F && !PARKED.watchLamps) z.arena.watchLamps = v3clone(F.watchLamps);
+    if (P >= 3) z.homeward = { ...((z.id !== 'mossmere' && !WALK_ENABLED) ? F.homeward : EXPEDITION.homeward.stones[z.id]), radius: EXPEDITION.homeward.radius };
+    if (z.legendary === 'pale_leviathan') z.legendary = 'lantern_swallower';
+  }
+  // LAKE 2, lane W1 (LAKE2 §3.1): under the loop Sporewood is its natural basin (SPOREWOOD_ARENA, the outline shore), a fresh arena: no
+  // stopgap giant water, no raft watch-lamps (its places hold its giants); its name, palette, grade and words as built
+  if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena = v3clone(SPOREWOOD_ARENA); }
+  // (LAKE 2, the art pass: under the loop Sporewood wears its own air, ZONE_LOOKS.sporewood.air, Clear Night-led and never green; the
+  // flag-off game keeps the ember garden's palette and grade)
+  if (LOOP_ENABLED) {
+    const sw = ZONES.find((z) => z.id === 'sporewood'), A = ZONE_LOOKS.sporewood?.air;
+    if (sw && A) { sw.palette = { ...sw.palette, ...A.palette }; sw.grade = { ...sw.grade, ...A.grade }; }
+  }
+  // (LAKE 2, the integration's fix: its four places in the arena, as the Mossmere's above, so a cast in one is that place: its pool, its
+  // giant, its mist while not owned or not lifted. The world builds their banks from LOOP.places; fishing reads the arena's records)
+  if (LOOP_ENABLED) { const sw = ZONES.find((z) => z.id === 'sporewood'); if (sw) sw.arena.places = loopPlaceIds('sporewood').map(loopPlaceRecord).filter(Boolean); }
+  // §24's lakes (walking builds): place sync ▲, watch lamps, renames
+  for (const [zid, a] of Object.entries(ARENA_V2)) {
+    for (const p of a.places || []) v3syncPlace(p);
+    for (const l of a.lamps || []) if (WALK_SYNC_V3.watchLamps[zid]?.includes(l.id)) Object.assign(l, { watch: true, radius: BALANCE_V3.nightModes.lampWatch.radius });
+  }
+  for (const [path, name] of Object.entries(WALK_SYNC_V3.renames)) {
+    const [zid, kind, id] = path.split('.'), A = ARENA_V2[zid];
+    const hit = kind === 'lamp' ? A?.lamps?.find((l) => l.id === id) : A?.walk?.shapes?.find((s) => s.id === id);
+    if (hit) hit.name = name;
+  }
+  // PLACES / PLACE_BY_ID: every place in this build with its v3 fields (§24's places only with §24; the Mossmere's from P2)
+  PLACES.length = 0;
+  PLACES.push(...(moss.arena.places || []), ...(WALK_ENABLED ? Object.entries(ARENA_V2).flatMap(([zid, a]) => (a.places || []).map((p) => ({ ...p, zone: zid }))) : []));
+}
+export const SPECIES_V3_COUNT = SPECIES_V3.length;   // 53
+
+// =====================================================================================
+// Lookup maps.
+// =====================================================================================
+const byId = (arr) => Object.fromEntries(arr.map((x) => [x.id, x]));
+export const SPECIES_BY_ID = byId(SPECIES);
+export const ZONE_BY_ID = byId(ZONES);
+export const ENEMY_BY_ID = byId(ENEMIES);
+export const UPGRADE_BY_ID = byId(UPGRADES);
+export const RELIC_BY_ID = byId(RELICS);
+export const BAIT_BY_ID = byId(BAITS);
+export const SUPPLY_BY_ID = byId(SUPPLIES);
+export const BOON_BY_ID = byId(BOONS);
+export const CHARACTER_BY_ID = byId(CHARACTERS);
+export const CHALLENGE_BY_ID = byId(CHALLENGES);
+export const BOUNTY_BY_ID = byId(BOUNTIES);
+export const FORMATION_BY_ID = byId(FORMATIONS);
+export const PLACE_BY_ID = byId(PLACES);                       // v2 (walking): every place, with .zone
+export const WALK_FORMATION_BY_ID = byId(WALK_FORMATIONS);
+export const WALK_BOUNTY_BY_ID = byId(WALK_BOUNTIES);
+export const LEGENDARY_BY_ZONE = Object.fromEntries(ZONES.map((z) => [z.id, SPECIES.find((s) => s.zone === z.id && s.rarity === 'legendary')?.id || null]));

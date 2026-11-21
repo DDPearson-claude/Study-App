@@ -1,0 +1,1296 @@
+// water.js — GLOOMWATER lake surface, ripples, wakes, splashes (render author).
+// CONTRACT §7 water. A camera-following grid recentred in grid-sized snaps (waves never
+// swim), world-space swell that getHeight() reproduces exactly, and a stylised
+// fragment shader (see water-shader.js). Splashes are a pooled Points system.
+// v3 (CONTRACT §13.7 water; DESIGN §25.6.1, §25.8.3): addRipple / addWake take an optional sign tag
+// ({kind, size}) that rides the same ripple / wake arrays (water-signs.js packs it; no new uniform), and
+// setGlowtide(k) drives the night sparkle (uGlowtide, compiled out on low; water eases it from the night
+// phase by itself in a v3 build until someone sets it).
+// Clear Night (docs/v3/clarity/SPEC.md §8.2): renderReflection(renderer, scene, camera, tier) — render calls it once a
+// frame before the main render — draws the scene mirrored about the water plane (only what carries toon.REFLECT_LAYER)
+// into a reduced half-float target that the shader looks up (GW_REFL); setKeyLight(light) hands over the key light,
+// whose direction drives the glitter and whose shadow map the water samples (GW_SHADOW). Low keeps the analytic water.
+import * as WF from './watercraft-face.js';   // WC-3: the Mossmere's face (pure)
+import { lushLook, lushMasks } from './world-flora.js';   // LAKE 2, lane W2: a lush water's dapple and weed film (baked; GW_LUSH)
+import { notchFrame, notchHalfW } from './world-layout.js';   // the cut behind the Sluice Veil (LOST-TACKLE §5.3)
+import * as THREE from 'three';
+import { clamp, damp, rand } from './core.js';
+import { WATER_VERT, WATER_FRAG, SPLASH_VERT, SPLASH_FRAG } from './water-shader.js';
+import { SIGN_KINDS, SIGN_ID, SIGN_CAP, signId, signLength, signLife, encodeSignRipple, encodeSignWake, glowtideFor } from './water-signs.js';
+import { REFLECT_LAYER } from './toon.js';
+
+const MAX_RIP = 32;
+const MAX_WAKE = 32;
+const MAX_OBS = 32;
+const MAX_L = 6;
+const WAKE_LIFE = 3.4;
+const WAVE_PERIOD = 1200;            // s — every swell frequency is a multiple of 1/period
+const GRID_SIZE = 340;               // m — covers a radius-85 arena from any camera spot
+const GRID_SEGS = { low: 110, medium: 160, high: 200 };
+const MAX_PARTICLES = 640;
+const GRAVITY = -13;
+const SIGN_RIP_POOL = 24;            // v3 sign marks (fishing-fx's tagged ripples): ≤ 6 signs alive, ≈ 15 marks at worst
+const SIGN_WAKE_POOL = 12;
+const GLOW_HEAD = { age: 0.8, r: 0.65 };        // a glow trail's newest mark follows its fish this long / this far (s, m)
+const SIGN_WAKE_MERGE = { age: 0.8, r: 0.7 };   // a sign's wake marks closer than this merge (one V per ~0.6 m of trail)
+const GLOW_GOLD = new THREE.Color(0xe8be77);   // pale gold (DESIGN §19.1): the Glowtide's warm glints
+
+// Swell: direction (deg), wavelength (m), amplitude (m), speed factor. Gentle cavern lake.
+const SWELL = [
+  { dir: 22, len: 24, amp: 0.085, speed: 0.55, phase: 0.0 },
+  { dir: 158, len: 13.5, amp: 0.055, speed: 0.6, phase: 1.7 },
+  { dir: 262, len: 8.7, amp: 0.034, speed: 0.62, phase: 4.1 },
+  { dir: 74, len: 5.9, amp: 0.02, speed: 0.66, phase: 2.6 },
+];
+
+const isReal = (m) => !!m && !m.isStub;
+
+export function create(ctx) {
+  // ---------------------------------------------------------------- swell constants
+  const waves = SWELL.map((w) => {
+    const a = w.dir * Math.PI / 180;
+    const k = (Math.PI * 2) / w.len;
+    const omegaRaw = Math.sqrt(9.81 * k) * w.speed;
+    const step = (Math.PI * 2) / WAVE_PERIOD;
+    const omega = Math.max(1, Math.round(omegaRaw / step)) * step;   // loops seamlessly
+    return { dx: Math.cos(a), dz: Math.sin(a), k, amp: w.amp, omega, phase: w.phase };
+  });
+  const waveA = new Float32Array(16);
+  const waveB = new Float32Array(8);
+  waves.forEach((w, i) => {
+    waveA.set([w.dx, w.dz, w.k, w.amp], i * 4);
+    waveB.set([w.omega, w.phase], i * 2);
+  });
+  const waveTime = () => ((ctx.time?.t || 0) % WAVE_PERIOD);
+
+  // ---------------------------------------------------------------- material
+  const rip = new Float32Array(MAX_RIP * 4);
+  const wakeU = new Float32Array(MAX_WAKE * 4);
+  const wakeD = new Float32Array(MAX_WAKE * 2);
+  const obsU = new Float32Array(MAX_OBS * 3);
+  const lpU = new Float32Array(MAX_L * 4);
+  const lcU = new Float32Array(MAX_L * 4);
+
+  // v3 water (signs + Glowtide) is compiled only in a v3 build: data carries BALANCE.nightModes (CONTRACT §13.0, modules
+  // feature-detect v3); a v1 / v2 build keeps the base shader, its uniform list and its compile time
+  const V3W = !!ctx.data?.BALANCE?.nightModes;
+  // >>> WC-3 (docs/loop/WATERCRAFT.md §5.4, §5.7): the Mossmere's face (a loop build only: GW_WC, two uniforms, the depth texture's
+  // spare channels; 0 new calls and no new sampler). Drawn only while the lake on screen is the Mossmere (watercraft-face.faceOn)
+  const WCW = V3W && ctx.data?.LOOP_ENABLED === true;
+  // <<< WC-3
+  const uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
+    uTime: { value: 0 },
+    uWaveT: { value: 0 },
+    uWaveA: { value: waveA },
+    uWaveB: { value: waveB },
+    uDeep: { value: new THREE.Color(0x0a081e) },
+    uShallow: { value: new THREE.Color(0x2e2664) },
+    uFoam: { value: new THREE.Color(0xd8d6e6) },
+    uGlow: { value: new THREE.Color(0xbab2ee) },
+    uSky: { value: new THREE.Color(0x3a3070) },
+    uArenaR: { value: 60 },
+    uRip: { value: rip },
+    uRipN: { value: 0 },
+    uWake: { value: wakeU },
+    uWakeD: { value: wakeD },
+    uWakeN: { value: 0 },
+    uWakeB: { value: new THREE.Vector3(0, 0, 0) },
+    uObs: { value: obsU },
+    uObsN: { value: 0 },
+    uLP: { value: lpU },
+    uLC: { value: lcU },
+    uLN: { value: 0 },
+    uRaft: { value: new THREE.Vector4(0, 0, 0, 0) },
+    uDepthTex: { value: null },
+    uDepthScale: { value: 1 / 140 },
+    uDepthOn: { value: 0 },
+    // starlight mirrored in the lake (world.setSky feeds these; DESIGN §19.1)
+    uStars: { value: 0 }, uStarDen: { value: 1 }, uStarCol: { value: new THREE.Color(0xe4e2ff) },
+    uNeb: { value: new THREE.Color(0xd296ae) }, uNebV: { value: new THREE.Color(0x433e74) }, uNebK: { value: 0 },
+    uNeb1: { value: new THREE.Vector4(0, 0.2, -1, 0) }, uNeb2: { value: new THREE.Vector4(0, 0.5, -1, 0) },
+    uBandN: { value: new THREE.Vector3(1, 0, 0) },
+    // v3 night sparkle (setGlowtide; DESIGN §25.8.3): the one uniform the v3 water adds in P1 (CONTRACT §13.9)
+    ...(V3W ? { uGlowtide: { value: 0 } } : {}),
+    ...(WCW ? { uWc: { value: 0 }, uLane: { value: new THREE.Vector4(0, 0, 0, 0) }, uCut: { value: new THREE.Vector4(1, 0, 0, 0) } } : {}),   // (uCut: the cut behind the Veil, LOST-TACKLE §5.1)   // (WC-3: the face and the wind lane)
+  }]);
+  // Clear Night: the planar reflection, the key light and its shadow map (added after merge(): the matrices are shared
+  // by reference with the virtual camera's and the light's own)
+  const reflMat = new THREE.Matrix4();
+  Object.assign(uniforms, {
+    uReflTex: { value: null }, uReflMat: { value: reflMat }, uReflBlur: { value: new THREE.Vector3(0, 0, 0) },
+    uKeyDir: { value: new THREE.Vector3(-0.71, 0.59, -0.38).normalize() }, uKeyCol: { value: new THREE.Color(0, 0, 0) }, uMood: { value: new THREE.Vector2(0, 0) },
+    uShadowTex: { value: null }, uShadowMat: { value: new THREE.Matrix4() }, uShadowP: { value: new THREE.Vector2(1 / 2048, 1) },
+  });
+  // merge() clones values — re-point the typed arrays so writes land in the live uniforms
+  uniforms.uWaveA.value = waveA; uniforms.uWaveB.value = waveB;
+  uniforms.uRip.value = rip; uniforms.uWake.value = wakeU; uniforms.uWakeD.value = wakeD; uniforms.uObs.value = obsU;
+  uniforms.uLP.value = lpU; uniforms.uLC.value = lcU;
+  const U = uniforms;
+
+  const material = new THREE.ShaderMaterial({
+    name: 'GloomwaterWater',
+    uniforms,
+    vertexShader: WATER_VERT,
+    fragmentShader: WATER_FRAG,
+    defines: V3W ? { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L, GW_V3: 1, ...(WCW ? { GW_WC: 1 } : {}) } : { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L },
+    fog: true,
+    lights: false,
+  });
+
+  let tier = 'high';
+  let gridStep = GRID_SIZE / GRID_SEGS.high;
+  function buildGeometry(name) {
+    const segs = GRID_SEGS[name] || GRID_SEGS.medium;
+    const geo = new THREE.PlaneGeometry(GRID_SIZE, GRID_SIZE, segs, segs);
+    geo.rotateX(-Math.PI / 2);
+    geo.deleteAttribute('normal');
+    geo.deleteAttribute('uv');
+    geo.computeBoundingSphere();
+    gridStep = GRID_SIZE / segs;
+    return geo;
+  }
+  const mesh = new THREE.Mesh(buildGeometry('high'), material);
+  mesh.name = 'water';
+  mesh.frustumCulled = false;
+  mesh.renderOrder = -10;          // opaque & big: draw early so it occludes cheaply
+  mesh.matrixAutoUpdate = false;
+
+  function setTier(name) {
+    if (!GRID_SEGS[name] || name === tier) return;
+    tier = name;
+    const old = mesh.geometry;
+    mesh.geometry = buildGeometry(name);
+    old.dispose();
+    const low = name === 'low';
+    const d = material.defines;
+    const want = low ? { MAX_RIP: 20, MAX_WAKE: 24, MAX_OBS: 32, MAX_L: 4 } : { MAX_RIP, MAX_WAKE, MAX_OBS, MAX_L };
+    Object.assign(d, want);
+    if (low) { d.GW_LOW = 1; delete d.GW_REFL; delete d.GW_SHADOW; } else delete d.GW_LOW;
+    material.needsUpdate = true;
+  }
+
+  // ---------------------------------------------------------------- Clear Night: the true mirror
+  // The lake is a flat plane, so the scene drawn from a camera mirrored about it IS what a ray tracer would return
+  // for a mirror. The virtual camera sees only REFLECT_LAYER (sky vault, rings, cliffs, islands, ruins, the raft and
+  // the Wick, lamps and glows; never outlines, motes, mist, the line, the float, a hooked fish or the water itself),
+  // with an oblique near plane at the water so nothing under the surface leaks in.
+  const refl = {
+    rt: null, w: 0, h: 0, on: false, shadowOn: false, lightScan: 0, key: null,
+    cam: new THREE.PerspectiveCamera(), plane: new THREE.Plane(), clip: new THREE.Vector4(), q: new THREE.Vector4(),
+    camPos: new THREE.Vector3(), look: new THREE.Vector3(), up: new THREE.Vector3(), rot: new THREE.Matrix4(), size: new THREE.Vector2(),
+    calls: 0, triangles: 0,
+  };
+  refl.cam.layers.set(REFLECT_LAYER);
+  refl.cam.matrixAutoUpdate = true;
+  function setDefine(name, on) {
+    const d = material.defines;
+    if (on ? d[name] === 1 : d[name] === undefined) return;
+    if (on) d[name] = 1; else delete d[name];
+    material.needsUpdate = true;
+  }
+  /** The key light (world's moon / vault DirectionalLight): its direction and colour drive the glitter, its shadow map shades the water. */
+  function setKeyLight(light) { refl.key = light && light.isDirectionalLight ? light : null; }
+  function updateKey(renderer) {
+    const k = refl.key;
+    if (!k) { U.uKeyCol.value.setRGB(0, 0, 0); return false; }
+    U.uKeyDir.value.copy(k.position).sub(k.target.position).normalize();
+    U.uKeyCol.value.copy(k.color).multiplyScalar(k.intensity);
+    const sh = k.shadow;
+    const ok = k.castShadow && renderer.shadowMap.enabled && !!sh?.map?.texture;
+    if (ok) {
+      U.uShadowTex.value = sh.map.texture;
+      U.uShadowMat.value = sh.matrix;
+      U.uShadowP.value.set(1 / sh.mapSize.x, sh.intensity ?? 1);
+    }
+    return ok;
+  }
+  /**
+   * renderReflection(renderer, scene, camera, tier) — once a frame, before the main render (render.js calls it).
+   * tier.reflect = the target's share of the drawing buffer (0 or the low tier: no reflection, the analytic water).
+   */
+  function renderReflection(renderer, scene, camera, tb) {
+    const scale = tier === 'low' ? 0 : Number(tb?.reflect) || 0;
+    if (!(scale > 0) || !renderer || !scene || !camera?.isPerspectiveCamera) {
+      setDefine('GW_REFL', false); setDefine('GW_SHADOW', false);
+      if (refl.rt) { refl.rt.dispose(); refl.rt = null; refl.w = refl.h = 0; U.uReflTex.value = null; }
+      return;
+    }
+    renderer.getDrawingBufferSize(refl.size);
+    const w = Math.max(16, Math.round(refl.size.x * scale)), h = Math.max(16, Math.round(refl.size.y * scale));
+    if (!refl.rt) {
+      refl.rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, samples: 0, depthBuffer: true, stencilBuffer: false });
+      refl.rt.texture.name = 'gw.reflection';
+      refl.rt.texture.minFilter = refl.rt.texture.magFilter = THREE.LinearFilter;
+      refl.rt.texture.generateMipmaps = false;
+      U.uReflTex.value = refl.rt.texture;
+    } else if (refl.w !== w || refl.h !== h) refl.rt.setSize(w, h);
+    refl.w = w; refl.h = h;
+    // (Lake 1 polish: on medium the target is a third of the screen and its edges stair-step; its two taps sit 0.6 texel either side on
+    // a diagonal, half each, so the bilinear lookups make a tent blur over about two texels)
+    if (tier === 'medium') U.uReflBlur.value.set(0.6 / w, 0.6 / h, 0.5); else U.uReflBlur.value.set(0, 0, 0);
+    // every light joins the mirror's layer, so the mirrored scene is lit by the same lights (and compiled into the same programs)
+    if (--refl.lightScan <= 0) { refl.lightScan = 45; scene.traverse((o) => { if (o.isLight) o.layers.enable(REFLECT_LAYER); }); }
+
+    // the virtual camera: the eye mirrored about y = 0 (three's Reflector, for a fixed horizontal plane at the origin)
+    camera.updateMatrixWorld();
+    const v = refl.cam;
+    refl.camPos.setFromMatrixPosition(camera.matrixWorld);
+    refl.rot.extractRotation(camera.matrixWorld);
+    refl.look.set(0, 0, -1).applyMatrix4(refl.rot).add(refl.camPos);
+    v.position.set(refl.camPos.x, -refl.camPos.y, refl.camPos.z);
+    refl.up.set(0, 1, 0).applyMatrix4(refl.rot); refl.up.y = -refl.up.y;
+    v.up.copy(refl.up);
+    v.lookAt(refl.look.x, -refl.look.y, refl.look.z);
+    v.near = camera.near; v.far = camera.far;
+    v.updateMatrixWorld();
+    v.matrixWorldInverse.copy(v.matrixWorld).invert();
+    v.projectionMatrix.copy(camera.projectionMatrix);
+    v.projectionMatrixInverse.copy(camera.projectionMatrixInverse);
+    reflMat.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1).multiply(v.projectionMatrix).multiply(v.matrixWorldInverse);
+    // oblique near plane at the water (Lengyel): the mirrored scene is cut exactly at the surface
+    refl.plane.set(refl.up.set(0, 1, 0), 0.02).applyMatrix4(v.matrixWorldInverse);
+    const c = refl.clip.set(refl.plane.normal.x, refl.plane.normal.y, refl.plane.normal.z, refl.plane.constant);
+    const pe = v.projectionMatrix.elements, q = refl.q;
+    q.x = (Math.sign(c.x) + pe[8]) / pe[0];
+    q.y = (Math.sign(c.y) + pe[9]) / pe[5];
+    q.z = -1;
+    q.w = (1 + pe[10]) / pe[14];
+    c.multiplyScalar(2 / c.dot(q));
+    pe[2] = c.x; pe[6] = c.y; pe[10] = c.z + 1; pe[14] = c.w;
+
+    const hasShadow = updateKey(renderer);
+    // the shadow map is refreshed in the main pass (whose camera sees every caster), never from here
+    const ksh = refl.key?.shadow || null, due = ksh ? ksh.needsUpdate : false;
+    if (ksh) ksh.needsUpdate = false;
+    const prevRT = renderer.getRenderTarget(), prevXr = renderer.xr.enabled, c0 = renderer.info.render.calls, t0 = renderer.info.render.triangles;
+    renderer.xr.enabled = false;
+    renderer.setRenderTarget(refl.rt);
+    renderer.clear();
+    renderer.render(scene, v);
+    renderer.setRenderTarget(prevRT);
+    renderer.xr.enabled = prevXr;
+    if (ksh) ksh.needsUpdate = due;
+    refl.calls = renderer.info.render.calls - c0; refl.triangles = renderer.info.render.triangles - t0;
+    setDefine('GW_REFL', true);
+    setDefine('GW_SHADOW', hasShadow);
+  }
+
+  // ---------------------------------------------------------------- starlit sky (extra API)
+  /**
+   * setSky({stars, density, color, nebula, nebulaVeil, nebulaK, neb1, neb2, band}) — the stars and
+   * nebulae the lake mirrors (world sends the vault dome's values). stars: brightness (0 = off),
+   * density: star-count multiplier, neb1/neb2: Vector4 (direction xyz, strength w), band: Vector3
+   * normal of the milky-way great circle. Brightness eases; directions snap.
+   */
+  const skyTgt2 = { stars: 0, den: 1, nebK: 0 };
+  let skyEver = false;
+  function setSky(o = {}) {
+    if (!o || typeof o !== 'object') return;
+    if (Number.isFinite(o.stars)) skyTgt2.stars = Math.max(0, o.stars);
+    if (Number.isFinite(o.density)) skyTgt2.den = clamp(o.density, 0, 3);
+    if (Number.isFinite(o.nebulaK)) skyTgt2.nebK = Math.max(0, o.nebulaK);
+    setColor(U.uStarCol.value, o.color);
+    setColor(U.uNeb.value, o.nebula);
+    setColor(U.uNebV.value, o.nebulaVeil);
+    if (o.neb1?.isVector4) U.uNeb1.value.copy(o.neb1);
+    if (o.neb2?.isVector4) U.uNeb2.value.copy(o.neb2);
+    if (o.band?.isVector3) U.uBandN.value.copy(o.band);
+    if (!skyEver) { skyEver = true; U.uStars.value = skyTgt2.stars; U.uStarDen.value = skyTgt2.den; U.uNebK.value = skyTgt2.nebK; }
+  }
+
+  // ---------------------------------------------------------------- Glowtide (v3, DESIGN §25.8.3)
+  /**
+   * setGlowtide(k 0..1) — the night sparkle on whatever stirs the water (wakes, ripples, signs, droplets).
+   * A number holds until the next call; null hands it back to water's own drive, which (in a v3 build:
+   * BALANCE.nightModes exists) follows the night from survival.getPhaseInfo() (glowtideFor). The term is
+   * compiled out on low, where the value is ignored. CONTRACT §13.7.
+   */
+  let glowManual = null;
+  let glowTarget = 0;
+  function setGlowtide(k) {
+    if (k === null || k === undefined) { glowManual = null; return; }
+    const v = Number(k);
+    if (Number.isFinite(v)) glowManual = clamp(v, 0, 1);
+  }
+  function glowAuto() {
+    if (!ctx.data?.BALANCE?.nightModes) return 0;          // v1 / v2 build: no Glowtide (CONTRACT §13.0)
+    const run = ctx.state?.run;
+    if (!run || ctx.flow !== 'playing') return 0;
+    if (run.outing === 'descent') return 0;               // The Long Descent keeps the v1 / v2 water (CONTRACT §13.0)
+    const s = isReal(ctx.survival) ? ctx.survival : null;
+    let info = null;
+    try { info = s?.getPhaseInfo?.() ?? null; } catch { info = null; }
+    return glowtideFor(info);
+  }
+  /** The Glowtide's live strength (0 on low, where the shader term is compiled out). */
+  const glowNow = () => (tier === 'low' || !V3W ? 0 : U.uGlowtide.value);
+  function stepGlowtide(dt) {
+    if (!V3W) return;                                     // a v1 / v2 shader has no Glowtide to drive
+    glowTarget = glowManual ?? glowAuto();
+    const g = U.uGlowtide.value;
+    if (g === glowTarget) return;
+    const nv = damp(g, glowTarget, 1.6, dt);
+    U.uGlowtide.value = Math.abs(nv - glowTarget) < 0.002 ? glowTarget : nv;
+  }
+
+  // ---------------------------------------------------------------- palette
+  const palTgt = {
+    deep: new THREE.Color(0x0a081e), shallow: new THREE.Color(0x2e2664), foam: new THREE.Color(0xd8d6e6),
+    glow: new THREE.Color(0xbab2ee), fogColor: null,
+  };
+  const skyTgt = new THREE.Color();
+  let fogColorAt = -999;
+  function setColor(target, v) {
+    if (v === undefined || v === null) return false;
+    try { if (v.isColor) target.copy(v); else target.set(v); return true; } catch { return false; }
+  }
+  function setPalette(p = {}, opts = {}) {
+    if (!p || typeof p !== 'object') return;
+    setColor(palTgt.deep, p.deep ?? p.waterDeep);
+    setColor(palTgt.shallow, p.shallow ?? p.water);
+    setColor(palTgt.foam, p.foam);
+    setColor(palTgt.glow, p.glow);
+    // fogColor overrides the fresnel/mist tint for a few seconds (callers easing a palette keep
+    // refreshing it); otherwise the water always tracks scene.fog so night fog never mismatches
+    if (p.fogColor === null) palTgt.fogColor = null;
+    else if (p.fogColor !== undefined) {
+      palTgt.fogColor = palTgt.fogColor || new THREE.Color();
+      if (!setColor(palTgt.fogColor, p.fogColor)) palTgt.fogColor = null;
+      fogColorAt = ctx.time?.t || 0;
+    }
+    if (opts.instant) {
+      U.uDeep.value.copy(palTgt.deep); U.uShallow.value.copy(palTgt.shallow);
+      U.uFoam.value.copy(palTgt.foam); U.uGlow.value.copy(palTgt.glow);
+      if (palTgt.fogColor) U.uSky.value.copy(palTgt.fogColor);
+    }
+  }
+
+  // ---------------------------------------------------------------- ripples
+  const rips = [];   // ring buffer of {x, z, t0, s}
+  for (let i = 0; i < MAX_RIP; i++) rips.push({ x: 0, z: 0, t0: -999, s: 0 });
+  let ripHead = 0;
+  let signRipN = 0, signWakeN = 0;
+  const nowT = () => (ctx.time?.t || 0) % 3600;
+  /**
+   * addRipple(x, z, strength = 1, delay | opts) — a ring on the water. opts (v3, optional):
+   * {kind: 'rise'|'boil'|'nervous'|'strike'|'bubbles'|'glow', size: fish length m (or sizeClass), delay}
+   * paints that sign's surface instead (see signRipple); without a known kind it is a plain ripple.
+   */
+  function addRipple(x, z, strength = 1, delay = 0) {
+    if (delay && typeof delay === 'object') {
+      const id = V3W ? signId(delay.kind) : 0;
+      if (id) return signRipple(x, z, strength, id, delay);
+      delay = delay.delay;
+    }
+    x = Number(x); z = Number(z);
+    if (!isFinite(x) || !isFinite(z)) return;
+    const s = clamp(Number(strength) || 1, 0.05, 3);
+    const t = nowT() + Math.max(0, Number(delay) || 0);
+    // recycle the oldest/finished slot
+    let slot = ripHead;
+    for (let i = 0; i < MAX_RIP; i++) {
+      const r = rips[(ripHead + i) % MAX_RIP];
+      if (t - r.t0 > 1.5 + r.s * 1.1) { slot = (ripHead + i) % MAX_RIP; break; }
+    }
+    const r = rips[slot];
+    r.x = x; r.z = z; r.t0 = t; r.s = s;
+    ripHead = (slot + 1) % MAX_RIP;
+  }
+  // ---- v3 sign marks (DESIGN §25.6.1). fishing-fx owns the signs and asks for their ripples with a kind;
+  // each tagged ripple is one mark the shader paints for SIGN_LIFE[kind] s (a rise's kiss and three rings, a
+  // boil's slick, a nervous patch, a strike's slap and slick, a bubble cluster, a night fish's glow). They
+  // live in their own small pool and are packed into uRip ahead of the plain ripples (SIGN_CAP slots), so a
+  // fast raft's wake and splashes never push a sign off the water, nor a burst of signs the raft's rings.
+  const signRips = [];
+  for (let i = 0; i < SIGN_RIP_POOL; i++) signRips.push({ x: 0, z: 0, t0: -999, w: 0, id: 0, life: 0, fry: 0, seq: 0, L: 0, k: 0, rank: 0 });
+  let signRipHead = 0;
+  const signLive = [];
+  let signSeq = 0;
+  const KIND_NAME = Object.fromEntries(Object.entries(SIGN_ID).map(([k, v]) => [v, k]));
+  function signRipple(x, z, strength, id, o) {
+    x = Number(x); z = Number(z);
+    if (!isFinite(x) || !isFinite(z)) return;
+    const inten = strength === undefined || strength === null ? 1 : Number(strength);
+    if (!(inten > 0.01)) return;
+    const t = nowT() + Math.max(0, Number(o.delay) || 0);
+    const L = signLength(KIND_NAME[id], o);
+    const k = Math.min(1, inten);
+    // a glow trail's head: fishing-fx lays a mark every ~0.4 s as the fish swims (≈ 0.3 m apart). The newest
+    // mark of a trail follows the fish until it is GLOW_HEAD.age old, so the light glides instead of stacking
+    // up blobs, and a trail costs ≈ 3 slots instead of 6 (three night fish fit beside the other signs)
+    if (id === SIGN_ID.glow) {
+      let head = null;
+      for (const m of signRips) {
+        if (m.id !== id) continue;
+        const age = t - m.t0;
+        if (age < 0 || age > GLOW_HEAD.age || Math.hypot(m.x - x, m.z - z) > GLOW_HEAD.r) continue;
+        if (!head || m.seq > head.seq) head = m;
+      }
+      if (head) {
+        head.x = x; head.z = z; head.L = Math.max(head.L, L); head.k = Math.max(head.k, k);
+        head.w = encodeSignRipple(id, head.L, head.k);
+        return;
+      }
+    }
+    let slot = -1;
+    for (let i = 0; i < SIGN_RIP_POOL; i++) {
+      const j = (signRipHead + i) % SIGN_RIP_POOL;
+      if (t - signRips[j].t0 > signRips[j].life) { slot = j; break; }
+    }
+    if (slot < 0) slot = evictSlot(signRips, t, (m) => m.life);
+    const m = signRips[slot];
+    m.x = x; m.z = z; m.t0 = t; m.id = id; m.life = signLife(id);
+    m.w = encodeSignRipple(id, L, k);
+    m.L = L; m.k = k;
+    m.fry = id === SIGN_ID.nervous ? 0.15 : 0; m.seq = ++signSeq;
+    signRipHead = (slot + 1) % SIGN_RIP_POOL;
+    // a strike throws its own crown of droplets (the slap); one splash call is enough for the whole sign
+    if (id === SIGN_ID.strike && !o.noSplash) slapDrops(x, z, L);
+  }
+  /**
+   * Over the cap, which sign marks keep a slot: every kind's newest mark first, then every kind's second newest,
+   * and so on (a lone boil is never pushed off the water by three glow trails), newest first inside a round.
+   * Sorts `list` in place; it holds ≤ the pool size, and this only runs when the cap is exceeded.
+   */
+  const rankCount = new Int32Array(8);
+  const byRank = (a, b) => (a.rank - b.rank) || (b.seq - a.seq);
+  const newestFirst = (a, b) => b.seq - a.seq;
+  const newerT0 = (a, b) => b.t0 - a.t0;
+  const plainLive = [];
+  /**
+   * A full pool gives up the oldest mark of the kind holding the most marks (three glow trails recycle their own
+   * tails; a lone boil or a rise keeps its mark). Returns the slot index.
+   */
+  function evictSlot(pool, t, lifeOf) {
+    rankCount.fill(0);
+    for (const m of pool) if (t - m.t0 <= lifeOf(m)) rankCount[m.id & 7]++;
+    let busiest = 0;
+    for (let k = 1; k < 8; k++) if (rankCount[k] > rankCount[busiest]) busiest = k;
+    let slot = 0, oldest = Infinity;
+    for (let i = 0; i < pool.length; i++) if ((pool[i].id & 7) === busiest && pool[i].seq < oldest) { oldest = pool[i].seq; slot = i; }
+    return slot;
+  }
+  function fairOrder(list) {
+    list.sort(newestFirst);
+    rankCount.fill(0);
+    for (const m of list) m.rank = rankCount[m.id & 7]++;
+    list.sort(byRank);
+  }
+  /** Fry leaping out of a live nervous patch now and then (pooled splash points: no extra draw call). */
+  function stepSignFx(dt, t) {
+    if (!V3W) return;
+    for (const m of signRips) {
+      if (m.id !== SIGN_ID.nervous) continue;
+      const age = t - m.t0;
+      if (age < 0.3 || age > m.life - 0.8) continue;
+      m.fry -= dt;
+      if (m.fry > 0) continue;
+      m.fry = 0.12 + rand() * 0.32;
+      const R = (1.15 + 0.6 * Math.min(m.L || 0.6, 3)) * 0.7;
+      const a = rand() * Math.PI * 2, r0 = Math.sqrt(rand()) * R;
+      const px = m.x + Math.cos(a) * r0, pz = m.z + Math.sin(a) * r0;
+      const y0 = api.getHeight(px, pz);
+      const sp = 1.4 + rand() * 1.6;
+      lightAt(px, pz, litCol);
+      splashCol.copy(U.uFoam.value).multiplyScalar(0.55).add(litCol);
+      if (glowNow() > 0.05) splashCol.lerp(U.uStarCol.value, 0.5 * glowNow());
+      spawnParticle(px, y0 + 0.04, pz, Math.cos(a) * sp, 1.6 + rand() * 1.4, Math.sin(a) * sp, 0.04 + rand() * 0.025, 0.45 + rand() * 0.25, splashCol, (0.9 + rand() * 0.5) * (m.k || 1), 0);
+    }
+  }
+
+  function packRipples(t) {
+    let n = 0;
+    const max = material.defines.MAX_RIP;
+    const cap = Math.min(max, (SIGN_CAP[tier] || SIGN_CAP.high).rip);
+    signLive.length = 0;
+    for (let i = 0; i < SIGN_RIP_POOL; i++) {
+      const m = signRips[i];
+      const age = t - m.t0;
+      if (age >= -2 && age <= m.life) signLive.push(m);
+    }
+    if (signLive.length > cap) fairOrder(signLive);   // over the cap: every kind keeps its newest marks (a trail's tail fades first)
+    for (let i = 0; i < signLive.length && n < cap; i++) {
+      const m = signLive[i];
+      rip[n * 4] = m.x; rip[n * 4 + 1] = m.z; rip[n * 4 + 2] = m.t0; rip[n * 4 + 3] = m.w;
+      n++;
+    }
+    signRipN = n;
+    // signs hold slots: if the plain rings no longer all fit, the newest keep theirs (the bobber's ring, a fresh
+    // splash) and the oldest, faintest drop. Without signs (every v1 / v2 frame) the pool packs in slot order as before.
+    let src = rips;
+    if (n > 0) {
+      plainLive.length = 0;
+      for (let i = 0; i < MAX_RIP; i++) { const r = rips[i], age = t - r.t0; if (age >= -2 && age <= 1.5 + r.s * 1.1) plainLive.push(r); }
+      if (plainLive.length > max - n) plainLive.sort(newerT0);
+      src = plainLive;
+    }
+    for (let i = 0; i < src.length && n < max; i++) {
+      const r = src[i];
+      const age = t - r.t0;
+      if (age < -2 || age > 1.5 + r.s * 1.1) continue;
+      rip[n * 4] = r.x; rip[n * 4 + 1] = r.z; rip[n * 4 + 2] = r.t0; rip[n * 4 + 3] = r.s;
+      n++;
+    }
+    U.uRipN.value = n;
+  }
+
+  // ---------------------------------------------------------------- wakes
+  const wakes = [];
+  for (let i = 0; i < MAX_WAKE; i++) wakes.push({ x: 0, z: 0, t0: -999, dx: 0, dz: 1, s: 0 });
+  let wakeHead = 0;
+  let lastWake = null;
+  let lastExternalWake = -999;
+  function writeWake(x, z, dx, dz, s, t) {
+    const w = wakes[wakeHead];
+    w.x = x; w.z = z; w.t0 = t; w.dx = dx; w.dz = dz; w.s = s;
+    wakeHead = (wakeHead + 1) % MAX_WAKE;
+    lastWake = w;
+  }
+  function pushWake(x, z, dirX, dirZ, strength, t) {
+    const l = Math.hypot(dirX, dirZ);
+    if (l < 1e-4) return;
+    const s = clamp(Number(strength) || 0, 0, 1);
+    if (s < 0.02) return;
+    const dx = dirX / l, dz = dirZ / l;
+    if (lastWake) {
+      const age = t - lastWake.t0;
+      const dist = Math.hypot(x - lastWake.x, z - lastWake.z);
+      if (age >= 0 && age < 0.3 && dist < 0.7) { lastWake.s = Math.max(lastWake.s, s); return; }
+      // sparse callers: fill the gap so the trail stays one continuous brush stroke
+      if (age >= 0 && age < 0.6 && dist > 0.95 && dist < 6) {
+        const n = Math.min(4, Math.ceil(dist / 0.75) - 1);
+        const x0 = lastWake.x, z0 = lastWake.z, t0 = lastWake.t0, s0 = lastWake.s;
+        for (let i = 1; i <= n; i++) {
+          const k = i / (n + 1);
+          writeWake(x0 + (x - x0) * k, z0 + (z - z0) * k, dx, dz, s0 + (s - s0) * k, t0 + (t - t0) * k);
+        }
+      }
+    }
+    writeWake(x, z, dx, dz, s, t);
+  }
+  /**
+   * addWake(x, z, dirX, dirZ, strength, opts?) — a V-wake mark. opts (v3, optional): {kind} tags it as a
+   * sign's wake (fishing-fx: a glow trail's wake is light, `kind: 'glow'`; other kinds draw as plain wakes
+   * but keep their own reserved slots). A tagged wake does not count as the player's wake.
+   */
+  function addWake(x, z, dirX = 0, dirZ = 1, strength = 1, opts) {
+    x = Number(x); z = Number(z); dirX = Number(dirX); dirZ = Number(dirZ);
+    if (!isFinite(x) || !isFinite(z) || !isFinite(dirX) || !isFinite(dirZ)) return;
+    const id = opts && typeof opts === 'object' ? signId(opts.kind) : 0;
+    if (id && V3W) return signWake(x, z, dirX, dirZ, strength, id);
+    if (id) return pushWake(x, z, dirX, dirZ, strength, nowT());   // v1 / v2 shader: a plain wake, still not the player's
+    lastExternalWake = ctx.time?.t || 0;
+    pushWake(x, z, dirX, dirZ, strength, nowT());
+  }
+  const signWakes = [];
+  for (let i = 0; i < SIGN_WAKE_POOL; i++) signWakes.push({ x: 0, z: 0, t0: -999, dx: 0, dz: 1, w: 0, s: 0, id: 0, seq: 0, rank: 0 });
+  let signWakeHead = 0;
+  const signWakeLive = [];
+  const plainWakeLive = [];
+  function signWake(x, z, dirX, dirZ, strength, id) {
+    const l = Math.hypot(dirX, dirZ);
+    if (l < 1e-4) return;
+    const s = clamp(Number(strength ?? 1) || 0, 0, 1);
+    if (s < 0.02) return;
+    const t = nowT();
+    // marks of one trail laid closer than SIGN_WAKE_MERGE fold into the newest (its strength rises, nothing moves)
+    let last = null;
+    for (const w of signWakes) {
+      if (w.id !== id) continue;
+      const age = t - w.t0;
+      if (age < 0 || age > SIGN_WAKE_MERGE.age || Math.hypot(w.x - x, w.z - z) > SIGN_WAKE_MERGE.r) continue;
+      if (!last || w.seq > last.seq) last = w;
+    }
+    if (last) { if (s > last.s) { last.s = s; last.w = encodeSignWake(id, s); } return; }
+    // recycle a finished slot, else the oldest mark of the busiest kind
+    let slot = -1;
+    for (let i = 0; i < SIGN_WAKE_POOL; i++) {
+      const j = (signWakeHead + i) % SIGN_WAKE_POOL;
+      if (t - signWakes[j].t0 > WAKE_LIFE) { slot = j; break; }
+    }
+    if (slot < 0) slot = evictSlot(signWakes, t, () => WAKE_LIFE);
+    const w = signWakes[slot];
+    w.x = x; w.z = z; w.t0 = t; w.dx = dirX / l; w.dz = dirZ / l; w.s = s; w.id = id; w.w = encodeSignWake(id, s); w.seq = ++signSeq;
+    signWakeHead = (slot + 1) % SIGN_WAKE_POOL;
+  }
+  function packWakes(t) {
+    let n = 0, cx = 0, cz = 0;
+    const max = material.defines.MAX_WAKE;
+    const cap = Math.min(max, (SIGN_CAP[tier] || SIGN_CAP.high).wake);
+    signWakeLive.length = 0;
+    for (let i = 0; i < SIGN_WAKE_POOL; i++) {
+      const w = signWakes[i];
+      const age = t - w.t0;
+      if (age >= 0 && age <= WAKE_LIFE) signWakeLive.push(w);
+    }
+    if (signWakeLive.length > cap) fairOrder(signWakeLive);
+    for (let i = 0; i < signWakeLive.length && n < cap; i++) {
+      const w = signWakeLive[i];
+      wakeU[n * 4] = w.x; wakeU[n * 4 + 1] = w.z; wakeU[n * 4 + 2] = w.t0; wakeU[n * 4 + 3] = w.w;
+      wakeD[n * 2] = w.dx; wakeD[n * 2 + 1] = w.dz;
+      cx += w.x; cz += w.z; n++;
+    }
+    signWakeN = n;
+    // as for ripples: with sign wakes in, the raft's freshest trail keeps its slots (its oldest, faintest marks
+    // drop first); without them the ring packs in slot order exactly as before
+    let src = wakes;
+    if (n > 0) {
+      plainWakeLive.length = 0;
+      for (let i = 0; i < MAX_WAKE; i++) { const w = wakes[i], age = t - w.t0; if (age >= 0 && age <= WAKE_LIFE) plainWakeLive.push(w); }
+      if (plainWakeLive.length > max - n) plainWakeLive.sort(newerT0);
+      src = plainWakeLive;
+    }
+    for (let i = 0; i < src.length && n < max; i++) {
+      const w = src[i];
+      const age = t - w.t0;
+      if (age < 0 || age > WAKE_LIFE) continue;
+      wakeU[n * 4] = w.x; wakeU[n * 4 + 1] = w.z; wakeU[n * 4 + 2] = w.t0; wakeU[n * 4 + 3] = w.s;
+      wakeD[n * 2] = w.dx; wakeD[n * 2 + 1] = w.dz;
+      cx += w.x; cz += w.z; n++;
+    }
+    U.uWakeN.value = n;
+    if (n) {
+      cx /= n; cz /= n;
+      let r = 0;
+      for (let i = 0; i < n; i++) r = Math.max(r, Math.hypot(wakeU[i * 4] - cx, wakeU[i * 4 + 1] - cz));
+      U.uWakeB.value.set(cx, cz, r + 6.5);
+    }
+  }
+
+  // ---------------------------------------------------------------- obstacles
+  let obstaclesDirty = true;
+  let obstacleCheckAt = 0;
+  let obstacleSrc = null, obstacleSrcLen = -1;
+  let manualObstacles = null;
+  const obsTmp = [];
+  // (Lake 1 polish: while a tow brings the barge in, the hulls' keel circles lie at the mooring ahead of them; their foam and shallows
+  // drew a lit disc with a pale rim on open water beside the raft. They are drawn only once the hulls are there)
+  const TOW_WATER = ['dip', 'dipHold', 'dipClear', 'glide'];
+  let hullsAway = false;
+  const towingIn = () => { try { return TOW_WATER.includes(ctx.game?.towing?.()); } catch { return false; } };
+  function packObstacles(list, px, pz) {
+    obsTmp.length = 0;
+    if (Array.isArray(list)) {
+      for (const o of list) {
+        if (!o) continue;
+        if (hullsAway && (o.kind === 'hull' || o.kind === 'murk')) continue;
+        if (o.kind === 'debris') continue;   // (the loop's drowned debris: no foam ring or pale shallows round it, it only breaks the surface)
+        const x = Number(o.x ?? o.position?.x), z = Number(o.z ?? o.position?.z), r = Number(o.r ?? o.radius);
+        if (isFinite(x) && isFinite(z) && isFinite(r) && r > 0.2) obsTmp.push({ x, z, r, d: Math.hypot(x - px, z - pz) - r });
+      }
+    }
+    if (obsTmp.length > MAX_OBS) obsTmp.sort((a, b) => a.d - b.d);
+    const n = Math.min(MAX_OBS, obsTmp.length);
+    for (let i = 0; i < n; i++) { obsU[i * 3] = obsTmp[i].x; obsU[i * 3 + 1] = obsTmp[i].z; obsU[i * 3 + 2] = obsTmp[i].r; }
+    U.uObsN.value = n;
+    return list?.length > MAX_OBS;
+  }
+  let obstaclesNeedNearest = false;
+  function refreshObstacles(px, pz, force) {
+    let list = manualObstacles;
+    if (!list && isReal(ctx.world)) {
+      try { list = ctx.world.getObstacles?.(); } catch { list = null; }
+      if (list && list.isStub) list = null;
+    }
+    const changed = list !== obstacleSrc || (list?.length ?? -1) !== obstacleSrcLen;
+    if (force || changed || obstaclesNeedNearest) {
+      obstaclesNeedNearest = packObstacles(list, px, pz);
+      obstacleSrc = list; obstacleSrcLen = list?.length ?? -1;
+    }
+    let r = Number(ctx.world?.bounds?.radius);
+    if (!isFinite(r) || r <= 0) {
+      const z = (ctx.data?.ZONES || []).find((q) => q.id === ctx.state?.run?.zone);
+      r = z?.arena?.radius || 60;
+    }
+    U.uArenaR.value = r;
+  }
+
+  // ---------------------------------------------------------------- depth field
+  // world.getDepth() baked into a small texture over the arena, a few rows per frame so a
+  // zone change never hitches. Shallows read lighter, trenches and pools read as ink.
+  // G holds the signed distance to world's (noisy) shoreline, ±16 m, so the shore foam and the
+  // dark cliff reflection follow the real cliff line instead of a fixed circle.
+  // (a loop build: 160 texels over the lake and the cut behind the Sluice Veil (world.getBakeHalf), about a metre each, as the lake alone had)
+  const DEPTH_RES = WCW ? 160 : 128;
+  // (WC-3: a loop build bakes RGBA: B the inflow's seam and the outflow's pull, A the gravel fan, watercraft-face.faceMasks)
+  const DEPTH_CH = WCW ? 4 : 2;
+  const depthData = new Uint8Array(DEPTH_RES * DEPTH_RES * DEPTH_CH);
+  const depthTex = new THREE.DataTexture(depthData, DEPTH_RES, DEPTH_RES, WCW ? THREE.RGBAFormat : THREE.RGFormat, THREE.UnsignedByteType);
+  depthTex.minFilter = depthTex.magFilter = THREE.LinearFilter;
+  depthTex.wrapS = depthTex.wrapT = THREE.ClampToEdgeWrapping;
+  depthTex.generateMipmaps = false;
+  U.uDepthTex.value = depthTex;
+  const depthJob = { row: -1, half: 70, wait: 0, again: 0 };
+  function startDepthBake(delay = 0.05) { depthJob.row = 0; depthJob.wait = delay; }
+  function stepDepthBake(dt) {
+    if (depthJob.again > 0) { depthJob.again -= dt; if (depthJob.again <= 0) startDepthBake(0); }
+    if (depthJob.row < 0) return;
+    if (depthJob.wait > 0) { depthJob.wait -= dt; return; }
+    const w = isReal(ctx.world) ? ctx.world : null;
+    if (!w || typeof w.getDepth !== 'function') { depthJob.row = -1; U.uDepthOn.value = 0; return; }
+    if (depthJob.row === 0) {
+      depthJob.half = Math.max(20, (Number(U.uArenaR.value) || 60) + 8, Number(w.getBakeHalf?.()) || 0);
+      U.uDepthScale.value = 1 / (2 * depthJob.half);
+    }
+    const S = depthJob.half;
+    const end = Math.min(DEPTH_RES, depthJob.row + 24);
+    if (depthJob.row === 0) depthJob.face = WCW && wcFaceNow();   // (WC-3: the face's masks for the lake being baked)
+    if (depthJob.row === 0) {   // (LAKE 2, lane W2: a lush water's dapple and weed film in the same spare channels; its define with them)
+      depthJob.lush = WCW ? lushLook(ctx.data, wcZoneNow()) : null;
+      if (depthJob.lush && !U.uLushWeed) Object.assign(U, { uLushWeed: { value: new THREE.Vector4(0, 0, 0, 0) }, uLushDapple: { value: 0 } });
+      if (depthJob.lush) { const c = new THREE.Color(depthJob.lush.weed?.color ?? 0x4a5a36); U.uLushWeed.value.set(c.r, c.g, c.b, Number(depthJob.lush.weed?.k) || 0.3); U.uLushDapple.value = Number(depthJob.lush.dapple?.k) || 0.4; }
+      setDefine('GW_LUSH', !!depthJob.lush);
+    }
+    if (depthJob.row === 0) {
+      const N = typeof w.getNotch === 'function' ? w.getNotch() : null; depthJob.notch = N && Number.isFinite(N.r0) ? N : null;
+      if (U.uCut) { if (depthJob.notch) U.uCut.value.set(N.ca, N.sa, N.r0, 1); else U.uCut.value.w = 0; }
+    }
+    try {
+      for (let r = depthJob.row; r < end; r++) {
+        const z = ((r + 0.5) / DEPTH_RES) * 2 * S - S;
+        for (let c = 0; c < DEPTH_RES; c++) {
+          const x = ((c + 0.5) / DEPTH_RES) * 2 * S - S;
+          let d = Number(w.getDepth(x, z));
+          if (!isFinite(d)) d = 1;
+          const i = (r * DEPTH_RES + c) * DEPTH_CH;
+          depthData[i] = Math.round(clamp(d, 0, 1) * 255);
+          let sr = typeof w.getShoreRadius === 'function' ? Number(w.getShoreRadius(Math.atan2(z, x))) : NaN;
+          if (!isFinite(sr) || sr <= 0) sr = Number(U.uArenaR.value) || 60;
+          // (the shore's signed distance: the world's own where it draws a cut behind the shore (LOST-TACKLE §5.3), else radial)
+          let sd = typeof w.getShoreDist === 'function' ? Number(w.getShoreDist(x, z)) : NaN;
+          if (!isFinite(sd)) sd = sr - Math.hypot(x, z);
+          // (LOST-TACKLE §5.1: the cut is 6 m wide, so all of it lay in the shore's pale band and its shallow tone: a milky sheet in every
+          // light. Inside it the bake reads deep, dark water well off a shore (the lake's mid water), the foam kept to the last half metre
+          // at its banks)
+          const Nb = depthJob.notch;
+          let still = 0;   // (how far inside the cut: its water is still, so the inflow's seam and the gravel fan stop at its mouth)
+          if (Nb) {
+            const f = notchFrame(Nb, x, z), hw = notchHalfW(Nb, f.t);
+            const k = clamp((f.along - Nb.r0 + 1.5) / 3, 0, 1) * clamp((hw - Math.abs(f.lc)) / 0.6, 0, 1);
+            if (k > 0) { sd += (Math.max(sd, 10) - sd) * k; depthData[i] = Math.round(clamp(d + (Math.max(d, 0.9) - d) * k, 0, 1) * 255); }
+            // (the review, §5.1: the seam's foam threads (the inflow's, running at z ≈ 4 along the whole brook) lay down its middle, a
+            // milky band in every light; inside the cut only the culvert's own spill keeps a little, its last 2.5 m)
+            still = clamp((f.along - Nb.r0 + 0.5) / 2.5, 0, 1) * clamp((hw + 0.8 - Math.abs(f.lc)) / 1.2, 0, 1) * (1 - clamp((f.along - (Nb.end - 2.5)) / 2, 0, 1) * 0.7);
+          }
+          depthData[i + 1] = Math.round(clamp((sd + 16) / 32, 0, 1) * 255);
+          if (WCW && depthJob.lush) {
+            const m = lushMasks(depthJob.lush, x, z, sd, d);
+            depthData[i + 2] = Math.round(m.dapple * 255);
+            depthData[i + 3] = Math.round(m.weed * 255);
+          } else if (WCW) {
+            const m = depthJob.face ? WF.faceMasks(x, z, { fromShore: () => sd, notch: Nb }) : null;
+            depthData[i + 2] = m ? Math.round(m.seam * (1 - still) * 255) : 0;
+            depthData[i + 3] = m ? Math.round(m.fan * (1 - still) * 255) : 0;
+          }
+        }
+      }
+    } catch (err) {
+      depthJob.row = -1; U.uDepthOn.value = 0;
+      console.warn('[water] depth bake failed', err);
+      return;
+    }
+    depthJob.row = end;
+    if (end >= DEPTH_RES) {
+      depthJob.row = -1;
+      depthTex.needsUpdate = true;
+      U.uDepthOn.value = 1;
+    }
+  }
+
+  // ---------------------------------------------------------------- lights
+  let externalLights = null;
+  let lightsSetAt = -999;
+  const lightTmp = new THREE.Vector3();
+  const colTmp = new THREE.Color();
+  let merchantLight = null, merchantScanAt = -10, merchantScanObj = null;
+  function setLights(list) {
+    externalLights = Array.isArray(list) ? list : null;
+    lightsSetAt = ctx.time?.t || 0;
+  }
+  function writeLight(n, x, y, z, color, intensity, radius, streak, ring) {
+    if (n >= material.defines.MAX_L) return n;
+    const inten = Number(intensity);
+    if (!isFinite(inten) || inten <= 0.001) return n;
+    if (!isFinite(x) || !isFinite(z)) return n;
+    try { color?.isColor ? colTmp.copy(color) : colTmp.set(color ?? 0xffc070); } catch { colTmp.setRGB(1, 0.7, 0.4); }
+    const k = 1 - Math.exp(-inten / 5);      // soft-saturating brightness from any intensity scale
+    lpU[n * 4] = x; lpU[n * 4 + 1] = isFinite(y) ? y : 2; lpU[n * 4 + 2] = z;
+    lpU[n * 4 + 3] = clamp(Number(radius) || 10, 1, 40);
+    lcU[n * 4] = colTmp.r * k * 0.5; lcU[n * 4 + 1] = colTmp.g * k * 0.5; lcU[n * 4 + 2] = colTmp.b * k * 0.5;
+    // w packs the streak gain (integer part, ×100); the old reach-ring fraction is gone for good
+    // (`ring` is accepted and ignored: no light draws a ring on the water, DESIGN §19.1)
+    const sg = (typeof streak === 'number' && isFinite(streak) ? clamp(streak, 0, 4) : 1) * 2.4;
+    lcU[n * 4 + 3] = Math.floor(sg * 100);
+    return n + 1;
+  }
+  function lanternReach() {
+    const r = isReal(ctx.survival) ? Number(ctx.survival.lightRadius) : NaN;
+    return isFinite(r) && r > 0.5 ? r : null;
+  }
+  function writeLightObject(n, L, streak, ring, radius) {
+    if (!L || !L.isLight || L.visible === false) return n;
+    L.getWorldPosition(lightTmp);
+    const isLantern = isReal(ctx.actors) && L === ctx.actors.lanternLight;
+    let r = Number(radius);
+    if (!isFinite(r) || r <= 0) r = isLantern ? (lanternReach() ?? (L.distance > 0 ? L.distance * 0.75 : 9)) : (L.distance > 0 ? L.distance * 0.75 : 10);
+    return writeLight(n, lightTmp.x, lightTmp.y, lightTmp.z, L.color, L.intensity, r, streak, ring);
+  }
+  function packLights(t) {
+    let n = 0;
+    const external = externalLights && t - lightsSetAt < 1.5;
+    if (external) {
+      for (const it of externalLights) {
+        if (!it) continue;
+        if (it.isLight) { n = writeLightObject(n, it, 1); continue; }
+        if (it.light?.isLight) { n = writeLightObject(n, it.light, it.streak, it.ring, it.radius); continue; }
+        const p = it.position;
+        if (!p) continue;
+        n = writeLight(n, Number(p.x), Number(p.y), Number(p.z), it.color, it.intensity ?? 1,
+          it.radius ?? it.distance, it.streak, it.ring);
+      }
+    } else {
+      // fallback until world feeds us: the lantern, and the merchant's lamp if we can find it
+      const lantern = isReal(ctx.actors) ? ctx.actors.lanternLight : null;
+      if (lantern?.isLight) n = writeLightObject(n, lantern, 1.2);
+      const m = isReal(ctx.actors) ? ctx.actors.merchant : null;
+      if (m && m.present === true && m.object3d?.traverse) {
+        if (merchantScanObj !== m.object3d || t - merchantScanAt > 3) {
+          merchantScanAt = t; merchantScanObj = m.object3d; merchantLight = null;
+          m.object3d.traverse((o) => { if (!merchantLight && o.isPointLight) merchantLight = o; });
+        }
+        if (merchantLight) n = writeLightObject(n, merchantLight, 0.8);
+      }
+    }
+    U.uLN.value = n;
+  }
+
+  // ---------------------------------------------------------------- splashes (pooled Points)
+  const pPos = new Float32Array(MAX_PARTICLES * 3);
+  const pCol = new Float32Array(MAX_PARTICLES * 3);
+  const pSize = new Float32Array(MAX_PARTICLES);
+  const pAlpha = new Float32Array(MAX_PARTICLES);
+  const pVel = new Float32Array(MAX_PARTICLES * 3);
+  const pLife = new Float32Array(MAX_PARTICLES);
+  const pMax = new Float32Array(MAX_PARTICLES);
+  const pBase = new Float32Array(MAX_PARTICLES);
+  const pFlag = new Uint8Array(MAX_PARTICLES);     // 1 = drip: ripples on impact
+  let live = 0;
+  const pGeo = new THREE.BufferGeometry();
+  const posAttr = new THREE.BufferAttribute(pPos, 3).setUsage(THREE.DynamicDrawUsage);
+  const colAttr = new THREE.BufferAttribute(pCol, 3).setUsage(THREE.DynamicDrawUsage);
+  const sizeAttr = new THREE.BufferAttribute(pSize, 1).setUsage(THREE.DynamicDrawUsage);
+  const alphaAttr = new THREE.BufferAttribute(pAlpha, 1).setUsage(THREE.DynamicDrawUsage);
+  pGeo.setAttribute('position', posAttr);
+  pGeo.setAttribute('aColor', colAttr);
+  pGeo.setAttribute('aSize', sizeAttr);
+  pGeo.setAttribute('aAlpha', alphaAttr);
+  pGeo.setDrawRange(0, 0);
+  const pMat = new THREE.ShaderMaterial({
+    name: 'GloomwaterSplash',
+    uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uViewH: { value: 720 } }]),
+    vertexShader: SPLASH_VERT,
+    fragmentShader: SPLASH_FRAG,
+    transparent: true,
+    depthWrite: false,
+    fog: true,
+  });
+  const points = new THREE.Points(pGeo, pMat);
+  points.name = 'water-splashes';
+  points.frustumCulled = false;
+  points.renderOrder = 5;
+  const splashCol = new THREE.Color();
+  const litCol = new THREE.Color();
+  /** Approximate light-pool colour at (x, z) from the packed light uniforms. */
+  function lightAt(x, z, out) {
+    out.setRGB(0, 0, 0);
+    const n = U.uLN.value;
+    for (let i = 0; i < n; i++) {
+      const dx = x - lpU[i * 4], dz = z - lpU[i * 4 + 2], h = Math.max(lpU[i * 4 + 1], 0.35), R = lpU[i * 4 + 3];
+      const d2 = dx * dx + dz * dz;
+      if (d2 > R * R) continue;
+      const att = (h * h) / (d2 + h * h) * (1 - Math.sqrt(d2) / R);
+      out.r += lcU[i * 4] * att * 2.2; out.g += lcU[i * 4 + 1] * att * 2.2; out.b += lcU[i * 4 + 2] * att * 2.2;
+    }
+    return out;
+  }
+  const drawSize = new THREE.Vector2();
+
+  function spawnParticle(x, y, z, vx, vy, vz, size, life, color, bright, flag) {
+    if (live >= MAX_PARTICLES) return;
+    const i = live++;
+    pPos[i * 3] = x; pPos[i * 3 + 1] = y; pPos[i * 3 + 2] = z;
+    pVel[i * 3] = vx; pVel[i * 3 + 1] = vy; pVel[i * 3 + 2] = vz;
+    pCol[i * 3] = color.r * bright; pCol[i * 3 + 1] = color.g * bright; pCol[i * 3 + 2] = color.b * bright;
+    pSize[i] = size; pLife[i] = 0; pMax[i] = life; pBase[i] = 1; pAlpha[i] = 1; pFlag[i] = flag || 0;
+  }
+  function killParticle(i) {
+    const j = --live;
+    if (i === j) return;
+    pPos[i * 3] = pPos[j * 3]; pPos[i * 3 + 1] = pPos[j * 3 + 1]; pPos[i * 3 + 2] = pPos[j * 3 + 2];
+    pVel[i * 3] = pVel[j * 3]; pVel[i * 3 + 1] = pVel[j * 3 + 1]; pVel[i * 3 + 2] = pVel[j * 3 + 2];
+    pCol[i * 3] = pCol[j * 3]; pCol[i * 3 + 1] = pCol[j * 3 + 1]; pCol[i * 3 + 2] = pCol[j * 3 + 2];
+    pSize[i] = pSize[j]; pLife[i] = pLife[j]; pMax[i] = pMax[j]; pBase[i] = pBase[j]; pAlpha[i] = pAlpha[j]; pFlag[i] = pFlag[j];
+  }
+
+  /** A crown and a column of droplets in splashCol (set by the caller) at (x, z). */
+  function emitDrops(x, z, size, count) {
+    const y0 = api.getHeight(x, z);
+    const sq = Math.sqrt(size);
+    // droplets catch the nearby lights: pale ink in the dark, warm sparks in the lantern's pool
+    lightAt(x, z, litCol);
+    splashCol.multiplyScalar(0.32).add(litCol);
+    // v3 Glowtide: at night some droplets catch the sparkle too (starlight, now and then pale gold)
+    const gk = glowNow();
+    for (let i = 0; i < count; i++) {
+      const a = rand() * Math.PI * 2;
+      const crown = rand() < 0.7;      // a ring crown, plus a central column
+      const lat = crown ? (0.8 + rand() * 1.5) * sq : rand() * 0.45 * sq;
+      const up = crown ? (2.0 + rand() * 2.4) * sq : (3.4 + rand() * 3.4) * sq;
+      const r0 = crown ? 0.18 * sq : 0.05;
+      const psz = (0.035 + rand() * 0.055) * (0.75 + sq * 0.3), plife = 0.6 + rand() * 0.6;
+      let c = splashCol, b = 0.6 + rand() * 0.8;
+      if (gk > 0.05 && rand() < 0.4 * gk) {
+        c = glowDrop.copy(U.uStarCol.value).lerp(U.uGlow.value, 0.35);
+        if (rand() < 0.2) c.copy(wcWhite() ? U.uFoam.value : GLOW_GOLD);   // (WC-3: water-white on the Mossmere under the loop)
+        c.multiplyScalar(0.5 + 0.5 * gk);
+        b = 1.2 + rand() * 0.9;
+      }
+      spawnParticle(
+        x + Math.cos(a) * r0, y0 + 0.05, z + Math.sin(a) * r0,
+        Math.cos(a) * lat, up, Math.sin(a) * lat,
+        psz, plife, c, b, 0,
+      );
+    }
+  }
+  const glowDrop = new THREE.Color();
+  /**
+   * A strike's slap (v3 sign): a low, wide crown of spray thrown outward and a few heavy drops, never a column
+   * (a tall plume would read as the cut feeding-spot pillars). No ripples of its own: the sign mark paints the rings.
+   */
+  function slapDrops(x, z, L) {
+    const y0 = api.getHeight(x, z);
+    const Lc = Math.min(Math.max(L, 0.2), 3), sq = Math.sqrt(0.6 + 0.5 * Lc);
+    lightAt(x, z, litCol);
+    splashCol.copy(U.uFoam.value).multiplyScalar(0.36).add(litCol);
+    const gk = glowNow();
+    const n = Math.round(22 + 8 * Lc);
+    for (let i = 0; i < n; i++) {
+      const a = rand() * Math.PI * 2;
+      const heavy = i < 4;
+      const lat = heavy ? (0.3 + rand() * 0.5) * sq : (1.6 + rand() * 1.9) * sq;
+      const up = heavy ? (2.6 + rand() * 1.4) * sq : (1.2 + rand() * 1.8) * sq;
+      const r0 = (0.25 + 0.2 * Lc) * (heavy ? 0.3 : 1);
+      let c = splashCol, b = 0.55 + rand() * 0.6;
+      if (gk > 0.05 && rand() < 0.45 * gk) {
+        c = glowDrop.copy(U.uStarCol.value).lerp(U.uGlow.value, 0.35);
+        if (rand() < 0.2) c.copy(wcWhite() ? U.uFoam.value : GLOW_GOLD);   // (WC-3: water-white on the Mossmere under the loop)
+        c.multiplyScalar(0.5 + 0.5 * gk);
+        b = 1.1 + rand() * 0.8;
+      }
+      spawnParticle(x + Math.cos(a) * r0, y0 + 0.04, z + Math.sin(a) * r0, Math.cos(a) * lat, up, Math.sin(a) * lat,
+        (heavy ? 0.07 : 0.035 + rand() * 0.04) * sq, 0.45 + rand() * 0.4, c, b, 0);
+    }
+  }
+
+  function splash(x, z, opts = {}) {
+    x = Number(x); z = Number(z);
+    if (!isFinite(x) || !isFinite(z)) return;
+    const size = clamp(Number(opts.size) || 1, 0.1, 4);
+    const count = Math.round(clamp(Number(opts.count) || 14 + size * 20, 1, 160));
+    if (opts.color !== undefined && opts.color !== null) {
+      try { opts.color.isColor ? splashCol.copy(opts.color) : splashCol.set(opts.color); } catch { splashCol.copy(U.uFoam.value); }
+    } else splashCol.copy(U.uFoam.value);
+    emitDrops(x, z, size, count);
+    if (opts.ring === false) return;   // beside the raft under a close-up: drops only (art rule: never a ring around the raft)
+    addRipple(x, z, size);
+    if (size > 0.6) addRipple(x, z, size * 0.6, 0.18);
+    if (size > 1.6) addRipple(x, z, size * 0.4, 0.42);
+  }
+
+  function updateParticles(dt) {
+    if (!live) { pGeo.setDrawRange(0, 0); return; }
+    for (let i = live - 1; i >= 0; i--) {
+      pLife[i] += dt;
+      const k = pLife[i] / pMax[i];
+      pVel[i * 3 + 1] += GRAVITY * dt;
+      const drag = 1 - Math.min(1, 0.6 * dt);
+      pVel[i * 3] *= drag; pVel[i * 3 + 2] *= drag;
+      pPos[i * 3] += pVel[i * 3] * dt;
+      pPos[i * 3 + 1] += pVel[i * 3 + 1] * dt;
+      pPos[i * 3 + 2] += pVel[i * 3 + 2] * dt;
+      const x = pPos[i * 3], y = pPos[i * 3 + 1], z = pPos[i * 3 + 2];
+      const falling = pVel[i * 3 + 1] < 0;
+      const h = falling ? api.getHeight(x, z) : -10;
+      if (k >= 1 || (falling && y <= h)) {
+        if (pFlag[i] === 1 && y <= h + 0.2) {
+          addRipple(x, z, 0.32);
+          const c = U.uFoam.value;
+          for (let j = 0; j < 3; j++) {
+            const a = rand() * Math.PI * 2;
+            spawnParticle(x, h + 0.02, z, Math.cos(a) * 0.5, 1.4 + rand() * 1.2, Math.sin(a) * 0.5, 0.045, 0.35, c, 0.6, 0);
+          }
+        }
+        killParticle(i);
+        continue;
+      }
+      pAlpha[i] = pFlag[i] === 1 ? 0.75 : (1 - k * k);
+    }
+    pGeo.setDrawRange(0, live);
+    posAttr.needsUpdate = true; colAttr.needsUpdate = true; sizeAttr.needsUpdate = true; alphaAttr.needsUpdate = true;
+  }
+
+  // ---------------------------------------------------------------- ambience: drips & rising fish
+  let hush = 0;   // v3: the landing's ripple hush near the raft (see update)
+  let nextDrip = 2, nextPlip = 3.5;
+  function ambience(dt, px, pz) {
+    if (!isReal(ctx.render)) return;
+    nextDrip -= dt; nextPlip -= dt;
+    const cam = ctx.render.camera;
+    // bias toward what the camera sees (ahead of it, roughly around the focus)
+    const yaw = Number(ctx.render.getYaw?.()) || 0;
+    const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+    if (nextDrip <= 0) {
+      nextDrip = 0.9 + rand() * 2.6;
+      const d = 4 + rand() * 18, a = (rand() - 0.5) * 2.4;
+      const x = px + (fx * Math.cos(a) - fz * Math.sin(a)) * d;
+      const z = pz + (fz * Math.cos(a) + fx * Math.sin(a)) * d;
+      if (!isOpen(x, z)) return;
+      const y = 6 + rand() * 5;
+      spawnParticle(x, y, z, 0, -3, 0, 0.05, 4, U.uFoam.value, 0.9, 1);
+    }
+    if (nextPlip <= 0) {
+      nextPlip = 1.6 + rand() * 3.5;
+      const d = 8 + rand() * 26, a = rand() * Math.PI * 2;
+      const x = px + Math.cos(a) * d, z = pz + Math.sin(a) * d;
+      if (cam && isOpen(x, z)) addRipple(x, z, 0.35 + rand() * 0.35);
+    }
+  }
+  function isOpen(x, z) {
+    if (!isReal(ctx.world) || !ctx.world.isOpenWater) return Math.hypot(x, z) < U.uArenaR.value - 2;
+    try { return ctx.world.isOpenWater(x, z, 0.5) === true; } catch { return true; }
+  }
+
+  // >>> WC-3 (WATERCRAFT §5.4, §5.7): the face's switch, the wind lane's uniforms, the water-white droplets
+  let wcZone = null;
+  const wcLaneKey = { k: '', v: [0, 0, 0, 0] };
+  function wcZoneNow() {
+    let id = null;
+    try { id = isReal(ctx.world) ? ctx.world.getZone?.()?.id ?? null : null; } catch { id = null; }
+    return id || wcZone || ctx.state?.run?.zone || null;
+  }
+  function wcFaceNow() { return WCW && WF.faceOn(ctx.data, wcZoneNow()); }
+  function wcWhite() { return WCW && U.uWc.value > 0.5; }
+  function wcEvening() {
+    const r = ctx.state?.run, e = Number(r?.evening);
+    if (e > 0) return Math.trunc(e);
+    const m = ctx.state?.meta?.loop;
+    return Math.max(0, Math.trunc(Number(m?.evenings) || 0)) + 1;
+  }
+  function wcUpdate(dt = 0.016) {
+    if (!WCW) return;
+    const on = wcFaceNow();
+    U.uWc.value = on ? 1 : 0;
+    if (!on) { U.uLane.value.w = 0; return; }
+    let phase = null;
+    try { phase = ctx.survival && !ctx.survival.isStub ? ctx.survival.getPhaseInfo?.()?.phase ?? null : null; } catch { phase = null; }
+    phase = phase || ctx.state?.run?.phase || 'calm';
+    const ev = wcEvening(), key = `${ev}:${WF.lightOf(phase)}`;
+    if (key !== wcLaneKey.k) { wcLaneKey.k = key; wcLaneKey.v = WF.laneUniform(WF.eveningLane(ev, null), phase); }   // (its line is the evening's; the light only fades it)
+    const v = wcLaneKey.v, L4 = U.uLane.value;
+    // (the lane fades in and out over a few seconds as the light turns, never pops)
+    L4.x = v[0]; L4.y = v[1]; L4.z = v[2]; L4.w += (v[3] - L4.w) * (1 - Math.exp(-0.9 * dt));
+  }
+  // <<< WC-3
+
+  // ---------------------------------------------------------------- zone defaults
+  function applyZonePalette(zoneId, instant) {
+    const z = (ctx.data?.ZONES || []).find((q) => q.id === zoneId);
+    const p = z?.palette;
+    if (!p) return;
+    setPalette({ deep: p.waterDeep, shallow: p.water, foam: p.foam, glow: p.glow }, { instant });
+  }
+
+  const center = new THREE.Vector3();
+  const camFwd = new THREE.Vector3();
+
+  const api = {
+    mesh, points, material,
+    init() {
+      // debug readout (extra): what the water is painting now
+      if (ctx.debug) {
+        ctx.debug.water = () => {
+          const t = nowT();
+          const kinds = {};
+          for (const m of signRips) if (t - m.t0 >= -2 && t - m.t0 <= m.life) kinds[KIND_NAME[m.id]] = (kinds[KIND_NAME[m.id]] || 0) + 1;
+          let sw = 0;
+          for (const w of signWakes) if (t - w.t0 >= 0 && t - w.t0 <= WAKE_LIFE) sw++;
+          return {
+            tier, v3: V3W, glowtide: U.uGlowtide?.value ?? 0, glowTarget, glowManual, glowLive: glowNow(), lowDefine: !!material.defines.GW_LOW,
+            ripN: U.uRipN.value, wakeN: U.uWakeN.value, signRipN, signWakeN, signMarks: kinds, signWakes: sw,
+            uniforms: Object.keys(U).sort(), maxRip: material.defines.MAX_RIP, maxWake: material.defines.MAX_WAKE, particles: live,
+          };
+        };
+      }
+      const scene = ctx.render?.scene;
+      if (scene && !ctx.render.isStub) { scene.add(mesh); scene.add(points); }
+      applyZonePalette(ctx.state?.run?.zone || ctx.data?.ZONES?.[0]?.id, true);
+      startDepthBake(0.2);
+      ctx.bus?.on('zone:change', (e) => {
+        try {
+          if (e?.zone) wcZone = e.zone;   // (WC-3)
+          applyZonePalette(e?.zone, !e?.prev);
+          obstaclesDirty = true;
+          manualObstacles = null;
+          startDepthBake(0.05);
+          depthJob.again = 1.5;   // re-bake once more in case the world builds lazily
+          // the old lake's rings and trails do not follow us down
+          for (const r of rips) r.t0 = -999;
+          for (const w of wakes) w.t0 = -999;
+          for (const m of signRips) m.t0 = -999;
+          for (const w of signWakes) w.t0 = -999;
+          lastWake = null;
+          live = 0;
+        } catch (err) { console.error('[water] zone:change', err); }
+      });
+    },
+
+    update(dt) {
+      dt = Math.min(Math.max(Number(dt) || 0, 0), 0.1);
+      const t = nowT();
+      U.uTime.value = t;
+      U.uWaveT.value = waveTime();
+
+      const q = ctx.render?.quality;
+      if (typeof q === 'string') setTier(q);
+
+      // recentre the grid ahead of the camera, snapped to whole cells
+      const cam = ctx.render?.camera;
+      if (cam) {
+        cam.getWorldDirection(camFwd);
+        camFwd.y = 0;
+        if (camFwd.lengthSq() < 1e-6) camFwd.set(0, 0, -1);
+        camFwd.normalize();
+        center.set(cam.position.x + camFwd.x * 50, 0, cam.position.z + camFwd.z * 50);
+        mesh.position.set(Math.round(center.x / gridStep) * gridStep, 0, Math.round(center.z / gridStep) * gridStep);
+        mesh.updateMatrix();
+        mesh.updateMatrixWorld(true);
+      }
+
+      // palette easing
+      const a = 1 - Math.exp(-1.4 * dt);
+      U.uDeep.value.lerp(palTgt.deep, a);
+      U.uShallow.value.lerp(palTgt.shallow, a);
+      U.uFoam.value.lerp(palTgt.foam, a);
+      U.uGlow.value.lerp(palTgt.glow, a);
+      const fog = ctx.render?.scene?.fog;
+      const override = palTgt.fogColor && (ctx.time?.t || 0) - fogColorAt < 3;
+      if (override) skyTgt.copy(palTgt.fogColor);
+      else if (fog) skyTgt.copy(fog.color);
+      U.uSky.value.lerp(skyTgt, override ? a : Math.max(a, 0.25));
+      U.uStars.value += (skyTgt2.stars - U.uStars.value) * a;
+      U.uStarDen.value += (skyTgt2.den - U.uStarDen.value) * a;
+      U.uNebK.value += (skyTgt2.nebK - U.uNebK.value) * a;
+      { // Clear Night: the water's body follows the world's mood (the night, the dawn's mist)
+        let n = 0, w = 0; try { const m = ctx.world?.getMood?.(); n = Number(m?.night) || 0; w = Number(m?.warm) || 0; } catch { n = 0; w = 0; }
+        const k = Math.max(a, 0.2);
+        U.uMood.value.x += (clamp(n, 0, 1) - U.uMood.value.x) * k;
+        U.uMood.value.y += (clamp(w, 0, 1) - U.uMood.value.y) * k;
+      }
+      stepGlowtide(dt);
+
+      // player-relative bits
+      const pl = isReal(ctx.player) ? ctx.player : null;
+      const pp = pl?.position && typeof pl.position.x === 'number' ? pl.position : null;
+      const px = pp ? pp.x : 0, pz = pp ? pp.z : 0;
+      const realT = ctx.time?.t || 0;
+      if (pp && ctx.state?.run && ctx.flow === 'playing') {
+        const v = pl.velocity;
+        const sp = v && typeof v.x === 'number' ? Math.hypot(v.x, v.z) : 0;
+        U.uRaft.value.set(px, pz, 1.55, clamp(sp / 6, 0, 1));
+        // fallback wake until the player module feeds addWake itself
+        if (realT - lastExternalWake > 1 && sp > 0.6 && (ctx.time?.gameDt || 0) > 0) {
+          const nx = v.x / sp, nz = v.z / sp;
+          pushWake(px - nx * 1.5, pz - nz * 1.5, nx, nz, clamp(sp / 6, 0.15, 1), t);
+        }
+      } else {
+        U.uRaft.value.set(px, pz, 0, 0);
+      }
+      if (V3W) { // the landing's close-up (the reveal and the measuring ceremony): plain rings near the raft hush quickly and
+        // return slowly; carried as a negative uRaft.w (the raft is at rest while a fish lands), so it costs no uniform
+        const fs = ctx.fishing && !ctx.fishing.isStub ? ctx.fishing.state : null;
+        const want = ctx.cinematic || fs === 'landing' ? 1 : 0;
+        hush += (want - hush) * (1 - Math.exp(-(want > hush ? 6 : 0.8) * dt));
+        // (the loop: the hush is whole from the show's first frame, which cuts to the close-up at once; at 6/s the banded fresnel's
+        // first steps still ringed the raft for a few frames, brightest on her still pool: the stage's look)
+        if (want > hush && ctx.data?.LOOP_ENABLED === true) hush = want;
+        if (hush > 0.002) U.uRaft.value.w = -Math.min(1, hush);
+      }
+
+      const away = towingIn();
+      if (away !== hullsAway) { hullsAway = away; obstaclesDirty = true; }
+      if (obstaclesDirty || realT > obstacleCheckAt) {
+        refreshObstacles(px, pz, obstaclesDirty);
+        obstaclesDirty = false;
+        obstacleCheckAt = realT + 0.5;
+      }
+
+      stepDepthBake(dt);
+      wcUpdate(dt);   // (WC-3: the face's switch and the wind lane)
+      packRipples(t);
+      packWakes(t);
+      packLights(realT);
+      if (ctx.flow === 'playing' || ctx.flow === 'title' || ctx.flow === 'intro' || (ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true)) ambience(dt, px, pz);   // (INTRO LANE A: the lake stays alive under the opening cut scene, so nothing starts up at its hand-off; the loop's Jetty too)
+      stepSignFx(dt, t);
+      updateParticles(dt);
+
+      const r = ctx.render?.renderer;
+      if (r) { r.getDrawingBufferSize(drawSize); pMat.uniforms.uViewH.value = drawSize.y; }
+    },
+
+    /** Swell height at world (x, z) — identical to the vertex shader's displacement. */
+    getHeight(x, z) {
+      const t = waveTime();
+      let h = 0;
+      for (let i = 0; i < 4; i++) {
+        const w = waves[i];
+        h += w.amp * Math.sin(w.k * (w.dx * x + w.dz * z) + w.omega * t + w.phase);
+      }
+      return h;
+    },
+    /** Surface normal of the swell at (x, z) (extra; handy for tilting floating things). */
+    getNormal(x, z, out = new THREE.Vector3()) {
+      const t = waveTime();
+      let gx = 0, gz = 0;
+      for (let i = 0; i < 4; i++) {
+        const w = waves[i];
+        const c = w.amp * w.k * Math.cos(w.k * (w.dx * x + w.dz * z) + w.omega * t + w.phase);
+        gx += c * w.dx; gz += c * w.dz;
+      }
+      return out.set(-gx, 1, -gz).normalize();
+    },
+    addRipple,
+    addWake,
+    splash,
+    setPalette,
+    setLights,
+    setSky,
+    renderReflection,
+    setKeyLight,
+    /** Clear Night (extra; tests, perf): what the mirror cost last frame and whether it is on. */
+    get reflection() { return { on: material.defines.GW_REFL === 1, shadow: material.defines.GW_SHADOW === 1, width: refl.w, height: refl.h, calls: refl.calls, triangles: refl.triangles }; },
+    setGlowtide,
+    /** v3: the sign kinds addRipple / addWake paint when tagged ({kind}); fishing-fx feature-detects on it (absent in a v1 / v2 build). */
+    signKinds: V3W ? SIGN_KINDS.slice() : undefined,
+    /** v3: the Glowtide's live value (0..1) and whether a caller holds it (extra; tests, ui). */
+    get glowtide() { return glowNow(); },
+    /** Optional override of the foam circles (default: world.getObstacles()). null = back to world. */
+    setObstacles(list) { manualObstacles = Array.isArray(list) ? list : null; obstaclesDirty = true; },
+    // >>> INTRO LANE A: the opening cut scene's replay swaps the lake with no zone:change (docs/v3/intro/SPEC.md §7.4): main asks for
+    // the depth map (shore foam, shallows) to be baked again for the lake now on screen, and once more for a world that builds lazily
+    rebakeDepth() { startDepthBake(0); depthJob.again = 1.5; },
+    // <<< INTRO LANE A
+    /** Drip from the cavern roof at (x, z) (extra): a falling droplet that rings on impact. */
+    drip(x, z, height = 8) { spawnParticle(Number(x) || 0, Number(height) || 8, Number(z) || 0, 0, -3, 0, 0.05, 4, U.uFoam.value, 0.9, 1); },
+  };
+  return api;
+}

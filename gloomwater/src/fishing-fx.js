@@ -1,0 +1,1543 @@
+// fishing-fx.js — every visual the fishing module owns (imported only by fishing.js):
+// the depth reticle + label, the dotted castMax range ring, the dotted cast-arc preview,
+// feeding-spot mote columns / light shafts / surface rings / circling fish silhouettes,
+// the legend pool's ring of still water, event pulse rings, a small particle pool
+// (spores, glints, droplets) and the hooked fish's shadow.
+//
+// Budget: ~12 draw calls total. Everything spot-related is GPU-animated from small
+// uniform arrays (no per-frame buffer uploads); the only per-frame CPU buffers are the
+// 18-dot cast arc and the live particles. Nothing allocates per frame.
+//
+// v3 (DESIGN §25.6.1, §25.7.5; CONTRACT §13.7 fishing preroll / signs): the six signs replace the feeding-spot mote
+// columns. fishing-fx is their one owner: ONE instanced draw (the per-fish instance buffer, ≤ 10 live: position,
+// heading, length, species tint, kind, timing) paints every sign's surface linework and its pre-rolled fish under the
+// water (setSigns / setSignMode); water only gets the tagged ripples and wakes fishing asks for. The spot meshes stay
+// for the flag-off build and are hidden in sign mode. The legend pool's golden column becomes a low gold glimmer.
+// Also: the scoop's water sheet, the measuring stamp flash and the leap reveal's rim flash (bursts and pulses).
+//
+// Automatic fishing (DESIGN §25.6.10; CONTRACT §13.7a): the hooked fish is one generic NIGHT-INK PROXY until the reveal, the same
+// shape for every species (a plain fusiform body, a forked tail, one soft dorsal hump, length : depth 4.2 : 1, unlit ink #04050a
+// with a thin rim in the key light's colour), drawn at the length fishing gives it (data.presentLength: the class length, never
+// the species' own). setProxy() places it (leaps, glimpses, the skitter, the lift); the shadow decal carries it under the water.
+// Built on first use, so the flag-off build never has it (+1 call while visible).
+import * as THREE from 'three';
+
+export const MAX_SLOTS = 10;          // spot slots (8 feeding spots + legend column + spare)
+export const MAX_SIGNS = 20;          // v3 sign / pre-rolled fish instances (≤ 6 signs + pre-rolled fish; WC-2: + ≤ 4 silhouettes, the answers)
+const ARC_DOTS = 18;
+const PULSES = 8;
+const PARTICLES = 192;
+
+const COL = {
+  bone: 0xe9e2cf,
+  shallow: 0xa8c8f0, mid: 0xffc27a, deep: 0xb48cff, deepRim: 0xe8c66a,
+  rareA: 0xb48cff, rareB: 0xffd98a, legend: 0xffd27a, legendB: 0xfff0c0,
+  ink: 0x05080a, blocked: 0xff7a6a, anchor: 0x8e96a4,
+};
+
+// ------------------------------------------------------------------ shared GLSL bits
+const SPOT_UNIFORMS = /* glsl */`
+uniform vec4 uSpot[${MAX_SLOTS}];   // x, z, strength, kind (0 normal, 1 rare, 2 legend)
+uniform vec4 uSpotB[${MAX_SLOTS}];  // highlight, radius, column height, water y
+uniform float uTime;
+uniform vec3 uColA; uniform vec3 uColB; uniform vec3 uColRareA; uniform vec3 uColRareB; uniform vec3 uColLegend; uniform vec3 uColLegendB;
+vec3 kindColor(float kind, float s) {
+  if (kind > 1.5) return mix(uColLegend, uColLegendB, s);
+  if (kind > 0.5) return mix(uColRareA, uColRareB, s);
+  return mix(uColA, uColB, s);
+}`;
+
+const MOTE_VS = /* glsl */`
+${SPOT_UNIFORMS}
+uniform float uScale;
+attribute float aSlot;
+varying vec3 vCol; varying float vA;
+void main() {
+  int i = int(aSlot + 0.5);
+  vec4 S = uSpot[i]; vec4 B = uSpotB[i];
+  if (S.z < 0.002) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; vA = 0.0; vCol = vec3(0.0); return; }
+  vec3 sd = position;                         // three 0..1 seeds per mote
+  float kind = S.w;
+  float speed = kind > 1.5 ? 0.05 + sd.y * 0.03 : 0.10 + sd.y * 0.09;
+  float h = fract(sd.x + uTime * speed);
+  float dir = sd.x > 0.5 ? 1.0 : -1.0;
+  float ang = sd.y * 6.2831 + uTime * (0.25 + sd.z * 0.45) * dir;
+  float rad = B.y * (0.12 + 0.88 * sd.z) * (1.0 - 0.45 * h) * (0.85 + 0.3 * B.x);
+  vec3 p = vec3(S.x + cos(ang) * rad, B.w + 0.08 + h * B.z * (0.7 + 0.3 * sd.z), S.y + sin(ang) * rad);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float a = smoothstep(0.0, 0.08, h) * (1.0 - smoothstep(0.6, 1.0, h));
+  float tw = 0.55 + 0.45 * sin(uTime * (2.5 + sd.z * 5.0) + sd.x * 40.0);
+  vA = a * tw * S.z * (0.8 + 0.7 * B.x);
+  float size = (0.10 + 0.16 * sd.z) * (kind > 1.5 ? 1.4 : 1.0) * (1.0 + 0.4 * B.x);
+  gl_PointSize = max(size * uScale / max(0.5, -mv.z), 3.0 * min(1.0, S.z * 2.0));
+  vCol = kindColor(kind, sd.z) * (kind > 1.5 ? 2.6 : 2.2);
+}`;
+const MOTE_FS = /* glsl */`
+varying vec3 vCol; varying float vA;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  float a = (pow(max(0.0, 1.0 - d), 2.2) + 0.5 * smoothstep(0.35, 0.0, d)) * vA;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(vCol * (0.55 + 1.1 * smoothstep(0.5, 0.0, d)), min(1.0, a));
+  #include <colorspace_fragment>
+}`;
+
+const SHAFT_VS = /* glsl */`
+${SPOT_UNIFORMS}
+attribute float aSlot; attribute vec2 aCorner;
+varying vec2 vUv; varying vec3 vCol; varying float vA;
+void main() {
+  int i = int(aSlot + 0.5);
+  vec4 S = uSpot[i]; vec4 B = uSpotB[i];
+  vec3 c = vec3(S.x, B.w, S.y);
+  vec3 toCam = cameraPosition - c; toCam.y = 0.0;
+  vec3 right = normalize(vec3(-toCam.z, 0.0, toCam.x) + vec3(1e-4, 0.0, 0.0));
+  float width = B.y * (S.w > 1.5 ? 0.75 : 0.6);
+  vec3 p = c + right * aCorner.x * width + vec3(0.0, aCorner.y * B.z * 1.25, 0.0);
+  if (S.z < 0.002) p = vec3(0.0, -50.0, 0.0);
+  vUv = aCorner; vCol = kindColor(S.w, 0.35); vA = S.z * (0.75 + 0.5 * B.x);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
+const SHAFT_FS = /* glsl */`
+uniform float uTime;
+varying vec2 vUv; varying vec3 vCol; varying float vA;
+void main() {
+  float x = abs(vUv.x), y = vUv.y;
+  float core = pow(max(0.0, 1.0 - x), 3.0) + 0.6 * smoothstep(0.12, 0.0, x);
+  float vert = pow(max(0.0, 1.0 - y), 1.4) * smoothstep(0.0, 0.04, y);
+  float bands = 0.7 + 0.3 * sin(y * 16.0 - uTime * 2.2 + x * 3.0);
+  float a = core * vert * bands * vA * 0.42;
+  if (a < 0.002) discard;
+  gl_FragColor = vec4(vCol * 1.6, a);
+  #include <colorspace_fragment>
+}`;
+
+const RING_VS = /* glsl */`
+${SPOT_UNIFORMS}
+attribute float aSlot; attribute float aRing; attribute vec2 aCorner;
+varying vec2 vUv; varying float vR; varying float vPh; varying vec3 vCol; varying float vA; varying float vRing;
+void main() {
+  int i = int(aSlot + 0.5);
+  vec4 S = uSpot[i]; vec4 B = uSpotB[i];
+  float rate = S.w > 1.5 ? 0.16 : 0.32;
+  float ph = fract(uTime * rate + aRing / 3.0 + aSlot * 0.137);
+  float R = aRing < 0.5 ? B.y : mix(0.35, B.y * 1.25, ph);
+  float hs = R + 0.4;
+  vec3 p = vec3(S.x + aCorner.x * hs, B.w + 0.14, S.y + aCorner.y * hs);
+  if (S.z < 0.002) p = vec3(0.0, -50.0, 0.0);
+  vUv = aCorner * hs; vR = R; vPh = ph; vRing = aRing;
+  vCol = kindColor(S.w, 0.2); vA = S.z * (0.7 + 0.8 * B.x);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
+const RING_FS = /* glsl */`
+uniform float uTime;
+varying vec2 vUv; varying float vR; varying float vPh; varying vec3 vCol; varying float vA; varying float vRing;
+void main() {
+  float d = length(vUv);
+  float a;
+  if (vRing < 0.5) {
+    // base: soft glow pool + a faint fixed boundary ring (spot radius)
+    float glow = pow(max(0.0, 1.0 - d / vR), 2.0) * 0.32;
+    float edge = smoothstep(0.06, 0.0, abs(d - vR)) * 0.22 * (0.7 + 0.3 * sin(atan(vUv.y, vUv.x) * 12.0 + uTime));
+    a = (glow + edge) * vA;
+  } else {
+    float w = 0.05 + 0.05 * vPh;
+    a = smoothstep(w, 0.0, abs(d - vR)) * pow(1.0 - vPh, 1.4) * smoothstep(0.0, 0.15, vPh) * 0.7 * vA;
+  }
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(vCol * 1.5, a);
+  #include <colorspace_fragment>
+}`;
+
+const SIL_VS = /* glsl */`
+${SPOT_UNIFORMS}
+attribute float aSlot; attribute float aFish; attribute vec2 aCorner;
+varying vec2 vUv; varying float vA; varying float vWig;
+void main() {
+  int i = int(aSlot + 0.5);
+  vec4 S = uSpot[i]; vec4 B = uSpotB[i];
+  float dir = mod(aSlot, 2.0) < 1.0 ? 1.0 : -1.0;
+  float sp = (0.45 + 0.12 * aFish) * dir;
+  float ang = uTime * sp + aFish * 2.094 + aSlot * 1.7;
+  float r = B.y * (0.42 + 0.14 * aFish) + 0.25 * sin(uTime * 0.7 + aFish * 3.0);
+  vec2 c = vec2(S.x, S.y) + vec2(cos(ang), sin(ang)) * r;
+  vec2 fwd = normalize(vec2(-sin(ang), cos(ang)) * dir);
+  vec2 side = vec2(-fwd.y, fwd.x);
+  float len = (0.85 + 0.25 * aFish) * (S.w > 1.5 ? 2.0 : 1.0);
+  vec2 q = c + fwd * aCorner.y * len * 0.5 + side * aCorner.x * len * 0.22;
+  vec3 p = vec3(q.x, B.w + 0.12, q.y);
+  if (S.z < 0.002) p = vec3(0.0, -50.0, 0.0);
+  vUv = aCorner; vA = S.z; vWig = sin(uTime * 7.0 + aFish * 2.0 + aSlot);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
+const SIL_FS = /* glsl */`
+uniform vec3 uInk; uniform vec3 uRim;
+varying vec2 vUv; varying float vA; varying float vWig;
+void main() {
+  // fish silhouette in local space: y = -1 tail … +1 head, x = -1 … 1 across
+  vec2 u = vUv;
+  u.x += vWig * 0.18 * smoothstep(0.2, -1.0, u.y);
+  float body = length(vec2(u.x / 0.55, (u.y - 0.15) / 0.78)) - 1.0;
+  vec2 t = vec2(abs(u.x), u.y + 0.9);
+  float tail = max(t.y - 0.32 - t.x * 0.4, -t.y + t.x * 0.9 - 0.02);
+  float sdf = min(body, tail * 1.6);
+  float a = smoothstep(0.06, -0.06, sdf);
+  float rim = smoothstep(0.1, 0.0, abs(sdf + 0.02)) * 0.5;
+  a *= vA * 0.78;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(mix(uInk, uRim, rim * 0.45), max(a, rim * 0.35 * vA));
+  #include <colorspace_fragment>
+}`;
+
+const RETICLE_VS = /* glsl */`
+varying vec2 vUv;
+void main() { vUv = uv * 2.0 - 1.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+const RETICLE_FS = /* glsl */`
+uniform vec3 uColor; uniform vec3 uRim; uniform vec3 uBone; uniform float uAlpha; uniform float uTime; uniform float uClean; uniform float uDeep; uniform float uSpin;
+varying vec2 vUv;
+void main() {
+  float d = length(vUv);
+  float ang = atan(vUv.y, vUv.x);
+  float ringR = 0.74 + 0.06 * uClean;
+  float ring = smoothstep(0.05, 0.012, abs(d - ringR));
+  float glow = exp(-abs(d - ringR) * 9.0) * 0.4;
+  // four inward ticks, slowly turning
+  float a4 = mod(ang + uSpin, 1.5708) - 0.7854;
+  float tick = smoothstep(0.05, 0.0, abs(a4) * d) * step(0.44, d) * step(d, 0.62);
+  // four outer diamonds between the ticks
+  float b4 = mod(ang + uSpin + 0.7854, 1.5708) - 0.7854;
+  vec2 dq = vec2(abs(b4) * d * 9.0, abs(d - 0.9) * 9.0);
+  float diamond = smoothstep(0.55, 0.35, dq.x + dq.y);
+  float dotc = smoothstep(0.075, 0.03, d);
+  float fill = (1.0 - smoothstep(0.0, ringR, d)) * 0.16 + smoothstep(ringR - 0.25, ringR, d) * step(d, ringR) * 0.12;
+  float rim2 = smoothstep(0.022, 0.0, abs(d - 0.86)) * uDeep;
+  vec3 col = uColor * (ring * 2.2 + glow + tick * 1.5 + dotc * 1.6 + fill) + uRim * (rim2 * 1.8 + diamond * 1.3);
+  float burst = uClean * smoothstep(0.06, 0.0, abs(d - 0.95)) * (0.6 + 0.4 * sin(uTime * 18.0));
+  col = mix(col, vec3(1.0, 0.86, 0.6) * 2.6 * (ring + tick + diamond + dotc), uClean * 0.8) + vec3(1.0, 0.86, 0.6) * burst * 2.0;
+  float a = clamp(ring + glow + tick + dotc + fill + rim2 + diamond * 0.8 + burst, 0.0, 1.0) * uAlpha;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(col, a);
+  #include <colorspace_fragment>
+}`;
+
+const RANGE_FS = /* glsl */`
+uniform vec3 uColor; uniform float uAlpha; uniform float uTime; uniform float uR; uniform float uHalf; uniform vec2 uAim; uniform float uDots;
+varying vec2 vUv;
+void main() {
+  vec2 p = vUv * uHalf;
+  float dm = length(p);
+  float line = smoothstep(0.09, 0.0, abs(dm - uR));
+  float ang = atan(p.y, p.x);
+  float cell = fract(ang / 6.28318 * uDots - uTime * 0.02);
+  float dotv = smoothstep(0.32, 0.12, abs(cell - 0.5));
+  vec2 dir = p / max(dm, 1e-3);
+  float aimK = smoothstep(0.93, 1.0, dot(dir, uAim));
+  float a = line * (dotv * 0.55 + aimK * 0.9) * uAlpha;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(uColor * (1.0 + aimK * 1.2), a);
+  #include <colorspace_fragment>
+}`;
+
+const ARC_VS = /* glsl */`
+uniform float uScale; uniform float uTime;
+attribute float aK;
+varying float vA;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float travel = smoothstep(0.75, 1.0, fract(aK * 2.5 - uTime * 1.1));
+  vA = (0.5 + 0.5 * travel) * smoothstep(0.0, 0.1, aK);
+  gl_PointSize = max(3.0, (0.13 + 0.07 * travel) * uScale / max(0.5, -mv.z));
+}`;
+const ARC_FS = /* glsl */`
+uniform vec3 uColor; uniform float uAlpha;
+varying float vA;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  float a = smoothstep(1.0, 0.45, d) * vA * uAlpha;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(uColor * 1.8, a);
+  #include <colorspace_fragment>
+}`;
+
+const PULSE_VS = /* glsl */`
+uniform vec4 uP[${PULSES}];   // x, y, z, radius
+uniform vec4 uQ[${PULSES}];   // r, g, b, alpha
+uniform float uW[${PULSES}];
+attribute float aIdx; attribute vec2 aCorner;
+varying vec2 vUv; varying float vR; varying vec4 vQ; varying float vW; varying float vHs;
+void main() {
+  int i = int(aIdx + 0.5);
+  vec4 P = uP[i];
+  float hs = P.w + uW[i] * 3.0 + 0.1;
+  vec3 p = vec3(P.x + aCorner.x * hs, P.y, P.z + aCorner.y * hs);
+  if (uQ[i].a < 0.003) p = vec3(0.0, -60.0, 0.0);
+  vUv = aCorner * hs; vR = P.w; vQ = uQ[i]; vW = uW[i]; vHs = hs;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
+const PULSE_FS = /* glsl */`
+uniform float uEdge;
+varying vec2 vUv; varying float vR; varying vec4 vQ; varying float vW; varying float vHs;
+void main() {
+  float d = length(vUv);
+  float ring = smoothstep(vW, 0.0, abs(d - vR));
+  float glow = exp(-abs(d - vR) / max(0.02, vW * 2.5)) * 0.35;
+  // WC-2 (the Mossmere under the loop): the glow's tail reaches zero inside the quad's inscribed circle; built, it is cut by the
+  // quad's edge and the discard, a pale square with rounded corners round the float (never a box on the water)
+  glow *= 1.0 - uEdge * smoothstep(vR + vW, vHs - 0.02, d);
+  float a = (ring + glow) * vQ.a;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(vQ.rgb * 1.8, min(1.0, a));
+  #include <colorspace_fragment>
+}`;
+
+const PART_VS = /* glsl */`
+uniform float uScale;
+attribute vec3 aCol; attribute float aA; attribute float aS;
+varying vec3 vCol; varying float vA;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = aA > 0.002 ? max(1.5, aS * uScale / max(0.3, -mv.z)) : 0.0;
+  vCol = aCol; vA = aA;
+}`;
+const PART_FS = /* glsl */`
+varying vec3 vCol; varying float vA;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  float a = pow(max(0.0, 1.0 - d), 1.5) * vA;
+  if (a < 0.003) discard;
+  gl_FragColor = vec4(vCol, a);
+  #include <colorspace_fragment>
+}`;
+
+const SHADOW_FS = /* glsl */`
+uniform vec3 uInk; uniform vec3 uRim; uniform float uAlpha; uniform float uWig; uniform float uRimK;
+varying vec2 vUv;
+void main() {
+  // fish-shaped shadow under the hooked fish: head toward local +z (uv.y = -1 after rotateX)
+  vec2 u = vec2(vUv.x, -vUv.y);
+  u.x += uWig * 0.22 * smoothstep(0.2, -1.0, u.y);
+  float body = length(vec2(u.x / 0.6, (u.y - 0.1) / 0.84)) - 1.0;
+  vec2 t = vec2(abs(u.x), u.y + 0.9);
+  float tail = max(t.y - 0.2 - t.x * 0.55, -t.y + t.x * 0.8 - 0.04);
+  float sdf = min(body, tail * 1.8);
+  float a = smoothstep(0.18, -0.3, sdf);
+  float rim = smoothstep(0.08, 0.0, abs(sdf - 0.03)) * uRimK;
+  float alpha = max(a * uAlpha, rim * 0.5 * uAlpha);
+  if (alpha < 0.003) discard;
+  gl_FragColor = vec4(mix(uInk, uRim, clamp(rim * 1.4, 0.0, 1.0)), alpha);
+  #include <colorspace_fragment>
+}`;
+
+// the night-ink proxy: unlit ink, a thin fresnel rim in the key light's colour (no species colour, pattern, glow or eye)
+const PROXY_VS = /* glsl */`
+varying vec3 vN; varying vec3 vV;
+void main() {
+  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vN = normalize(mat3(modelMatrix) * normal);
+  vV = normalize(cameraPosition - wp.xyz);
+  gl_Position = projectionMatrix * viewMatrix * wp;
+}`;
+const PROXY_FS = /* glsl */`
+uniform vec3 uInk; uniform vec3 uRim; uniform float uAlpha; uniform float uRimK;
+varying vec3 vN; varying vec3 vV;
+void main() {
+  float f = 1.0 - abs(dot(normalize(vN), normalize(vV)));
+  float rim = smoothstep(0.62, 0.98, f) * uRimK;
+  gl_FragColor = vec4(mix(uInk, uRim, rim), uAlpha);
+  #include <colorspace_fragment>
+}`;
+/** The proxy's geometry, length 1 along +z (the head), depth 1 / 4.2: a lathe body flattened sideways, a forked tail, a dorsal hump. */
+function proxyGeometry() {
+  const L = 1, R = 0.5 / 4.2, pts = [];
+  for (let i = 0; i <= 16; i++) {   // the profile from the tail (y −0.5) to the snout (y 0.5): deepest a little ahead of the middle
+    const y = -0.5 + i / 16, u = (y + 0.5) / L;
+    const r = R * Math.pow(Math.sin(Math.PI * Math.pow(u, 0.82)), 0.85) * (u < 0.12 ? 0.55 + 3.75 * u : 1);
+    pts.push(new THREE.Vector2(Math.max(0.004, r), y));
+  }
+  const body = new THREE.LatheGeometry(pts, 14).toNonIndexed();
+  body.rotateX(Math.PI / 2);          // the lathe's +y axis → +z (head forward)
+  body.scale(0.72, 1, 1);             // a fish is narrower than it is deep
+  const tri = (a, b, c) => [...a, ...b, ...c];
+  const fins = [
+    // the forked tail: two lobes in the vertical plane behind the body
+    ...tri([0, 0.004, -0.44], [0, 0.16, -0.62], [0, 0.02, -0.52]), ...tri([0, -0.004, -0.44], [0, -0.15, -0.6], [0, -0.02, -0.52]),
+    ...tri([0, 0.004, -0.44], [0, 0.02, -0.52], [0, -0.02, -0.52]),
+    // one soft dorsal hump
+    ...tri([0, R * 0.9, 0.12], [0, R * 1.75, -0.02], [0, R * 0.85, -0.16]),
+  ];
+  const finGeo = new THREE.BufferGeometry();
+  finGeo.setAttribute('position', new THREE.Float32BufferAttribute(fins, 3));
+  finGeo.computeVertexNormals();
+  const a = body.getAttribute('position').array, an = body.getAttribute('normal').array, b = finGeo.getAttribute('position').array, bn = finGeo.getAttribute('normal').array;
+  const pos = new Float32Array(a.length + b.length), nor = new Float32Array(a.length + b.length);
+  pos.set(a); pos.set(b, a.length); nor.set(an); nor.set(bn, an.length);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  g.computeBoundingSphere();
+  body.dispose(); finGeo.dispose();
+  return g;
+}
+
+const POOL_FS = /* glsl */`
+uniform vec3 uInk; uniform vec3 uRing; uniform vec3 uGold; uniform float uR; uniform float uHalf; uniform float uActive; uniform float uDim; uniform float uTime; uniform float uAlpha;
+uniform float uGlim;
+varying vec2 vUv;
+float h21(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+void main() {
+  vec2 p = vUv * uHalf;
+  float d = length(p);
+  float disc = smoothstep(uR + 0.4, uR - 0.6, d);
+  float rings = 0.0;
+  for (int k = 0; k < 3; k++) {
+    float ph = fract(uTime * 0.05 + float(k) / 3.0);
+    rings += smoothstep(0.05, 0.0, abs(d - ph * uR)) * (1.0 - ph) * 0.35;
+  }
+  float edge = smoothstep(0.08, 0.0, abs(d - uR));
+  float lace = 0.6 + 0.4 * sin(atan(p.y, p.x) * 16.0 + uTime * 0.4);
+  vec3 ringCol = mix(uRing, uGold, uActive);
+  float glowA = (edge * lace * (0.35 + 0.65 * uActive) + rings * (0.3 + 0.7 * uActive)) * uDim;
+  // v3: the tall golden column is gone; a low gold glimmer lies on the still water instead (DESIGN §25.6.1)
+  if (uGlim > 0.0) {
+    vec2 c = floor(p * 2.2), f = fract(p * 2.2) - 0.5;
+    float hh = h21(c), tw = pow(max(0.0, sin(uTime * (0.6 + hh * 1.7) + hh * 40.0)), 10.0);
+    vec2 o = vec2(h21(c + 7.1), h21(c + 3.7)) - 0.5;
+    float sp = smoothstep(0.12, 0.0, length(f - o * 0.6)) * tw * step(0.55, hh);
+    float g = sp * smoothstep(uR * 0.98, uR * 0.4, d) * (0.45 + 0.9 * uActive) * uGlim * uDim;
+    glowA += g * 1.6;
+    ringCol = mix(ringCol, uGold, clamp(g * 3.0, 0.0, 1.0));
+  }
+  float a = (disc * 0.32 + glowA) * uAlpha;
+  if (a < 0.003) discard;
+  vec3 col = mix(uInk, ringCol * (1.2 + 1.4 * uActive), clamp(glowA / max(a / max(uAlpha, 1e-3), 1e-3), 0.0, 1.0));
+  gl_FragColor = vec4(col, a);
+  #include <colorspace_fragment>
+}`;
+
+// ------------------------------------------------------------------ v3 signs: one instanced draw
+// Each instance is a flat quad on the water in the sign's own frame (+y = the fish's heading, metres). Output is
+// premultiplied (blend ONE / ONE_MINUS_SRC_ALPHA): the ink of a pre-rolled fish under the water darkens (alpha), the
+// starlight linework and a night fish's glow add (rgb with no alpha), all in this one call.
+const SIGN_VS = /* glsl */`
+attribute vec2 aCorner;
+attribute vec4 iA;   // x, y (water), z, heading
+attribute vec4 iB;   // kind, length L (m), strength, seed
+attribute vec4 iC;   // age (s), since the last show (s), radius (m), to the next show (s)
+attribute vec4 iD;   // tint rgb, body aspect
+varying vec2 vQ; varying vec4 vB; varying vec4 vC; varying vec4 vD;
+float riseR(float L) { return clamp(0.7 + 2.0 * L, 0.8, 5.0); }
+void main() {
+  float kind = iB.x, L = iB.y;
+  float hs = 1.0;
+  vec2 off = vec2(0.0);
+  if (kind < 1.5) hs = riseR(L) * 1.3 + 0.5;
+  else if (kind < 2.5) hs = 1.4 + 1.9 * L;
+  else if (kind < 3.5) hs = iC.z + 1.4;
+  else if (kind < 4.5) hs = 2.2 + 1.6 * L;
+  else if (kind < 5.5) { hs = 2.4; off = vec2(0.0, -1.4); }
+  else if (kind < 6.5) { hs = 1.6 + 1.0 * L + 1.4; off = vec2(0.0, -1.0); }
+  // WC-2 (WATERCRAFT §5.2, §6.8): pin-pricks, bed gas, the mud cloud, stems, a silhouette (its shadow and a shoal inside), a bow wave
+  else if (kind < 7.5) hs = iC.z + 0.4;
+  else if (kind < 8.5) hs = 1.0;
+  else if (kind < 9.5) hs = 2.4;
+  else if (kind < 10.5) hs = iC.z + 1.2;
+  else if (kind < 11.5) hs = (iD.x > 3.5 && iD.x < 4.5 ? 1.1 + L : (iD.x > 4.5 ? L * 0.8 : L * 0.62) + 0.3) + length(vec2(iC.y, iC.w));
+  else { hs = 1.9 + 0.8 * L; off = vec2(0.0, -0.8); }
+  vec2 q = aCorner * hs + off;
+  float c = cos(iA.w), s = sin(iA.w);
+  // local +y (forward) = world (sin h, cos h); local +x (side) = world (cos h, -sin h)
+  vec3 p = vec3(iA.x + q.x * c + q.y * s, iA.y, iA.z - q.x * s + q.y * c);
+  // a silhouette is drawn as the eye reads it looking down into clear water, not as flat as the play camera's low angle presses a
+  // shape lying on the bed: its footprint is eased out along the line of sight by (1 / sin of the view's angle)^0.75, at most 2×, so a
+  // fish across the view keeps its true length and shows its body, fins and tail, and one end on never draws longer than it would
+  // across (WATERCRAFT §6.3, revision 3)
+  if (kind > 10.5 && kind < 11.5) {
+    vec3 tc = cameraPosition - iA.xyz;
+    float hl = length(tc.xz);
+    float sg = clamp(tc.y / max(length(tc), 1e-3), 0.05, 1.0);
+    float st = clamp(pow(1.0 / sg, 0.75), 1.0, 2.0);
+    vec2 dv = hl > 1e-3 ? tc.xz / hl : vec2(0.0, 1.0);
+    vec2 o2 = p.xz - iA.xz;
+    p.xz += dv * dot(o2, dv) * (st - 1.0);
+  }
+  if (iB.z < 0.002) p = vec3(0.0, -60.0, 0.0);
+  vQ = q; vB = iB; vC = iC; vD = iD;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
+const SIGN_FS = /* glsl */`
+uniform float uSurf;       // the surface linework's weight (lower when water paints the sign marks itself)
+uniform float uTime;
+uniform float uWhite;      // WC-2: 1 on the Mossmere under the loop: water-white marks, never gold, orange or lilac (WATERCRAFT §5.7)
+varying vec2 vQ; varying vec4 vB; varying vec4 vC; varying vec4 vD;
+// starlit palette: lavender-white crests, pale gold for a kiss of light, an indigo ink for troughs and backs
+const vec3 STAR0 = vec3(0.78, 0.76, 0.95);
+const vec3 GOLD0 = vec3(0.93, 0.80, 0.55);
+const vec3 WATERW = vec3(0.82, 0.85, 0.90);
+const vec3 INK = vec3(0.03, 0.025, 0.08);
+const float GAIN = 0.5;    // the linework sits ON the water, it does not glow (no bloom halos)
+float h11(float n) { return fract(sin(n * 127.1) * 43758.5453); }
+float n11(float x) { float i = floor(x), f = fract(x); return mix(h11(i), h11(i + 1.0), f * f * (3.0 - 2.0 * f)); }
+float n21(vec2 p) {
+  vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  float n = i.x + i.y * 57.0;
+  return mix(mix(h11(n), h11(n + 1.0), f.x), mix(h11(n + 57.0), h11(n + 58.0), f.x), f.y);
+}
+// metres per pixel at this fragment, taken once in uniform control flow (derivatives inside the loops' branches are undefined)
+float MPP = 0.01;
+// a line of width w (m) at signed distance d; never thinner than ~1 px so far signs stay readable, dimmer when thickened
+float lineAA(float d, float w) {
+  float aa = MPP;
+  float ww = max(w, aa * 0.75);
+  return (1.0 - smoothstep(ww, ww + aa * 1.2, abs(d))) * min(1.0, w / ww + 0.3);
+}
+// one water ring: a pale crest and the darker trough just inside it, broken along its length like a real ripple
+vec3 RIPC = STAR0;   // the crest's colour (main sets it: water-white under uWhite)
+void ripple(float d, float ang, float r, float w, float a, float seed, inout vec3 light, inout float ink) {
+  float brk = 0.35 + 0.65 * n11(ang * 2.2 + seed * 17.0 + r * 1.3);
+  light += RIPC * lineAA(d - r, w) * a * brk;
+  ink += lineAA(d - r + w * 2.4, w * 1.3) * a * (0.25 + 0.2 * brk);
+}
+// twinkling glints on a grid of cells cs (m) wide: each lit cell flashes now and then, never smaller than ~1.3 px
+float glints(vec2 q, float cs, float t, float seed, float dens) {
+  vec2 c = floor(q / cs), f = q / cs - c - 0.5;
+  float h = h11(c.x * 12.9898 + c.y * 78.233 + seed * 7.0);
+  vec2 o = vec2(h11(h * 91.0), h11(h * 37.0)) - 0.5;
+  float tw = pow(max(0.0, sin(t * (2.5 + 3.0 * h) + h * 40.0)), 8.0) * step(1.0 - dens, h11(h * 13.0 + 1.7));
+  float r = max(0.035, 1.3 * MPP);
+  float dd = length((f - o * 0.6) * cs);
+  return (1.0 - smoothstep(r * 0.45, r, dd)) * tw;
+}
+// the fish silhouette (head toward +y), u in metres, L its length, asp its body width / length
+float fishSdf(vec2 u, float L, float asp, float wig) {
+  vec2 v = u / max(L, 0.03);
+  v.x += wig * 0.1 * smoothstep(0.15, -0.5, v.y);
+  float body = length(vec2(v.x / asp, (v.y - 0.06) / 0.41)) - 1.0;
+  vec2 t = vec2(abs(v.x), v.y + 0.46);
+  float tail = max(t.y - 0.1 - t.x * 0.55, -t.y + t.x * 1.05 - 0.015);
+  return min(body * asp * 2.4, tail * 0.55);
+}
+// WC-2: a silhouette seen from above (head toward +y; u in metres): a head and shoulders, the flank narrowing to the tail's wrist, a
+// forked tail, two pectoral fins (fins 1); spans its true length L. An approximate distance in metres (negative inside)
+float eSdf(vec2 p, vec2 r) { return (length(p / r) - 1.0) * min(r.x, r.y); }
+float sightSdf(vec2 u, float L, float asp, float wig, float fins) {
+  vec2 v = u / max(L, 0.03);
+  v.x += wig * 0.06 * smoothstep(0.15, -0.6, v.y) * (0.6 - v.y);   // the tail sways, the head holds its line
+  float d = eSdf(v - vec2(0.0, 0.17), vec2(asp, 0.33));               // head and shoulders (asp: the half-width / length)
+  d = min(d, eSdf(v + vec2(0.0, 0.1), vec2(asp * 0.68, 0.24)));       // the flank to the tail's wrist
+  float ty = -(v.y + 0.3), ax = abs(v.x);
+  float tail = max(max(ax - asp * (0.3 + 3.6 * ty), -ty * 0.6), (ty - 0.13 - 0.1 * ax / max(asp, 0.05)) * 0.6);   // a forked tail, flared
+  d = min(d, tail);
+  if (fins > 0.5) {   // the pectorals, swept back from the shoulders, and the smaller pelvic pair behind them
+    vec2 pf = vec2(ax - asp * 1.05, v.y - 0.15); pf = vec2(pf.x * 0.8 + pf.y * 0.6, -pf.x * 0.6 + pf.y * 0.8);
+    d = min(d, eSdf(pf, vec2(asp * 0.5, 0.06)));
+    d = min(d, eSdf(vec2(ax - asp * 0.72, v.y + 0.08), vec2(asp * 0.32, 0.04)));
+  }
+  return d * L;
+}
+// a soft fish seen from above (head toward +y; u in metres, L its length, asp its half-width / length, wig its slow tail sway): a
+// rounded head, the body tapering to the tail's wrist and a small rounded tail, all blended (no fork, no fins, no corner). Metres.
+float sminK(float a, float b, float k) { float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0); return mix(b, a, h) - k * h * (1.0 - h); }
+float softFishSdf(vec2 u, float L, float asp, float wig) {
+  vec2 v = u / max(L, 0.03);
+  v.x += wig * 0.045 * smoothstep(0.1, -0.5, v.y) * (0.4 - v.y);       // the tail sways, the head holds its line
+  float w = asp * mix(0.3, 1.0, smoothstep(-0.36, 0.12, v.y));        // tapered: widest at the shoulders, narrow at the wrist
+  float body = (length(vec2(v.x / w, (v.y - 0.06) / 0.4)) - 1.0) * w;
+  float tail = eSdf(vec2(v.x, v.y + 0.42), vec2(asp * 0.75, 0.085));
+  return sminK(body, tail, 0.04) * L;
+}
+// WC-2: a crayfish (head toward +y): its carapace and tail, the tail fan, two claws ahead on their arms
+float clawSdf(vec2 u, float L) {
+  vec2 v = u / max(L, 0.03);
+  float body = (length(vec2(v.x / 0.15, (v.y + 0.05) / 0.34)) - 1.0) * 0.15;
+  float fan = (length(vec2(v.x / 0.14, (v.y + 0.42) / 0.07)) - 1.0) * 0.07;
+  float claw = (length(vec2((abs(v.x) - 0.17) / 0.07, (v.y - 0.44) / 0.13)) - 1.0) * 0.07;
+  vec2 pa = vec2(abs(v.x), v.y) - vec2(0.06, 0.22), ba = vec2(0.1, 0.13);
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  float arm = length(pa - ba * h) - 0.022;
+  return min(min(body, fan), min(claw, arm)) * L;
+}
+void main() {
+  float kind = vB.x, L = max(vB.y, 0.03), k = vB.z, seed = vB.w;
+  float age = vC.x, ev = vC.y, R0 = vC.z, toNext = vC.w;
+  vec3 tint = vD.rgb; float asp = max(vD.a, 0.04);
+  vec2 q = vQ;
+  float d = length(q), ang = atan(q.y, q.x);
+  vec2 fq = fwidth(q);
+  MPP = max(0.7 * length(fq), 1e-4);                // metres per pixel here
+  float fine = clamp(0.035 / MPP, 0.5, 1.0);        // fine detail softens when it would crowd into a few pixels
+  float far = 1.0 - smoothstep(0.5, 1.0, clamp(0.035 / MPP, 0.0, 1.0));   // 0 near … 1 far: a broader read takes over
+  float ink = 0.0;           // alpha of the dark under-water shape
+  float cap = 0.8;           // its most (a silhouette's core may go darker: 0.95)
+  vec3 light = vec3(0.0);    // additive light (premultiplied, alpha 0)
+  vec3 inkCol = mix(INK, tint * 0.15, 0.3);
+  float wig = sin(uTime * 6.0 + seed * 30.0);
+  // WC-2: on the Mossmere under the loop the linework is the water's own cool white (below the hue report's chroma floor)
+  vec3 STAR = mix(STAR0, WATERW, uWhite), GOLD = mix(GOLD0, WATERW, uWhite);
+  float form = floor(fract(kind + 0.02) * 10.0 + 0.5);   // a tell's form (rise: 0 sip, 1 splash, 2 roll; nervous: 0 spray, 1 ruffle)
+  RIPC = STAR;
+
+  if (kind < 1.5) {
+    // ---- rise ring: three rings ∝ the fish's length spread from each rise; a kiss of light where the lips broke the skin
+    float R = clamp(0.7 + 2.0 * L, 0.8, 5.0);
+    bool moss = uWhite > 0.5;
+    if (moss && form < 0.5) R *= 0.55;   // WC-2: a sip, a small quiet ring
+    for (int i = 0; i < 3; i++) {
+      float fi = float(i);
+      float t = ev - fi * 0.38;
+      if (t <= 0.0) continue;
+      float r = R * (0.12 + 0.88 * (1.0 - exp(-t * 1.15))) * (1.0 - 0.2 * fi);
+      float a = exp(-t * 0.55) * smoothstep(0.0, 0.12, t) * (1.0 - 0.25 * fi) * 1.25;
+      ripple(d, ang, r, 0.022 + 0.008 * L + 0.006 * t, a * uSurf, seed + fi, light, ink);
+    }
+    float kiss = smoothstep(0.6, 0.0, ev) * smoothstep(0.0, 0.04, ev);
+    if (moss && form > 1.5) kiss = 0.0;   // a roll breaks no lips on the film
+    light += mix(STAR, GOLD, 0.45) * smoothstep(0.07 + 0.04 * L, 0.0, d) * kiss * 1.4;
+    ink += smoothstep(0.18 + 0.12 * L, 0.04, d) * kiss * 0.3;
+    if (moss && form > 0.5 && form < 1.5) {   // WC-2: a splash, the film slapped: white water thrown for a moment
+      float sp = 0.0;
+      for (int i = 0; i < 10; i++) {
+        float fi = float(i) + seed * 29.0;
+        float a2 = h11(fi) * 6.2832, rr = (0.08 + 0.32 * h11(fi + 1.1)) * (0.6 + 0.8 * smoothstep(0.0, 0.5, ev)) * (0.6 + L);
+        sp += smoothstep(max(0.025, 1.3 * MPP), 0.0, length(q - vec2(cos(a2), sin(a2)) * rr)) * (1.0 - smoothstep(0.15, 0.7, ev));
+      }
+      light += STAR * sp * 1.2;
+    }
+    if (moss && form > 1.5) {   // WC-2: a roll, a back and a dorsal breaking the surface, then nothing
+      float back = smoothstep(1.3, 0.0, ev) * smoothstep(-0.1, 0.2, ev);
+      vec2 qb = q - vec2(0.0, (ev - 0.6) * 0.35 * L);
+      ink += smoothstep(0.02, -0.03, fishSdf(qb, L, 0.22, 0.0)) * back * 0.55;
+      light += STAR * smoothstep(0.025, 0.0, abs(qb.x)) * step(abs(qb.y + 0.05 * L), L * 0.22) * back * 0.6;
+    }
+    // the fish just under the surface as it comes up, and as it goes down again
+    float vis = max(smoothstep(0.8, 0.0, toNext), smoothstep(0.9, 0.0, ev)) * 0.5;
+    ink += smoothstep(0.02, -0.03, fishSdf(q, L, asp, wig)) * vis;
+  } else if (kind < 2.5) {
+    // ---- boil: a dark back turns the surface (the slick's ellipse = class), a pale curl rides one side of it
+    float a0 = clamp(0.5 + 1.1 * L, 0.7, 9.0), b0 = clamp(0.3 + 0.6 * L, 0.45, 5.0);
+    float sw = smoothstep(0.0, 0.5, ev), spread = 0.5 + 0.5 * sw + ev * 0.08, fade = exp(-ev * 0.38);
+    float e = length(vec2(q.x / (b0 * spread), q.y / (a0 * spread)));
+    float swirl = 0.85 + 0.15 * sin(ang * 3.0 - ev * 2.0 + seed * 9.0);
+    ink += (1.0 - smoothstep(0.55, 1.0, e * swirl)) * fade * 0.62;
+    float curl = smoothstep(0.2, 1.0, 0.5 + 0.5 * cos(ang - ev * 1.5 + seed * 6.0));
+    light += STAR * lineAA((e - 0.98) * b0 * spread, 0.03 + 0.008 * L) * fade * curl * 1.1 * uSurf;
+    // the back itself in the first moment: an ink fish with a starlit dorsal line
+    float back = smoothstep(1.1, 0.0, ev) * smoothstep(-0.2, 0.15, ev);
+    ink += smoothstep(0.02, -0.03, fishSdf(q, L, asp, wig * 0.3)) * back * 0.5;
+    light += STAR * smoothstep(0.03, 0.0, abs(q.x)) * step(abs(q.y), L * 0.3) * back * 0.8;
+    // a slow outer ring, and between boils a water there that stays a little too smooth
+    float rr = (0.6 + 1.5 * L) * (1.0 - exp(-ev * 0.9));
+    ripple(d, ang, rr, 0.026 + 0.01 * L, exp(-ev * 0.5) * 0.8 * uSurf, seed, light, ink);
+    ink += (1.0 - smoothstep(0.35, 1.0, length(vec2(q.x / b0, q.y / a0)))) * 0.08;
+  } else if (kind < 3.5) {
+    // ---- nervous water: fry skitter out of a darkened patch; a predator circles under the bait ball
+    float r = R0, sk = 0.0;
+    bool moss = uWhite > 0.5, ruffle = moss && form > 0.5;   // WC-2: a ruffle has no spray, only the film shivering from under
+    for (int i = 0; i < 16; i++) {
+      if (ruffle) break;
+      float fi = float(i) + seed * 37.0;
+      float a = h11(fi) * 6.2832, rr = r * sqrt(h11(fi + 1.3)) * 0.92;
+      float P = 0.9 + 1.2 * h11(fi + 2.1), u = mod(age + h11(fi + 3.3) * P, P);
+      vec2 dir = vec2(cos(a + 0.8 * h11(fi + 4.4)), sin(a + 0.8 * h11(fi + 4.4)));
+      vec2 b = vec2(cos(a), sin(a)) * rr;
+      if (u < 0.26) {   // a hop: a short silver dash out of the water
+        float hk = u / 0.26;
+        vec2 p0 = b + dir * hk * 0.45, p1 = b + dir * max(0.0, hk - 0.4) * 0.45;
+        vec2 pa = q - p1, ba = p0 - p1;
+        float hs = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-5), 0.0, 1.0);
+        sk += lineAA(length(pa - ba * hs), 0.016) * (0.5 + 0.5 * hs);
+      } else if (u < 0.8 && !moss) {   // its landing ring (none on the Mossmere: no small rings, no specks there)
+        float t = u - 0.26;
+        sk += lineAA(length(q - b - dir * 0.45) - (0.04 + t * 0.5), 0.012) * (1.0 - t / 0.54) * 0.55;
+      }
+    }
+    // (on the Mossmere the hops are dark flicks of fry against the film, not silver: no glitter on the water there)
+    light += mix(STAR, GOLD, 0.2) * sk * fine * (moss ? 0.25 : 1.7) * uSurf;
+    if (moss) ink += sk * fine * 0.3;
+    float m = 1.0 - smoothstep(r * 0.6, r * 1.08, d);
+    float wv = sin(q.x * 13.0 + age * 7.0 + seed * 9.0) * sin(q.y * 11.0 - age * 6.0);
+    if (!moss) light += STAR * smoothstep(0.8, 1.0, wv) * m * 0.14 * uSurf;
+    // from afar the patch reads as a darker, shivering disc full of twinkling fry, with a pale broken rim; up close the hops carry it
+    if (!moss) light += mix(STAR, GOLD, 0.2) * glints(q, 0.5, age, seed, 0.65) * m * (0.6 + 1.6 * far) * uSurf;   // (never sparkle on the Mossmere)
+    // the shiver of the skin (a textured shimmer, never a flat lens) and a few drifting arcs at its edge (never a whole ring)
+    float shv = n21(q * 2.2 + vec2(age * 0.7, -age * 0.5) + seed * 13.0) * n21(q * 3.7 - vec2(age * 0.4, age * 0.9) - seed * 7.0);
+    light += STAR * m * (0.04 + 0.3 * smoothstep(0.12, 0.5, shv)) * far * uSurf;
+    float arcs = smoothstep(0.55, 0.85, n11(ang * 2.5 + seed * 17.0 + age * 0.5));
+    light += STAR * lineAA(d - r * 0.95, 0.03) * arcs * (0.08 + 0.45 * far) * (moss ? 0.35 : 1.0) * uSurf;   // (quieter, broken, on the Mossmere)
+    ink += m * 0.17 * (1.0 - 0.5 * far);
+    float ca = age * 0.45 + seed * 6.0, cr = r * 0.32;
+    vec2 cp = vec2(cos(ca), sin(ca)) * cr;
+    float hh = ca + 1.5708;
+    vec2 u2 = q - cp; u2 = vec2(u2.x * cos(hh) + u2.y * sin(hh), -u2.x * sin(hh) + u2.y * cos(hh));
+    if (!ruffle) ink += smoothstep(0.02, -0.04, fishSdf(u2, max(L, 0.7), 0.17, wig)) * 0.32;
+    if (ruffle) light += STAR * m * smoothstep(0.35, 0.75, shv) * 0.18 * uSurf;   // the ruffle reads by its texture alone
+  } else if (kind < 4.5) {
+    // ---- strike: one heavy slap (a bright crown ring, quick), then a foam slick that lasts the 10 s window
+    float rb = (1.0 + 0.9 * L) * (1.0 - exp(-ev * 4.0));
+    light += mix(STAR, GOLD, 0.25) * lineAA(d - rb, 0.05 + 0.015 * L) * exp(-ev * 1.6) * 2.0 * uSurf;
+    float win = clamp(1.0 - ev / 10.0, 0.0, 1.0);
+    float fr = (0.65 + 0.6 * L) * (1.0 + ev * 0.05);
+    float n = sin(q.x * 9.0 + seed * 11.0) * sin(q.y * 8.0 - seed * 7.0) + sin((q.x + q.y) * 15.0) * 0.5;
+    float foam = (1.0 - smoothstep(fr * 0.45, fr, d)) * smoothstep(0.3, 0.95, n);
+    light += STAR * foam * pow(win, 1.2) * 0.55 * fine * uSurf;
+    ink += smoothstep(0.38 + 0.25 * L, 0.1, d) * exp(-ev * 0.7) * 0.45;
+    float r2 = (1.5 + 1.3 * L) * (1.0 - exp(-ev * 0.45));
+    ripple(d, ang, r2, 0.028, win * 0.7 * uSurf, seed, light, ink);
+  } else if (kind < 5.5) {
+    // ---- bubble trail: beads of bubbles behind the head along the bottom; the head breathes a little cluster
+    float trail = 3.2, bub = 0.0;
+    bool froth = uWhite > 0.5;   // WC-2: the Mossmere's carp fizz: fewer, larger, softer froth blobs (never pin-point glints)
+    for (int i = 0; i < 16; i++) {
+      if (froth && i >= 8) break;
+      float fi = float(i) + seed * 51.0;
+      float s = trail * pow(h11(fi), 1.6);
+      float lat = 0.28 * sin(s * 1.6 + seed * 6.0) + (h11(fi + 1.7) - 0.5) * 0.25;
+      vec2 c = vec2(lat, -s);
+      float P = 0.8 + 1.3 * h11(fi + 2.9), u = mod(age + h11(fi + 4.1) * P, P) / P;
+      float rr = 0.02 + 0.045 * u * (0.6 + 0.6 * h11(fi + 5.3));
+      float hk = 1.0 - s / trail;
+      if (froth) { float R = max(rr * 1.8 + 0.03, 2.5 * MPP); bub += smoothstep(R, R * 0.15, length(q - c)) * (1.0 - u) * (0.3 + 0.7 * hk) * 0.22; }
+      else bub += lineAA(length(q - c) - rr, 0.01) * (1.0 - u) * (0.3 + 0.7 * hk);
+    }
+    light += STAR * bub * fine * 1.5 * uSurf;
+    light += mix(STAR, GOLD, 0.2) * exp(-dot(q, q) * 4.0) * (0.1 + 0.25 * far) * uSurf;
+    // from afar the beads merge into a faint pale lane that ends in the head's cluster
+    float lw = abs(q.x - 0.28 * sin(-q.y * 1.6 + seed * 6.0));
+    light += STAR * smoothstep(0.3, 0.0, lw) * step(q.y, 0.0) * smoothstep(-3.2, -0.2, q.y) * 0.34 * far * uSurf;
+    // the bottom feeder: a blurred deep shadow under the head and a faint darker lane behind it
+    ink += smoothstep(0.25, -0.3, fishSdf(q + vec2(0.0, L * 0.3), L, asp, wig * 0.2)) * 0.24;
+    float lane = smoothstep(0.35, 0.0, abs(q.x - 0.28 * sin(-q.y * 1.6 + seed * 6.0))) * step(q.y, 0.0) * smoothstep(-trail, -0.2, q.y);
+    ink += lane * 0.1;
+  } else if (kind < 6.5) {
+    // ---- glow trail: a light moving under the surface; brightness ∝ length; a comet's wake behind it
+    float br = clamp(0.3 + 0.55 * L, 0.35, 1.2);
+    vec2 u = q;
+    u.x += 0.08 * sin(q.y * 2.2 - uTime * 3.0 + seed * 9.0);
+    // a fish-shaped light under the skin, a soft pool of it spreading through the water, and a short fading wake
+    float e = length(vec2(u.x / (0.12 + 0.22 * L), (u.y - 0.05 * L) / (0.18 + 0.55 * L)));
+    float e2 = length(vec2(u.x / (0.6 + 0.5 * L), (u.y + 0.1 * L) / (0.9 + 0.8 * L)));
+    float core = exp(-e * e * 1.4), halo = exp(-e2 * e2 * 1.3) * 0.6;
+    float tailK = q.y < 0.0 ? exp(q.y / (0.9 + 0.5 * L)) * exp(-u.x * u.x / (0.04 + 0.04 * -q.y)) * 0.3 : 0.0;
+    float caus = (0.9 + 0.1 * sin(q.x * 7.0 + uTime * 2.3) * sin(q.y * 6.0 - uTime * 1.9));
+    float flick = 0.88 + 0.12 * sin(uTime * 7.0 + seed * 13.0);
+    vec3 gc = mix(GOLD, vec3(1.0, 0.68, 0.38), 0.4);   // candle amber: it can never be mistaken for a reflected star
+    light += gc * (core * 0.85 + halo * caus + tailK * 0.7) * br * flick * 1.6;
+    // the V its passage draws on the surface: two pale broken crests opening behind the head
+    float hsG = 3.0 + 1.0 * L, behind = -q.y + 0.15 * L;
+    float vw = abs(abs(q.x) - behind * 0.36);
+    float vfade = step(0.0, behind) * exp(-behind / (0.8 + 0.4 * L)) * smoothstep(-(hsG + 1.0), -(hsG - 0.4), q.y);
+    light += STAR * lineAA(vw, 0.018 + 0.006 * L) * vfade * (0.25 + 0.75 * n11(behind * 4.0 + seed * 9.0 - uTime * 2.0)) * 0.45 * uSurf;
+    ink += smoothstep(0.02, -0.03, fishSdf(q, L * 0.9, asp, wig)) * 0.22;
+  } else if (kind < 7.5) {
+    // ---- WC-2 pin-pricks: a tight patch of tiny bubbles that stays in one gap between pads (a koi on the bottom); thicker as an answer
+    float thick = form > 0.5 ? 1.0 : 0.0, rp = 0.3 + 0.25 * thick, bub = 0.0;
+    for (int i = 0; i < 18; i++) {
+      if (thick < 0.5 && i > 10) break;
+      float fi = float(i) + seed * 41.0;
+      float a2 = h11(fi) * 6.2832, rr = rp * sqrt(h11(fi + 1.7));
+      vec2 c = vec2(cos(a2), sin(a2)) * rr;
+      float P = 0.6 + 0.9 * h11(fi + 2.3), u = mod(age + h11(fi + 3.1) * P, P) / P;
+      bub += lineAA(length(q - c) - (0.006 + 0.014 * u), 0.004) * (1.0 - u) * smoothstep(0.0, 0.15, u);
+    }
+    light += STAR * bub * 1.6 * uSurf;
+    light += STAR * exp(-d * d / (rp * rp)) * 0.03 * far * uSurf;   // from afar a faint pale freckle on the film
+  } else if (kind < 8.5) {
+    // ---- WC-2 bed gas: one big bubble breaks the film in one fixed spot, its ring spreads and is gone (the false tell)
+    float dome = smoothstep(0.0, 0.1, ev) * (1.0 - smoothstep(0.18, 0.28, ev));
+    float rb = 0.05 + 0.07 * smoothstep(0.0, 0.2, ev);
+    light += STAR * lineAA(d - rb, 0.008) * dome * 1.3 * uSurf;
+    light += STAR * smoothstep(rb, 0.0, d) * dome * 0.2 * uSurf;
+    float tr = ev - 0.25;
+    if (tr > 0.0) ripple(d, ang, 0.12 + 0.55 * (1.0 - exp(-tr * 1.6)), 0.012, exp(-tr * 1.2) * 0.9 * uSurf, seed, light, ink);
+  } else if (kind < 9.5) {
+    // ---- WC-2 the mud cloud: a soft dark plume blooming off the bottom and drifting (a carp or a sucker rooting under it)
+    float rc = min(1.7, 0.45 + 0.22 * ev);
+    float n = n21(q * 1.6 + vec2(seed * 7.0, age * 0.15)) * 0.6 + n21(q * 3.3 - vec2(age * 0.1, seed * 3.0)) * 0.4;
+    float m = 1.0 - smoothstep(rc * 0.3, rc * (0.85 + 0.3 * n), d);
+    float fresh = exp(-ev * 0.12);
+    if (form > 0.5) {
+      // the haul of a find (form 1; the integration's fixes): mud dragged off the bed, a slow swirl darker than the night water and
+      // of its own colour, wound darker at its heart, blooming to R0 m (at most about 2 m, less near the raft: none of it within
+      // 2.4 m of it), and behind it along the haul (local −y) a faint dark weed-line; never gold, never a glint, never a ring
+      float rs = min(max(R0, 0.4), (0.55 + 0.35 * ev) * (0.8 + 0.25 * L));
+      float ms = 1.0 - smoothstep(rs * 0.3, rs * (0.8 + 0.3 * n), d);
+      float rot = ev * 0.3 + 1.2 / (0.5 + d), cr = cos(rot), sr = sin(rot);
+      vec2 qr = vec2(cr * q.x - sr * q.y, sr * q.x + cr * q.y);
+      float sw = n21(qr * vec2(3.2, 0.8) + vec2(seed * 7.0, 0.0)) * 0.65 + n * 0.35;
+      ink += ms * (0.24 + 0.16 * smoothstep(0.2, 0.75, sw)) * (0.55 + 0.45 * fresh);
+      float wl = q.x - 0.07 * sin(q.y * 2.3 + seed * 9.0), ww = max(0.045, MPP * 1.2);
+      float streak = exp(-wl * wl / (ww * ww)) * smoothstep(0.1, -0.2, q.y) * smoothstep(-2.3, -1.1, q.y) * (0.6 + 0.4 * n21(vec2(q.y * 2.0, seed * 5.0)));
+      ink += streak * 0.2 * (0.5 + 0.5 * fresh);
+      inkCol = vec3(0.05, 0.045, 0.055);
+    } else {
+    ink += m * (0.16 + 0.22 * n) * (0.4 + 0.6 * fresh);
+    inkCol = vec3(0.05, 0.047, 0.04);   // silt, not ink
+    light += STAR * lineAA(d - rc * 0.92, 0.02) * smoothstep(0.55, 0.9, n) * 0.14 * fresh * uSurf;
+    }
+  } else if (kind < 10.5) {
+    // ---- WC-2 stems: a pad knocked from below, a reed stem twitching, in a short run (small rings from a few stems)
+    for (int i = 0; i < 3; i++) {
+      float fi = float(i);
+      float t = ev - fi * 0.3;
+      if (t <= 0.0) continue;
+      float a2 = h11(fi + seed * 23.0) * 6.2832, rr = R0 * 0.7 * sqrt(h11(fi + seed * 7.0 + 1.3));
+      float dd = length(q - vec2(cos(a2), sin(a2)) * rr);
+      ripple(dd, ang, 0.05 + 0.4 * (1.0 - exp(-t * 1.8)), 0.012, exp(-t * 1.1) * 0.9 * uSurf, seed + fi, light, ink);
+      ink += smoothstep(0.08, 0.0, dd) * exp(-t * 3.0) * 0.15;
+    }
+  } else if (kind < 11.5) {
+    // ---- WC-2 a silhouette (WATERCRAFT §6.8), redrawn 17 Nov 2026 (the user: "erratic black blobs on the water"): a fish a little
+    // under the surface, read at a glance — a soft tapered body and a tail (a shoal: a few small fish), feathered all round, in the
+    // water's own deeper blue-violet, semi-transparent and softer deeper. Never black, never hard or angular; no outline, no ring, no
+    // glint, no wake lines; its tail sways slowly
+    float outl = vD.x, dep = clamp(vD.y, 0.0, 0.6);
+    float spd = vC.z;
+    float sw = sin(uTime * (1.6 + 2.2 * min(spd, 1.0)) + seed * 30.0) * (0.35 + 0.8 * min(spd, 1.0));
+    float deepK = smoothstep(0.05, 0.45, dep);                          // 0 just under the film … 1 at the deepest it is seen
+    float bodyA = 0.0, coreA = 0.0;
+    if (outl > 3.5 && outl < 4.5) {
+      for (int i = 0; i < 5; i++) {
+        float fi = float(i);
+        if (fi >= vD.w) break;
+        float a0 = fi * 2.399 + seed * 6.0 + age * 0.12;
+        vec2 c = vec2(cos(a0), sin(a0)) * (0.22 + 0.3 * h11(fi + seed * 13.0));
+        float hh = 0.25 * sin(age * 0.35 + fi * 1.7);
+        vec2 u = q - c;
+        u = vec2(u.x * cos(hh) - u.y * sin(hh), u.x * sin(hh) + u.y * cos(hh));
+        float fe = max(0.22 * L * 0.12 * (1.0 + 2.0 * deepK), MPP * 2.2);
+        float b = softFishSdf(u, L, 0.12, sw);
+        bodyA = max(bodyA, smoothstep(fe, -fe, b));
+        coreA = max(coreA, smoothstep(0.0, -0.06 * L, b));
+      }
+    } else {
+      float asp2 = outl > 4.5 ? 0.16 : outl < 1.5 ? 0.15 : outl < 2.5 ? 0.12 : 0.09;   // half-width / length: deep-bodied, torpedo, long (the crayfish: a squat body)
+      float fe = max(asp2 * L * (0.55 + 0.9 * deepK), MPP * 2.6);         // the feather: a good part of its half-width, wider deeper
+      float b = softFishSdf(q, L, asp2, sw);
+      bodyA = smoothstep(fe, -fe, b);
+      coreA = smoothstep(0.0, -asp2 * L * 0.9, b);                      // denser down its middle, easing out to the soft edge
+    }
+    float depK = 1.0 - 0.45 * deepK;                                    // (deeper, fainter and softer, never smaller)
+    ink += (bodyA * 0.5 + coreA * 0.22) * depK;
+    inkCol = vec3(0.007, 0.006, 0.026);                                 // (linear) the water's own deeper blue-violet, never black
+    cap = 0.62;
+  } else {
+    // ---- WC-2 a bow wave: the water lifted ahead of a big fish coming fast toward the float (heading +y), the answer to a swirl or a strike
+    float t = age, k2 = smoothstep(0.0, 0.2, t) * (1.0 - smoothstep(1.2, 1.6, t));
+    float crest = length(vec2(q.x / (0.35 + 0.25 * L), (q.y - 0.1) / 0.18)) - 1.0;
+    light += STAR * lineAA(crest * 0.18, 0.02) * step(0.0, q.y - 0.05) * k2 * 0.9 * uSurf;
+    ink += (1.0 - smoothstep(-0.2, 0.25, crest)) * 0.22 * k2;
+    float behind = -q.y + 0.1;
+    float vw = abs(abs(q.x) - behind * 0.42);
+    light += STAR * lineAA(vw, 0.016) * step(0.0, behind) * exp(-behind / (0.7 + 0.4 * L)) * k2 * 0.7 * uSurf;
+  }
+  float a = clamp(ink * k, 0.0, cap);
+  light *= k * GAIN;
+  if (a < 0.003 && dot(light, vec3(1.0)) < 0.004) discard;
+  gl_FragColor = vec4(inkCol * a + light, a);
+  #include <colorspace_fragment>
+}`;
+
+// ------------------------------------------------------------------ helpers
+function quadIndexGeometry(count, perQuad) {
+  // count quads, perQuad(attrs, q, corner) fills attributes for each of 4 corners
+  const idx = new Uint16Array(count * 6);
+  for (let q = 0; q < count; q++) {
+    const v = q * 4, o = q * 6;
+    idx[o] = v; idx[o + 1] = v + 2; idx[o + 2] = v + 1; idx[o + 3] = v + 1; idx[o + 4] = v + 2; idx[o + 5] = v + 3;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count * 4 * 3), 3));
+  perQuad(geo);
+  geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+  return geo;
+}
+const CORNERS = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+
+function labelTexture(text, color) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, 256, 64);
+  g.font = '600 26px Cinzel, "Cormorant Garamond", Georgia, serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const spaced = text.split('').join(String.fromCharCode(8202));
+  g.lineJoin = 'round';
+  g.lineWidth = 6; g.strokeStyle = 'rgba(5,8,12,0.85)';
+  g.strokeText(spaced, 128, 34);
+  g.fillStyle = '#e9e2cf';
+  g.fillText(spaced, 128, 34);
+  const w = Math.min(200, g.measureText(spaced).width);
+  g.fillStyle = '#' + new THREE.Color(color).getHexString();
+  for (const sx of [-1, 1]) {
+    const x = 128 + sx * (w / 2 + 14);
+    g.beginPath(); g.moveTo(x, 27); g.lineTo(x + 6, 34); g.lineTo(x, 41); g.lineTo(x - 6, 34); g.closePath(); g.fill();
+  }
+  g.fillRect(128 - w / 2, 52, w, 1.5);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function flatQuad(material, renderOrder = 3) {
+  const geo = new THREE.PlaneGeometry(2, 2);
+  geo.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(geo, material);
+  m.frustumCulled = false; m.renderOrder = renderOrder; m.visible = false;
+  m.userData.noOutline = true;
+  return m;
+}
+const additive = (o) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, ...o });
+
+// the landing's glory (v3): a camera-facing soft radial bloom with slow light rays behind the revealed fish. A billboard, so it is
+// never a ring on the water and never round the raft. The quad is 1.4× the glory's size so every term reaches zero, with zero
+// slope, well inside it: the lavender halo is a gaussian on the quad's radius times (1 − q²)², so no disc edge ever shows round
+// a fish held at the Wick's hands (art rule: never a ring around the raft or the player). s: the glory's own radius (1 = size).
+const GLORY_VS = /* glsl */`
+uniform vec3 uC; uniform float uSize;
+varying vec2 vUv; varying float vWy;
+void main() {
+  vUv = position.xy;
+  vec4 mv = viewMatrix * vec4(uC, 1.0);
+  mv.xy += position.xy * uSize * 1.4;
+  // the fragment's height in the world (the billboard's right and up axes are the view matrix's first two rows)
+  vWy = uC.y + (viewMatrix[1][0] * position.x + viewMatrix[1][1] * position.y) * uSize * 1.4;
+  gl_Position = projectionMatrix * mv;
+}`;
+const GLORY_FS = /* glsl */`
+uniform float uA, uT, uRays; uniform vec3 uGold, uLav, uPink; uniform vec2 uWater;
+varying vec2 vUv; varying float vWy;
+void main() {
+  float q = length(vUv);
+  if (q > 1.0) discard;
+  // where the billboard meets the lake it thins away over uWater.y metres (a lens craned over a fish laid alongside looks down
+  // on the water: the glow's foot, cut dead by the surface, was a straight bright edge across the frame)
+  float lake = smoothstep(uWater.x, uWater.x + uWater.y, vWy);
+  if (lake <= 0.0) discard;
+  float s = q * 1.4;
+  float core = exp(-s * s * 14.0);
+  float bloom = exp(-s * s * 4.2);
+  float halo = exp(-q * q * 4.0);
+  float a = atan(vUv.y, vUv.x);
+  float ry = pow(max(0.0, sin(a * 6.0 + uT * 0.32)), 9.0) * (0.65 + 0.35 * sin(a * 2.0 - uT * 0.5))
+           + 0.7 * pow(max(0.0, sin(a * 9.0 - uT * 0.21 + 1.7)), 16.0);
+  ry *= smoothstep(0.02, 0.16, s) * exp(-s * s * 2.2) * uRays;
+  vec3 col = uGold * (core * 0.62 + bloom * 0.3 + ry * 0.5) + mix(uLav, uPink, 0.25 + 0.25 * sin(a + uT * 0.4)) * halo * 0.3;
+  float fade = 1.0 - q * q; fade *= fade;
+  gl_FragColor = vec4(col * uA * fade * lake, 1.0);
+}`;
+
+// ------------------------------------------------------------------ factory
+export function createFishingFx(ctx) {
+  const group = new THREE.Group();
+  group.name = 'fishing-fx';
+  const disposables = [];
+  const time = { value: 0 };
+  const scale = { value: 600 };
+
+  // ---------------------------------------------------------------- spots (shared uniforms)
+  const spotU = {
+    uSpot: { value: Array.from({ length: MAX_SLOTS }, () => new THREE.Vector4(0, 0, 0, 0)) },
+    uSpotB: { value: Array.from({ length: MAX_SLOTS }, () => new THREE.Vector4(0, 2.6, 6, 0)) },
+    uTime: time, uScale: scale,
+    uColA: { value: new THREE.Color(0xb2b4ec) }, uColB: { value: new THREE.Color(COL.bone) },
+    uColRareA: { value: new THREE.Color(COL.rareA) }, uColRareB: { value: new THREE.Color(COL.rareB) },
+    uColLegend: { value: new THREE.Color(COL.legend) }, uColLegendB: { value: new THREE.Color(COL.legendB) },
+  };
+  // motes
+  const MOTES = 56;
+  {
+    const n = MAX_SLOTS * MOTES;
+    const pos = new Float32Array(n * 3), slot = new Float32Array(n);
+    let s = 9137;
+    const rnd = () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+    for (let i = 0; i < n; i++) { pos[i * 3] = rnd(); pos[i * 3 + 1] = rnd(); pos[i * 3 + 2] = rnd(); slot[i] = Math.floor(i / MOTES); }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('aSlot', new THREE.BufferAttribute(slot, 1));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+    const mat = additive({ uniforms: spotU, vertexShader: MOTE_VS, fragmentShader: MOTE_FS });
+    const pts = new THREE.Points(geo, mat);
+    pts.frustumCulled = false; pts.renderOrder = 6; pts.name = 'spot-motes';
+    group.add(pts); disposables.push(geo, mat);
+  }
+  // shafts
+  {
+    const geo = quadIndexGeometry(MAX_SLOTS, (g) => {
+      const slot = new Float32Array(MAX_SLOTS * 4), corner = new Float32Array(MAX_SLOTS * 8);
+      for (let q = 0; q < MAX_SLOTS; q++) for (let k = 0; k < 4; k++) {
+        slot[q * 4 + k] = q; corner[(q * 4 + k) * 2] = CORNERS[k][0]; corner[(q * 4 + k) * 2 + 1] = (CORNERS[k][1] + 1) / 2;
+      }
+      g.setAttribute('aSlot', new THREE.BufferAttribute(slot, 1));
+      g.setAttribute('aCorner', new THREE.BufferAttribute(corner, 2));
+    });
+    const mat = additive({ uniforms: spotU, vertexShader: SHAFT_VS, fragmentShader: SHAFT_FS, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.frustumCulled = false; mesh.renderOrder = 5; mesh.name = 'spot-shafts';
+    group.add(mesh); disposables.push(geo, mat);
+  }
+  // surface rings (3 per slot)
+  {
+    const nq = MAX_SLOTS * 3;
+    const geo = quadIndexGeometry(nq, (g) => {
+      const slot = new Float32Array(nq * 4), ring = new Float32Array(nq * 4), corner = new Float32Array(nq * 8);
+      for (let q = 0; q < nq; q++) for (let k = 0; k < 4; k++) {
+        slot[q * 4 + k] = Math.floor(q / 3); ring[q * 4 + k] = q % 3;
+        corner[(q * 4 + k) * 2] = CORNERS[k][0]; corner[(q * 4 + k) * 2 + 1] = CORNERS[k][1];
+      }
+      g.setAttribute('aSlot', new THREE.BufferAttribute(slot, 1));
+      g.setAttribute('aRing', new THREE.BufferAttribute(ring, 1));
+      g.setAttribute('aCorner', new THREE.BufferAttribute(corner, 2));
+    });
+    const mat = additive({ uniforms: spotU, vertexShader: RING_VS, fragmentShader: RING_FS });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.frustumCulled = false; mesh.renderOrder = 4; mesh.name = 'spot-rings';
+    group.add(mesh); disposables.push(geo, mat);
+  }
+  // circling fish silhouettes (3 per slot)
+  {
+    const nq = MAX_SLOTS * 3;
+    const geo = quadIndexGeometry(nq, (g) => {
+      const slot = new Float32Array(nq * 4), fish = new Float32Array(nq * 4), corner = new Float32Array(nq * 8);
+      for (let q = 0; q < nq; q++) for (let k = 0; k < 4; k++) {
+        slot[q * 4 + k] = Math.floor(q / 3); fish[q * 4 + k] = q % 3;
+        corner[(q * 4 + k) * 2] = CORNERS[k][0]; corner[(q * 4 + k) * 2 + 1] = CORNERS[k][1];
+      }
+      g.setAttribute('aSlot', new THREE.BufferAttribute(slot, 1));
+      g.setAttribute('aFish', new THREE.BufferAttribute(fish, 1));
+      g.setAttribute('aCorner', new THREE.BufferAttribute(corner, 2));
+    });
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { ...spotU, uInk: { value: new THREE.Color(COL.ink) }, uRim: { value: new THREE.Color(0xb8c6de) } },
+      vertexShader: SIL_VS, fragmentShader: SIL_FS, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.frustumCulled = false; mesh.renderOrder = 3; mesh.name = 'spot-fish';
+    group.add(mesh); disposables.push(geo, mat);
+  }
+
+  // ---------------------------------------------------------------- legend pool
+  const poolU = {
+    uInk: { value: new THREE.Color(0x020405) }, uRing: { value: new THREE.Color(0xd8dce6) }, uGold: { value: new THREE.Color(COL.legend) },
+    uR: { value: 3.2 }, uHalf: { value: 5 }, uActive: { value: 0 }, uDim: { value: 1 }, uTime: time, uAlpha: { value: 1 }, uGlim: { value: 0 },
+  };
+  const poolMat = new THREE.ShaderMaterial({ uniforms: poolU, vertexShader: RETICLE_VS, fragmentShader: POOL_FS, transparent: true, depthWrite: false });
+  const pool = flatQuad(poolMat, 2); pool.name = 'legend-pool';
+  group.add(pool); disposables.push(pool.geometry, poolMat);
+
+  // ---------------------------------------------------------------- reticle + label
+  const retU = {
+    uColor: { value: new THREE.Color(COL.shallow) }, uRim: { value: new THREE.Color(COL.deepRim) }, uBone: { value: new THREE.Color(COL.bone) },
+    uAlpha: { value: 1 }, uTime: time, uClean: { value: 0 }, uDeep: { value: 0 }, uSpin: { value: 0 },
+  };
+  const retMat = additive({ uniforms: retU, vertexShader: RETICLE_VS, fragmentShader: RETICLE_FS, depthTest: false });
+  const reticle = flatQuad(retMat, 8); reticle.name = 'reticle';
+  group.add(reticle); disposables.push(reticle.geometry, retMat);
+  const labels = {
+    shallow: labelTexture('SHALLOW', COL.shallow), mid: labelTexture('MID', COL.mid), deep: labelTexture('DEEP', COL.deep),
+    anchoring: labelTexture('ANCHORING', COL.anchor), blocked: labelTexture('NO OPEN WATER', COL.blocked),
+  };
+  Object.values(labels).forEach((t) => disposables.push(t));
+  const labelMat = new THREE.SpriteMaterial({ map: labels.shallow, transparent: true, depthTest: false, depthWrite: false, fog: false, toneMapped: false });
+  const label = new THREE.Sprite(labelMat);
+  label.center.set(0.5, 1.05); label.renderOrder = 9; label.visible = false; label.name = 'reticle-label';
+  group.add(label); disposables.push(labelMat);
+  let labelKey = 'shallow';
+
+  // ---------------------------------------------------------------- range ring
+  const rangeU = {
+    uColor: { value: new THREE.Color(COL.bone) }, uAlpha: { value: 0.5 }, uTime: time, uR: { value: 16 }, uHalf: { value: 17 },
+    uAim: { value: new THREE.Vector2(0, -1) }, uDots: { value: 90 },
+  };
+  const rangeMat = additive({ uniforms: rangeU, vertexShader: RETICLE_VS, fragmentShader: RANGE_FS });
+  const range = flatQuad(rangeMat, 4); range.name = 'range-ring';
+  group.add(range); disposables.push(range.geometry, rangeMat);
+
+  // ---------------------------------------------------------------- cast arc preview
+  const arcPos = new Float32Array(ARC_DOTS * 3);
+  const arcGeo = new THREE.BufferGeometry();
+  const arcAttr = new THREE.BufferAttribute(arcPos, 3).setUsage(THREE.DynamicDrawUsage);
+  arcGeo.setAttribute('position', arcAttr);
+  { const k = new Float32Array(ARC_DOTS); for (let i = 0; i < ARC_DOTS; i++) k[i] = (i + 1) / ARC_DOTS; arcGeo.setAttribute('aK', new THREE.BufferAttribute(k, 1)); }
+  arcGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+  const arcU = { uColor: { value: new THREE.Color(COL.bone) }, uAlpha: { value: 0.8 }, uScale: scale, uTime: time };
+  const arcMat = additive({ uniforms: arcU, vertexShader: ARC_VS, fragmentShader: ARC_FS, depthTest: false });
+  const arc = new THREE.Points(arcGeo, arcMat);
+  arc.frustumCulled = false; arc.renderOrder = 7; arc.visible = false; arc.name = 'cast-arc';
+  group.add(arc); disposables.push(arcGeo, arcMat);
+
+  // ---------------------------------------------------------------- pulse rings
+  const pulseU = {
+    uP: { value: Array.from({ length: PULSES }, () => new THREE.Vector4()) },
+    uQ: { value: Array.from({ length: PULSES }, () => new THREE.Vector4()) },
+    uW: { value: new Array(PULSES).fill(0.06) },
+    uEdge: { value: 0 },   // WC-2: 1 on the Mossmere under the loop (setWaterWhite): the glow fades out before the quad's edge
+  };
+  {
+    const geo = quadIndexGeometry(PULSES, (g) => {
+      const idx = new Float32Array(PULSES * 4), corner = new Float32Array(PULSES * 8);
+      for (let q = 0; q < PULSES; q++) for (let k = 0; k < 4; k++) { idx[q * 4 + k] = q; corner[(q * 4 + k) * 2] = CORNERS[k][0]; corner[(q * 4 + k) * 2 + 1] = CORNERS[k][1]; }
+      g.setAttribute('aIdx', new THREE.BufferAttribute(idx, 1));
+      g.setAttribute('aCorner', new THREE.BufferAttribute(corner, 2));
+    });
+    const mat = additive({ uniforms: pulseU, vertexShader: PULSE_VS, fragmentShader: PULSE_FS });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.frustumCulled = false; mesh.renderOrder = 6; mesh.name = 'fishing-pulses';
+    group.add(mesh); disposables.push(geo, mat);
+  }
+  const pulses = Array.from({ length: PULSES }, () => ({ on: false, t: 0, dur: 1, r0: 0, r1: 1, w: 0.06, a: 1, x: 0, y: 0, z: 0, col: new THREE.Color(), follow: null }));
+  let pulseCursor = 0;
+
+  // ---------------------------------------------------------------- particles
+  const pPos = new Float32Array(PARTICLES * 3), pCol = new Float32Array(PARTICLES * 3), pA = new Float32Array(PARTICLES), pS = new Float32Array(PARTICLES);
+  const pVel = new Float32Array(PARTICLES * 3), pLife = new Float32Array(PARTICLES), pMax = new Float32Array(PARTICLES), pGrav = new Float32Array(PARTICLES), pSize = new Float32Array(PARTICLES), pDrag = new Float32Array(PARTICLES);
+  const pGeo = new THREE.BufferGeometry();
+  const pPosA = new THREE.BufferAttribute(pPos, 3).setUsage(THREE.DynamicDrawUsage);
+  const pColA = new THREE.BufferAttribute(pCol, 3).setUsage(THREE.DynamicDrawUsage);
+  const pAA = new THREE.BufferAttribute(pA, 1).setUsage(THREE.DynamicDrawUsage);
+  const pSA = new THREE.BufferAttribute(pS, 1).setUsage(THREE.DynamicDrawUsage);
+  pGeo.setAttribute('position', pPosA); pGeo.setAttribute('aCol', pColA); pGeo.setAttribute('aA', pAA); pGeo.setAttribute('aS', pSA);
+  pGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+  const pMat = additive({ uniforms: { uScale: scale }, vertexShader: PART_VS, fragmentShader: PART_FS });
+  const parts = new THREE.Points(pGeo, pMat);
+  parts.frustumCulled = false; parts.renderOrder = 7; parts.name = 'fishing-particles';
+  group.add(parts); disposables.push(pGeo, pMat);
+  let pCursor = 0, pAlive = 0;
+  const tmpCol = new THREE.Color();
+
+  // ---------------------------------------------------------------- fish shadow
+  const shU = { uInk: { value: new THREE.Color(0x010203) }, uRim: { value: new THREE.Color(0xd2dbe8) }, uAlpha: { value: 0.5 }, uWig: { value: 0 }, uRimK: { value: 0.6 } };
+  const shMat = new THREE.ShaderMaterial({ uniforms: shU, vertexShader: RETICLE_VS, fragmentShader: SHADOW_FS, transparent: true, depthWrite: false });
+  const shadow = flatQuad(shMat, 2); shadow.name = 'fish-shadow';
+  group.add(shadow); disposables.push(shadow.geometry, shMat);
+
+  // ---------------------------------------------------------------- the night-ink proxy (automatic fishing; built on first use)
+  let proxy = null;
+  const proxyU = { uInk: { value: new THREE.Color(0x04050a) }, uRim: { value: new THREE.Color(0xc9cde6) }, uAlpha: { value: 1 }, uRimK: { value: 0.85 } };
+  function buildProxy() {
+    if (proxy) return proxy;
+    const geo = proxyGeometry();
+    const mat = new THREE.ShaderMaterial({ uniforms: proxyU, vertexShader: PROXY_VS, fragmentShader: PROXY_FS, side: THREE.DoubleSide, transparent: true });
+    proxy = new THREE.Mesh(geo, mat);
+    proxy.name = 'fish-proxy'; proxy.renderOrder = 4; proxy.frustumCulled = false; proxy.visible = false;
+    group.add(proxy); disposables.push(geo, mat);
+    return proxy;
+  }
+
+  // ---------------------------------------------------------------- the landing's glory (built on first use: +1 call while it shows)
+  let gloryMesh = null;
+  const gloryU = { uC: { value: new THREE.Vector3() }, uSize: { value: 1 }, uA: { value: 0 }, uT: time, uRays: { value: 1 }, uWater: { value: new THREE.Vector2(-1e4, 1) },
+    uGold: { value: new THREE.Color(0xf3dca4) }, uLav: { value: new THREE.Color(0xc9b8f0) }, uPink: { value: new THREE.Color(0xf0b8d8) } };
+  const gl0 = { on: false, t: 0, rise: 0.14, hold: 0.4, fade: 1, size: 1, a: 1, follow: null, back: 0.4, x: 0, y: 0, z: 0, embersT: 0, embers: 0, lake: 0 };
+  const gloryTmp = new THREE.Vector3(), gloryCam = new THREE.Vector3();
+  function buildGlory() {
+    if (gloryMesh) return gloryMesh;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]), 3));
+    geo.setIndex([0, 1, 2, 0, 2, 3]);
+    const mat = additive({ uniforms: gloryU, vertexShader: GLORY_VS, fragmentShader: GLORY_FS, depthTest: true });
+    gloryMesh = new THREE.Mesh(geo, mat);
+    gloryMesh.name = 'landing-glory'; gloryMesh.renderOrder = 5; gloryMesh.frustumCulled = false; gloryMesh.visible = false;
+    group.add(gloryMesh); disposables.push(geo, mat);
+    return gloryMesh;
+  }
+  function placeGlory() {
+    const g = gl0;
+    if (g.follow && g.follow.parent) { g.follow.getWorldPosition(gloryTmp); g.x = gloryTmp.x; g.y = gloryTmp.y; g.z = gloryTmp.z; }
+    const cam = ctx.render?.camera;
+    gloryTmp.set(g.x, g.y, g.z);
+    if (cam?.isCamera) {   // a little behind the subject, away from the camera, so the fish and the Wick stand in front of the light
+      gloryCam.copy(gloryTmp).sub(cam.position);
+      const d = gloryCam.length();
+      if (d > 1e-3) gloryTmp.addScaledVector(gloryCam, Math.min(g.back, d * 0.4) / d);
+    }
+    gloryU.uC.value.copy(gloryTmp);
+    // the lake under it (v3's show only: the plain glory of a v1 / v2 build keeps its whole disc)
+    let wy = 0; try { wy = Number(ctx.water?.getHeight?.(gloryTmp.x, gloryTmp.z)) || 0; } catch { wy = 0; }
+    if (g.lake > 0) gloryU.uWater.value.set(wy + 0.02, Math.max(0.15, g.lake * gloryU.uSize.value)); else gloryU.uWater.value.set(-1e4, 1);
+  }
+
+  // ---------------------------------------------------------------- v3 signs (built on first use: the flag-off build never has it)
+  let signs = null;   // {mesh, geo, A, B, C, D, n}
+  const signU = { uSurf: { value: 1 }, uTime: time, uWhite: { value: 0 } };
+  let signOn = false;   // WC-2: sign mode (endSigns no longer reads it from the legend pool's glimmer)
+  function buildSigns() {
+    if (signs) return signs;
+    const geo = new THREE.InstancedBufferGeometry();
+    geo.setIndex([0, 2, 1, 1, 2, 3]);
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(12), 3));
+    geo.setAttribute('aCorner', new THREE.BufferAttribute(new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), 2));
+    const mk = () => new THREE.InstancedBufferAttribute(new Float32Array(MAX_SIGNS * 4), 4).setUsage(THREE.DynamicDrawUsage);
+    const A = mk(), B = mk(), C = mk(), Dt = mk();
+    geo.setAttribute('iA', A); geo.setAttribute('iB', B); geo.setAttribute('iC', C); geo.setAttribute('iD', Dt);
+    geo.instanceCount = 0;
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: signU, vertexShader: SIGN_VS, fragmentShader: SIGN_FS, transparent: true, depthWrite: false, toneMapped: false,
+      blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+      blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor, side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.frustumCulled = false; mesh.renderOrder = 3; mesh.name = 'fishing-signs'; mesh.visible = false;
+    mesh.userData.noOutline = true;
+    group.add(mesh); disposables.push(geo, mat);
+    signs = { mesh, geo, A, B, C, D: Dt, n: 0 };
+    return signs;
+  }
+  // ---------------------------------------------------------------- the loop's cast into a bank (M1 step 3a; built on first use)
+  // The float's lit tip going down into the mist and coming back: two soft points (the tip and its halo, the actor float's amber),
+  // depth-tested so the lake's surface takes it as it sinks. Never a ring: what the bank does is the wisps' (mistWisps).
+  let mistPts = null;
+  const mistPos = new Float32Array(6), mistA = new Float32Array(2);
+  function buildMistFloat() {
+    if (mistPts) return mistPts;
+    const geo = new THREE.BufferGeometry();
+    const col = new Float32Array(6), size = new Float32Array([0.09, 0.42]);
+    tmpCol.set(0xffb066).multiplyScalar(2.0); col.set([tmpCol.r, tmpCol.g, tmpCol.b, tmpCol.r * 0.7, tmpCol.g * 0.6, tmpCol.b * 0.5]);
+    geo.setAttribute('position', new THREE.BufferAttribute(mistPos, 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute('aCol', new THREE.BufferAttribute(col, 3));
+    geo.setAttribute('aA', new THREE.BufferAttribute(mistA, 1).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute('aS', new THREE.BufferAttribute(size, 1));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+    const mat = additive({ uniforms: { uScale: scale }, vertexShader: PART_VS, fragmentShader: PART_FS });
+    mistPts = new THREE.Points(geo, mat);
+    mistPts.frustumCulled = false; mistPts.renderOrder = 7; mistPts.name = 'mist-float'; mistPts.visible = false;
+    group.add(mistPts); disposables.push(geo, mat);
+    return mistPts;
+  }
+  const spotMeshes = () => group.children.filter((o) => o.name === 'spot-motes' || o.name === 'spot-shafts' || o.name === 'spot-rings' || o.name === 'spot-fish');
+  const tintTmp = new THREE.Color();
+
+  // ---------------------------------------------------------------- API
+  const H = (x, z) => { const v = ctx.water?.getHeight?.(x, z); return typeof v === 'number' && Number.isFinite(v) ? v : 0; };
+
+  const fx = {
+    group,
+    MAX_SLOTS,
+    MAX_SIGNS,
+    setZoneColor(hex) { try { spotU.uColA.value.set(hex ?? 0xb2b4ec); } catch { /* bad colour */ } },
+    setSlot(i, x, z, strength, kind, highlight = 0, radius = 2.6, height = 6) {
+      if (i < 0 || i >= MAX_SLOTS) return;
+      spotU.uSpot.value[i].set(x, z, Math.max(0, strength), kind);
+      spotU.uSpotB.value[i].set(highlight, radius, height, H(x, z));
+    },
+    clearSlot(i) { if (i >= 0 && i < MAX_SLOTS) spotU.uSpot.value[i].z = 0; },
+    clearSlots() { for (let i = 0; i < MAX_SLOTS; i++) spotU.uSpot.value[i].z = 0; },
+
+    setLegendPool(visible, x = 0, z = 0, r = 3.2, active = 0, dim = 1) {
+      pool.visible = !!visible;
+      if (!visible) return;
+      const half = r + 1.6;
+      pool.position.set(x, H(x, z) + 0.13, z);
+      pool.scale.set(half, 1, half);
+      poolU.uR.value = r; poolU.uHalf.value = half; poolU.uActive.value = active; poolU.uDim.value = dim;
+    },
+
+    /** band: 'shallow'|'mid'|'deep'|'anchoring'|'blocked'; opts.label false: the ring without its band word (the loop) */
+    setReticle(visible, x = 0, z = 0, size = 1, band = 'shallow', clean = 0, alpha = 1, spin = 0, opts = null) {
+      reticle.visible = label.visible = !!visible;
+      if (!visible) return;
+      if (opts?.label === false) label.visible = false;
+      const y = H(x, z) + 0.06;
+      reticle.position.set(x, y, z);
+      reticle.scale.set(size, 1, size);
+      const c = band === 'mid' ? COL.mid : band === 'deep' ? COL.deep : band === 'anchoring' ? COL.anchor : band === 'blocked' ? COL.blocked : COL.shallow;
+      retU.uColor.value.set(c);
+      retU.uDeep.value = band === 'deep' ? 1 : 0;
+      retU.uRim.value.set(band === 'deep' ? COL.deepRim : c);
+      retU.uClean.value = clean;
+      retU.uAlpha.value = alpha;
+      retU.uSpin.value = spin;
+      if (labels[band] && band !== labelKey) { labelKey = band; labelMat.map = labels[band]; labelMat.needsUpdate = true; }
+      const cam = ctx.render?.camera;
+      let ox = 0, oz = 1;
+      if (cam?.position) { ox = cam.position.x - x; oz = cam.position.z - z; const l = Math.hypot(ox, oz) || 1; ox /= l; oz /= l; }
+      label.position.set(x + ox * size * 0.8, y + 0.05, z + oz * size * 0.8);
+      const ls = size * 1.25;
+      label.scale.set(ls * 2.6, ls * 0.65, 1);
+      labelMat.opacity = alpha * 0.95;
+    },
+
+    setRange(visible, x = 0, z = 0, r = 16, aimX = 0, aimZ = -1, alpha = 0.5) {
+      range.visible = !!visible;
+      if (!visible) return;
+      const half = r + 0.6;
+      range.position.set(x, H(x, z) + 0.05, z);
+      range.scale.set(half, 1, half);
+      rangeU.uR.value = r; rangeU.uHalf.value = half; rangeU.uAlpha.value = alpha;
+      // plane uv.y runs toward -z after rotateX(-PI/2): map world aim (x, z) → (x, -z)
+      const l = Math.hypot(aimX, aimZ) || 1;
+      rangeU.uAim.value.set(aimX / l, -aimZ / l);
+      rangeU.uDots.value = Math.max(24, Math.round((Math.PI * 2 * r) / 0.75));
+    },
+
+    /** Dotted ballistic preview from `from` (rod tip) to (tx, tz) on the water. */
+    setArc(visible, from = null, tx = 0, tz = 0, height = 2, colorHex = COL.bone, alpha = 0.8) {
+      arc.visible = !!visible && !!from;
+      if (!arc.visible) return;
+      const ty = H(tx, tz) + 0.05;
+      for (let i = 0; i < ARC_DOTS; i++) {
+        const u = (i + 1) / ARC_DOTS;
+        arcPos[i * 3] = from.x + (tx - from.x) * u;
+        arcPos[i * 3 + 1] = from.y + (ty - from.y) * u + 4 * height * u * (1 - u);
+        arcPos[i * 3 + 2] = from.z + (tz - from.z) * u;
+      }
+      arcAttr.needsUpdate = true;
+      arcU.uColor.value.set(colorHex); arcU.uAlpha.value = alpha;
+    },
+
+    /** Expanding ring on the water. follow: optional {x, z} object re-read every frame. */
+    pulse(x, z, { color = COL.bone, r0 = 0.2, r1 = 1.6, duration = 0.7, width = 0.06, alpha = 1, y = null, follow = null } = {}) {
+      const p = pulses[pulseCursor]; pulseCursor = (pulseCursor + 1) % PULSES;
+      p.on = true; p.t = 0; p.dur = Math.max(0.05, duration); p.r0 = r0; p.r1 = r1; p.w = width; p.a = alpha;
+      p.x = x; p.z = z; p.y = y; p.follow = follow;
+      p.col.set(color);
+    },
+
+    /** Particle burst. up: initial upward speed, spread: radial speed, gravity (m/s², negative = rise). */
+    burst(x, y, z, { color = COL.bone, color2 = null, count = 12, spread = 1.5, up = 1.5, gravity = 6, size = 0.08, life = 0.8, drag = 1.2, radius = 0.1 } = {}) {
+      for (let n = 0; n < count; n++) {
+        const i = pCursor; pCursor = (pCursor + 1) % PARTICLES;
+        const a = Math.random() * Math.PI * 2, s = spread * (0.35 + Math.random() * 0.65), rr = radius * Math.random();
+        pPos[i * 3] = x + Math.cos(a) * rr; pPos[i * 3 + 1] = y; pPos[i * 3 + 2] = z + Math.sin(a) * rr;
+        pVel[i * 3] = Math.cos(a) * s; pVel[i * 3 + 1] = up * (0.5 + Math.random() * 0.7); pVel[i * 3 + 2] = Math.sin(a) * s;
+        pLife[i] = 0; pMax[i] = life * (0.6 + Math.random() * 0.6); pGrav[i] = gravity; pDrag[i] = drag;
+        pSize[i] = size * (0.6 + Math.random() * 0.8);
+        tmpCol.set(color2 && Math.random() < 0.5 ? color2 : color).multiplyScalar(2.2);
+        pCol[i * 3] = tmpCol.r; pCol[i * 3 + 1] = tmpCol.g; pCol[i * 3 + 2] = tmpCol.b;
+        pA[i] = 1;
+      }
+      pAlive = PARTICLES;
+      pColA.needsUpdate = true;
+    },
+
+    setShadow(visible, x = 0, z = 0, len = 0.5, yaw = 0, alpha = 0.5, wig = 0, rim = 0.6) {
+      shadow.visible = !!visible;
+      if (!visible) return;
+      shadow.position.set(x, H(x, z) + 0.1, z);
+      shadow.rotation.y = yaw;
+      shadow.scale.set(len * 0.42, 1, len * 0.62);
+      shU.uAlpha.value = alpha; shU.uWig.value = wig; shU.uRimK.value = rim;
+    },
+
+    hideTransient() {
+      reticle.visible = label.visible = range.visible = arc.visible = shadow.visible = false;
+      if (gloryMesh) { gloryMesh.visible = false; gl0.on = false; }
+      if (proxy) proxy.visible = false;
+    },
+
+    /** The night-ink proxy (automatic fishing): at (x, y, z), heading `yaw` (head toward +z rotated by yaw), `pitch` nose-up,
+     *  `roll`, `length` m (fishing passes data.presentLength: the class length), `alpha` (the reveal's ink lifting), `rimK`
+     *  (the key light's rim; brighter when it is backlit against spray). */
+    setProxy(visible, x = 0, y = 0, z = 0, yaw = 0, pitch = 0, roll = 0, length = 0.5, alpha = 1, rimK = 0.85) {
+      if (!visible) { if (proxy) proxy.visible = false; return; }
+      const m = buildProxy();
+      m.visible = true;
+      m.position.set(x, y, z);
+      m.rotation.set(-pitch, yaw, roll, 'YXZ');
+      m.scale.setScalar(Math.max(0.02, length));
+      proxyU.uAlpha.value = Math.max(0, Math.min(1, alpha));
+      proxyU.uRimK.value = rimK;
+      m.material.depthWrite = alpha > 0.98;
+    },
+    /** The proxy's rim colour: the scene's key light (render may call it; the default is the starlit moon-silver). */
+    setProxyRim(hex) { try { proxyU.uRim.value.set(hex); } catch { /* ignore */ } },
+    get proxyVisible() { return !!proxy?.visible; },
+    get proxyState() { return proxy ? { visible: proxy.visible, length: proxy.scale.x, x: proxy.position.x, y: proxy.position.y, z: proxy.position.z, alpha: proxyU.uAlpha.value } : null; },
+
+    // ---------------------------------------------------------------- v3 signs
+    /** Sign mode (v3): hide the feeding-spot meshes, show the sign instances. surf: the surface linework's weight
+     *  (1 with today's water; lower when water paints the sign marks itself from the tagged ripples). */
+    setSignMode(on, surf = 1) {
+      const S = on ? buildSigns() : signs;
+      for (const m of spotMeshes()) m.visible = !on;
+      if (S) { S.mesh.visible = !!on && S.n > 0; signU.uSurf.value = surf; }
+      signOn = !!on;
+      poolU.uGlim.value = on && signU.uWhite.value < 0.5 ? 1 : 0;
+    },
+    /** WC-2 (WATERCRAFT §5.7): the Mossmere under the loop: the signs' marks in the water's own white, never gold, orange or lilac, and
+     *  the legend pool's gold glimmer off. Off: as built. */
+    setWaterWhite(on) {
+      signU.uWhite.value = on ? 1 : 0;
+      pulseU.uEdge.value = on ? 1 : 0;
+      poolU.uGlim.value = signOn && !on ? 1 : 0;
+    },
+    get waterWhite() { return signU.uWhite.value > 0.5; },
+    beginSigns() { if (signs) signs.n = 0; },
+    /** One sign / pre-rolled fish instance: {x, z, heading, kind (1–6), length (m), strength, seed, age, since, radius, toNext, tint, aspect}. */
+    pushSign(o) {
+      const S = signs || buildSigns();
+      if (S.n >= MAX_SIGNS) return false;
+      const i = S.n++, j = i * 4;
+      const A = S.A.array, B = S.B.array, C = S.C.array, Dd = S.D.array;
+      A[j] = o.x; A[j + 1] = H(o.x, o.z) + 0.11; A[j + 2] = o.z; A[j + 3] = o.heading || 0;
+      B[j] = o.kind; B[j + 1] = o.length; B[j + 2] = Math.max(0, o.strength); B[j + 3] = o.seed || 0;
+      C[j] = o.age || 0; C[j + 1] = o.since ?? 99; C[j + 2] = o.radius || 2.4; C[j + 3] = o.toNext ?? 99;
+      try { tintTmp.set(o.tint ?? 0xb7b0e8); } catch { tintTmp.set(0xb7b0e8); }
+      Dd[j] = tintTmp.r; Dd[j + 1] = tintTmp.g; Dd[j + 2] = tintTmp.b; Dd[j + 3] = o.aspect || 0.16;
+      if (o.c) { C[j] = o.c[0]; C[j + 1] = o.c[1]; C[j + 2] = o.c[2]; C[j + 3] = o.c[3]; }      // WC-2: a silhouette's raw data
+      if (o.d) { Dd[j] = o.d[0]; Dd[j + 1] = o.d[1]; Dd[j + 2] = o.d[2]; Dd[j + 3] = o.d[3]; }  // (outline, depth, fin warmth, shoal count)
+      return true;
+    },
+    endSigns() {
+      if (!signs) return;
+      signs.geo.instanceCount = signs.n;
+      signs.mesh.visible = signs.n > 0 && (signOn || poolU.uGlim.value > 0);
+      if (signs.n) { signs.A.needsUpdate = true; signs.B.needsUpdate = true; signs.C.needsUpdate = true; signs.D.needsUpdate = true; }
+    },
+    get signCount() { return signs ? signs.n : 0; },
+
+    /** The scoop (DESIGN §25.6.8): a sheet of water pouring off a fish of length L lifted along `heading` at (x, y, z). */
+    scoopSheet(x, y, z, L, heading = 0, k = 1) {
+      const n = Math.max(2, Math.min(14, Math.round((3 + L * 5) * k)));
+      const fx2 = Math.sin(heading), fz2 = Math.cos(heading);
+      for (let i = 0; i < n; i++) {
+        const u = (Math.random() - 0.5) * L;
+        fx.burst(x + fx2 * u, y - 0.05, z + fz2 * u, { color: 0xd8d6ee, color2: 0xb9b3e6, count: 1, spread: 0.25 + 0.1 * L, up: -0.4, gravity: 9, size: 0.035 + 0.02 * Math.min(L, 3), life: 0.55, drag: 0.5, radius: 0.05 });
+      }
+    },
+    /** The seal stamping at the measuring moment: a bone-white ink stamp (Prize), oxblood wax (Trophy), black wax with a
+     *  ribbon (Elder; an Ancient's thread is gold). Small/Keeper get a soft ink tick. */
+    stampFlash(x, y, z, seal = null, ancient = false) {
+      const col = seal === 'inkStamp' ? 0xede6d3 : seal === 'oxbloodWax' ? 0xc0504a : seal === 'blackWaxRibbon' ? (ancient ? 0xf0d48e : 0xc9c3e8) : 0xd9d4ef;
+      // no ring: it would circle the Wick on the raft (art rule); a soft spray of glints off the stamp instead
+      fx.burst(x, y, z, { color: col, color2: ancient ? 0xf6e2a8 : 0xfff6e0, count: seal ? 22 : 8, spread: 1.3, up: 1.6, gravity: 2.4, size: 0.05, life: 0.9, radius: 0.1 });
+      if (seal) fx.burst(x, y + 0.1, z, { color: 0xfff6e0, color2: col, count: 8, spread: 0.6, up: 0.8, gravity: 0.6, drag: 1.4, size: 0.035, life: 1.2, radius: 0.06 });
+    },
+    /** The leap reveal's rim flash: a pale-gold ring under the breaching fish and glints along its body. */
+    revealFlash(x, y, z, L, heading = 0) {
+      const fx2 = Math.sin(heading), fz2 = Math.cos(heading);
+      fx.pulse(x, z, { color: 0xf0d79a, r0: 0.3, r1: 1.2 + L * 1.4, duration: 0.8, width: 0.08, alpha: 1 });
+      for (let i = 0; i < 5; i++) {
+        const u = (i / 4 - 0.5) * L;
+        fx.burst(x + fx2 * u, y, z + fz2 * u, { color: 0xfff1cf, color2: 0xe6d7ff, count: 3, spread: 0.9, up: 0.9, gravity: 1.5, size: 0.06 + 0.02 * Math.min(L, 3), life: 0.6, radius: 0.08 });
+      }
+    },
+
+    /** The landing's glory (v3): a soft radial bloom with slow rays behind the revealed fish at (x, y, z) or following `follow`
+     *  (an Object3D), `size` m radius, `strength` 0..1.5, held `hold` s then fading over `fade` s; `embers` rising motes over its
+     *  life in pale gold and lavender. A camera-facing glow: never a ring on the water or round the raft. */
+    glory(x, y, z, { size = 1, strength = 1, hold = 0.5, fade = 1.2, rise = 0.14, follow = null, back = 0.4, embers = 0, rays = 1, lake = 0 } = {}) {
+      if (!(size > 0) || !(strength > 0)) return false;
+      buildGlory();
+      const g = gl0;
+      g.on = true; g.t = 0; g.rise = Math.max(0.02, rise); g.hold = Math.max(0, hold); g.fade = Math.max(0.1, fade);
+      g.size = size; g.a = Math.min(1.6, strength); g.follow = follow || null; g.back = back; g.x = x; g.y = y; g.z = z;
+      g.embers = Math.max(0, Math.round(embers)); g.embersT = 0; g.lake = Math.max(0, Number(lake) || 0);
+      gloryU.uRays.value = rays;
+      placeGlory();
+      gloryMesh.visible = true;
+      return true;
+    },
+    /** A second bloom on the glory still showing (a record at the stamp): it swells again and holds a little longer. */
+    gloryPulse(strength = 0.6, hold = 0.6, embers = 0) {
+      const g = gl0;
+      if (!g.on) return false;
+      g.a = Math.min(1.3, Math.max(g.a * (1 - Math.min(1, Math.max(0, g.t - g.rise - g.hold) / g.fade)), 0) + strength);
+      g.t = g.rise; g.hold = Math.max(g.hold - 0, hold); g.embers += Math.round(embers);
+      return true;
+    },
+    get gloryState() { return gl0.on ? { t: gl0.t, size: gl0.size, a: gloryU.uA.value } : null; },
+    /** Light-catching droplets off a fish of length L clearing the water at (x, y, z): pale stone, lavender and candle amber. */
+    droplets(x, y, z, L, n = 12) {
+      const k = Math.max(1, Math.round(n / 3));
+      fx.burst(x, y, z, { color: 0xece6d6, color2: 0xc9b8f0, count: k * 2, spread: 0.7 + L * 0.5, up: 2.4 + L * 0.6, gravity: 8, size: 0.04 + 0.015 * Math.min(L, 3), life: 0.8, drag: 0.8, radius: 0.1 + L * 0.3 });
+      fx.burst(x, y + 0.05, z, { color: 0xffc27a, color2: 0xf3dca4, count: Math.max(1, n - k * 2), spread: 0.5 + L * 0.4, up: 1.9 + L * 0.5, gravity: 7, size: 0.035 + 0.012 * Math.min(L, 3), life: 0.75, drag: 0.8, radius: 0.08 + L * 0.25 });
+    },
+
+    /** The loop's cast into a bank (M1 step 3a): the float's lit tip at (x, y, z) going down into the mist; `alpha` its light (1 on
+     *  the water, 0 gone under). false hides it. */
+    setMistFloat(visible, x = 0, y = 0, z = 0, alpha = 1) {
+      if (!visible) { if (mistPts) mistPts.visible = false; return; }
+      const m = buildMistFloat();
+      m.visible = true;
+      const a = Math.max(0, Math.min(1, alpha));
+      mistPos[0] = x; mistPos[1] = y + 0.2; mistPos[2] = z;          // the tip, as the actor float carries it (0.2 m up)
+      mistPos[3] = x; mistPos[4] = y + 0.2; mistPos[5] = z;          // its halo
+      mistA[0] = a; mistA[1] = 0.55 * a;
+      m.geometry.attributes.position.needsUpdate = true; m.geometry.attributes.aA.needsUpdate = true;
+    },
+    get mistFloatVisible() { return !!mistPts?.visible; },
+    /** The bank closing over the float (k 1) or giving it back (k < 1): slow lavender wisps curling up off the water at (x, z). */
+    mistWisps(x, z, k = 1) {
+      // (dim lavender, broad and slow: additive points, so a dark colour reads as a thin veil of mist, never a white puff)
+      const y = H(x, z) + 0.1, n = Math.max(3, Math.round(7 * k));
+      fx.burst(x, y, z, { color: 0x302a48, color2: 0x3c3358, count: n, spread: 0.4, up: 0.16, gravity: -0.12, drag: 1.2, size: 0.62 * (0.7 + 0.3 * k), life: 1.7, radius: 0.4 });
+      fx.burst(x, y + 0.04, z, { color: 0x463d66, count: Math.max(2, Math.round(3 * k)), spread: 0.2, up: 0.1, gravity: -0.08, drag: 1.4, size: 0.4, life: 1.3, radius: 0.22 });
+    },
+
+    update(dt, t) {
+      time.value = t;
+      // the landing's glory: rise, hold, fade; embers rise off it while it shows
+      if (gl0.on) {
+        const g = gl0;
+        g.t += dt;
+        const end = g.rise + g.hold + g.fade;
+        if (g.t >= end) { g.on = false; if (gloryMesh) gloryMesh.visible = false; gloryU.uA.value = 0; }
+        else {
+          const env = g.t < g.rise ? g.t / g.rise : g.t < g.rise + g.hold ? 1 : 1 - (g.t - g.rise - g.hold) / g.fade;
+          const e = env * env * (3 - 2 * env);
+          gloryU.uA.value = g.a * e;
+          gloryU.uSize.value = g.size * (0.82 + 0.18 * Math.min(1, g.t / (g.rise + 0.4)));
+          placeGlory();
+          if (g.embers > 0) {
+            g.embersT -= dt;
+            if (g.embersT <= 0) {
+              g.embersT = 0.07;
+              const n = Math.min(g.embers, 2);
+              g.embers -= n;
+              const c = gloryU.uC.value, r = g.size * 0.55;
+              fx.burst(c.x + (Math.random() - 0.5) * r, c.y - r * 0.25, c.z + (Math.random() - 0.5) * r, { color: 0xf3dca4, color2: Math.random() < 0.3 ? 0xf0b8d8 : 0xc9b8f0, count: n, spread: 0.25, up: 0.5, gravity: -0.7, drag: 0.6, size: 0.03 + 0.012 * g.size, life: 1.5, radius: r * 0.4 });
+            }
+          }
+        }
+      }
+      // point-size scale from the drawing buffer height and the camera fov
+      const cam = ctx.render?.camera, canvas = ctx.render?.renderer?.domElement || ctx.render?.canvas;
+      if (cam?.isPerspectiveCamera && canvas) {
+        const hpx = canvas.height || 720;
+        scale.value = hpx / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov || 50) / 2));
+      }
+      // pulses
+      for (let i = 0; i < PULSES; i++) {
+        const p = pulses[i], P = pulseU.uP.value[i], Q = pulseU.uQ.value[i];
+        if (!p.on) { Q.w = 0; continue; }
+        p.t += dt;
+        const k = p.t / p.dur;
+        if (k >= 1) { p.on = false; Q.w = 0; continue; }
+        if (p.follow) { p.x = p.follow.x; p.z = p.follow.z; }
+        const e = 1 - Math.pow(1 - k, 2.2);
+        P.set(p.x, (p.y ?? H(p.x, p.z)) + 0.13, p.z, p.r0 + (p.r1 - p.r0) * e);
+        Q.set(p.col.r, p.col.g, p.col.b, p.a * (1 - k) * (k < 0.08 ? k / 0.08 : 1));
+        pulseU.uW.value[i] = p.w * (1 + k * 0.8);
+      }
+      // particles
+      if (pAlive > 0) {
+        let any = 0;
+        for (let i = 0; i < PARTICLES; i++) {
+          if (pA[i] <= 0) continue;
+          pLife[i] += dt;
+          const k = pLife[i] / pMax[i];
+          if (k >= 1) { pA[i] = 0; pS[i] = 0; continue; }
+          any++;
+          const dr = Math.exp(-pDrag[i] * dt);
+          pVel[i * 3] *= dr; pVel[i * 3 + 2] *= dr;
+          pVel[i * 3 + 1] -= pGrav[i] * dt;
+          pPos[i * 3] += pVel[i * 3] * dt; pPos[i * 3 + 1] += pVel[i * 3 + 1] * dt; pPos[i * 3 + 2] += pVel[i * 3 + 2] * dt;
+          pA[i] = (1 - k) * (k < 0.1 ? k / 0.1 : 1);
+          pS[i] = pSize[i] * (1 - 0.4 * k);
+        }
+        pPosA.needsUpdate = true; pAA.needsUpdate = true; pSA.needsUpdate = true;
+        if (!any) pAlive = 0;
+      }
+    },
+
+    dispose() {
+      group.parent?.remove(group);
+      for (const d of disposables) d?.dispose?.();
+    },
+  };
+  return fx;
+}

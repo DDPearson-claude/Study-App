@@ -1,0 +1,718 @@
+// progression-af.js — automatic fishing's progression side (DESIGN §25.6, §25.14.2a; CONTRACT §13.2, §13.7, §13.7a).
+// Helper of progression.js only (it receives the shared internals object `S`, as progression-market.js does). Every entry
+// point is inert unless the build is v3 (data.V3_ENABLED with CATCH_V3 and catchChance): flag off, progression never calls it.
+//   Pg13  getLoadout — what catchChance reads for the fish that bit. P1–P2 runs and The Long Descent: hold = data.upgradeHold
+//         (every per-run rod, line and reel level counts), the tiers = data.upgradeTiers (words only), item = the ONE bait or run
+//         lure on the line AT THE CAST (a swap after the cast changes nothing until the next cast), upgrade = the per-run Glimmer
+//         Spoon (never stacks with the item: catchParts takes the larger); P3 expeditions: fitted tiers + the equipped item;
+//         run-less (the cove) = T0, no item.
+//         getCatchBuffs — the buff context (Well-fed, Boons, owned relics, the Wick's quirk; data.catchBuffHold applies the caps:
+//         relics ≤ 3, run buffs ≤ 4, together ≤ 6). getCatchMods — the rest of catchChance's mods for a species (legend wounds and
+//         landings, perRun → CATCH_V3.legend.fightRun, the lake, night).
+//         The logs (the only place a % is ever shown): getOdds (reference strike, OWNED RELICS IN, no run buffs; "?" until a
+//         species is landed or lost), getGearLog (each item's Hold, its emphasis or targets, the compare pinned to the last fish
+//         that got away), compareOdds, getTackleRating (catchRating: words, never a %).
+//         Legend wounds (meta.legendWounds; run.legendWounds inside The Long Descent) and the got-away side of fish:escaped
+//         (F15's progression half): the Glimpsed page, the Got away list, the Elder Log's "still out there", Marked Fish, the pin.
+//         The fishing counters (P1–P2: meta.runs ≥ 2 for the hurry, run.outing === 'first' for the strike ring).
+//   Pg14  per-run lures: Murk sells every lure at 40% once its lake is lit (AUTOFISH.runLures), kept in run.lures until the run
+//         ends; one bait OR one lure on the line (run.equipped); a snapped line never loses it (nothing here ever removes one).
+//   S7    Well-fed is +2 Hold, through getCatchBuffs().wellFed (a run buff), never a reel stat.
+//   The Full Hold (slice-1a PLAN §2.1 item 8; only under data.LOOP_ENABLED): a trip's loadout is meta.loop.tackle (perRun false, so a
+//         legend fights at CATCH_V3.legend.fight), at home too (the shelf's Odds ›); no relics, boons, Well-fed or per-run lures; the
+//         Wick's buff is Ashwick's tired comeback only (WICKS §2.5); the counters read the evening; a comeback is not also marked.
+import { uid } from './core.js';
+import { elderName } from './progression-v3.js';
+import { HOOK_ITEMS as WC_ITEMS, gradeTargets } from './watercraft.js';   // WC-3: a Mossmere tin's or lure's fish (WATERCRAFT §3.7)
+import { foundKit } from './loop-finds.js';   // LOST-TACKLE §3.2, §8: a found rod, line or reel fitted in place of its tier
+import { tackleHold, fittedTier } from './loop-carry.js';   // LAKE 2, lane D2: each water's tiers and the carried share (LAKE2 §5.3)
+
+const CLASSES = ['small', 'keeper', 'prize', 'trophy', 'elder', 'ancient'];
+const SLOTS = ['rod', 'line', 'reel'];
+const LINE_FREE = new Set(['idle', 'charging']);   // fishing states with no line in the water: the cast's item stops counting
+const isObj = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
+
+/** The style list a tackle slot counts ×max against (CATCH_V3.emphasis): rod → leapers, line → thrashers / sinkers / sulkers, reel → runners. */
+export function slotEmphasis(C, slot) {
+  const E = C?.emphasis || {};
+  let mult = 1;
+  for (const w of Object.values(E)) mult = Math.max(mult, Number(w?.[slot]) || 0);
+  const styles = Object.keys(E).filter((s) => (Number(E[s]?.[slot]) || 0) === mult && mult > 1);
+  return { mult, styles };
+}
+/** A got-away size as the note words it: the weight of the estimated length (cm), in friendly steps of pounds (AUTOFISH.gotAway.roundLb:
+ *  1 lb under 10 lb, 5 lb under 100 lb, 25 lb under 1,000 lb, then 100 lb; whole ounces under a pound). "" when nothing is known. */
+export function approxText(D, sp, cm) {
+  const v = Number(cm);
+  if (!(v > 0) || !sp?.size || typeof D?.fmtWeightNear !== 'function') return '';
+  return D.fmtWeightNear(D.sizeWeight(sp, v), D.AUTOFISH?.gotAway?.roundLb);
+}
+
+export function createAutofish(S) {
+  const { ctx } = S;
+  const D = () => ctx.data || {};
+  const meta = () => ctx.state.meta;
+  const run = () => ctx.state.run;
+  const C3 = () => D().CATCH_V3 || null;
+  const AF = () => D().AUTOFISH || null;
+  const on = () => D().V3_ENABLED === true && !!C3() && typeof D().catchChance === 'function';
+  const safe = (fn, fb) => { try { const v = fn(); return v === undefined ? fb : v; } catch (e) { S.report('autofish', e); return fb; } };
+  const frame = () => ctx.time?.frame ?? 0;
+  /** The Full Hold: the build, and a trip (only createTrip writes outing 'trip'). Off the loop both are false: every path is v3's. */
+  const loopOn = () => D().LOOP_ENABLED === true;
+  const loopRun = (r) => loopOn() && r?.outing === 'trip';
+  const loopBlock = () => { try { return S.loop?.state?.() || meta()?.loop || null; } catch { return meta()?.loop || null; } };
+  /** The Hold of the loop's tackle: TACKLE's for T0–T4 (data.tackleHoldAt), LOOP.tackle.extraHold for T5–T6. */
+  function loopHold(tk = {}, found = {}) {
+    const X = D().LOOP?.tackle?.extraHold || {}, out = {};
+    for (const s of SLOTS) {
+      const t = Math.max(0, Math.trunc(Number(tk?.[s]) || 0));
+      out[s] = Number.isFinite(found?.[s]) ? found[s] : t <= 4 ? safe(() => D().tackleHoldAt(s, t), 0) : Number(X[s]?.[t - 5] ?? X[s]?.[X[s].length - 1] ?? 0);
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------------ build shape
+  /** P3 expeditions exist (persistent fitted tackle). Until P3's createExpedition lands every run uses per-run UPGRADES. */
+  const expeditions = () => (D().V3_PHASE ?? 4) >= 3 && typeof S.createExpedition === 'function';
+  /** Tiers come from UPGRADES (P1–P2 runs, The Long Descent): legends use CATCH_V3.legend.fightRun (mods.perRun). */
+  /** The Full Hold: a trip's (and home's) gear is the loop's own, kept forever, so never per-run (SPEC §9 "The loadout"). */
+  const perRunOf = (r = run()) => (loopOn() && (!r || loopRun(r)) ? false : r ? r.outing === 'descent' || !expeditions() : !expeditions());
+  /** Murk sells lures per run at 40% (AUTOFISH.runLures: P1–P2 runs, not The Long Descent). Never on a trip (PARKED.runShop). */
+  const runLuresOn = (r = run()) => on() && !!r && !loopRun(r) && r.outing !== 'descent' && !expeditions() && (AF()?.runLures?.phases || [1, 2]).includes(D().V3_PHASE);
+
+  let lureMap = null;
+  const lure = (id) => {
+    if (!lureMap || lureMap.src !== D().LURES) lureMap = { src: D().LURES, by: Object.fromEntries((D().LURES || []).map((l) => [l.id, l])) };
+    return id ? lureMap.by[id] || null : null;
+  };
+  const isLure = (id) => !!lure(id);
+  const ownedLure = (id, r = run()) => !!id && (!!r?.lures?.[id] || !!meta()?.lures?.[id]);
+
+  // ------------------------------------------------------------------ the item on the line (Pg14: one bait OR one lure)
+  /** The one item on the line now: a lure (run.equipped, owned) or else the bait (run.equippedBait, v1's field, kept for baits). */
+  function equippedItem(r = run()) {
+    if (!r) return null;
+    if (r.equipped && isLure(r.equipped) && ownedLure(r.equipped, r)) return r.equipped;
+    return r.equippedBait ?? null;
+  }
+  /** Keep run.equipped (CONTRACT §13.2) truthful after any bait change made by the v1 paths. */
+  function syncEquipped(r = run()) { if (r && on()) r.equipped = equippedItem(r); }
+  /** Pg14: put a lure on the line (the bait comes off: one item at a time). null / 'none' takes a lure off. */
+  function equipLure(lureId) {
+    const r = run();
+    if (!r) return { ok: false, msg: 'There is no descent under way.' };
+    if (!on()) return { ok: false, msg: 'No lures in this water.' };
+    if (!lureId || lureId === 'none') {
+      if (isLure(r.equipped)) { r.equipped = r.equippedBait ?? null; ctx.bus.emit('bait:change', { baitId: r.equippedBait ?? null, lureId: null }); }
+      return { ok: true, msg: r.equippedBait ? `${S.bait(r.equippedBait)?.name || 'Bait'} on the hook.` : 'A bare hook.' };
+    }
+    const L = lure(lureId);
+    if (!L) return { ok: false, msg: 'No such lure.' };
+    if (!ownedLure(lureId, r)) return { ok: false, msg: `You have no ${L.name}.` };
+    r.flags = r.flags || {};
+    r.flags.prevBait = null;
+    r.equippedBait = null;
+    r.equipped = lureId;
+    ctx.bus.emit('bait:change', { baitId: null, lureId });
+    return { ok: true, msg: `${L.name} on the line.` };
+  }
+  /** The lure on the line (a LURES record plus its Hold entry), or null. */
+  function getEquippedLure() {
+    const r = run();
+    const id = equippedItem(r);
+    const L = isLure(id) ? lure(id) : null;
+    return L ? { ...L, hold: C3()?.items?.[id]?.hold ?? 0 } : null;
+  }
+
+  // the cast snapshot: the item that counts is the one on the line AT THE CAST (CONTRACT §13.7a); taken when fishing spends the
+  // cast's bait (consumeBait runs at the cast, before fishing:cast) or, if it did not, on fishing:cast itself
+  let castSnap = null;
+  function noteCast({ fromEvent = false } = {}) {
+    const r = run();
+    if (!r) { castSnap = null; return; }
+    if (fromEvent && castSnap && castSnap.runId === r.id && castSnap.frame === frame()) return;   // consumeBait already took it this cast
+    castSnap = { item: equippedItem(r), runId: r.id, frame: frame() };
+  }
+  const lineOut = () => { const st = ctx.fishing?.state; return typeof st === 'string' && !LINE_FREE.has(st); };
+
+  // ------------------------------------------------------------------ Pg13: loadout, buffs, mods
+  /** CONTRACT §13.7 getLoadout() -> {rod, line, reel, hold?, item, itemLevel, upgrade?} (+ perRun: legends' per-run Fight). */
+  function getLoadout() {
+    const r = run();
+    if (loopOn() && (!r || loopRun(r))) {   // the Full Hold: meta.loop.tackle, on a trip and at home (the shelf's Odds ›); no item in 1a
+      const LB0 = loopBlock(), fk = safe(() => foundKit(LB0, D()), null);
+      // (LAKE 2, lane D2: the fitted tier of the gear water and the carry + the fitted piece's Hold, loop-carry.js; the Mossmere's as before)
+      const tier = (s) => safe(() => fittedTier(D(), LB0 || {}, s), 0) | 0;
+      const out = { rod: tier('rod'), line: tier('line'), reel: tier('reel'), hold: safe(() => tackleHold(D(), LB0 || {}, fk?.hold), null) || loopHold(LB0?.tackle || {}, fk?.hold), item: null, itemLevel: 1, perRun: false };
+      // LOST-TACKLE §3.2, §8: a fitted found piece (the slot keeps its tier; the piece's Hold above, its play, wait and line cap here)
+      if (fk && (fk.rod || fk.line || fk.reel)) Object.assign(out, { found: { rod: fk.rod, line: fk.line, reel: fk.reel }, playMult: fk.playMult, waitMult: fk.waitMult, lineCap: fk.lineCap });
+      if (!r) out.runless = true;
+      // M1 step 4 (lane 4, SPEC §4.5): a lure and a bait on the line together, the fish gets the larger Hold, never both: the lure is the
+      // item and the cast's bait (a tin or Cut Strip; a legend's bait gives none) rides as the never-stacked second (catchParts' max)
+      const L = loopBlock() || {}, items = C3()?.items || {};
+      const lureId = r ? (typeof r.lure === 'string' ? r.lure : null) : (typeof L.fitted?.lure === 'string' ? L.fitted.lure : null);
+      if (lureId && items[lureId]?.kind === 'lure' && Array.isArray(L.lures) && L.lures.includes(lureId)) out.item = lureId;
+      const baitId = r ? (lineOut() && castSnap?.runId === r.id ? castSnap.item : r.equippedBait) : (typeof L.fitted?.bait === 'string' ? L.fitted.bait : null);
+      if (typeof baitId === 'string' && items[baitId]?.kind === 'bait' && !S.bait?.(baitId)?.legend) {
+        if (out.item) out.upgrade = { id: baitId, level: 1 }; else out.item = baitId;
+      }
+      return out;
+    }
+    if (!r) return { rod: 0, line: 0, reel: 0, item: null, itemLevel: 1, perRun: perRunOf(null), runless: true };
+    const item = lineOut() && castSnap?.runId === r.id ? castSnap.item : equippedItem(r);
+    if (perRunOf(r)) {
+      const ups = r.upgrades || {};
+      const t = safe(() => D().upgradeTiers(ups), {}) || {};
+      const hold = safe(() => D().upgradeHold(ups), null);
+      const out = { rod: t.rod | 0, line: t.line | 0, reel: t.reel | 0, item, itemLevel: 1, perRun: true };
+      if (hold) out.hold = { rod: hold.rod, line: hold.line, reel: hold.reel };
+      const lv = ups.lure_glimmer | 0;
+      if (lv > 0 && C3()?.items?.lure_glimmer) out.upgrade = { id: 'lure_glimmer', level: lv };
+      return out;
+    }
+    const f = meta()?.fitted || {};
+    return { rod: f.rod | 0, line: f.line | 0, reel: f.reel | 0, item, itemLevel: 1, perRun: false };
+  }
+  /** The owned relic levels that give Hold (CATCH_V3.buffs.relics): always with you, so they are in the logs too. */
+  function ownedRelics() {
+    const out = {};
+    if (D().PARKED?.meta === true) return out;   // the Full Hold: relics are parked (their Hold is 0, in the logs too)
+    const rel = meta()?.relics || {};
+    for (const id of Object.keys(C3()?.buffs?.relics || {})) if ((rel[id] | 0) > 0) out[id] = rel[id] | 0;
+    return out;
+  }
+  /** Ashwick's Burned Once: the first fish hooked each night (counted on fishing:hook; the hook of this very frame is still the first). */
+  function firstHookTonight(r = run()) {
+    if (!r || S.phaseInfo().phase !== 'gloomtide') return false;
+    const h = r.flags?.nightHook;
+    const day = r.day || 1;
+    return !h || h.day !== day || (h.n === 1 && h.frame === frame());
+  }
+  function noteHook() {
+    const r = run();
+    if (!r || S.phaseInfo().phase !== 'gloomtide') return;
+    r.flags = r.flags || {};
+    const day = r.day || 1;
+    const h = r.flags.nightHook;
+    r.flags.nightHook = h && h.day === day ? { day, n: (h.n | 0) + 1, frame: frame() } : { day, n: 1, frame: frame() };
+  }
+  /** CONTRACT §13.7 getCatchBuffs(sizeClass?) -> {wellFed, boons, relics, character, firstHookTonight} (data.catchBuffHold caps it).
+   *  The class is optional (fishing passes it; a class-less call such as getCatchMods' gets the same): off a trip it is ignored. On a
+   *  trip (the Full Hold): no Well-fed, Boons or relics; `character` is 'ashwick' only while Ashwick's comeback bite is open
+   *  (run.flags.openComeback; the apply block's CATCH_V3.buffs.wicks.ashwick = {hold: 4}, WICKS §2.5), null for every other Wick. */
+  function getCatchBuffs(cls) {
+    void cls;
+    const r = run();
+    const relics = ownedRelics();
+    if (loopRun(r)) {
+      const ashwick = r.character === 'ashwick' && r.flags?.openComeback === true;
+      return { wellFed: false, boons: {}, relics: {}, character: ashwick ? 'ashwick' : null, firstHookTonight: firstHookTonight(r) };
+    }
+    if (!r) return { wellFed: false, boons: {}, relics, character: null, firstHookTonight: false };
+    const boons = {};
+    for (const id of Object.keys(C3()?.buffs?.boons || {})) {
+      const lv = r.boons?.[id] | 0;
+      if (lv > 0) boons[id] = Math.min(lv, S.boon(id)?.maxLevel ?? lv);
+    }
+    return { wellFed: !!S.wellFed(r), boons, relics, character: r.character ?? null, firstHookTonight: firstHookTonight(r) };
+  }
+  /** The lake a hooked fish fights in: the run's lake, the cove in the hub (Wanderers use the lake they are hooked in). */
+  const currentLake = () => run()?.zone || S.hubZone() || undefined;
+  /** The rest of catchChance's mods for the fish that bit (fishing adds strike and marked): buffs, wounds, landings, perRun, lake, night. */
+  function getCatchMods(speciesId) {
+    const sp = S.species(speciesId);
+    const legend = sp?.rarity === 'legendary';
+    const perRun = perRunOf(run());
+    return { buffs: getCatchBuffs(), wounds: legend ? woundsOf(sp.id) : 0, landings: legend && !perRun ? landingsOf(sp.id) : 0, perRun,
+      lake: currentLake(), night: S.phaseInfo().phase === 'gloomtide' };
+  }
+
+  // ------------------------------------------------------------------ legend wounds (CATCH_V3.legend: +6 Hold per escape, ≤ 3 counted)
+  const woundMax = () => Math.max(1, Math.round((C3()?.legend?.woundCap ?? 18) / (C3()?.legend?.woundPerEscape ?? 6)));
+  /** Where wounds live: meta.legendWounds, or run.legendWounds inside The Long Descent (woundScope.descent). */
+  function woundStore(create = false) {
+    const r = run();
+    if (r && r.outing === 'descent') { if (create && !isObj(r.legendWounds)) r.legendWounds = {}; return r.legendWounds || {}; }
+    const m = meta();
+    if (create && !isObj(m.legendWounds)) m.legendWounds = {};
+    return m.legendWounds || {};
+  }
+  const woundsOf = (id) => Math.min(woundMax(), woundStore()[id] | 0);
+  const landingsOf = (id) => meta()?.journal?.[id]?.caught | 0;
+  function addLegendWound(id) {
+    if (!on() || S.isReplay() || S.species(id)?.rarity !== 'legendary') return 0;
+    const st = woundStore(true);
+    st[id] = Math.min(woundMax(), (st[id] | 0) + 1);
+    return st[id];
+  }
+  function clearLegendWounds(id) {
+    if (!on() || S.isReplay()) return;
+    const st = woundStore();
+    if (st && id in st) delete st[id];
+  }
+
+  // ------------------------------------------------------------------ the logs (CONTRACT §13.7 getOdds / getGearLog / compareOdds)
+  const known = (id) => { const e = meta()?.journal?.[id]; return e?.caught > 0 ? 'caught' : e?.seen ? 'glimpsed' : 'unseen'; };
+  const met = (id) => !!meta()?.journal?.[id] && !!S.species(id);
+  /** The log's lake for a species: its home lake, or, for a Wanderer, the run's lake when it can be hooked there. */
+  function logLake(sp) {
+    const r = run();
+    if (Array.isArray(sp?.zones) && r?.zone && sp.zones.includes(r.zone)) return r.zone;
+    return undefined;
+  }
+  /** The log's reference: a Struck strike, the owned relics, no run buffs, no Marked or wound bonus (legends: their wounds). */
+  function refMods(sp, extra = {}) {
+    const ref = C3()?.display?.reference || {};
+    const perRun = perRunOf(run());
+    const legend = sp?.rarity === 'legendary';
+    const mods = { strike: ref.strike || 'struck', buffs: { relics: ownedRelics() }, perRun, ...extra };
+    const lake = logLake(sp);
+    if (lake) mods.lake = lake;
+    if (legend) { mods.wounds = woundsOf(sp.id); mods.landings = perRun ? 0 : landingsOf(sp.id); }
+    return mods;
+  }
+  /** The log's loadout: the run's tackle Hold and the item on the line now (or the given fitted tiers / item). */
+  function logLoadout({ fitted, item } = {}) {
+    const lo = { ...getLoadout(), item: item !== undefined ? item : equippedItem(run()) };
+    if (isObj(fitted)) { for (const s of SLOTS) lo[s] = Number(fitted[s]) || 0; delete lo.hold; }
+    return lo;
+  }
+  const pct = (odds) => (odds ? Object.fromEntries(Object.entries(odds).map(([k, p]) => [k, D().catchDisplay(p)])) : null);
+  /** Every bait and lure the player holds now (baits with a count, run lures, persistent lures): withBest's choices. */
+  function ownedItems(r = run()) {
+    const items = C3()?.items || {};
+    const ids = [];
+    if (r) for (const [id, n] of Object.entries(r.bait || {})) if ((n | 0) > 0 && items[id]?.kind === 'bait') ids.push(id);
+    for (const src of [r?.lures, meta()?.lures]) for (const id of Object.keys(src || {})) if (src[id] && items[id]?.kind === 'lure' && !ids.includes(id)) ids.push(id);
+    return ids;
+  }
+  /** getOdds(speciesId, {fitted, item}) -> {known, odds, withBest, marked, wounds} (+ pct, the floored whole percents ui prints). */
+  function getOdds(speciesId, opts = {}) {
+    if (!on()) return null;
+    const sp = S.species(speciesId);
+    if (!sp) return null;
+    const legend = sp.rarity === 'legendary';
+    const k = known(sp.id);
+    const wounds = legend ? woundsOf(sp.id) : 0;
+    const lo = logLoadout(opts);
+    const base = { speciesId: sp.id, known: k, legend, wounds, item: lo.item ?? null, reference: C3()?.display?.reference?.strike || 'struck' };
+    if (k === 'unseen') return { ...base, odds: null, pct: null, withBest: null, marked: [] };
+    const mods = refMods(sp);
+    const odds = safe(() => D().catchOdds(sp.id, lo, mods), null);
+    let withBest = null;
+    if (!legend) {
+      const best = safe(() => D().catchBestItem(sp, ownedItems()), { id: null, hold: 0 });
+      const cur = lo.item ? safe(() => D().catchItemHold(lo.item, sp), 0) : 0;
+      if (best?.id && best.hold > cur && best.id !== lo.item) {
+        const bOdds = safe(() => D().catchOdds(sp.id, { ...lo, item: best.id }, mods), null);
+        withBest = { item: best.id, hold: best.hold, odds: bOdds, pct: pct(bOdds) };
+      }
+    }
+    const marked = (Array.isArray(meta()?.markedFish) ? meta().markedFish : []).filter((mf) => mf?.speciesId === sp.id && !legend).map((mf) => {
+      const cls = D().isAncient?.(mf.z) ? 'ancient' : D().sizeClassOf?.(mf.z ?? 0) || mf.sizeClass;
+      const p = safe(() => D().catchChance(sp.id, cls, lo, { ...mods, marked: !mf.rehooked }), null);
+      return { id: mf.id, name: mf.name || null, sizeClass: cls, approxLength: mf.approxLength ?? null, zone: mf.zone ?? null, p, pct: D().catchDisplay(p), bonus: !mf.rehooked };
+    });
+    return { ...base, odds, pct: pct(odds), withBest, marked };
+  }
+  /** compareOdds(speciesId, sizeClass, loadoutA, loadoutB) -> {a, b}: the gear log's pinned compare, at the log's reference. */
+  function compareOdds(speciesId, sizeClass, loadoutA, loadoutB) {
+    const sp = S.species(speciesId);
+    if (!on() || !sp) return { a: null, b: null };
+    const cls = sp.rarity === 'legendary' ? 'legend' : sizeClass;
+    const mods = refMods(sp);
+    return { a: safe(() => D().catchChance(sp.id, cls, loadoutA || logLoadout(), mods), null), b: safe(() => D().catchChance(sp.id, cls, loadoutB || logLoadout(), mods), null) };
+  }
+  /** The fish the gear log compares against: the player's pin, else the last fish that got away (auto). */
+  function getPinned() {
+    const m = meta() || {};
+    const pin = isObj(m.gearPin) && S.species(m.gearPin.speciesId) ? { ...m.gearPin, auto: false } : null;
+    if (pin) return pin;
+    const la = isObj(m.lastAway) && S.species(m.lastAway.speciesId) ? m.lastAway : null;
+    return la ? { speciesId: la.speciesId, sizeClass: la.sizeClass, reason: la.reason ?? null, name: la.name ?? null, approxLength: la.approxLength ?? null, auto: true } : null;
+  }
+  function pinGear(speciesId, sizeClass) {
+    if (S.isReplay()) return false;
+    const m = meta();
+    if (!speciesId) { delete m.gearPin; return true; }
+    if (!S.species(speciesId)) return false;
+    m.gearPin = { speciesId, sizeClass: sizeClass || 'trophy' };
+    return true;
+  }
+  /** What a gear-log row helps: 'all', {family, met}, {night: true, met}, the giants' named three, or the species met it helps. */
+  function targetsOf(itemId) {
+    const it = C3()?.items?.[itemId];
+    if (!it) return [];
+    // >>> WC-3 (WATERCRAFT §3.7): under the loop a Mossmere tin's or lure's Hold helps the fish it suits (watercraft.gradeTargets; the
+    // Spinner keeps its named giants); the log counts the ones met and names none
+    if (loopOn() && itemId !== 'bare' && WC_ITEMS.includes(itemId)) {
+      const suits = safe(() => gradeTargets(itemId, D()), []).filter((id) => S.species(id));
+      return { suits: true, fish: suits, met: suits.filter(met) };
+    }
+    // <<< WC-3
+    if (it.all) return 'all';
+    const helps = safe(() => D().catchItemTargets(itemId), []).filter((id) => S.species(id));
+    if (it.species) return it.species.filter((id) => S.species(id));
+    const seen = helps.filter(met);
+    if (it.family) return { family: it.family, met: seen };
+    if (it.night) return { night: true, met: seen };
+    return seen;
+  }
+  const FAMILY_WORDS = { insect: 'insect feeders', predator: 'predators', bottom: 'bottom feeders', glow: 'glow fish' };
+  /** The gear log's line for a bait or lure, from AUTOFISH.text.gear.item ("+10 Hold against Reedjaw Pike, Weeping Carp."); never a %. */
+  function holdText(itemId) {
+    const it = C3()?.items?.[itemId];
+    if (!it) return '';
+    const T = AF()?.text?.gear || {};
+    const hold = it.holdPerLevel ? `${it.holdPerLevel} per level` : it.hold;
+    if (it.all) return (T.tackle || '+{hold} Hold on every fish').split(' · ')[0].replace('{hold}', hold).replace(/\.$/, '') + '.';
+    const t = targetsOf(itemId);
+    if (t && t.suits === true) return String(D().TEXT_LOOP?.log?.gear || '+{n} Hold on the fish it suits ({m} you have met).').replace('{n}', hold).replace('{m}', t.met.length);   // (WC-3)
+    let whom;
+    if (it.family) whom = FAMILY_WORDS[it.family] || it.family;
+    else if (it.night) whom = 'night fish, at night';
+    else whom = (Array.isArray(t) ? t : []).map((id) => S.species(id)?.name).filter(Boolean).join(', ');
+    if (!whom) return T.none || 'Helps nothing you have met yet.';
+    return (T.item || '+{hold} Hold against {targets}.').replace('{hold}', hold).replace('{targets}', whom);
+  }
+  /** Did a proof catch (TACKLE.proofs) happen: a class seal on any species of that lake. */
+  function proofDone(proofId) {
+    const opts = D().TACKLE?.proofs?.[proofId];
+    if (!opts) return true;
+    const J = meta()?.journal || {};
+    return opts.some((o) => Object.entries(J).some(([id, e]) => S.species(id)?.zone === o.zone && e?.seals?.[o.class]));
+  }
+  /** Is a lure's lake lit (its onSale lake reached: this run, or in any run, or its Waystone lit)? 'start' always is. */
+  function lureLit(L, r = run()) {
+    const z = L?.onSale;
+    if (!z || z === 'start') return true;
+    const m = meta() || {};
+    if (m.waystones?.[z]) return true;
+    if ((r?.zonesUnlocked || []).includes(z)) return true;
+    const zi = S.zone(z) ? S.zoneIndexOf(z) : Infinity;
+    return zi <= (m.deepestZone | 0);
+  }
+  const runLurePrice = (L) => Math.round((Number(L?.price) || 0) * (AF()?.runLures?.priceMult ?? 0.4));
+  /** Pg14: the lures Murk has this run (lit lakes) and the ones already bought (run.lures), with their 40% prices. */
+  function runLures(r = run()) {
+    if (!runLuresOn(r)) return [];
+    return (D().LURES || []).filter((L) => lureLit(L, r) || r?.lures?.[L.id]).map((L) => ({ lure: L, price: runLurePrice(L), owned: !!r?.lures?.[L.id], lit: lureLit(L, r) }));
+  }
+  /** Pg14: buy a lure from Murk for this run (the market checks his mooring and the purse; this does the rest). */
+  function grantRunLure(lureId) {
+    const r = run();
+    const L = lure(lureId);
+    if (!r || !L) return false;
+    r.lures = isObj(r.lures) ? r.lures : {};
+    r.lures[L.id] = true;
+    ctx.bus.emit('lure:buy', { lureId: L.id, run: true });
+    if (!isLure(equippedItem(r))) equipLure(L.id);   // a fresh lure goes on the line unless another lure is already there
+    return true;
+  }
+
+  /** getGearLog() -> [{id, kind, name, tier?, hold, emphasis?, targets, price, owned, proof?, …}] with .pinned (and each row's compare). */
+  function getGearLog() {
+    const out = [];
+    if (!on()) { out.pinned = null; return out; }
+    const r = run();
+    const C = C3();
+    const pinned = getPinned();
+    const pinSp = pinned ? S.species(pinned.speciesId) : null;
+    const pinCls = pinSp?.rarity === 'legendary' ? 'legend' : pinned?.sizeClass;
+    const base = logLoadout();
+    const mods = pinSp ? refMods(pinSp) : null;
+    const chance = (lo) => (pinSp ? safe(() => D().catchChance(pinSp.id, pinCls, lo, mods), null) : null);
+    const pA = chance(base);
+    const compareWith = (lo) => (pinSp ? { a: pA, b: chance(lo) } : null);
+    const ups = r?.upgrades || {};
+    if (perRunOf(r)) {
+      // P1–P2 runs and The Long Descent: the per-run rod, line and reel upgrades (each level adds Hold: upgradeHold)
+      const slots = D().BALANCE?.upgradeTiers?.slots || D().BALANCE_V3?.upgradeTiers?.slots || {};
+      const holdNow = safe(() => D().upgradeHold(ups), { rod: 0, line: 0, reel: 0 });
+      const tiers = safe(() => D().upgradeTiers(ups), {});
+      for (const slot of SLOTS) {
+        for (const id of slots[slot] || []) {
+          const u = S.upgrade(id);
+          if (!u) continue;
+          const level = ups[id] | 0;
+          const maxLevel = u.maxLevel ?? (u.costs?.length || 1);
+          const maxed = level >= maxLevel;
+          const nextUps = maxed ? null : { ...ups, [id]: level + 1 };
+          const next = nextUps ? safe(() => D().upgradeHold(nextUps)[slot], null) : null;
+          const row = { id, kind: slot, upgrade: true, name: u.name, level, maxLevel, maxed, tier: tiers[slot] | 0, hold: holdNow[slot],
+            next, gain: next != null ? next - holdNow[slot] : 0, emphasis: slotEmphasis(C, slot), targets: 'all',
+            price: maxed ? null : u.costs?.[level] ?? null, owned: level > 0 };
+          if (pinSp && nextUps) row.compare = compareWith({ ...base, hold: safe(() => D().upgradeHold(nextUps), base.hold) });
+          out.push(row);
+        }
+      }
+      // the per-run Glimmer Spoon: an upgrade, not the item on the line, and never stacked with it
+      const gu = S.upgrade('lure_glimmer');
+      if (gu && C.items.lure_glimmer) {
+        const level = ups.lure_glimmer | 0, maxLevel = gu.maxLevel ?? 3, per = C.items.lure_glimmer.holdPerLevel ?? 2;
+        const row = { id: 'lure_glimmer', kind: 'lure', upgrade: true, name: gu.name, level, maxLevel, maxed: level >= maxLevel, hold: per * level,
+          next: level < maxLevel ? per * (level + 1) : null, gain: level < maxLevel ? per : 0, targets: targetsOf('lure_glimmer'),
+          price: level < maxLevel ? gu.costs?.[level] ?? null : null, owned: level > 0 };
+        if (pinSp && level < maxLevel) row.compare = compareWith({ ...base, upgrade: { id: 'lure_glimmer', level: level + 1 } });
+        out.push(row);
+      }
+    } else {
+      // P3 expeditions and the hub: the Gear Bench's tiers (kept forever; T2–T4 need a proof catch)
+      const m = meta() || {};
+      const LT = loopOn() ? loopBlock()?.tackle || {} : null;   // the Full Hold: the loop's tiers, LOOP's prices, no proof catches
+      for (const slot of SLOTS) {
+        for (const t of D().TACKLE?.[slot] || []) {
+          const row = LT
+            ? { id: t.id, kind: slot, name: t.name, tier: t.tier, hold: t.hold, emphasis: slotEmphasis(C, slot), targets: 'all', price: D().LOOP?.tackle?.price?.[t.tier] ?? t.price,
+              owned: (LT[slot] | 0) >= t.tier, fitted: (LT[slot] | 0) === t.tier, proof: null }
+            : { id: t.id, kind: slot, name: t.name, tier: t.tier, hold: t.hold, emphasis: slotEmphasis(C, slot), targets: 'all', price: t.price,
+              owned: (m.tackle?.[slot] | 0) >= t.tier, fitted: (m.fitted?.[slot] | 0) === t.tier, proof: t.proof ? { id: t.proof, done: proofDone(t.proof) } : null };
+          if (pinSp) { const lo = { ...base, [slot]: t.tier }; delete lo.hold; row.compare = compareWith(lo); }
+          out.push(row);
+        }
+        // LOST-TACKLE §2.1, §6.2: an owned found piece of this slot under its tiers (its Hold and its effect lines: ui-af.lostLogLines)
+        if (LT) for (const it of D().LOOP?.finds?.items || []) {
+          const LB = loopBlock() || {};
+          if (it?.kind !== 'tackle' || it.slot !== slot || !(Number(LB.finds?.got?.[it.id]) >= 1)) continue;
+          const X = D().LOOP?.lostTackle?.[it.id] || {};
+          out.push({ id: it.id, kind: slot, found: true, name: D().TEXT_LOOP?.finds?.items?.[it.id]?.name || it.id, hold: Number(X.hold) || 0, emphasis: slotEmphasis(C, slot),
+            targets: 'all', price: null, owned: true, fitted: LB.found?.[slot] === it.id });
+        }
+      }
+      // LOST-TACKLE §4: the owned notebooks (they work while owned: no slot, no choice), under the tackle
+      if (LT) for (const it of D().LOOP?.finds?.items || []) {
+        if (it?.kind === 'tackle' && it.slot === 'notebook' && Number(loopBlock()?.finds?.got?.[it.id]) >= 1) out.push({ id: it.id, kind: 'notebook', found: true, name: D().TEXT_LOOP?.finds?.items?.[it.id]?.name || it.id, hold: 0, targets: 'all', price: null, owned: true });
+      }
+    }
+    // baits (the specific gear: Hold only on the fish they help)
+    const zi = r ? S.zoneIndexOf(r.zone) : 0;
+    for (const b of D().BAITS || []) {
+      const it = C.items[b.id];
+      if (!it || b.legend) continue;
+      const held = r?.bait?.[b.id] | 0;
+      const onSale = !loopOn() && (!b.unlock || S.isUnlocked(`bait:${b.id}`)) && (b.zoneMin ?? 0) <= zi;   // the Full Hold: no bait on the 1a shelf
+      if (!held && !onSale) continue;
+      const row = { id: b.id, kind: 'bait', name: b.name, hold: it.hold, targets: targetsOf(b.id), price: S.priceOfBait?.(b) ?? b.price, owned: held,
+        equipped: equippedItem(r) === b.id, onSale };
+      if (pinSp) row.compare = compareWith({ ...base, item: b.id });
+      out.push(row);
+    }
+    // lures: per run at 40% in P1–P2 (run.lures), persistent from P3 (meta.lures); none inside The Long Descent (today's UPGRADES)
+    const lureRows = runLuresOn(r)
+      ? runLures(r).map((x) => ({ L: x.lure, price: x.price, owned: x.owned, onSale: x.lit }))
+      : expeditions() && r?.outing !== 'descent'
+        ? (D().LURES || []).filter((L) => lureLit(L, r) || meta()?.lures?.[L.id]).map((L) => ({ L, price: L.price, owned: !!meta()?.lures?.[L.id], onSale: lureLit(L, r) }))
+        : [];
+    // M1 step 4 (lane 4): under the loop, at the shelf's Odds › and on a trip, the water's lures (owned or on the shelf) and its tins and
+    // Cut Strip (held), each with its Hold and the fish it helps; the log is the only place a fish's odds show (the pinned compare)
+    if (loopOn() && (!r || loopRun(r))) {
+      const LB = loopBlock() || {}, LL = D().LOOP?.lures || {}, own = new Set(Array.isArray(LB.lures) ? LB.lures : []);
+      const fit = LB.fitted || {}, onLine = r ? { lure: r.lure ?? null, bait: r.equippedBait ?? null } : fit;
+      for (const [id, row0] of Object.entries(LL)) {
+        const it = C.items[id];
+        if (!it || !(LB.maps?.lakes || ['mossmere']).includes(row0.water) || (typeof D().loopShipped === 'function' && !D().loopShipped(row0.water))) continue;   // (LAKE 2, lane D1: a lure of a water that ships)
+        if (row0.found === true && !own.has(id)) continue;   // (LOST-TACKLE §3.2: a found lure shows once it is found, never on sale)
+        const row = { id, kind: 'lure', name: D().TEXT_LOOP?.gearItems?.[id] ?? lure(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: row0.price,
+          owned: own.has(id), onSale: !own.has(id), equipped: onLine.lure === id, giants: !!it.species, ...(row0.found === true ? { found: true, likes: gradeTargets(id, D()).length } : {}) };
+        if (pinSp) row.compare = compareWith({ ...base, item: id });
+        out.push(row);
+      }
+      const bagWater = LB.barge?.water || 'mossmere', bag = r ? r.bait || {} : LB.bait?.[bagWater] || {};
+      // (LAKE 2, lane D1: this water's tins, the trip's or the barge's; every water had only the Mossmere's before Sporewood's data)
+      const tinWaterOf = r && typeof r.zone === 'string' && D().LOOP?.tins?.[r.zone] ? r.zone : bagWater;
+      for (const id of [...(D().LOOP?.tins?.[tinWaterOf] || []), 'cut_strip']) {
+        if (out.some((x) => x.id === id && x.kind === 'bait')) continue;
+        const it = C.items[id], held = bag[id] | 0;
+        if (!it || (id === 'cut_strip' && !held)) continue;
+        const row = { id, kind: 'bait', name: D().TEXT_LOOP?.gearItems?.[id] ?? S.bait?.(id)?.name ?? id, hold: it.hold, targets: targetsOf(id), price: null, owned: held,
+          equipped: onLine.bait === id, onSale: id !== 'cut_strip' };
+        if (pinSp) row.compare = compareWith({ ...base, item: id });
+        out.push(row);
+      }
+    }
+    for (const { L, price, owned, onSale } of lureRows) {
+      const it = C.items[L.id];
+      if (!it) continue;
+      const row = { id: L.id, kind: 'lure', name: L.name, hold: it.hold, targets: targetsOf(L.id), price, owned, onSale, equipped: equippedItem(r) === L.id,
+        giants: !!it.species, run: runLuresOn(r) };
+      if (pinSp) row.compare = compareWith({ ...base, item: L.id });
+      out.push(row);
+    }
+    out.pinned = pinned;
+    return out;
+  }
+  /** CONTRACT §13.7 getTackleRating(zoneId, loadout) -> {reference, held, next, word}: words only (catchRating). P1–P2: the rounded tiers. */
+  function ratingLoadout() {
+    const lo = getLoadout();
+    delete lo.hold;                       // "the rounded tier (upgradeTiers) still gives the tackle rating's words"
+    lo.item = equippedItem(run());
+    return lo;
+  }
+  function getTackleRating(zoneId, loadout) {
+    if (!on() || typeof D().catchRating !== 'function') return null;
+    const zid = zoneId || run()?.zone || 'mossmere';
+    return safe(() => D().catchRating(zid, loadout || ratingLoadout(), { buffs: { relics: ownedRelics() }, perRun: perRunOf(run()) }), null);
+  }
+
+  // ------------------------------------------------------------------ Marked Fish (CONTRACT §13.2 meta.markedFish; BALANCE.markedFish)
+  const MF = () => D().BALANCE?.markedFish || D().BALANCE_V3?.markedFish || { max: 6, perLake: 2 };
+  function markedList(create = false) {
+    const m = meta();
+    if (!Array.isArray(m.markedFish)) { if (!create) return []; m.markedFish = []; }
+    return m.markedFish;
+  }
+  /** getMarkedFish(zoneId?) -> copies of the Marked Fish still out there (in that lake), with their one-time +6 bonus flag. */
+  function getMarkedFish(zoneId) {
+    return markedList().filter((mf) => mf && (!zoneId || mf.zone === zoneId)).map((mf) => ({ ...mf, bonus: !mf.rehooked }));
+  }
+  /** addMarkedFish(escape): ≤ max, ≤ perLake (that lake's oldest is replaced); P1 anchors at the escape point (fishing keeps it within 8 m). */
+  function addMarkedFish(e = {}) {
+    if (!on() || S.isReplay()) return null;
+    const sp = S.species(e.speciesId);
+    if (!sp || sp.rarity === 'legendary') return null;
+    const list = markedList(true);
+    const r = run();
+    const zone = e.zone || r?.zone || sp.zone || null;
+    const cfg = MF();
+    const inLake = list.filter((x) => x?.zone === zone);
+    if (inLake.length >= (cfg.perLake ?? 2)) list.splice(list.indexOf(inLake[0]), 1);
+    while (list.length >= (cfg.max ?? 6)) list.shift();
+    const z = Number.isFinite(e.z) ? e.z : null;
+    const cls = e.sizeClass || (z != null ? (D().isAncient?.(z) ? 'ancient' : D().sizeClassOf?.(z)) : null);
+    const mf = { id: uid('mf'), speciesId: sp.id, z, zone, place: e.place ?? null, x: Number.isFinite(e.x) ? e.x : null, z0: Number.isFinite(e.zPos) ? e.zPos : null,
+      expedition: meta().expeditions ?? meta().runs ?? 0, sizeClass: cls, name: e.name || null, approxLength: e.approxLength ?? null, day: r?.day ?? null };
+    list.push(mf);
+    if (r) { r.flags = r.flags || {}; (r.flags.markedFishCreated = r.flags.markedFishCreated || []).push(mf.id); }
+    return mf;
+  }
+  /** Fishing hooked a Marked Fish: the +6 Hold applies once (its first re-hook). Returns {marked} for catchChance's mods. */
+  function markedFishHooked(id) {
+    const mf = markedList().find((x) => x?.id === id);
+    if (!mf) return { marked: false };
+    const marked = !mf.rehooked;
+    if (!S.isReplay()) mf.rehooked = true;
+    return { marked };
+  }
+  function removeMarkedFish(id) {
+    const list = markedList();
+    const i = list.findIndex((x) => x?.id === id);
+    if (i >= 0 && !S.isReplay()) list.splice(i, 1);
+    return i >= 0;
+  }
+
+  // ------------------------------------------------------------------ the got-away side of fish:escaped (F15; DESIGN §25.6.7)
+  /** An Elder's generated name at the loss (the same tables as a landed one): "Old Ninefin". */
+  function nameElder(speciesId, seed) {
+    const sp = S.species(speciesId);
+    return sp && sp.rarity !== 'legendary' ? elderName(D(), sp, seed ?? uid('fish'), run()?.zone || sp.zone) : null;
+  }
+  /** fish:escaped (after the loss and its quiet beat): Glimpsed page, Got away list, the one that got away, Elder Log "still out
+   *  there", legend wounds, Marked Fish, the gear log's pin, the run's got-away lines. Nothing is written in a replay. */
+  function onEscaped(e = {}, { comeback = false } = {}) {
+    if (!on() || S.isReplay()) return;
+    const sp = S.species(e.speciesId);
+    if (!sp) return;
+    const r = run();
+    const m = meta();
+    const legend = sp.rarity === 'legendary' || e.legendary === true;
+    const z = Number.isFinite(e.z) ? e.z : null;
+    const cls = legend ? 'legend' : e.sizeClass || (z != null ? (D().isAncient?.(z) ? 'ancient' : D().sizeClassOf?.(z)) : null);
+    const elder = !legend && (cls === 'elder' || cls === 'ancient');
+    let name = e.name || null;
+    // >>> WC-3 (WATERCRAFT §7.2-§7.3, the lost fish): on a trip the loss writes nothing a screen could show: no Glimpsed page, no Got
+    // away list, no escape, no Elder name or Elder Log line, no gear-log pin, no run got-away line, no journal:seen. Only what the
+    // water silently remembers: the legend's wound and the Marked Fish (as built; progression-loop marks the giant and stores
+    // Ashwick's comeback). The flag-off game and the expeditions keep the whole of the built path below.
+    if (loopRun(r)) {
+      const lake = r?.zone || S.hubZone() || sp.zone || null;
+      if (legend) addLegendWound(sp.id);
+      else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
+      // (a giant lost on a trip is the ledger's Marked giant, M1 step 3a: never also a built Marked Fish)
+      else if (e.markedFish && !comeback && sp.giant !== true) addMarkedFish({ ...e, name: null, zone: lake });
+      S.requestSave();
+      return;
+    }
+    // <<< WC-3
+    if (elder && !name) { name = nameElder(sp.id, `${e.reason || 'lost'}:${z}:${m.runs | 0}:${r?.day ?? 0}:${frame()}`); if (name) e.name = name; }
+    const len = Number(e.approxLength) > 0 ? Number(e.approxLength) : null;
+    const lake = r?.zone || S.hubZone() || sp.zone || null;
+    // the journal: a Glimpsed page (known, not caught: no Memories), the Got away list (last 5), the one that got away
+    m.journal = isObj(m.journal) ? m.journal : {};
+    const entry = m.journal[sp.id] || (m.journal[sp.id] = { caught: 0, biggest: 0 });
+    const glimpsed = !(entry.caught > 0) && !entry.seen;
+    if (!(entry.caught > 0)) entry.seen = true;
+    const last = AF()?.gotAway?.journalLast ?? 5;
+    const got = { sizeClass: cls, length: len, place: e.place ?? null, zone: lake, day: r?.day ?? null, reason: e.reason || null };
+    if (name) got.name = name;
+    entry.gotAway = [...(Array.isArray(entry.gotAway) ? entry.gotAway : []), got].slice(-last);
+    if (len && (!isObj(entry.escape) || len > (entry.escape.length || 0))) entry.escape = { length: len, sizeClass: cls };
+    if (glimpsed) ctx.bus.emit('journal:seen', { speciesId: sp.id });
+    // the Elder Log's "still out there"
+    if (elder) {
+      m.elderLog = Array.isArray(m.elderLog) ? m.elderLog : [];
+      m.elderLog.push({ name, speciesId: sp.id, length: len, weight: null, z, ancient: cls === 'ancient', place: e.place ?? null, zone: lake,
+        expedition: m.expeditions ?? m.runs ?? 0, day: r?.day ?? null, character: r?.character ?? null, lost: e.reason || 'lost' });
+      if (m.elderLog.length > 400) m.elderLog.splice(0, m.elderLog.length - 400);
+    }
+    // legends: wounded (+6 Hold on the next attempt, ≤ 3 counted); Marked Fish: a re-hooked one stays out there, a new one is marked
+    if (legend) addLegendWound(sp.id);
+    else if (e.markedFishId && markedList().some((x) => x?.id === e.markedFishId)) { const mf = markedList().find((x) => x.id === e.markedFishId); mf.rehooked = true; }
+    // the Full Hold: Ashwick's comeback is not also marked; a giant lost on a trip is the ledger's Marked giant (meta.loop.giants, M1
+    // step 3a), never also a built Marked Fish (nothing on a trip would ever clear it)
+    else if (e.markedFish && !comeback && !(loopRun(r) && sp.giant === true)) addMarkedFish({ ...e, name, zone: lake });
+    // the gear log pins the last fish that got away (not the Landing's Quayling: the gear log is about the lakes)
+    if (!S.isCove(sp.id)) m.lastAway = { speciesId: sp.id, sizeClass: cls, reason: e.reason || null, name, approxLength: len, zone: lake };
+    if (r) {
+      r.flags = r.flags || {};
+      r.stats = r.stats || {};
+      (r.flags.gotAway = Array.isArray(r.flags.gotAway) ? r.flags.gotAway : []).push({ speciesId: sp.id, ...got });
+      if (r.flags.gotAway.length > 24) r.flags.gotAway.splice(0, r.flags.gotAway.length - 24);
+    }
+    S.requestSave();
+  }
+  /** The run summary's got-away lines (Prize and bigger): "A Trophy Reedjaw Pike, near 30 lb, threw the hook, day 3." */
+  function gotAwayLines(r = run()) {
+    const A = AF();
+    const T = A?.text || {};
+    const list = Array.isArray(r?.flags?.gotAway) ? r.flags.gotAway : [];
+    const big = new Set(['prize', 'trophy', 'elder', 'ancient', 'legend']);
+    return list.filter((g) => big.has(g.sizeClass)).slice(-8).map((g) => {
+      const sp = S.species(g.speciesId);
+      const label = g.sizeClass === 'legend' ? '' : `${S.classLabel(g.sizeClass)} `;
+      const art = g.sizeClass === 'legend' ? '' : /^[aeiou]/i.test(label) ? 'An ' : 'A ';
+      const who = g.sizeClass === 'legend' ? (sp?.name || g.speciesId) : `${art}${label}${sp?.name || g.speciesId}`;
+      const size = approxText(D(), sp, g.length);
+      const near = size ? `, ${A?.gotAway?.word || 'near'} ${size}` : '';
+      const cause = T.toastCause?.[g.reason] || 'got away';
+      return `${who}${g.name ? ` (${g.name})` : ''}${near}, ${cause}${g.day ? `, day ${g.day}` : ''}.`;
+    });
+  }
+
+  // ------------------------------------------------------------------ the fishing counters (P1–P2: meta.runs and run.outing)
+  /** {runs, expedition, hurry, firstExpedition, strikeRing}: the hurry from the 2nd run, the strike ring on the first outing. */
+  function getFishingCounters() {
+    const m = meta() || {};
+    const r = run();
+    const A = AF() || {};
+    // the Full Hold: the count is the evening (the loop never writes meta.runs); evening 1 is the first expedition (T55)
+    const evening = loopOn() ? (Number(r?.evening) > 0 ? Math.trunc(Number(r.evening)) : Math.max(0, Number(loopBlock()?.evenings) || 0) + 1) : null;
+    const expedition = evening != null ? evening : expeditions() ? (m.expeditions | 0) : (m.runs | 0);
+    const fromRun = A.play?.inputs?.hurry?.fromRun ?? 2;
+    const firstExpedition = evening != null ? evening === 1 : r ? r.outing === 'first' : expeditions() ? !m.firstOutingDone : (m.runs | 0) === 0;
+    const setting = m.settings?.strikeRing || A.strike?.ring?.default || 'firstExpedition';
+    const fe = !!ctx.firstEvening?.isActive?.();
+    const strikeRing = setting === 'always' || (setting === 'firstExpedition' && (firstExpedition || fe));
+    const out = { runs: m.runs | 0, expedition, hurry: expedition >= fromRun && r?.outing !== 'first', firstExpedition, strikeRing, setting };
+    if (evening != null) out.evening = evening;
+    return out;
+  }
+
+  return {
+    on, perRunOf, runLuresOn, expeditions, lure, isLure, ownedLure, lureLit, runLurePrice, runLures, grantRunLure,
+    equippedItem, syncEquipped, equipLure, getEquippedLure, noteCast, noteHook,
+    getLoadout, getCatchBuffs, getCatchMods, ownedRelics, getOdds, compareOdds, getGearLog, getPinned, pinGear, getTackleRating, targetsOf, holdText,
+    woundsOf, addLegendWound, clearLegendWounds, getMarkedFish, addMarkedFish, markedFishHooked, removeMarkedFish, nameElder,
+    onEscaped, gotAwayLines, getFishingCounters,
+  };
+}

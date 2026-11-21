@@ -1,0 +1,1649 @@
+// render.js — GLOOMWATER renderer, camera rig and post-processing (render author).
+// CONTRACT §7 render. Owns: WebGLRenderer, scene, camera, scene.fog (FogExp2) + clear
+// colour, the post chain RenderPass → UnrealBloomPass → grade (which tone-maps and encodes), the camera
+// rig (title / sail / fish / reel / night / shop / death, and with v3 on the trophy shot), screen shake, flashes and
+// quality tiers.
+//
+// v3 (CONTRACT §13.7 render, DESIGN §25.14.2 R1 / R2; only while data.V3_ENABLED): sail / fish / reel take every number
+// from BALANCE.cameras (render's convention, render-camera.js); the reel distance follows the line distance only, never
+// the size class; the night overview blends in only while combat.swarmActive (a Stillnight, Lantern's quiet nights and
+// tail and a lamp-watch keep the sail / fish framings). setTrophyTarget({length, landmark, position}) starts the `trophy`
+// shot (distance clamp(1.2 + 1.6·L, 1.6, 16) m around actors' measuring focus, the crane to 50° above 4 m, the yaw toward
+// the landmark by at most ±35° from north, none without one); setTrophyTarget(null) holds it while the catch card is up
+// and then eases back. THE SHOW CAMERA (docs/v3/show/SPEC.md §2.6; CONTRACT §13.7b): setShowTarget({cls, pose?, length, …}) from
+// the fish breaking the surface; the lens FITS the points actors.getShowFocus() names (render-camera.js showFit) and is blended
+// over the play's rig by one eased weight that arrives when the fish is presented, holds behind the card and eases back when it
+// closes; no cut, no pop, no extra pass. fishing:reveal (the leap reveal) plays a short push-in on the breach and goes through
+// ctx.game.slowmo (0.25 s at 0.35; main owns ctx.time.timeScale). With the flag off the rig is v1's, number for number.
+import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { clamp, damp, lerp, smoothstep, easeInOutSine } from './core.js';
+import { GradeShader } from './render-grade.js';
+import { setToonTier } from './toon.js';   // CLARITY LANE B: tier settings
+import {
+  v3Presets, trophyRule, trophyDistance, trophyCranes, trophyElev, trophyYaw, trophyLift, trophyFit, trophyUp, trophyAcross,
+  SHOW_CAMERA_DEFAULT, showRow, showFit, showKeep, showRakeYaw, showEase, showOutEase, showArrival,
+  fishDistance, fishElev, reelDistance, nightTarget, pitchOf,
+  landmarkShot, landmarkWeight, WATCH, portraitFit, waterLens } from './render-camera.js';
+import { targetCorners } from './home-targets.js';   // (LOST-TACKLE §5.2: the chart table's place on the home barge)
+
+const DEG = Math.PI / 180;
+const TAU = Math.PI * 2;
+/** ACES darkens the toe; this keeps a zone's authored palette near its hex values at exposure 1. */
+const BASE_EXPOSURE = 1.32;
+
+// pr = max pixel ratio, samples = MSAA on the HDR target, bloomScale = bloom buffer scale, bloomMips = bloom mips in use,
+// fringe = the hit / danger chromatic fringe is compiled in (it is 0 at rest on every tier), sharpen = the grade's clamped
+// sharpen (0 compiles it out), maxPx = cap on drawing-buffer pixels (1080p is native on medium, 1440p on high).
+// "Clear Night" (DESIGN §19.1): more pixels, a small tight bloom, no paper on any tier.
+const TIERS = {
+  low:    { pr: 1.0,  samples: 0, bloomScale: 0.4,  bloomMips: 3, fringe: 0, sharpen: 0.22, maxPx: 1.0e6 },
+  medium: { pr: 1.75, samples: 2, bloomScale: 0.5,  bloomMips: 5, fringe: 1, sharpen: 0.30, maxPx: 2.1e6 },
+  high:   { pr: 2.0,  samples: 4, bloomScale: 0.75, bloomMips: 5, fringe: 1, sharpen: 0.30, maxPx: 3.7e6 },
+};
+// >>> CLARITY LANE B: tier settings
+// shadow = the key light's shadow-map size (0 = none), shadowEvery = refresh every n-th frame, shadowBox = half-size (m)
+// of its box round the raft, reflect = the lake's planar-reflection target as a share of the drawing buffer (0 = the
+// analytic water). Low pays for none of it (docs/v3/clarity/SPEC.md §10).
+const TIERS_B = {
+  low:    { shadow: 0,    shadowEvery: 1, shadowBox: 0,  reflect: 0 },
+  medium: { shadow: 1024, shadowEvery: 2, shadowBox: 34, reflect: 1 / 3 },
+  high:   { shadow: 2048, shadowEvery: 1, shadowBox: 42, reflect: 0.5 },
+};
+// <<< CLARITY LANE B
+const TIER_ORDER = ['low', 'medium', 'high'];
+
+// Camera presets. elev = camera elevation above the focus (deg), dist = focus→camera (m),
+// aim = look-target lead along the view direction (m), aimY = look-target height (m),
+// fov = vertical fov on landscape (deg), ahead = velocity look-ahead (s), stiff = focus spring ω.
+export const MODES = {
+  title: { elev: 15, dist: 15.5, aim: 0, aimY: 2.9, fov: 42, ahead: 0, stiff: 2.2 },
+  sail:  { elev: 32, dist: 16.5, aim: 6.5, aimY: 0.6, fov: 50, ahead: 0.55, stiff: 3.6 },
+  fish:  { elev: 34, dist: 14.0, aim: 0.8, aimY: 0.4, fov: 48, ahead: 0.1, stiff: 3.0 },
+  reel:  { elev: 25, dist: 10.0, aim: 0.4, aimY: 0.7, fov: 44, ahead: 0, stiff: 3.4 },
+  night: { elev: 53, dist: 24.0, aim: 2.0, aimY: 0.0, fov: 52, ahead: 0.35, stiff: 4.2 },
+  shop:  { elev: 18, dist: 10.0, aim: 0, aimY: 1.5, fov: 44, ahead: 0, stiff: 2.4 },
+  death: { elev: 36, dist: 12.5, aim: 0, aimY: 0.6, fov: 46, ahead: 0, stiff: 1.4 },
+  // the measuring ceremony's close-up (v3 R2; only while a trophy target is set): dist / elev / fov / aimY are computed
+  trophy: { elev: 18, dist: 1.6, aim: 0, aimY: 0.6, fov: 44, ahead: 0, stiff: 2.4 },
+};
+// v3 automatic fishing: how much of AUTOFISH.play[class].shake each beat of the play gives the camera, and the class ladder.
+const REEL_SHAKE = { take: 0.8, run: 0.6, surge: 1, lastStand: 1.2, loss: 0.7, hold: 0.25 };
+const CLASS_RANK = { small: 0, keeper: 1, prize: 2, trophy: 3, elder: 4, ancient: 5, legend: 6 };
+// v3: after the card's turn the trophy framing holds while a blocking modal (the catch card) is up, then eases back.
+const TROPHY_HOLD_GRACE = 0.6;
+const TROPHY_HOLD_MAX = 90;
+const PARAM_KEYS = ['elev', 'dist', 'aim', 'aimY', 'fov', 'ahead', 'stiff'];
+// When the line runs up-screen (away from the camera) the fish / reel framing looks a little behind
+// the raft and leans less toward the bobber, so the raft sits above the reel gauge (≈62%) and the
+// bottom-centre lantern cluster with the bobber still below the clock. Casts toward the camera keep
+// the plain framing (the bobber is then below the raft on screen).
+const UPCAST = { fish: { aim: -2.5, w: 0.3 }, reel: { aim: -4.0, w: 0.25 } };
+const BASE_W = { fish: 0.44, reel: 0.4 };
+
+const GRADE_NUM = ['exposure', 'bloomStrength', 'bloomRadius', 'bloomThreshold', 'tintAmount', 'vignette',
+  'saturation', 'grain', 'contrast', 'fringe', 'paper', 'warmAmount', 'lift'];
+const GRADE_COL = ['tint', 'warm'];
+// Clear Night: bloom only on true emitters (a high threshold, a small radius), true darks (a low lift), a clean lens (no
+// resting fringe, no paper, grain as a dither), a light vignette and a gentle contrast curve. The zone's violet tint stays.
+const GRADE_DEFAULT = {
+  exposure: 1.0, bloomStrength: 0.42, bloomRadius: 0.30, bloomThreshold: 0.92, tintAmount: 0.18,
+  vignette: 0.24, saturation: 0.9, grain: 0.012, contrast: 1.08, fringe: 0, paper: 0, warmAmount: 0.14, lift: 0.22,
+  tint: 0x40347e, warm: 0xf4cc96,
+};
+// bloom mip weights at radius 0 (→ the mirrored set at radius 1): the small mips carry it, so a halo hugs its emitter
+const BLOOM_FACTORS = [1.0, 0.7, 0.4, 0.2, 0.08];
+const BLOOM_KNEE = 0.10;      // a harder knee: rim light and pale stone under the threshold stay out of the bloom
+const FRINGE_PULSE = 0.4;     // chromatic fringe per unit of pulse({fringe}) (hits, a snapped line, the lantern going out)
+// The resting lens got lighter, the game's states must not: an event's bloom pulse rides the smaller resting strength with
+// this gain (about the old absolute pulse, and only emitters feed it now), and the lantern-out and death vignettes close
+// the frame about as far as they did over the old, heavier resting vignette.
+const BLOOM_PULSE_GAIN = 1.8, VIGNETTE_DARK = 0.32, VIGNETTE_DEATH = 0.34;
+
+const isReal = (m) => !!m && !m.isStub;
+const wrapAngle = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
+/** Smooth 1-D noise in ~[-1, 1] from incommensurate sines (cheap, allocation-free). */
+const snoise = (t, s) => (Math.sin(t * 1.0 + s) * 0.5 + Math.sin(t * 2.31 + s * 1.7) * 0.3 + Math.sin(t * 4.79 + s * 2.9) * 0.2);
+/** Critically damped spring step (SmoothDamp). Returns new value; writes velocity into st.v. */
+function springStep(st, target, omega, dt) {
+  const x = omega * dt;
+  const e = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+  const change = st.x - target;
+  const temp = (st.v + omega * change) * dt;
+  st.v = (st.v - omega * temp) * e;
+  st.x = target + (change + temp) * e;
+  return st.x;
+}
+
+export function create(ctx) {
+  // v3 camera presets (CONTRACT §13.7 render): read once, like data itself (the flag is fixed for the page load)
+  const V3 = ctx.data?.V3_ENABLED === true;
+  const CAMS = V3 ? v3Presets(ctx.data?.BALANCE?.cameras, MODES) : null;
+  const P = CAMS ? CAMS.modes : MODES;   // the presets in force (v1's own table with the flag off)
+  const TROPHY = CAMS ? CAMS.trophy : trophyRule(ctx.data?.BALANCE?.cameras, ctx.data?.BALANCE?.ceremony?.camera);
+
+  // ---------------------------------------------------------------- renderer & scene
+  const renderer = new THREE.WebGLRenderer({
+    antialias: false, alpha: false, stencil: false, depth: true, powerPreference: 'high-performance',
+  });
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = BASE_EXPOSURE;
+  renderer.info.autoReset = false;       // count every pass of the frame (reset in render())
+  const canvas = renderer.domElement;
+  canvas.setAttribute('tabindex', '-1');
+  // >>> CLARITY LANE B: shadow map
+  // One shadow map, the key light's (world.js applyKeyLight owns the light, its box and its refresh beat). On high the
+  // toon materials read it through three's soft filter, on medium through their own 4-tap one (toon.js), so the
+  // renderer's type is Basic there; low has no shadow map at all.
+  renderer.shadowMap.enabled = false;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  let tierB = TIERS_B.high;
+  function applyTierB(name) {
+    tierB = TIERS_B[name] || TIERS_B.medium;
+    const on = tierB.shadow > 0, type = name === 'high' ? THREE.PCFSoftShadowMap : THREE.BasicShadowMap;
+    if (renderer.shadowMap.enabled !== on || renderer.shadowMap.type !== type) {
+      renderer.shadowMap.enabled = on;
+      renderer.shadowMap.type = type;
+      // lit materials compile the shadow lookup in or out: have them rebuilt on their next draw
+      scene?.traverse?.((o) => { const m = o.material; if (m && m.isMeshToonMaterial) m.needsUpdate = true; });
+    }
+    setToonTier(name);
+  }
+  // <<< CLARITY LANE B
+
+  const z0 = ctx.data?.ZONES?.[0]?.palette;
+  const scene = new THREE.Scene();
+  scene.name = 'gloomwater';
+  scene.fog = new THREE.FogExp2(z0?.fog ?? 0x3a3070, z0?.fogDensity ?? 0.0055);
+  const bg = new THREE.Color().copy(scene.fog.color);
+  scene.background = bg;
+
+  const camera = new THREE.PerspectiveCamera(50, Math.max(1, innerWidth) / Math.max(1, innerHeight), 0.25, 900);
+  camera.position.set(0, 9, 22);
+  camera.lookAt(0, 0, 0);
+  scene.add(camera);   // lets others parent camera-relative effects
+
+  // ---------------------------------------------------------------- post chain
+  const renderPass = new RenderPass(scene, camera);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(256, 256), GRADE_DEFAULT.bloomStrength, GRADE_DEFAULT.bloomRadius, GRADE_DEFAULT.bloomThreshold);
+  bloomPass.highPassUniforms.smoothWidth.value = BLOOM_KNEE;
+  bloomPass.compositeMaterial.uniforms.bloomFactors.value = BLOOM_FACTORS;
+  // Clamp what feeds the bloom: a tiny HDR-hot sprite (eyes, motes, cinders, Warden glow) otherwise
+  // pours its whole energy through the half-res mips and blooms into a visible square on low.
+  {
+    const hp = bloomPass.materialHighPassFilter;
+    hp.uniforms.uBloomClamp = { value: 3.0 };
+    hp.fragmentShader = hp.fragmentShader
+      .replace('uniform float smoothWidth;', 'uniform float smoothWidth;\nuniform float uBloomClamp;')
+      .replace('gl_FragColor = mix( outputColor, texel, alpha );',
+        // (a NaN or an Inf, e.g. a half-float overflow on some AMD GPUs, is dropped before the clamp: Inf × 0 is NaN, and one
+        // NaN texel spreads through the mips into a black square at the flame; a player saw it on a Legion Go, 17 Nov 2026)
+        'if (any(isnan(texel.rgb)) || any(isinf(texel.rgb))) texel.rgb = vec3(0.0);\n\t\t\t'
+        + 'texel.rgb = clamp(texel.rgb, 0.0, 6.0e4);\n\t\t\t'
+        + 'float lum = max(luminance( texel.xyz ), 1e-4);\n\t\t\ttexel.rgb *= min(1.0, uBloomClamp / lum);\n\t\t\tgl_FragColor = mix( outputColor, texel, alpha );');
+    hp.needsUpdate = true;
+  }
+  const gradePass = new ShaderPass(GradeShader);
+  const gu = gradePass.uniforms;   // (the last pass: it draws to the screen and applies ACES + sRGB itself)
+  let composer = null;
+  let composerSamples = -1;
+
+  function buildComposer(samples) {
+    samples = Math.max(0, Math.min(samples, renderer.capabilities.maxSamples || 0));
+    if (composer && samples === composerSamples) return;
+    if (composer) {
+      composer.renderTarget1.dispose();
+      composer.renderTarget2.dispose();
+      composer.copyPass?.material?.dispose?.();
+      composer.copyPass?.fsQuad?.dispose?.();
+    }
+    // (no pass reads the resolved depth, so the MSAA resolve skips it: one blit less per pass on the MSAA tiers)
+    const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples, resolveDepthBuffer: false });
+    rt.texture.name = 'gw.hdr';
+    composer = new EffectComposer(renderer, rt);
+    composer.addPass(renderPass);
+    composer.addPass(bloomPass);
+    composer.addPass(gradePass);
+    composerSamples = samples;
+  }
+
+  // ---------------------------------------------------------------- sizing & quality
+  let W = Math.max(1, innerWidth), H = Math.max(1, innerHeight);
+  let tierName = 'high';
+  let qualitySetting = 'auto';
+  let lastMetaQuality;   // meta.settings.quality seen at the last setQuality (detects settings edits)
+  let bloomScale = 1;
+  const auto = { active: false, frames: 0, time: 0, warm: 1.5, last: 0, drops: 0, checks: 0, bad: 0 };
+
+  let prScale = 1;   // debug.renderScale(): render below CSS resolution (headless regression runs)
+  function effectivePixelRatio() {
+    const t = TIERS[tierName];
+    let pr = Math.min(window.devicePixelRatio || 1, t.pr);
+    const px = W * H * pr * pr;
+    if (px > t.maxPx) pr = Math.sqrt(t.maxPx / (W * H));
+    return prScale < 1 ? Math.max(0.2, pr * prScale) : Math.max(0.5, pr);
+  }
+
+  function resize(w = innerWidth, h = innerHeight) {
+    W = Math.max(1, Math.floor(w)); H = Math.max(1, Math.floor(h));
+    const pr = effectivePixelRatio();
+    renderer.setPixelRatio(pr);
+    renderer.setSize(W, H, false);
+    composer.setPixelRatio(pr);
+    composer.setSize(W, H);
+    bloomPass.setSize(Math.max(8, Math.round(W * pr * bloomScale)), Math.max(8, Math.round(H * pr * bloomScale)));
+    gu.uRes.value.set(W * pr, H * pr);
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+  }
+
+  function applyTier(name) {
+    if (!TIERS[name]) name = 'medium';
+    tierName = name;
+    const t = TIERS[name];
+    bloomScale = t.bloomScale;
+    bloomPass.materialHighPassFilter.uniforms.uBloomClamp.value = name === 'low' ? 2.0 : 3.0;
+    // the low tier blurs and composites only the first mips (a tight bloom has nothing in the wide ones): the unused mips
+    // keep a zero tint, so a stale target from a higher tier adds nothing
+    bloomPass.nMips = clamp(t.bloomMips | 0, 1, bloomPass.bloomTintColors.length);
+    bloomPass.bloomTintColors.forEach((c, i) => c.setScalar(i < bloomPass.nMips ? 1 : 0));
+    buildComposer(ctx.isMobile ? 0 : t.samples);
+    applyTierB(name);   // CLARITY LANE B: tier settings
+    const m = gradePass.material;
+    const sharpenOn = t.sharpen > 0 ? 1 : 0;
+    gu.uSharpen.value = t.sharpen;
+    if (m.defines.GW_PAPER !== 0 || m.defines.GW_FRINGE !== t.fringe || m.defines.GW_SHARPEN !== sharpenOn) {
+      m.defines.GW_PAPER = 0;   // no paper on any tier (Clear Night); the shader keeps the block for the audit tools
+      m.defines.GW_FRINGE = t.fringe;
+      m.defines.GW_SHARPEN = sharpenOn;
+      m.needsUpdate = true;
+    }
+    resize(W, H);
+    auto.frames = 0; auto.time = 0; auto.warm = 1.5;
+  }
+
+  function autoTier() {
+    if (!ctx.isMobile) return 'high';
+    const cores = navigator.hardwareConcurrency || 4;
+    const mem = navigator.deviceMemory || 4;
+    return cores <= 2 || mem <= 2 ? 'low' : 'medium';
+  }
+
+  function setQuality(q = 'auto') {
+    if (q !== 'auto' && !TIERS[q]) q = 'auto';
+    qualitySetting = q;
+    lastMetaQuality = ctx.state?.meta?.settings?.quality;
+    auto.active = q === 'auto';
+    auto.drops = 0; auto.checks = 0; auto.bad = 0;
+    applyTier(q === 'auto' ? autoTier() : q);
+  }
+
+  function sampleFps(now) {
+    if (!auto.active) return;
+    const gap = auto.last ? (now - auto.last) / 1000 : 0;
+    auto.last = now;
+    if (!gap || gap > 0.25 || document.hidden) return;   // stalls, tab switches
+    if (auto.warm > 0) { auto.warm -= gap; return; }     // shader compiles, first frames
+    auto.frames++;
+    auto.time += gap;
+    if (auto.time >= 4) {
+      const fps = auto.frames / auto.time;
+      auto.frames = 0; auto.time = 0;
+      auto.checks++;
+      const i = TIER_ORDER.indexOf(tierName);
+      // the first window after start decides at once; later dips must persist for 2 windows
+      auto.bad = fps < 40 ? auto.bad + 1 : 0;
+      if (i > 0 && (auto.bad >= 2 || (auto.bad === 1 && auto.checks === 1))) {
+        auto.drops++;
+        auto.bad = 0;
+        auto.checks = 0;   // the window right after a drop decides at once again
+        applyTier(TIER_ORDER[i - 1]);
+        if (TIER_ORDER[i - 1] === 'low') auto.active = false;   // nothing lower to go
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- grade state
+  const gTgt = {}, gCur = {};
+  const cTgt = { tint: new THREE.Color(), warm: new THREE.Color() };
+  const cCur = { tint: new THREE.Color(), warm: new THREE.Color() };
+  for (const k of GRADE_NUM) gTgt[k] = gCur[k] = GRADE_DEFAULT[k];
+  for (const k of GRADE_COL) { cTgt[k].setHex(GRADE_DEFAULT[k]); cCur[k].copy(cTgt[k]); }
+
+  function setGrade(g = {}, opts = {}) {
+    if (!g || typeof g !== 'object') return;
+    for (const k of GRADE_NUM) {
+      const v = g[k];
+      if (typeof v === 'number' && isFinite(v)) { gTgt[k] = v; if (opts.instant) gCur[k] = v; }
+    }
+    for (const k of GRADE_COL) {
+      const v = g[k];
+      if (v === undefined || v === null) continue;
+      try { v.isColor ? cTgt[k].copy(v) : cTgt[k].set(v); } catch { continue; }
+      if (opts.instant) cCur[k].copy(cTgt[k]);
+    }
+  }
+
+  // transient effects
+  const fx = {
+    trauma: 0, traumaDecay: 1, shakeT: 0,
+    flash: 0, flashPeak: 0, flashDur: 0.25, flashT: 1, flashColor: new THREE.Color(1, 1, 1),
+    bloomPulse: 0, fringePulse: 0, vigPulse: 0, fovKick: 0,
+    death: 0, danger: 0, dark: 0,
+    attention: null, attentionT: 0, attentionDur: 0, attentionW: 0,
+    push: 0, pushT: 0, pushIn: 0.35, pushHold: 0, pushOut: 0.8,   // a dolly push-in on the current framing (the landing)
+    kickDue: 0,                                                    // a fov kick still to be fed in (the show camera eases it)
+  };
+  const flashTmp = new THREE.Color();
+
+  let reducedMotion = false;
+  try {
+    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    reducedMotion = mq.matches;
+    mq.addEventListener?.('change', (e) => { reducedMotion = e.matches; });
+  } catch { /* old browsers */ }
+  function shakeScale() {
+    const s = ctx.state?.meta?.settings?.screenShake;
+    if (s === false || s === 0) return 0;
+    const k = reducedMotion ? 0.35 : 1;
+    if (typeof s === 'number') return clamp(s, 0, 1.5) * k;
+    return k;
+  }
+  function shake(intensity = 0.3, duration = 0.35) {
+    const i = clamp(Number(intensity) || 0, 0, 1);
+    if (i <= 0) return;
+    // max-combine with a little stacking: duplicate calls for one event don't explode
+    fx.trauma = clamp(Math.max(fx.trauma, i) + i * 0.2, 0, 1);
+    fx.traumaDecay = Math.max(0.6, fx.trauma / Math.max(0.08, Number(duration) || 0.35));
+  }
+  const reducedFlashing = () => ctx.state?.meta?.settings?.reducedFlashing === true;
+  function flash(hex = 0xffffff, strength = 0.5, duration = 0.25) {
+    let s = clamp(Number(strength) || 0, 0, 1);
+    const remaining = fx.flashT < 1 ? fx.flashPeak * Math.pow(1 - fx.flashT, 2) : 0;
+    if (s < remaining * 0.8) return;
+    try { flashTmp.set(hex); } catch { flashTmp.setRGB(1, 1, 1); }
+    // non-black flashes are pushed a little into HDR so they bloom
+    const lum = flashTmp.r * 0.2126 + flashTmp.g * 0.7152 + flashTmp.b * 0.0722;
+    if (lum > 0.02 && reducedFlashing()) s *= 0.25;   // accessibility: bright flashes become glows
+    fx.flashColor.copy(flashTmp).multiplyScalar(lum > 0.02 ? 1.6 : 1);
+    fx.flashPeak = s;
+    fx.flashDur = Math.max(0.05, Number(duration) || 0.25);
+    fx.flashT = 0;
+  }
+  function pulse({ bloom = 0, fringe = 0, vignette = 0 } = {}) {
+    if (reducedFlashing()) bloom *= 0.35;
+    fx.bloomPulse = Math.min(1.5, fx.bloomPulse + bloom);
+    fx.fringePulse = Math.min(3, fx.fringePulse + fringe);
+    fx.vigPulse = Math.min(0.6, fx.vigPulse + vignette);
+  }
+  function kick(fovDelta = -3) {
+    // while the show camera is in, a kick is fed in over a few frames (never a jump of the lens: SPEC S5)
+    if (showCam.w > 0.02) { fx.kickDue = clamp(fx.kickDue + fovDelta, -8, 8); return; }
+    fx.fovKick = clamp(fx.fovKick + fovDelta, -12, 12);
+  }
+  /** A dolly push-in on whatever the camera frames now (v3 landing): the distance comes in by `amount` (0..0.6) over `rise` s, holds
+   *  `hold` s and eases back over `release` s. Reduced motion halves it. */
+  function push(amount = 0.25, hold = 0.5, rise = 0.35, release = 0.8) {
+    const a = clamp(Number(amount) || 0, -0.4, 0.6) * (reducedMotion ? 0.5 : 1);   // a negative amount draws the camera back
+    if (a === 0) return false;
+    fx.push = a; fx.pushT = 0; fx.pushIn = Math.max(0.05, rise); fx.pushHold = Math.max(0, hold); fx.pushOut = Math.max(0.1, release);
+    return true;
+  }
+  function pushK() {
+    if (!fx.push) return 0;
+    const t = fx.pushT, a = fx.pushIn, h = fx.pushHold, r = fx.pushOut;
+    if (t >= a + h + r) { fx.push = 0; return 0; }
+    const e = t < a ? smoothstep(0, a, t) : t < a + h ? 1 : 1 - smoothstep(a + h, a + h + r, t);
+    return fx.push * e;
+  }
+  /** Bias the camera focus toward a world point for a while (boss entrances, gates…). */
+  function attention(position, duration = 2, weight = 0.4) {
+    if (!position) { fx.attention = null; return; }
+    fx.attention = fx.attention || new THREE.Vector3();
+    fx.attention.set(position.x || 0, 0, position.z || 0);
+    fx.attentionT = 0; fx.attentionDur = Math.max(0.2, duration); fx.attentionW = clamp(weight, 0, 0.8);
+  }
+
+  // ---------------------------------------------------------------- camera rig state
+  const cur = {}, tgt = {};
+  for (const k of PARAM_KEYS) cur[k] = tgt[k] = P.title[k];
+  let yaw = 0.55, titleYaw = 0.55, deathYaw = 0, deathT0 = 0;
+  let upCast = 1;
+  let mode = 'title', prevMode = 'title';
+  let time = 0, modeT = 0;
+  const fX = { x: 0, v: 0 }, fY = { x: 0, v: 0 }, fZ = { x: 8, v: 0 };
+  let focusInit = false;
+  const focusTarget = new THREE.Vector3();
+  const lookTarget = new THREE.Vector3();
+  const camPos = new THREE.Vector3();
+  const fwd = new THREE.Vector3();
+  const tmpV = new THREE.Vector3();
+  const tmpV2 = new THREE.Vector3();
+  const raycaster = new THREE.Raycaster();
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const projV = new THREE.Vector3();
+  let nightK = 0;
+  // the trophy shot (v3 R2): on while fishing's ceremony holds a target; hold after it while the catch card is up
+  const trophy = {
+    on: false, hold: false, t: 0, holdT: 0, L: 0.5, dist: TROPHY.min ?? 1.6, crane: false, yaw: 0, r: 0.6,
+    landmark: null, place: null, from: new THREE.Vector3(), subject: new THREE.Vector3(), measured: false,
+    lastFocus: new THREE.Vector3(), lastR: 0,   // actors' last measuring focus: the card's hold keeps the held fish framed
+  };
+  const subjTmp = new THREE.Vector3();
+  let trophyK = 0;   // eased 0..1 weight of the trophy grade
+  // the show camera (v3; docs/v3/show/SPEC.md §2.6, AUTOFISH.show.camera): from the fish breaking the surface the lens comes in
+  // on the Wick and its fish and is there when the fish is presented. One rig with the play's: the fitted pose is blended over
+  // the play's own (weight w, eased 0 → 1 by the present, 1 behind the card, back to 0 over `out` s when the card closes), so
+  // there is no cut, no pop in or out, and no second pass.
+  const SHOWC = V3 ? (ctx.data?.AUTOFISH?.show?.camera || SHOW_CAMERA_DEFAULT) : null;
+  const SHOW_HOLD_MAX = 120;
+  const showCam = {
+    on: false, hold: false, holdT: 0, w: 0, w0: 0, p: 0, outT: -1, init: false, frozen: false, lastT: -1,
+    cls: 'keeper', pose: null, L: 0.5, swarm: false, yaw0: 0, landmark: null, place: null, hasSpot: false, spot: new THREE.Vector3(),
+    row: null, by: '', tgt: { x: 0, y: 1, z: 0, dist: 3, elev: 10, yaw: 0, fov: 44 },
+    sx: { x: 0, v: 0 }, sy: { x: 0, v: 0 }, sz: { x: 0, v: 0 }, sd: { x: 3, v: 0 }, se: { x: 10, v: 0 }, sw: { x: 0, v: 0 }, sf: { x: 44, v: 0 },
+    pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 44, pts: [], focus: null, fishC: new THREE.Vector3(), hasFish: false,
+    anchor: new THREE.Vector3(), hasAnchor: false, still: false, frozenCard: false, fitOk: false, rise: 0, outRatio: 6,
+  };
+  const showAnchorTmp = new THREE.Vector3(), rigPos = new THREE.Vector3();
+  const showPt = [];
+  const showPoint = (i) => (showPt[i] || (showPt[i] = new THREE.Vector3()));
+  let lastStatsAt = -10, maxHp = 5;
+  let qualityCheckAt = 0;
+
+  function playerPos() {
+    const p = isReal(ctx.player) ? ctx.player.position : null;
+    return p && typeof p.x === 'number' ? p : null;
+  }
+  function phaseInfo() {
+    if (!isReal(ctx.survival) || !ctx.state?.run) return null;
+    try { const i = ctx.survival.getPhaseInfo?.(); return i && !i.isStub ? i : null; } catch { return null; }
+  }
+  function fishingState() {
+    if (!isReal(ctx.fishing)) return 'idle';
+    const s = ctx.fishing.state;
+    return typeof s === 'string' ? s : 'idle';
+  }
+  function bobber() {
+    if (!isReal(ctx.fishing)) return null;
+    const b = ctx.fishing.bobberPos;
+    return b && typeof b.x === 'number' && isFinite(b.x) ? b : null;
+  }
+  function merchantPos() {
+    const m = isReal(ctx.actors) ? ctx.actors.merchant : null;
+    if (!m || m.isStub || m.present !== true) return null;
+    const p = m.position || m.object3d?.position;
+    return p && typeof p.x === 'number' ? p : null;
+  }
+  function shopOpen() {
+    if (!isReal(ctx.ui)) return false;
+    try { return ctx.ui.isShopOpen?.() === true; } catch { return false; }
+  }
+  function uiBlocking() {
+    if (!isReal(ctx.ui)) return false;
+    try { return ctx.ui.isBlocking?.() === true; } catch { return false; }
+  }
+  /** combat.swarmActive (v3): inside the swarm window now, or a Gloomtide calm raid. Render's night overview follows it. */
+  function swarmActive() {
+    if (!isReal(ctx.combat)) return false;
+    try { return ctx.combat.swarmActive === true; } catch { return false; }
+  }
+  const trophyLive = () => (trophy.on || trophy.hold) && (ctx.flow === 'playing' || ctx.flow === 'hub');
+  /**
+   * The trophy shot's subject: actors' measuring focus (the fish and the Wick, weighted toward the fish) when actors
+   * provides it, else the Wick's head drawn toward where the fish was landed. Writes trophy.subject / trophy.r.
+   */
+  function updateTrophySubject() {
+    let mf = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getMeasureFocus === 'function') {
+      try { mf = ctx.actors.getMeasureFocus(subjTmp); } catch { mf = null; }
+    }
+    const c = mf && mf.center;
+    if (c && Number.isFinite(c.x) && Number.isFinite(c.y) && Number.isFinite(c.z)) {
+      trophy.subject.set(c.x, c.y, c.z);
+      trophy.r = Math.max(0.35, Number(mf.radius) || trophy.L * 0.5);
+      if (trophy.on) { trophy.lastFocus.copy(trophy.subject); trophy.lastR = trophy.r; }
+      return;
+    }
+    // the card's hold: the ceremony is over but the Wick still holds its fish, so the shot keeps the fish and its glory
+    // (the card covers the foot of a phone's frame; the head alone would leave the fish under it)
+    if (trophy.hold && trophy.lastR > 0) { trophy.subject.copy(trophy.lastFocus); trophy.r = trophy.lastR; return; }
+    // fallback: the head (flame) of the Wick, or a point 0.9 m over the deck, toward the landing spot by pose
+    let head = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getHeadPos === 'function') {
+      try { head = ctx.actors.getHeadPos(subjTmp); } catch { head = null; }
+    }
+    if (!head || !Number.isFinite(head.x)) {
+      const p = playerPos();
+      head = subjTmp.set(p ? p.x : trophy.from.x, 0.9, p ? p.z : trophy.from.z);
+    }
+    const L = trophy.L;
+    const w = L < 0.85 ? 0.12 : L < 2 ? 0.3 : 0.55;   // held fish sit by the Wick; an alongside one lies out by the landing spot
+    trophy.subject.copy(head).lerp(trophy.from, w);
+    // held fish: around the preset's aimY over the Wick's feet (the hands), lifted with a hanging fish; alongside: the water line
+    trophy.subject.y = L < 2 ? Math.max(TROPHY.aimY ?? 0.6, head.y - 0.25 - Math.min(L, 2) * 0.2) : Math.max(0.2, head.y * 0.4);
+    trophy.r = head.distanceTo(trophy.from) * Math.max(w, 1 - w) * (L < 2 ? 0.4 : 1) + Math.max(L * 0.5, 0.35);
+  }
+
+  // >>> INTRO LANE A: cut-scene camera
+  // The opening cut scene's camera (v3; docs/v3/intro/SPEC.md §5, CONTRACT §13.13). Inert until setIntroCamera(pose) is called.
+  // pose = { pos: [x, y, z], look: [x, y, z], fov, w } in world metres; w = 1 is the pose alone, w = 0 the rig alone. While a
+  // pose is set the rig is held in `sail` (whatever the flow), so the film's last move settles into the play camera with no
+  // cut and nothing changes when the pose is released. null releases it.
+  let introCam = null;
+  function setIntroCamera(p) { introCam = p && Array.isArray(p.pos) && Array.isArray(p.look) ? p : null; }
+  // <<< INTRO LANE A
+
+  // the loop's lift (M1 step 3a, PLAN §2.4 item 4, CHOICE 21): frameLandmark(p, {dur, back}) frames a place from the raft's side while
+  // its mist lifts (render-camera landmarkShot), laid over the rig like the cut scene's pose and eased back to the sail camera in
+  // `back` s; frameLandmark(null, {back}) eases back now. Inert until called (the loop's main calls it; nothing else does).
+  const lmk = { on: false, t: 0, dur: 4.2, back: 0.6, p: null, pose: null, w: 0, rel: false, relT: 0, relW: 0 };
+  function frameLandmark(p, { dur = 4.2, back = 0.6 } = {}) {
+    const B = Number.isFinite(Number(back)) ? Math.max(0.05, Number(back)) : 0.6;
+    if (!p) {
+      if (lmk.on && !lmk.rel) { lmk.rel = true; lmk.relT = 0; lmk.relW = lmk.w; lmk.back = B; }
+      return lmk.on;
+    }
+    if (!Number.isFinite(Number(p.x)) || !Number.isFinite(Number(p.z))) return false;
+    Object.assign(lmk, { on: true, t: 0, dur: Number.isFinite(Number(dur)) ? Math.max(0.2, Number(dur)) : 4.2, back: B, rel: false, relT: 0, relW: 0, pose: null,
+      p: { x: Number(p.x), y: Number(p.y) || 0, z: Number(p.z), r: Number.isFinite(Number(p.r)) ? Number(p.r) : 6, ...(Array.isArray(p.face) ? { face: p.face.slice(0, 2) } : {}),
+        ...(Array.isArray(p.side) ? { side: p.side.slice(0, 2) } : {}), ...(Number.isFinite(Number(p.elev)) ? { elev: Number(p.elev) } : {}), ...(Number.isFinite(Number(p.dist)) ? { dist: Number(p.dist) } : {}) } });
+    return true;
+  }
+  function landmarkW(dt) {
+    if (!lmk.on) { lmk.w = 0; return 0; }
+    lmk.t += dt;
+    if (!lmk.pose) { let obs = null; try { obs = ctx.world?.getObstacles?.() || null; } catch { obs = null; } lmk.pose = landmarkShot(playerPos(), lmk.p, { yaw, aspect: W / H, obstacles: obs }); }
+    if (!lmk.pose) { lmk.on = false; lmk.w = 0; return 0; }
+    if (lmk.rel) { lmk.relT += dt; lmk.w = lmk.relW * (1 - smoothstep(0, lmk.back, lmk.relT)); if (lmk.relT >= lmk.back) lmk.on = false; }
+    else { lmk.w = landmarkWeight(lmk.t, { dur: lmk.dur, back: lmk.back }); if (lmk.t >= lmk.dur + lmk.back) lmk.on = false; }
+    if (!lmk.on) lmk.w = 0;
+    return lmk.w;
+  }
+
+  // the home camera (M1 step 5a; SPEC §6.1): the mooring's `cam` ({pos, look, fov}, `portrait` on a screen taller than wide, the
+  // two eased into each other between them: data.homeCamAt),
+  // blended over the rig by one weight eased 1.2 s in from 'sail' and out again when the glide out begins; null without a mooring
+  const HOME_EASE = 1.2;
+  const homeCam = { k: 0, w: 0, pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 45 };
+  function homePose() {
+    if (ctx.data?.LOOP_ENABLED !== true) return null;
+    let m = null;
+    try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
+    const c = m?.cam;
+    if (!c || !Array.isArray(c.pos) || !Array.isArray(c.look)) return null;
+    // M1 step 5b (LANE 5B-TOW): a tow's glide in is seen from the same framing drawn back (LOOP.tow.cam: `pull` times its distance,
+    // turned `turn` degrees round the look point; the portrait pose its own, clear of the islands), dollying in to the mooring's
+    // framing as the barge comes to rest (game.towCam(): 1 → 0)
+    let pull = 0;
+    try { pull = Math.min(1, Number(ctx.game?.towCam?.()) || 0); } catch { pull = 0; }
+    // (the integration's fix: between a phone held upright and a wide screen, a tablet held sideways, a 4:3 or a square window,
+    // the landscape and portrait poses eased into each other, the tow's pull and turn with them: data.homeCamAt, the validator's own)
+    if (typeof ctx.data?.homeCamAt === 'function') return towAim(ctx.data.homeCamAt(c, W / H, { pull, tow: ctx.data?.LOOP?.tow?.cam || null }), pull);
+    const tall = W / H < 0.85 && c.portrait && Array.isArray(c.portrait.pos), pose = tall ? c.portrait : c;
+    if (pull > 0) {
+      const TC = ctx.data?.LOOP?.tow?.cam || {}, cfg = tall && TC.portrait ? TC.portrait : TC, L = pose.look;
+      const K = 1 + (Math.max(1, Number(cfg.pull) || 2.2) - 1) * pull, a = ((Number(cfg.turn) || 0) * Math.PI / 180) * pull;
+      const ox = pose.pos[0] - L[0], oz = pose.pos[2] - L[2], rx = ox * Math.cos(a) - oz * Math.sin(a), rz = ox * Math.sin(a) + oz * Math.cos(a);
+      return { ...pose, pos: [L[0] + rx * K, L[1] + (pose.pos[1] - L[1]) * K, L[2] + rz * K] };
+    }
+    return pose;
+  }
+  // (Lake 1 polish: on a near-square or upright screen the portrait lens is narrow, and the raft leading the barge on its line ran off
+  // the frame's edge through the glide in: there the pose slides, look and lens together, toward the midpoint of the raft and the
+  // barge, held through most of the glide and easing back to the mooring's framing over its last third; a wide screen is as before)
+  function towAim(pose, pull) {
+    if (!pose || !(pull > 0)) return pose;
+    const a = W / H, wa = a <= 1.1 ? 1 : a >= 1.4 ? 0 : 1 - (a - 1.1) / 0.3;
+    const h = ctx.actors?.home?.object3d, p = playerPos();
+    if (!(wa > 0) || !h || !p) return pose;
+    const w = wa * Math.min(1, pull * 3) * 0.9, mx = (h.position.x + p.x) / 2, mz = (h.position.z + p.z) / 2;
+    const dx = (mx - pose.look[0]) * w, dz = (mz - pose.look[2]) * w;
+    if (!Number.isFinite(dx) || !Number.isFinite(dz)) return pose;
+    return { ...pose, pos: [pose.pos[0] + dx, pose.pos[1], pose.pos[2] + dz], look: [pose.look[0] + dx, pose.look[1], pose.look[2] + dz] };
+  }
+  // the home side (M1 step 5a): the mooring's camera looks at the raft from the far side of the sail framing's north yaw, so in
+  // flow home the rig turns to that side of the raft (the sail home's glide, the rest, the glide out's first moments) and back to
+  // the north as the raft leaves; a turn that large is one eased orbit (HOME_SWING s, smoothstep) round the raft, the way that
+  // keeps the lens off the hulls, never a cut and never a pass over the raft
+  const HOME_SWING = 2.4;
+  const swing = { on: false, side: false, from: 0, d: 0, to: 0, t: 0 };
+  function homeSide() {
+    if (introCam || ctx.flow !== 'home') return null;
+    const g = ctx.player?.glideState;
+    if (g && g.kind === 'sailOut' && (Number(g.t) >= HOME_EASE * 0.5 || brookYaw(playerPos()) != null)) return null;   // (the glide out turns back to the north; the brook's goes down the brook)
+    const pose = homePose();
+    return pose ? Math.atan2(pose.pos[0] - pose.look[0], pose.pos[2] - pose.look[2]) : null;
+  }
+  /** The swing's delta (d or the long way round): the arc whose camera stays farther from the mooring's hull circles. */
+  function swingWay(from, d, dist) {
+    let circles = null;
+    try { circles = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.()?.circles : null; } catch { circles = null; }
+    if (!Array.isArray(circles) || !circles.length || Math.abs(d) < 1e-3) return d;
+    const clear = (dd) => {
+      let m = Infinity;
+      for (const s of [0.25, 0.5, 0.75]) {
+        const a = from + dd * s, x = fX.x + Math.sin(a) * dist, z = fZ.x + Math.cos(a) * dist;
+        for (const c of circles) m = Math.min(m, Math.hypot(x - c.x, z - c.z) - (Number(c.r) || 0));
+      }
+      return m;
+    };
+    const alt = d - Math.sign(d) * 2 * Math.PI, cd = clear(d), ca = clear(alt);
+    return ca > cd + 1 && cd < 6 ? alt : d;
+  }
+  // LOST-TACKLE §5.2: the Veil Angler's Notebook home: the lens holds `sec` s on the chart table, where it lies open at its map, eased in
+  // and out over the home camera (reduced motion: a cut there and back); holdChart(sec) → whether there is a table to look at
+  const chartHold = { on: false, t: 0, sec: 1.2, pose: null, w: 0 };
+  const HOLD_IN = 0.45, HOLD_OUT = 0.5;
+  function holdChart(sec = 1.2) {
+    let m = null;
+    try { m = ctx.world && !ctx.world.isStub ? ctx.world.getMooring?.() : null; } catch { m = null; }
+    const C = m ? targetCorners(m)?.chart : null;
+    if (!Array.isArray(C) || !C.length) return false;
+    const c = C.reduce((a, q) => [a[0] + q[0] / C.length, a[1] + q[1] / C.length, a[2] + q[2] / C.length], [0, 0, 0]);
+    const from = homeCam.w > 0 ? homeCam.pos : camera.position;
+    let dx = from.x - c[0], dz = from.z - c[2]; const dl = Math.hypot(dx, dz) || 1; dx /= dl; dz /= dl;
+    const look = [c[0], c[1] + 0.1, c[2]], d = W / H < 0.85 ? 3.6 : 3.0;
+    chartHold.pose = { pos: [c[0] + dx * d, c[1] + 1.9, c[2] + dz * d], look };
+    Object.assign(chartHold, { on: true, t: 0, sec: Math.max(0.2, Number(sec) || 1.2) });
+    return true;
+  }
+  function chartHoldW(dt) {
+    if (!chartHold.on) return (chartHold.w = 0);
+    chartHold.t += dt;
+    const T = chartHold.t, S = chartHold.sec;
+    if (reducedMotion) chartHold.w = T < S ? 1 : 0;
+    else chartHold.w = T < HOLD_IN ? smoothstep(0, HOLD_IN, T) : T < HOLD_IN + S ? 1 : 1 - smoothstep(HOLD_IN + S, HOLD_IN + S + HOLD_OUT, T);
+    if (T >= (reducedMotion ? S : HOLD_IN + S + HOLD_OUT) || ctx.flow !== 'home') { chartHold.on = false; chartHold.w = 0; }
+    return chartHold.w;
+  }
+  function updateHomeCam(dt) {
+    const pose = mode === 'home' ? homePose() : null;
+    if (pose) { homeCam.pos.fromArray(pose.pos); homeCam.look.fromArray(pose.look); homeCam.fov = Number(pose.fov) || 45; }
+    homeCam.k = clamp(homeCam.k + (pose ? dt : -dt) / HOME_EASE, 0, 1);
+    homeCam.w = homeCam.k * homeCam.k * (3 - 2 * homeCam.k);
+  }
+
+  // M1 step 5b (LANE 5B-TOW): the tow's phases in the water (src/loop-tow.js; game.towing())
+  const TOW_WATER = ['dip', 'dipHold', 'dipClear', 'glide'], TOW_CHART = ['dipIn', 'dipOut', 'arrive', 'wake', 'leg'];
+  const towPhase = () => { try { return ctx.game?.towing?.() ?? null; } catch { return null; } };
+  function pickMode() {
+    const flow = ctx.flow;
+    if (introCam) return 'sail';   // INTRO LANE A: cut-scene camera
+    if (flow === 'title' || flow === 'boot') return 'title';
+    if (flow === 'dead') return 'death';
+    if (trophyLive()) return 'trophy';
+    // the loop's Jetty (slice-1a PLAN §2.2 item 18): the sail framing follows the raft the home glides move (no title orbit); with
+    // the home barge (M1 step 5a) the raft tied at its stern is framed by the mooring's camera ('home', eased 1.2 s from 'sail')
+    // (M1 step 5b, LANE 5B-TOW: a tow's glide in is seen from the mooring's own framing, the barge brought in to it from its first frame)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true && homePose() && TOW_WATER.includes(towPhase())) return 'home';
+    // (… and before it, while the tow's Chart is up, the film's own sail framing holds: no cut under the opening's first ink dip)
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true && TOW_CHART.includes(towPhase())) return 'sail';
+    if (flow === 'home' && ctx.data?.LOOP_ENABLED === true) return homePose() && ctx.player?.gliding !== true ? 'home' : 'sail';
+    if (!ctx.state?.run) return 'title';
+    if (shopOpen() && merchantPos()) return 'shop';
+    const fs = fishingState();
+    if (fs === 'reeling' || fs === 'landing') return 'reel';
+    // 'charging' keeps the sail framing: moving the camera under a held pointer would drag the aim
+    if (fs === 'casting' || fs === 'waiting' || fs === 'bite' || fs === 'lost') return 'fish';
+    return nightK > 0.5 ? 'night' : 'sail';
+  }
+
+  function computeNightK(dt) {
+    if (V3) {
+      // v3: the overview follows the swarm (combat.swarmActive), never the phase alone (BALANCE.cameras.night)
+      nightK = damp(nightK, nightTarget({ playing: ctx.flow === 'playing', swarmActive: swarmActive() }), CAMS.nightBlend, dt);
+      return;
+    }
+    const info = phaseInfo();
+    let k = 0;
+    if (info) {
+      const pk = typeof info.k === 'number' ? info.k : 0;
+      if (info.isNight === true || info.phase === 'gloomtide') k = 1;
+      else if (info.phase === 'dusk') k = smoothstep(0.35, 1, pk);
+      else if (info.phase === 'dawn') k = 1 - smoothstep(0.0, 0.7, pk);
+    }
+    if (ctx.flow !== 'playing') k = 0;
+    nightK = damp(nightK, k, 1.6, dt);
+  }
+
+  // the watch (WATCH): on the Mossmere under the loop, the raft at rest a moment → the lens eases in over the near water; held while a
+  // cast is charged (moving the camera under a held pointer would drag the aim)
+  const watch = { still: 0, w: 0 };
+  function updateWatch(dt) {
+    const v = isReal(ctx.player) ? ctx.player.velocity : null, sp = v && typeof v.x === 'number' ? Math.hypot(v.x, Number(v.z) || 0) : 0;
+    const fs = fishingState();
+    const on = ctx.flow === 'playing' && ctx.data?.LOOP_ENABLED === true && ctx.fishing?.view?.waterWhite === true
+      && (mode === 'sail' || mode === 'night' || mode === 'fish') && sp < WATCH.still && ctx.player?.gliding !== true;
+    watch.still = on ? watch.still + dt : 0;
+    if (fs === 'charging') return;
+    const want = on && watch.still >= WATCH.after ? 1 : 0;
+    watch.w = want > watch.w ? Math.min(1, watch.w + dt * WATCH.rateIn) : Math.max(0, watch.w - dt * WATCH.rateOut);
+  }
+
+  function fillTargets(p) {
+    const base = P[mode === 'home' ? 'sail' : mode];   // ('home' keeps the sail rig under its fixed pose)
+    for (const k of PARAM_KEYS) tgt[k] = base[k];
+    const nk = nightK;
+    if (mode === 'trophy') { fillTrophy(); return; }   // its own portrait fit (the distance is the rule's)
+    if (mode === 'sail' || mode === 'night' || mode === 'home') {
+      const s = P.sail, n = P.night;
+      for (const k of PARAM_KEYS) tgt[k] = lerp(s[k], n[k], nk);
+    } else if (mode === 'fish' || mode === 'reel') {
+      const b = bobber();
+      let sep = 6;
+      if (b && p) sep = Math.hypot(b.x - p.x, b.z - p.z);
+      else if (mode === 'fish') sep = (Number(ctx.fishing?.view?.castDist) || 8) * 0.6;
+      // how far up-screen the line runs: +1 straight away from the camera, -1 toward it
+      let along = 1;
+      if (b && p && sep > 0.5) along = (-Math.sin(yaw) * (b.x - p.x) - Math.cos(yaw) * (b.z - p.z)) / sep;
+      else if (mode === 'fish' && isFinite(Number(ctx.fishing?.view?.aim))) along = Math.cos(Number(ctx.fishing.view.aim) - yaw);
+      upCast = smoothstep(-0.1, 0.7, along);
+      sep = clamp(sep, 0, 40);
+      if (V3) {
+        // data's aim frames the common up-screen cast; a cast toward the camera keeps render's plain lean
+        tgt.aim = lerp(CAMS.downAim[mode], base.aim, upCast);
+        if (mode === 'fish') {
+          tgt.dist = fishDistance(sep, base);
+          tgt.elev = fishElev(sep, base);
+        } else tgt.dist = reelDistance(sep, base);   // line distance only: never the size class (nor the tension it pulls)
+      } else if (mode === 'fish') {
+        tgt.aim = lerp(base.aim, UPCAST[mode].aim, upCast);
+        tgt.dist = Math.max(base.dist, 8.5 + sep * 0.78);
+        tgt.elev = base.elev + clamp(sep - 12, 0, 20) * 0.4;
+      } else {
+        tgt.aim = lerp(base.aim, UPCAST[mode].aim, upCast);
+        tgt.dist = Math.max(base.dist, 7.5 + sep * 0.6);
+        const tension = Number(ctx.fishing?.view?.tension) || 0;
+        tgt.dist -= clamp(tension, 0, 1) * 0.9;
+        tgt.fov -= clamp(tension - 0.6, 0, 0.4) * 6;
+      }
+      // night fishing keeps a little of the swarm overview (v3: only while a swarm is up)
+      const nn = nk * 0.45;
+      tgt.elev = lerp(tgt.elev, P.night.elev, nn);
+      tgt.dist = lerp(tgt.dist, Math.max(tgt.dist, P.night.dist * 0.85), nn);
+    } else if (mode === 'shop') {
+      const m = merchantPos();
+      if (m && p) tgt.dist = clamp(Math.hypot(m.x - p.x, m.z - p.z) * 0.9 + 5.5, 8, 17);
+    } else if (mode === 'death') {
+      const s = easeInOutSine(clamp((time - deathT0) / 9, 0, 1));
+      tgt.elev = lerp(36, 68, s);
+      tgt.dist = lerp(11, 25, s);
+      tgt.aimY = lerp(0.8, 0, s);
+    }
+    // the loop's Jetty at rest (flow home, no glide running): the look target on the moored raft itself, not 6.5 m ahead of it, so
+    // the raft and the Wick's flame sit mid-frame above the Jetty's tile row; the home glides keep the sail framing
+    if ((mode === 'sail' || mode === 'home') && ctx.flow === 'home' && ctx.data?.LOOP_ENABLED === true && ctx.player && ctx.player.gliding !== true) tgt.aim = 0;
+    // portrait screens: widen, pull back and tilt down so the raft and its pool fit; on the Mossmere under the loop, with the raft
+    // at rest, the watch eases in over it (render-camera.js portraitFit, WATCH: the near water close enough to see a fish in it)
+    portraitFit(tgt, W / H, mode, mode === 'sail' || mode === 'night' || mode === 'fish' ? watch.w : 0);
+    // (LAKE 2, lane W2: a water's own lens on its open water, LOOP.camera[water]: Sporewood's lower and closer; the Mossmere has none)
+    if ((mode === 'sail' || mode === 'night') && ctx.flow === 'playing' && ctx.data?.LOOP_ENABLED === true) {
+      let zid = null; try { zid = ctx.world?.getZone?.()?.id ?? null; } catch { zid = null; }
+      const prof = zid ? ctx.data.LOOP?.camera?.[zid] : null;
+      if (prof) waterLens(tgt, prof, p);
+    }
+    // the home camera's lens (M1 step 5a): the mooring's pose's own fov (its portrait pose has its own)
+    if (mode === 'home') { const hp = homePose(); if (hp) tgt.fov = Number(hp.fov) || tgt.fov; }
+  }
+
+  /**
+   * The trophy shot (v3 R2): the rule's distance and crane; the subject raised above the frame's centre (ui's measuring band
+   * owns its foot) and the fov widened only as far as the subject needs (a phone held upright: across, then a step back).
+   */
+  function fillTrophy() {
+    const T = TROPHY;
+    tgt.elev = trophyElev(trophy.L, T, trophy.t);
+    tgt.aim = T.aim ?? 0;
+    tgt.ahead = 0;
+    tgt.stiff = T.stiff ?? 2.4;
+    // a phone held upright: the catch card rises from the foot of the screen, so while it is up the held fish and its glory
+    // ride in the open top of the frame
+    const up = trophyUp(trophy.L, T) + (trophy.hold && W / H < 0.8 ? 0.24 : 0);
+    const fit = trophyFit(T.fov ?? 44, trophy.r, trophy.dist, W / H, { across: trophyAcross(trophy.L), up });
+    tgt.dist = fit.dist;   // the rule's distance (a phone held upright may step back, as raft presets do)
+    tgt.fov = fit.fov;
+    tgt.aimY = trophyLift(tgt.dist, tgt.fov, tgt.elev, up);
+  }
+
+  function focusFor(p, out) {
+    if (mode === 'trophy') return out.copy(trophy.subject);   // the fish and the Wick, at their own height
+    if (!p) return out.set(0, 0, 8);
+    out.set(p.x, 0, p.z);
+    if (mode === 'fish' || mode === 'reel') {
+      const b = bobber();
+      if (b) {
+        const w = lerp(BASE_W[mode], UPCAST[mode].w, upCast);
+        out.x = lerp(p.x, b.x, w); out.z = lerp(p.z, b.z, w);
+      } else if (mode === 'fish') {
+        const aim = Number(ctx.fishing?.view?.aim);
+        if (isFinite(aim)) {
+          const d = (Number(ctx.fishing?.view?.castDist) || 8) * 0.3;
+          out.x += -Math.sin(aim) * d; out.z += -Math.cos(aim) * d;
+        }
+      }
+    } else if (mode === 'shop') {
+      const m = merchantPos();
+      if (m) { out.x = lerp(p.x, m.x, 0.45); out.z = lerp(p.z, m.z, 0.45); }
+    }
+    // velocity look-ahead
+    const v = isReal(ctx.player) ? ctx.player.velocity : null;
+    if (v && typeof v.x === 'number' && cur.ahead > 0.01) {
+      let ax = v.x * cur.ahead, az = v.z * cur.ahead;
+      const l = Math.hypot(ax, az);
+      if (l > 3.5) { ax *= 3.5 / l; az *= 3.5 / l; }
+      out.x += ax; out.z += az;
+    }
+    // attention bias
+    if (fx.attention && fx.attentionT < fx.attentionDur) {
+      const k = Math.sin(Math.PI * clamp(fx.attentionT / fx.attentionDur, 0, 1));
+      const w = fx.attentionW * Math.min(1, k * 1.6);
+      out.x = lerp(out.x, fx.attention.x, w); out.z = lerp(out.z, fx.attention.z, w);
+    }
+    return out;
+  }
+
+  /** LOST-TACKLE §5.3: down an open cut while the raft is in it (and on the Sail's glide in toward it), world.viewYaw; else null. */
+  function brookYaw(p) {
+    if (!p || mode === 'home') return null;
+    let g = null;
+    try { g = ctx.player?.glideState; } catch { g = null; }
+    try { const y = ctx.world && !ctx.world.isStub ? ctx.world.viewYaw?.(p.x, p.z, g?.kind === 'sailOut') : null; return Number.isFinite(y) ? y : null; } catch { return null; }
+  }
+  function targetYaw(p) {
+    if (mode === 'trophy') return trophy.yaw;
+    if (mode === 'title') return titleYaw;
+    if (mode === 'death') return deathYaw + (time - deathT0) * 0.045;
+    if (ctx.data?.LOOP_ENABLED === true) { const hs = homeSide(); if (hs != null) return hs; }
+    if (ctx.data?.LOOP_ENABLED === true) { const by = brookYaw(p); if (by != null) return by; }
+    if (mode === 'shop') {
+      const m = merchantPos();
+      if (m && p) {
+        const dx = m.x - p.x, dz = m.z - p.z;
+        if (dx * dx + dz * dz > 0.25) return Math.atan2(-dx, -dz) + 0.42;
+      }
+      return yaw;
+    }
+    return 0;   // fixed world yaw: screen-up ≈ world −Z
+  }
+
+  /** The trophy shot's clocks (v3 R2): its crane time, and the hold that keeps the framing while the catch card is up. */
+  function updateTrophy(dt) {
+    if (trophy.on) trophy.t += dt;
+    else if (trophy.hold) {
+      trophy.t += dt;
+      trophy.holdT += dt;
+      const fs = fishingState();
+      const away = (ctx.flow !== 'playing' && ctx.flow !== 'hub') || (fs !== 'idle' && fs !== 'landing');
+      if (away || trophy.holdT > TROPHY_HOLD_MAX || (trophy.holdT > TROPHY_HOLD_GRACE && !uiBlocking())) trophy.hold = false;
+    }
+    if (trophyLive()) updateTrophySubject();
+  }
+
+  // the trophy shot's moves in and out are eased both ways (critically damped springs on the rig's parameters and yaw);
+  // every other move keeps v1's exponential ease. curV tracks each parameter's velocity so a spring starts from the
+  // motion already under way.
+  const curV = {};
+  for (const k of PARAM_KEYS) curV[k] = 0;
+  const yawS = { x: 0, v: 0 };
+  const springPrm = { x: 0, v: 0 };
+  const TROPHY_IN = 3.2, TROPHY_OUT = 2.4, TROPHY_OUT_T = 3;
+
+  /** The show's view from fishing (null outside a show and its card). */
+  function showView() {
+    if (!isReal(ctx.fishing)) return null;
+    const v = ctx.fishing.view?.show;
+    return v && typeof v === 'object' && typeof v.phase === 'string' ? v : null;
+  }
+  /** The points the show camera keeps in frame this frame, into showCam.pts (and the fish's centre for the depth). */
+  function gatherShowPoints(row) {
+    const S = showCam, pts = S.pts;
+    pts.length = 0; S.hasFish = false;
+    let f = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getShowFocus === 'function') { try { f = ctx.actors.getShowFocus(); } catch { f = null; } }
+    if (f && !f.isStub && f.keep) {
+      // (a fish laid alongside trails its tail under the lake: what is under the surface is not framed, only what stands above it)
+      const lie = row.id === 'alongside', wl = lie ? (isReal(ctx.water) && ctx.water.getHeight ? Number(ctx.water.getHeight(f.fish?.center?.x ?? 0, f.fish?.center?.z ?? 0)) || 0 : 0) - 0.04 : -Infinity;
+      let n0 = 60;
+      for (const q of showKeep(f, row.keep)) pts.push(q.y >= wl ? q : showPoint(n0++).set(q.x, wl, q.z));
+      // the flame is kept by its core; its tip stands a little higher (the frame leaves it room: it is half the Wick's face)
+      const fl = f.head?.flame, hr = Number(f.head?.radius) || 0;
+      const tip = row.flameTip != null ? Number(row.flameTip) : Number.isFinite(SHOWC.flameTip) ? SHOWC.flameTip : 0.9;
+      if (fl && Number.isFinite(fl.x) && hr > 0 && tip > 0 && row.keep.includes('flame')) pts.push(showPoint(40).set(fl.x, fl.y + hr * tip, fl.z));
+      const c = f.fish?.center;
+      if (c && Number.isFinite(c.x)) {
+        S.fishC.set(c.x, c.y, c.z); S.hasFish = true;
+        // the fish's whole box, fins and all (its four named points are the tips of a diamond; the box's corners a little out)
+        const ax = f.fish.axis, up = f.fish.up, L = Number(f.fish.length) || 0, dp = (Number(f.fish.depth) || L * 0.25) * 0.5 * (Number(SHOWC.finRoom) || 1.2);
+        if (ax && up && L > 0 && row.keep.includes('fish') && !lie) {
+          let n = 41;
+          for (const sa of [-0.5, 0.5]) for (const su of [-1, 1]) pts.push(showPoint(n++).set(c.x + ax.x * L * sa + up.x * dp * su, c.y + ax.y * L * sa + up.y * dp * su, c.z + ax.z * L * sa + up.z * dp * su));
+        }
+      }
+      S.focus = f;
+      if (pts.length >= 3) return true;
+      pts.length = 0;
+    }
+    S.focus = null;
+    if (!S.hasSpot) return false;
+    // the reveal (actors has not got the fish yet): the fish where the wipe will leave it, broadside to the lens at its class
+    // length, with the Wick's wax head and flame
+    const L = Math.max(0.05, S.L), cy = Math.cos(S.yaw0), sy = Math.sin(S.yaw0);
+    let n = 0;
+    pts.push(showPoint(n++).set(S.spot.x + cy * L * 0.5, S.spot.y, S.spot.z - sy * L * 0.5));
+    pts.push(showPoint(n++).set(S.spot.x - cy * L * 0.5, S.spot.y, S.spot.z + sy * L * 0.5));
+    pts.push(showPoint(n++).set(S.spot.x, S.spot.y + L * 0.14, S.spot.z));
+    pts.push(showPoint(n++).set(S.spot.x, S.spot.y - L * 0.14, S.spot.z));
+    S.fishC.copy(S.spot); S.hasFish = true;
+    let head = null;
+    if (isReal(ctx.actors) && typeof ctx.actors.getHeadPos === 'function') { try { head = ctx.actors.getHeadPos(subjTmp); } catch { head = null; } }
+    if (head && Number.isFinite(head.x)) {
+      // (getHeadPos is the flame's root on top of the wax head)
+      pts.push(showPoint(n++).set(head.x, head.y + 0.22, head.z));
+      pts.push(showPoint(n++).set(head.x - cy * 0.22, head.y - 0.2, head.z + sy * 0.22));
+      pts.push(showPoint(n++).set(head.x + cy * 0.22, head.y - 0.2, head.z - sy * 0.22));
+      pts.push(showPoint(n++).set(head.x, head.y - 0.42, head.z));
+    } else { const p = playerPos(); if (p) pts.push(showPoint(n++).set(p.x, 1.1, p.z)); }
+    return pts.length >= 3;
+  }
+  /** A show's card is docked at the right of this screen (ui-screens' rule: 700 px wide or more, wider than 1.2 × its height,
+   *  and at least 480 px high: a phone on its side keeps the card across its middle). */
+  const cardAtSide = () => (Number(SHOWC?.behindCard?.landscapeSide) || 0) > 0 && W >= 700 && W >= H * 1.2 && H >= 480;
+  /** …and a near-square or upright screen that is not a phone's (700 px wide or more, narrower than 1.2 × its height, at least
+   *  480 px high) has the card at its foot (ui-screens' gw-cc-low): the subject keeps the frame's top above LOOP.showCard.lowFoot. */
+  const lowFoot = () => (ctx.data?.LOOP_ENABLED === true ? Number(ctx.data?.LOOP?.showCard?.lowFoot) || 0 : 0);
+  // (wave 2, audit #13: a near-square phone under 700 px wide (no narrower than 0.8 × its height) has its card at the foot too, about
+  // the same share of the frame: the same fit, so the card's top edge no longer cuts the fish's fins or the Wick's hands)
+  const cardLow = () => lowFoot() > 0 && W < H * 1.2 && H >= 480 && (W >= 700 || W >= H * 0.8);
+  /** Fit this frame's points: the pose's row on this screen, the play's yaw (a place's landmark swing; the upright rake). */
+  function fitShow(v) {
+    const S = showCam, a = W / H;
+    let row = showRow(SHOWC, S.pose, { length: S.L, aspect: a, tinyBelow: ctx.data?.AUTOFISH?.show?.grip?.pinch?.tinyBelow ?? 0.15, rise: S.rise });
+    S.row = row;
+    if (!gatherShowPoints(row)) return false;
+    // (how far the flame stands over the catch: a row may bring the lens down for a tall body; eased, so the row never flips)
+    { const fl = S.focus?.head?.flame, fc = S.focus?.fish?.center, rise = fl && fc && Number.isFinite(fl.y) && Number.isFinite(fc.y) ? fl.y - fc.y : 0;
+      if (Math.abs(rise - S.rise) > 0.02) { S.rise = rise; row = showRow(SHOWC, S.pose, { length: S.L, aspect: a, tinyBelow: ctx.data?.AUTOFISH?.show?.grip?.pinch?.tinyBelow ?? 0.15, rise }); S.row = row; } }
+    let yw = S.yaw0;
+    if (row.rake > 0 && S.focus?.fish?.axis) yw = showRakeYaw(S.yaw0, S.focus.fish.axis, row.rake);
+    // behind the card on a phone held upright the subject rides in the open top of the frame (the card rises from the foot)
+    const BC = SHOWC.behindCard || {};
+    let shiftY = S.hold && BC.hold !== false ? (Number(BC.portraitUp) || 0) * row.upright : 0;
+    // (the loop's card on a phone held upright is taller (Keep · value / Let go under the weight): its top stands at about 0.62 of
+    // the frame, so the held fish is fitted into the open top instead of being pushed up whole: the foot keeps 30% clear and the
+    // subject rides a little higher, flame tip to fins above the card; the built shows keep their lift)
+    let mBottom = row.margin + row.footroom;
+    if (S.hold && BC.hold !== false && ctx.data?.LOOP_ENABLED === true && row.upright > 0.01 && !cardAtSide()) {
+      mBottom = lerp(mBottom, Math.max(mBottom, 0.3), clamp(row.upright, 0, 1));
+      shiftY = 0.08 * row.upright;
+    }
+    // (the card at the foot of a near-square screen: the Wick's face and the fish are fitted into the open top above it: the band
+    // from the top margin to lowFoot over the foot, as even margins (showFit keeps each under 0.3) and the band's lift)
+    let mTop = row.margin + row.headroom;
+    if (S.hold && BC.hold !== false && cardLow()) {
+      const lf = clamp(lowFoot(), 0, 0.55), m2 = clamp((mTop + lf) / 2, 0, 0.3);
+      shiftY = Math.max(0, (lf - mTop) / 2 - (m2 - (mTop + lf) / 2)); mTop = m2; mBottom = m2;
+    }
+    // …and on a wide screen the card stands at the right (ui docks it there, by the same rule: not a phone, wider than 1.2 × its
+    // height): the picture is fitted into the left of the frame
+    const side = S.hold && BC.hold !== false && cardAtSide() ? clamp(Number(BC.landscapeSide) || 0, 0, 0.7) : 0;
+    const fit = showFit(S.pts, { yaw: yw, elev: row.elev, fov: row.fov, aspect: a, margin: row.margin, marginTop: mTop, marginBottom: mBottom,
+      marginRight: side > 0 ? side : null, minLens: SHOWC.minLens ?? 0.35, depthAt: S.hasFish ? S.fishC : null, shiftY });
+    if (!fit) return false;
+    const T = S.tgt;
+    // (the look point is kept as an offset from the raft's anchor: the lens rides the swell with the Wick, so the picture is steady)
+    T.x = fit.look.x - S.anchor.x; T.y = fit.look.y - S.anchor.y; T.z = fit.look.z - S.anchor.z; T.dist = fit.dist; T.elev = row.elev; T.yaw = yw; T.fov = row.fov;
+    S.by = fit.by;
+    return true;
+  }
+  /**
+   * The show camera's frame: its weight (eased so the lens has arrived when the fish is presented, whatever the class, a hurry
+   * or a swarm window; 1 behind the card; back to 0 over `out` s), its fitted target (frozen from the pause on: the still is
+   * still), the target's springs, and the pose it would have alone (showCam.pos / look / fov).
+   */
+  function updateShowCam(dt) {
+    const S = showCam;
+    if (!SHOWC || (!S.on && !S.hold && !(S.w > 0))) return;
+    const v = showView();
+    const live = ctx.flow === 'playing' || ctx.flow === 'hub';
+    if (!live) { S.on = false; S.hold = false; }
+    if (S.hold) {
+      S.holdT += dt;
+      // the card's turn ends when fishing lets its view go (the card closed): the lens eases back to play
+      if (!v || v.phase !== 'card' || S.holdT > SHOW_HOLD_MAX) S.hold = false;
+    }
+    const active = S.on || S.hold;
+    // the anchor: where the Wick stands on the raft this frame (actors' show focus names its feet; else the Wick's own root). The
+    // fitted look point is an offset from it, so the raft's bob on the swell carries the lens with the subject; a jump of the
+    // anchor (the reveal's root → the pose's settled spot, the pose's end) re-bases the springs instead of moving the lens
+    {
+      let a = null;
+      if (isReal(ctx.actors)) {
+        try { a = (S.on || S.hold) && typeof ctx.actors.getShowFocus === 'function' ? (ctx.actors.getShowFocus()?.feet || null) : null; } catch { a = null; }
+        if (!a || !Number.isFinite(a.x)) { try { a = typeof ctx.actors.getWickPos === 'function' ? ctx.actors.getWickPos(showAnchorTmp) : null; } catch { a = null; } }
+      }
+      if (!a || !Number.isFinite(a.x)) { const p = playerPos(); a = p ? showAnchorTmp.set(p.x, 0, p.z) : null; }
+      if (a) {
+        if (S.hasAnchor && S.init) {
+          const dx = a.x - S.anchor.x, dy = a.y - S.anchor.y, dz = a.z - S.anchor.z;
+          if (dx * dx + dy * dy + dz * dz > 0.2 * 0.2) { S.sx.x -= dx; S.sy.x -= dy; S.sz.x -= dz; S.tgt.x -= dx; S.tgt.y -= dy; S.tgt.z -= dz; }
+        }
+        S.anchor.set(a.x, a.y, a.z); S.hasAnchor = true;
+      }
+    }
+    if (active) {
+      S.outT = -1;
+      if (S.on && v && v.phase !== 'card') {
+        const tNow = Number(v.t) || 0;
+        const dts = S.lastT >= 0 ? Math.max(0, tNow - S.lastT) : 0;   // the show's own clock (a pause or a debug rate holds the lens too)
+        S.lastT = tNow;
+        const rem = showArrival(v, ctx.data?.AUTOFISH?.show?.hurry?.liftRate ?? 2.5);
+        S.p = rem > 1e-4 ? S.p + (1 - S.p) * Math.min(1, dts / (rem + dts)) : 1;
+      } else S.p = 1;
+      S.w = showEase(S.p);
+      // the target: live through the reveal, the lift and most of the hold (actors names the settled layout from the lift's first
+      // frame; a layout that is still finding its place is followed), then frozen settleBefore s before the pause, so the stiffer
+      // spring has brought the lens to rest when the still begins
+      const shown = v && v.phase === 'hold' ? (Number(v.poseT) || 0) - (Number(v.dur?.lift) || 0) : 0;
+      const freezeAt = Math.max(Number(SHOWC.settleAfter) || 0.12, (Number(v?.dur?.hold) || 0.5) - (Number(SHOWC.settleBefore) || 0.4));
+      // (the raft rocks on the swell, so the layout is never quite at rest in the world: the frozen framing rides the Wick's feet
+      // and lets the head and the fish sway a little inside it, as a boat's passengers do; the margins are that room)
+      S.still = !!v && (v.phase === 'pause' || v.phase === 'card' || (v.phase === 'hold' && shown > freezeAt));
+      // a phone lifts the subject into the open top, once; a wide screen moves it to the left of the card, once
+      const cardLift = S.hold && !S.frozenCard && (showRow(SHOWC, S.pose, { length: S.L, aspect: W / H }).upright > 0.01 || cardAtSide());
+      if (!S.still || !S.init || cardLift) { if (fitShow(v)) { S.fitOk = true; if (S.hold) S.frozenCard = true; } }
+      if (!S.fitOk) { S.w = 0; return; }   // (nothing to frame yet: the play's camera stays)
+    } else {
+      if (S.outT < 0) {
+        // back to play over `out` s; a long way back (a phone's play camera stands 20 m off) takes a little longer, so the lens
+        // never travels faster going out than it came in
+        S.outT = 0; S.w0 = S.w;
+        S.outDur = Math.max(Number(SHOWC.out) || 0.9, S.pos.distanceTo(rigPos) * (Number(SHOWC.outPerM) || 0));
+        // (how many times further off the play camera stands than the close-up: the way back runs at an even rate of zoom)
+        // (…up to six-fold: from a hand's breadth to a phone's far play camera an even zoom would run the lens past 27 m/s at its end)
+        S.outRatio = clamp((S.sd.x + S.pos.distanceTo(rigPos)) / Math.max(0.3, S.sd.x), 1, 6);
+      }
+      S.outT += dt;
+      const k = clamp(S.outT / Math.max(0.1, S.outDur || 0.9), 0, 1);
+      S.w = S.w0 * (1 - showOutEase(k, S.outRatio));
+      if (k >= 1) { S.w = 0; S.p = 0; S.init = false; S.lastT = -1; S.pose = null; S.hasSpot = false; S.hasAnchor = false; S.still = false; S.fitOk = false; return; }
+    }
+    // the fitted target through its springs (a new target, the hand-over from the reveal's fit to the pose's, never jumps)
+    const T = S.tgt;
+    if (!S.init) {
+      S.sx.x = T.x; S.sy.x = T.y; S.sz.x = T.z; S.sd.x = T.dist; S.se.x = T.elev; S.sw.x = T.yaw; S.sf.x = T.fov;
+      S.sx.v = S.sy.v = S.sz.v = S.sd.v = S.se.v = S.sw.v = S.sf.v = 0;
+      S.init = true;
+    } else if (dt > 0) {
+      const om = S.still ? (Number(SHOWC.followStill) || 22) : (Number(SHOWC.follow) || 10);
+      // a far jump of the target (a leviathan's fit after the reveal's guess at its class length, a phone's rake swinging the lens
+      // round it) is taken no faster than maxSpeed m/s at its peak: a critically damped spring peaks at jump·ω/e, so a long way's ω
+      // is lowered to keep that peak, and comes back up as the way shortens (every ordinary catch keeps `follow`)
+      const vmax = Number(SHOWC.maxSpeed) || 12, rad = Math.max(0.3, S.sd.x);
+      const omFor = (err) => Math.min(om, vmax * Math.E / Math.max(1e-3, err));
+      springStep(S.sx, T.x, omFor(Math.abs(T.x - S.sx.x)), dt); springStep(S.sy, T.y, omFor(Math.abs(T.y - S.sy.x)), dt); springStep(S.sz, T.z, omFor(Math.abs(T.z - S.sz.x)), dt);
+      springStep(S.sd, T.dist, omFor(Math.abs(T.dist - S.sd.x)), dt); springStep(S.se, T.elev, omFor(Math.abs(T.elev - S.se.x) * DEG * rad), dt); springStep(S.sf, T.fov, om, dt);
+      const dyaw = wrapAngle(T.yaw - S.sw.x);
+      springStep(S.sw, S.sw.x + dyaw, omFor(Math.abs(dyaw) * rad * Math.cos(clamp(S.se.x, -30, 80) * DEG)), dt);
+    }
+    // (a row may put the lens UNDER its subject: the smallest fish's close-up, a tall body's two-hand shot; held to 2° it was not where its fit
+    // had been made, and the flame's core stood at the frame's very top)
+    const e = clamp(S.se.x, -30, 80) * DEG, yw = S.sw.x, d = Math.max(0.3, S.sd.x * (1 - pushK()));
+    S.look.set(S.anchor.x + S.sx.x, S.anchor.y + S.sy.x, S.anchor.z + S.sz.x);
+    S.pos.set(S.look.x + Math.sin(yw) * Math.cos(e) * d, S.look.y + Math.sin(e) * d, S.look.z + Math.cos(yw) * Math.cos(e) * d);
+    S.fov = S.sf.x;
+  }
+
+  function updateCamera(dt) {
+    computeNightK(dt);
+    updateTrophy(dt);
+    updateShowCam(dt);
+    const next = pickMode();
+    if (next !== mode) {
+      prevMode = mode; mode = next; modeT = 0;
+      if (mode === 'death') { deathT0 = time; deathYaw = yaw; }
+      if (prevMode === 'title') titleYaw = yaw;
+    }
+    modeT += dt;
+    if (mode === 'title') titleYaw += dt * 0.065;
+
+    const p = playerPos();
+    updateWatch(dt);
+    fillTargets(p);
+    const lam = prevMode === 'title' && modeT < 3 ? 1.5 : mode === 'death' ? 1.2 : 2.6;
+    const trophyMove = mode === 'trophy' ? TROPHY_IN : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? TROPHY_OUT : 0;
+    for (const k of PARAM_KEYS) {
+      const before = cur[k];
+      if (trophyMove > 0 && dt > 0) {
+        springPrm.x = cur[k]; springPrm.v = curV[k];
+        cur[k] = springStep(springPrm, tgt[k], trophyMove, dt);
+        curV[k] = springPrm.v;
+      } else {
+        cur[k] = damp(cur[k], tgt[k], lam, dt);
+        curV[k] = dt > 0 ? (cur[k] - before) / dt : 0;
+      }
+    }
+
+    focusFor(p, focusTarget);
+    const jump = Math.hypot(focusTarget.x - fX.x, focusTarget.z - fZ.x);
+    if (!focusInit || jump > 30) {   // first frame / teleports (zone change, continue)
+      fX.x = focusTarget.x; fY.x = focusTarget.y; fZ.x = focusTarget.z;
+      fX.v = fY.v = fZ.v = 0;
+      focusInit = true;
+    } else {
+      const om = cur.stiff;
+      springStep(fX, focusTarget.x, om, dt);
+      springStep(fY, focusTarget.y, om, dt);
+      springStep(fZ, focusTarget.z, om, dt);
+    }
+
+    const ty = targetYaw(p);
+    // the home swing (M1 step 5a): the turn to the home side of the raft and back as one orbit
+    // (and the turn down an open cut and back, LOST-TACKLE §5.3: the same eased orbit)
+    const side = ctx.data?.LOOP_ENABLED === true && (homeSide() != null || brookYaw(p) != null);
+    if (side !== swing.side) {
+      swing.side = side;
+      const d = wrapAngle(ty - yaw);
+      if (Math.abs(d) > 0.35 && dt > 0) {
+        swing.on = true; swing.from = yaw; swing.to = ty; swing.t = 0;
+        swing.d = swingWay(yaw, d, cur.dist * Math.cos(clamp(cur.elev, 3, 85) * DEG));
+      }
+    }
+    if (swing.on && Math.abs(wrapAngle(ty - swing.to)) > 0.02) swing.on = false;   // (another target: the usual ease takes it)
+    if (swing.on) {
+      swing.t += dt;
+      const y0 = yaw, k = clamp(swing.t / HOME_SWING, 0, 1);
+      yaw = swing.from + swing.d * k * k * (3 - 2 * k);
+      yawS.v = dt > 0 ? wrapAngle(yaw - y0) / dt : 0;
+      if (k >= 1) swing.on = false;
+    } else if (trophyMove > 0 && dt > 0) {
+      yawS.x = yaw;
+      springStep(yawS, yaw + wrapAngle(ty - yaw), trophyMove, dt);
+      yaw = yawS.x;
+    } else {
+      const y0 = yaw;
+      yaw += wrapAngle(ty - yaw) * (1 - Math.exp(-(mode === 'title' ? 3 : lam) * dt));
+      yawS.v = dt > 0 ? wrapAngle(yaw - y0) / dt : 0;
+    }
+    yaw = wrapAngle(yaw);
+
+    // spherical placement around the focus (a landing's push-in brings the distance in for a beat)
+    if (fx.push) fx.pushT += dt * clamp(Number(ctx.time?.timeScale ?? 1) || 0, 0, 1);   // on the game's clock: a slow-motion beat slows it too
+    const dist = cur.dist * (1 - pushK());
+    const elev = clamp(cur.elev, 3, 85) * DEG;
+    const sy = Math.sin(yaw), cy = Math.cos(yaw);
+    const ce = Math.cos(elev), se = Math.sin(elev);
+    fwd.set(-sy, 0, -cy);
+    camPos.set(fX.x + sy * ce * dist, fY.x + se * dist, fZ.x + cy * ce * dist);
+    lookTarget.set(fX.x + fwd.x * cur.aim, fY.x + cur.aimY, fZ.x + fwd.z * cur.aim);
+
+    // subtle hand-held sway + a hint of the swell (a close-up breathes less; the held subject already rides the swell)
+    const close = mode === 'trophy' ? clamp(cur.dist / 10, 0.12, 1) : 1;
+    const swayAmt = (mode === 'title' ? 0.22 : mode === 'night' ? 0.08 : 0.12) * close * (reducedMotion ? 0.2 : 1);
+    camPos.x += Math.sin(time * 0.37) * swayAmt;
+    camPos.y += Math.sin(time * 0.53 + 1.3) * swayAmt * 0.8;
+    const wh = isReal(ctx.water) && ctx.water.getHeight ? Number(ctx.water.getHeight(fX.x, fZ.x)) || 0 : 0;
+    if (mode !== 'trophy') { camPos.y += wh * 0.25; lookTarget.y += wh * 0.4; }
+    // the floor: v1's 1.2 m; the trophy close-up may sit lower (a palm-sized catch is filmed from chest height)
+    const floorY = mode === 'trophy' ? 0.5 : prevMode === 'trophy' && modeT < TROPHY_OUT_T ? lerp(0.5, 1.2, smoothstep(0, TROPHY_OUT_T, modeT)) : 1.2;
+    if (camPos.y < floorY) camPos.y = floorY;
+    rigPos.copy(camPos);   // (where the play's rig alone would put the lens: the show's way back is measured against it)
+    // the show camera over the play's rig: one eased weight for the lens's place, where it looks and its fov
+    const sw = showCam.w;
+    if (sw > 0) {
+      const S = showCam;
+      // a close-up breathes a little too (a share of its distance, far under the still's limit)
+      const br = S.sd.x * 0.004 * (reducedMotion ? 0.2 : 1);
+      tmpV.copy(S.pos); tmpV.x += Math.sin(time * 0.37) * br; tmpV.y += Math.sin(time * 0.53 + 1.3) * br * 0.8;
+      const wS = isReal(ctx.water) && ctx.water.getHeight ? Number(ctx.water.getHeight(tmpV.x, tmpV.z)) || 0 : 0;
+      const fl = wS + (Number(SHOWC.floor) || 0.45);
+      if (tmpV.y < fl) tmpV.y = fl;
+      camPos.lerp(tmpV, sw);
+      lookTarget.lerp(S.look, sw);
+    }
+    const rigFov = lerp(cur.fov, showCam.fov, sw);   // (the play's lens under the show's: the same weight as its place)
+    // the loop's lift: the place's framing over the rig (no cut: one eased weight for the lens's place, its look and its fov)
+    const lw = landmarkW(dt);
+    let lmkFov = rigFov;
+    if (lw > 0 && lmk.pose) {
+      camPos.lerp(tmpV.set(lmk.pose.pos[0], lmk.pose.pos[1], lmk.pose.pos[2]), lw);
+      lookTarget.lerp(tmpV.set(lmk.pose.look[0], lmk.pose.look[1], lmk.pose.look[2]), lw);
+      lmkFov = lerp(rigFov, lmk.pose.fov, lw);
+    }
+    // the home camera over the rig (M1 step 5a): the mooring's framing, a slow breath at rest
+    updateHomeCam(dt);
+    // (its lens is the rig's own fov target in mode 'home', fillTargets: the rig eases it with the pose)
+    if (homeCam.w > 0) {
+      const hw = homeCam.w, br = reducedMotion ? 0.01 : 0.05;
+      tmpV.copy(homeCam.pos); tmpV.x += Math.sin(time * 0.23) * br; tmpV.y += Math.sin(time * 0.31 + 0.7) * br * 0.6;
+      camPos.lerp(tmpV, hw);
+      lookTarget.lerp(homeCam.look, hw);
+    }
+    // (LOST-TACKLE §5.2: the hold on the chart table, over the home camera)
+    const chw = chartHoldW(dt);
+    if (chw > 0 && chartHold.pose) { camPos.lerp(tmpV.fromArray(chartHold.pose.pos), chw); lookTarget.lerp(tmpV.fromArray(chartHold.pose.look), chw); }
+
+    // >>> INTRO LANE A: cut-scene camera (the pose is laid over the rig's own, so at w = 1 it is exact: no sway, no roll)
+    let introW = 0, introFov = null;
+    if (introCam) {
+      introW = clamp(Number(introCam.w ?? 1), 0, 1);
+      camPos.lerp(tmpV.set(Number(introCam.pos[0]) || 0, Number(introCam.pos[1]) || 0, Number(introCam.pos[2]) || 0), introW);
+      lookTarget.lerp(tmpV.set(Number(introCam.look[0]) || 0, Number(introCam.look[1]) || 0, Number(introCam.look[2]) || 0), introW);
+      if (Number.isFinite(introCam.fov)) introFov = lerp(rigFov, introCam.fov, introW);   // (over the rig AND a show's lens, as its pose is: at w = 1 the film's own)
+    }
+    // <<< INTRO LANE A
+
+    camera.position.copy(camPos);
+    camera.up.set(0, 1, 0);
+    camera.lookAt(lookTarget);
+    camera.rotateZ(Math.sin(time * 0.29 + 0.7) * 0.004 * (mode === 'title' ? 2 : 1) * (1 - introW));
+
+    // trauma shake (smooth noise, squared falloff)
+    fx.trauma = Math.max(0, fx.trauma - fx.traumaDecay * dt);
+    const ss = shakeScale();
+    if (fx.trauma > 0 && ss > 0) {
+      const tr = fx.trauma * fx.trauma * ss;
+      fx.shakeT += dt * (14 + 10 * fx.trauma);
+      const s = fx.shakeT;
+      camera.rotateY(snoise(s, 1.1) * 0.035 * tr);
+      camera.rotateX(snoise(s, 7.3) * 0.03 * tr);
+      camera.rotateZ(snoise(s, 3.7) * 0.045 * tr);
+      tmpV.set(snoise(s, 11.3), snoise(s, 5.9) * 0.6, 0).multiplyScalar(0.28 * tr).applyQuaternion(camera.quaternion);
+      camera.position.add(tmpV);
+    }
+
+    // fov with kick + slight breathing
+    if (fx.kickDue) {   // a kick asked for under the show camera comes in at 27°/s (under a degree a frame at 30 fps)
+      const step = clamp(fx.kickDue, -27 * dt, 27 * dt);
+      fx.kickDue -= step; fx.fovKick = clamp(fx.fovKick + step, -12, 12);
+      if (Math.abs(fx.kickDue) < 1e-3 || !(showCam.w > 0)) fx.kickDue = 0;
+    }
+    fx.fovKick = damp(fx.fovKick, 0, 5, dt);
+    if (introFov === null && lw > 0) introFov = lmkFov;   // (the loop's lift: its lens's fov, when no film pose is set)
+    const fov = clamp((introFov ?? rigFov) + fx.fovKick, 20, 95);   // (INTRO LANE A: the cut scene's lens wins while one is set; else the play's under the show's)
+    if (Math.abs(camera.fov - fov) > 1e-3 || camera.aspect !== W / H) {
+      camera.fov = fov;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+    }
+    camera.updateMatrixWorld();
+    if (fx.attention) { fx.attentionT += dt; if (fx.attentionT > fx.attentionDur) fx.attention = null; }
+  }
+
+  /**
+   * setTrophyTarget({length, landmark, position, place}) (CONTRACT §13.7 render; fishing's ceremony calls it at the scoop):
+   * length = the fish's true length in metres, landmark = data.landmarkOf(place) | null, position = where it was landed.
+   * null = the card's turn: the framing holds while the catch card is up, then eases back to sail.
+   */
+  function setTrophyTarget(t) {
+    if (!t || typeof t !== 'object') {
+      if (trophy.on) { trophy.on = false; trophy.hold = true; trophy.holdT = 0; }
+      return false;
+    }
+    const L = Number(t.length);
+    if (!(L > 0) || !Number.isFinite(L)) return false;
+    trophy.on = true; trophy.hold = false; trophy.t = 0; trophy.holdT = 0; trophy.lastR = 0;
+    trophy.L = L;
+    trophy.dist = trophyDistance(L, TROPHY);
+    trophy.crane = trophyCranes(L, TROPHY);
+    const lm = t.landmark;
+    trophy.landmark = lm && Number.isFinite(Number(lm.x)) && Number.isFinite(Number(lm.z))
+      ? { x: Number(lm.x), y: Number(lm.y) || 0, z: Number(lm.z) } : null;
+    trophy.place = t.place ?? null;
+    const p = playerPos();
+    const pos = t.position;
+    if (pos && Number.isFinite(Number(pos.x)) && Number.isFinite(Number(pos.z))) trophy.from.set(Number(pos.x), Number(pos.y) || 0, Number(pos.z));
+    else trophy.from.set(p ? p.x : fX.x, 0.5, p ? p.z : fZ.x);
+    // the yaw is chosen once, from the Wick (the subject's anchor), so the frame does not wander as the fish is lifted
+    trophy.yaw = trophyYaw(p || trophy.from, trophy.landmark, TROPHY.yawMax ?? 35);
+    updateTrophySubject();
+    return true;
+  }
+
+  /**
+   * setShowTarget({cls, pose?, length, swarm?, landmark?, position?, place?} | null, {abort}?) (CONTRACT §13.7b render). Fishing
+   * calls it at T0 (the fish breaks the surface: `position` = where the wipe will leave it, `length` = its class length), again
+   * at fishing:caught with the pose and the true length (from then on the lens fits actors.getShowFocus()), and with null at the
+   * card's turn: the framing holds behind the card and eases back to play when it closes ({abort: true}: at once).
+   * Returns {yaw} (the yaw the lens will hold: the play's, swung toward a place's landmark), false with the flag off.
+   */
+  function setShowTarget(t, opts) {
+    const S = showCam;
+    if (!SHOWC) return false;
+    if (!t || typeof t !== 'object') {
+      if (S.on) { S.on = false; S.hold = !(opts && opts.abort); S.holdT = 0; S.frozenCard = false; }
+      else if (opts && opts.abort) S.hold = false;
+      return false;
+    }
+    const L = Number(t.length);
+    if (!(L > 0) || !Number.isFinite(L)) return false;
+    const fresh = !S.on;
+    S.on = true; S.hold = false; S.frozenCard = false; S.outT = -1;
+    S.cls = typeof t.cls === 'string' ? t.cls : 'keeper';
+    S.pose = typeof t.pose === 'string' ? t.pose : null;
+    S.L = L; S.swarm = !!t.swarm;
+    if (fresh) {
+      S.lastT = -1;
+      S.rise = 0;
+      if (!(S.w > 0)) { S.p = 0; S.init = false; S.fitOk = false; }   // (a show starting behind the last one's card keeps the lens where it is)
+      else S.p = Math.min(S.p, 0.999);
+    }
+    const lm = t.landmark;
+    if (lm !== undefined || fresh) {
+      S.landmark = lm && Number.isFinite(Number(lm.x)) && Number.isFinite(Number(lm.z)) ? { x: Number(lm.x), y: Number(lm.y) || 0, z: Number(lm.z) } : null;
+      S.place = t.place ?? null;
+      // the yaw is chosen once, from the Wick, so the frame does not wander: the play's yaw, a place's landmark behind the catch
+      S.yaw0 = trophyYaw(playerPos() || S.spot, S.landmark, TROPHY.yawMax ?? 35);
+    }
+    const pos = t.position;
+    if (pos && Number.isFinite(Number(pos.x)) && Number.isFinite(Number(pos.z))) { S.spot.set(Number(pos.x), Number(pos.y) || 0.4, Number(pos.z)); S.hasSpot = true; }
+    return { yaw: S.yaw0 };
+  }
+
+  /**
+   * The leap beat (v3): time slows through main (ctx.game.slowmo; a second start inside the same beat changes nothing, so
+   * fishing and render may both ask), and the camera leans into the breach with a short push-in, scaled by size only.
+   */
+  function leapBeat(position, lengthM, seconds, scale) {
+    try { ctx.game?.slowmo?.(seconds, scale); } catch (e) { console.error('[render] slowmo', e); }
+    const big = clamp((Number(lengthM) || 1) / 3, 0, 1);
+    kick(-(2.5 + 2 * big));
+    shake(0.08 + 0.1 * big, 0.35);
+    if (position && Number.isFinite(Number(position.x))) attention(position, 1.2, 0.22 + 0.1 * big);
+  }
+
+  // ---------------------------------------------------------------- grade update
+  const vit = { hp: Infinity, hpK: 1, dark: 0 };
+  function refreshVitals() {
+    const run = ctx.state?.run;
+    vit.hp = Infinity; vit.hpK = 1; vit.dark = 0;
+    if (!run || ctx.flow !== 'playing') return vit;
+    if (time - lastStatsAt > 0.5) {
+      lastStatsAt = time;
+      try { const s = ctx.progression?.getStats?.(); if (s && !s.isStub && s.maxHp > 0) maxHp = s.maxHp; } catch { /* optional */ }
+    }
+    const hp = Number(run.hp);
+    if (isFinite(hp)) { vit.hp = hp; vit.hpK = hp / Math.max(1, maxHp); }
+    const oil = Number(run.oil);
+    vit.dark = isFinite(oil) && oil <= 0.01 ? 1 : 0;
+    return vit;
+  }
+
+  function updateGrade(dt) {
+    const lam = 2.2;
+    for (const k of GRADE_NUM) gCur[k] = damp(gCur[k], gTgt[k], lam, dt);
+    const a = 1 - Math.exp(-lam * dt);
+    for (const k of GRADE_COL) cCur[k].lerp(cTgt[k], a);
+
+    refreshVitals();
+    const danger = ctx.flow === 'playing' && ((vit.hp <= 1 && vit.hp > 0) || (vit.hpK > 0 && vit.hpK <= 0.25)) ? 1 : 0;
+    fx.danger = damp(fx.danger, danger, 2, dt);
+    fx.dark = damp(fx.dark, vit.dark, 1.5, dt);
+    fx.death = damp(fx.death, ctx.flow === 'dead' ? 1 : 0, ctx.flow === 'dead' ? 0.8 : 3, dt);
+    fx.bloomPulse = damp(fx.bloomPulse, 0, 3.2, dt);
+    fx.fringePulse = damp(fx.fringePulse, 0, 4, dt);
+    fx.vigPulse = damp(fx.vigPulse, 0, 2.2, dt);
+    if (fx.flashT < 1) fx.flashT = Math.min(1, fx.flashT + dt / fx.flashDur);
+    const fk = fx.flashT < 1 ? fx.flashPeak * Math.pow(1 - fx.flashT, 2) : 0;
+
+    const reel = mode === 'reel' ? 1 : 0;
+    // the film owns the grade as it owns the lens (slice-1a PLAN §2.2 item 25): while its camera is set no trophy grade is worn, from
+    // its first frame (a Prologue started from a show's card opened with the trophy vignette for about 2 s)
+    trophyK = introCam ? 0 : damp(trophyK, mode === 'trophy' || showCam.w > 0.5 ? 1 : 0, 2.4, dt);
+    const heart = reducedFlashing() ? 0.6 : 0.5 + 0.5 * Math.sin(time * TAU * 1.1) * Math.sin(time * TAU * 1.1);
+    renderer.toneMappingExposure = BASE_EXPOSURE * Math.max(0.05, gCur.exposure) * (1 - fx.death * 0.18) * (1 - fx.dark * 0.12);
+    bloomPass.strength = Math.max(0, gCur.bloomStrength * (1 + BLOOM_PULSE_GAIN * fx.bloomPulse));
+    bloomPass.radius = clamp(gCur.bloomRadius, 0, 1.5);
+    bloomPass.threshold = Math.max(0, gCur.bloomThreshold);
+
+    gu.uTime.value = time % 1000;
+    // the trophy shot (v3) is the payoff: a touch richer and a softer frame around the catch (0 with the flag off)
+    gu.uSaturation.value = Math.max(0, gCur.saturation * (1 + trophyK * 0.06) * (1 - fx.death * 0.55));
+    gu.uContrast.value = clamp(gCur.contrast + reel * 0.04 + trophyK * 0.03 + fx.death * 0.05, 0.6, 1.6);
+    gu.uTint.value.copy(cCur.tint);
+    gu.uTintAmount.value = clamp(gCur.tintAmount, 0, 1);
+    gu.uWarm.value.copy(cCur.warm);
+    gu.uWarmAmount.value = clamp(gCur.warmAmount, 0, 1);
+    gu.uLift.value = Math.max(0, gCur.lift);
+    gu.uVignette.value = clamp(gCur.vignette + reel * 0.08 + trophyK * 0.07 + fx.vigPulse + fx.death * VIGNETTE_DEATH + fx.dark * VIGNETTE_DARK + fx.danger * 0.06 * heart, 0, 1);
+    // the lens is clean at rest (fringe 0): only a hit's pulse and the low-Ember danger fringe it
+    gu.uFringe.value = Math.max(0, gCur.fringe + FRINGE_PULSE * fx.fringePulse + fx.danger * 0.3);
+    gu.uPaper.value = Math.max(0, gCur.paper);
+    gu.uGrain.value = Math.max(0, gCur.grain * (1 + fx.death * 0.6 + fx.dark * 0.5));
+    gu.uFlash.value = fk;
+    gu.uFlashColor.value.copy(fx.flashColor);
+    gu.uDanger.value = fx.danger * (0.55 + 0.45 * heart);
+  }
+
+  // ---------------------------------------------------------------- zone defaults
+  function applyZoneDefaults(zoneId, instant) {
+    const z = (ctx.data?.ZONES || []).find((x) => x.id === zoneId);
+    if (!z) return;
+    if (z.palette) {
+      if (z.palette.fog !== undefined) scene.fog.color.setHex(z.palette.fog);
+      if (z.palette.fogDensity) scene.fog.density = z.palette.fogDensity;
+    }
+    if (z.grade) setGrade(z.grade, { instant });
+  }
+
+  // ---------------------------------------------------------------- init / build
+  applyTier('high');
+
+  const api = {
+    renderer, scene, camera, canvas,
+    get quality() { return tierName; },
+    getQuality() { return tierName; },
+    getQualitySetting() { return qualitySetting; },
+
+    init() {
+      const q = ctx.state?.meta?.settings?.quality;
+      setQuality(typeof q === 'string' ? q : 'auto');
+      if (ctx.debug) {
+        ctx.debug.renderScale = (x = 1) => { prScale = clamp(Number(x) || 1, 0.2, 1); resize(W, H); return prScale; };
+        // the camera rig at a glance (tests, screenshots): the mode, the eased parameters and their targets, the presets in
+        // force, the measured pitch, the night weight and the swarm it follows, and the trophy shot
+        ctx.debug.camera = () => {
+          const r1 = (x) => Math.round(x * 1000) / 1000;
+          const prm = (o) => Object.fromEntries(PARAM_KEYS.map((k) => [k, r1(o[k])]));
+          camera.getWorldDirection(tmpV2);
+          const subj = trophyLive() ? trophy.subject : null;
+          return {
+            v3: V3, mode, prevMode, modeT: r1(modeT), homeW: r1(homeCam.w), homeSwing: swing.on ? r1(swing.t) : null, cur: prm(cur), tgt: prm(tgt), yawDeg: r1(yaw / DEG), fov: r1(camera.fov),
+            pitchDeg: r1(Math.asin(clamp(-tmpV2.y, -1, 1)) / DEG), presetPitchDeg: r1(pitchOf(cur)),
+            focus: { x: r1(fX.x), y: r1(fY.x), z: r1(fZ.x) }, pos: { x: r1(camera.position.x), y: r1(camera.position.y), z: r1(camera.position.z) },
+            camToFocus: r1(Math.hypot(camera.position.x - fX.x, camera.position.y - fY.x, camera.position.z - fZ.x)),
+            nightK: r1(nightK), swarmActive: swarmActive(), aspect: r1(W / H), trophyK: r1(trophyK), watch: r1(watch.w),
+            presets: { sail: prm(P.sail), fish: prm(P.fish), reel: prm(P.reel), night: prm(P.night) },
+            // the show camera (SPEC §2.6): its weight, the fitted target and what set its distance
+            show: SHOWC && (showCam.on || showCam.hold || showCam.w > 0) ? {
+              on: showCam.on, hold: showCam.hold, w: r1(showCam.w), p: r1(showCam.p), cls: showCam.cls, pose: showCam.pose, length: showCam.L, by: showCam.by,
+              row: showCam.row ? { id: showCam.row.id, elev: r1(showCam.row.elev), fov: r1(showCam.row.fov), margin: showCam.row.margin, headroom: showCam.row.headroom, footroom: showCam.row.footroom,
+                rake: showCam.row.rake, craned: r1(showCam.row.craned), keep: showCam.row.keep.slice() } : null, still: !!showCam.still,
+              anchor: { x: r1(showCam.anchor.x), y: r1(showCam.anchor.y), z: r1(showCam.anchor.z) }, tgt: { x: r1(showCam.tgt.x), y: r1(showCam.tgt.y), z: r1(showCam.tgt.z), dist: r1(showCam.tgt.dist), elev: r1(showCam.tgt.elev), yawDeg: r1(showCam.tgt.yaw / DEG), fov: r1(showCam.tgt.fov) },
+              dist: r1(showCam.sd.x), points: showCam.pts.length, focus: !!showCam.focus,
+            } : null,
+            trophy: trophy.on || trophy.hold ? {
+              on: trophy.on, hold: trophy.hold, t: r1(trophy.t), length: trophy.L, dist: r1(trophy.dist), crane: trophy.crane,
+              yawDeg: r1(trophy.yaw / DEG), landmark: trophy.landmark, place: trophy.place, radius: r1(trophy.r),
+              subject: subj ? { x: r1(subj.x), y: r1(subj.y), z: r1(subj.z) } : null,
+              camToSubject: subj ? r1(camera.position.distanceTo(subj)) : null,
+            } : null,
+          };
+        };
+      }
+      const bus = ctx.bus;
+      if (!bus) return;
+      const on = (evt, fn) => bus.on(evt, (p) => { try { fn(p || {}); } catch (e) { console.error('[render]', evt, e); } });
+      on('zone:change', ({ zone, prev, intro, sail }) => {
+        if (intro) return;   // INTRO LANE A: the cut scene hands over on the lake already on screen (no fade, no grade snap)
+        if (sail && ctx.data?.LOOP_ENABLED === true) return;   // the loop's Sail: the lake is already on screen (no flash)
+        applyZoneDefaults(zone, !prev);
+        flash(0x000000, prev ? 1 : 0.9, prev ? 1.4 : 0.9);
+      });
+      on('run:start', () => { fx.death = 0; fx.danger = 0; });
+      on('player:damage', ({ amount }) => {
+        const a = clamp(Number(amount) || 1, 0.5, 3);
+        shake(0.28 + 0.1 * a, 0.4);
+        pulse({ fringe: 1.6, vignette: 0.12 });
+      });
+      on('player:died', () => { shake(0.55, 0.9); pulse({ fringe: 2, vignette: 0.2 }); });
+      on('fishing:hook', ({ perfect }) => { kick(perfect ? -4 : -2.5); shake(0.14, 0.25); if (perfect) pulse({ bloom: 0.35 }); });
+      on('fishing:surge', ({ strength }) => { shake(clamp(0.06 + 0.08 * (Number(strength) || 1), 0, 0.3), 0.3); });
+      on('fishing:caught', () => { kick(-2); pulse({ bloom: 0.3 }); });
+      if (V3) {
+        // the leap reveal (DESIGN §25.6.5): the first breach of a Prize+ fish. Time slows through main
+        // (ctx.game.slowmo 0.25 s at 0.35; a second start in the same beat changes nothing), and the camera leans into
+        // the breach with a short push-in: size-scaled, never species-specific (the species stays unknown until landed)
+        on('fishing:reveal', ({ position, lengthM, time: sec, timescale }) => {
+          const LR = ctx.data?.BALANCE?.bite?.leapReveal || {};
+          leapBeat(position, lengthM, Number.isFinite(Number(sec)) ? Number(sec) : (LR.time ?? 0.25),
+            Number.isFinite(Number(timescale)) ? Number(timescale) : (LR.timescale ?? 0.35));
+        });
+        // automatic fishing (DESIGN §25.6 rewrite, CONTRACT §13.7a `fishing:reel`; inert until fishing emits it): the play's
+        // beats shake the camera by size class (AUTOFISH.play[class].shake) and a Prize+ leap slows time through main
+        // (AUTOFISH.leap.slowmo). Class, strength and length only: nothing here can tell one species from another.
+        on('fishing:reel', ({ phase, sizeClass, strength, dur, length }) => {
+          const AF = ctx.data?.AUTOFISH;
+          const k = clamp(Number.isFinite(Number(strength)) ? Number(strength) : 1, 0, 1.5);
+          const amt = (Number(AF?.play?.[sizeClass]?.shake) || 0) * (REEL_SHAKE[phase] || 0) * k;
+          if (amt > 0) shake(amt, clamp(Number(dur) || 0.4, 0.2, 1.2));
+          if (phase !== 'leap') return;
+          const S = AF?.leap?.slowmo || {};
+          if ((CLASS_RANK[sizeClass] ?? -1) < (CLASS_RANK[S.fromClass ?? 'prize'] ?? 2)) return;
+          const b = bobber();
+          leapBeat(b ? { x: b.x, z: b.z } : null, (Number(length) || 100) / 100, S.seconds ?? 0.25, S.scale ?? 0.35);
+        });
+        // run over mid-ceremony: no trophy framing outlives its run
+        on('run:end', () => { trophy.on = false; trophy.hold = false; showCam.on = false; showCam.hold = false; });
+      }
+      on('fishing:escaped', ({ reason }) => { if (reason === 'snap') { shake(0.22, 0.3); pulse({ fringe: 1 }); } });
+      on('flare', () => { kick(4); pulse({ bloom: 0.4 }); shake(0.18, 0.3); });   // a softer pulse: the flare must not wash the frame
+      on('levelup', () => { pulse({ bloom: 0.5 }); kick(-1.5); });
+      on('boss:spawn', ({ enemy }) => {
+        shake(0.6, 1.2); pulse({ vignette: 0.25 });
+        if (enemy?.position) attention(enemy.position, 2.6, 0.35);
+      });
+      on('boss:slain', () => { pulse({ bloom: 0.8 }); shake(0.4, 0.6); });
+      on('gate:open', () => { pulse({ bloom: 0.5 }); });
+      on('phase:change', ({ phase }) => {
+        if (phase === 'gloomtide') { shake(0.16, 0.8); pulse({ vignette: 0.18 }); }
+        else if (phase === 'dawn') pulse({ bloom: 0.4 });
+      });
+      on('lantern:out', () => pulse({ vignette: 0.2, fringe: 0.8 }));
+      on('lantern:lit', () => pulse({ bloom: 0.3 }));
+      on('victory', () => { flash(0xffe2a8, 0.45, 1.2); pulse({ bloom: 1 }); });
+    },
+
+    update(dt, t) {
+      dt = Math.min(Math.max(Number(dt) || 0, 0), 0.1);
+      time += dt;
+      // follow quality setting changes made directly in meta.settings
+      if (time > qualityCheckAt) {
+        qualityCheckAt = time + 0.5;
+        const q = ctx.state?.meta?.settings?.quality;
+        if (typeof q === 'string' && q !== lastMetaQuality && (q === 'auto' || TIERS[q])) setQuality(q);
+      }
+      if (scene.fog) bg.copy(scene.fog.color);
+      updateCamera(dt);
+      updateGrade(dt);
+    },
+
+    render() {
+      sampleFps(performance.now());
+      renderer.info.reset();
+      // >>> CLARITY LANE B: planar-reflection hook (the lake mirrored into water's own target, before the main render)
+      ctx.water?.renderReflection?.(renderer, scene, camera, tierB);
+      // <<< CLARITY LANE B
+      composer.render(ctx.time?.dt || 0.016);
+    },
+
+    resize,
+    setQuality,
+    setGrade,
+    getGrade() {
+      const out = {};
+      for (const k of GRADE_NUM) out[k] = gTgt[k];
+      for (const k of GRADE_COL) out[k] = cTgt[k].getHex();
+      return out;
+    },
+    shake, flash, pulse, kick, attention, push,
+    setTrophyTarget, setShowTarget,
+    frameLandmark,
+    holdChart,
+    /** The lift's shot as it stands: {on, w, t, dur, pose} (debug and tests). */
+    landmarkState: () => ({ on: lmk.on, w: Math.round(lmk.w * 1000) / 1000, t: Math.round(lmk.t * 100) / 100, dur: lmk.dur, released: lmk.rel, pose: lmk.pose }),
+    // >>> INTRO LANE A: cut-scene camera
+    setIntroCamera,
+    getIntroCamera() { return introCam; },
+    /**
+     * Compile an object's programs exactly as the frame will use them (inside the HDR target, with the scene's lights and
+     * fog), without drawing it: the cut scene warms its set under the title, so its first frame compiles nothing.
+     */
+    warmPrograms(obj) {
+      if (!obj || !composer || typeof renderer.compile !== 'function') return false;
+      const prev = renderer.getRenderTarget();
+      try { renderer.setRenderTarget(composer.renderTarget1); renderer.compile(obj, camera, scene); } finally { renderer.setRenderTarget(prev); }
+      return true;
+    },
+    // <<< INTRO LANE A
+    getCameraMode() { return mode; },
+    /** Jump the rig straight to its current target (cuts, tests). */
+    snapCamera() {
+      const p = playerPos();
+      computeNightK(10);
+      if (trophyLive()) { updateTrophySubject(); if (trophy.on) trophy.t = Math.max(trophy.t, 10); }
+      mode = pickMode();
+      fillTargets(p);
+      for (const k of PARAM_KEYS) { cur[k] = tgt[k]; curV[k] = 0; }
+      focusFor(p, focusTarget);
+      fX.x = focusTarget.x; fY.x = focusTarget.y; fZ.x = focusTarget.z;
+      fX.v = fY.v = fZ.v = 0;
+      yaw = wrapAngle(targetYaw(p)); yawS.v = 0;
+      swing.on = false; swing.side = ctx.data?.LOOP_ENABLED === true && (homeSide() != null || brookYaw(p) != null);   // (on the home side, or down the cut, at once on a cut)
+      focusInit = true;
+      if (showCam.on || showCam.hold) { showCam.p = 1; showCam.init = false; }   // the show camera too: at its fitted target, fully in
+      homeCam.k = mode === 'home' ? 1 : 0;   // (the home camera too: at the mooring's framing on the cut)
+      updateCamera(0);
+    },
+    getYaw() { return yaw; },
+    getFocus(out = new THREE.Vector3()) { return out.set(fX.x, fY.x, fZ.x); },
+
+    projectToScreen(vec, out) {
+      const o = out || {};
+      if (!vec) { o.x = 0; o.y = 0; o.visible = false; return o; }
+      projV.set(vec.x || 0, vec.y || 0, vec.z || 0).project(camera);
+      const behind = projV.z > 1 || projV.z < -1;
+      let nx = projV.x, ny = projV.y;
+      if (behind) { nx = -nx; ny = -ny; }   // keep direction meaningful for edge markers
+      o.x = (nx * 0.5 + 0.5) * W;
+      o.y = (-ny * 0.5 + 0.5) * H;
+      o.behind = behind;
+      o.onScreen = !behind && Math.abs(nx) <= 1 && Math.abs(ny) <= 1;
+      o.visible = o.onScreen;
+      return o;
+    },
+    raycast(ndc, objects, recursive = true) {
+      if (!ndc || !objects) return [];
+      raycaster.setFromCamera(ndc, camera);
+      return Array.isArray(objects) ? raycaster.intersectObjects(objects, recursive) : raycaster.intersectObject(objects, recursive);
+    },
+    groundPoint(ndc, y = 0) {
+      if (!ndc) return null;
+      raycaster.setFromCamera(ndc, camera);
+      plane.constant = -y;
+      const out = new THREE.Vector3();
+      const hit = raycaster.ray.intersectPlane(plane, out);
+      if (!hit) return null;
+      if (tmpV2.copy(out).sub(camera.position).lengthSq() > 600 * 600) return null;
+      return out;
+    },
+  };
+  Object.defineProperty(api, 'composer', { get: () => composer });
+  Object.defineProperty(api, 'clarity', { get: () => tierB });   // CLARITY LANE B: tier settings (world's key light and water read them)
+  Object.defineProperty(api, 'bloomPass', { get: () => bloomPass });
+  return api;
+}
